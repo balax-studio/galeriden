@@ -539,6 +539,7 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 18),
@@ -585,6 +586,36 @@ class DashboardRetentionModals {
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w900)),
                       ],
+                    ),
+                  ),
+                  Semantics(
+                    label: context.tr('btn_close'),
+                    button: true,
+                    child: InkWell(
+                      onTap: () => Navigator.of(ctx).pop(),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFE2E8F0),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 14,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
                     ),
                   ),
                 ],

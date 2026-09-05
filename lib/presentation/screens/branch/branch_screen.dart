@@ -503,88 +503,127 @@ class BranchScreen extends ConsumerWidget {
                                     final success = ref
                                         .read(gameProvider.notifier)
                                         .upgradeBranch(b);
-                                    if (success) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => Dialog(
-                                          backgroundColor: Colors.transparent,
-                                          insetPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 20),
-                                          child: NeoBrutalCard(
-                                            padding: const EdgeInsets.all(20),
-                                            backgroundColor: isDark
-                                                ? const Color(0xFF141721)
-                                                : Colors.white,
-                                            borderColor: isDark
-                                                ? const Color(0xFF333B4F)
-                                                : const Color(0xFF0F172A),
-                                            borderRadius: 12,
-                                            borderWidth: 2.5,
-                                            shadowOffset: const Offset(4, 4),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.all(16),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        AppColors.brutalYellow,
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color: isDark
-                                                          ? const Color(
-                                                              0xFF333B4F)
-                                                          : const Color(
-                                                              0xFF0F172A),
-                                                      width: 2.0,
-                                                    ),
+                                    if (success && context.mounted) {
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        if (!context.mounted) return;
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: true,
+                                          builder: (ctx) => Dialog(
+                                            backgroundColor: Colors.transparent,
+                                            insetPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 20),
+                                            child: NeoBrutalCard(
+                                              padding: const EdgeInsets.all(20),
+                                              backgroundColor: isDark
+                                                  ? const Color(0xFF141721)
+                                                  : Colors.white,
+                                              borderColor: isDark
+                                                  ? const Color(0xFF333B4F)
+                                                  : const Color(0xFF0F172A),
+                                              borderRadius: 12,
+                                              borderWidth: 2.5,
+                                              shadowOffset: const Offset(4, 4),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      Semantics(
+                                                        label: context.tr('btn_close'),
+                                                        button: true,
+                                                        child: InkWell(
+                                                          onTap: () => Navigator.of(ctx).pop(),
+                                                          borderRadius: BorderRadius.circular(6),
+                                                          child: Container(
+                                                            padding: const EdgeInsets.all(4),
+                                                            decoration: BoxDecoration(
+                                                              color: isDark
+                                                                  ? const Color(0xFF1E2330)
+                                                                  : const Color(0xFFE2E8F0),
+                                                              borderRadius: BorderRadius.circular(6),
+                                                              border: Border.all(
+                                                                color: isDark
+                                                                    ? const Color(0xFF333B4F)
+                                                                    : const Color(0xFF0F172A),
+                                                                width: 1.5,
+                                                              ),
+                                                            ),
+                                                            child: Icon(
+                                                              Icons.close_rounded,
+                                                              size: 14,
+                                                              color: isDark
+                                                                  ? const Color(0xFF94A3B8)
+                                                                  : const Color(0xFF64748B),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  child: const Icon(
-                                                      Icons.stars_rounded,
-                                                      size: 40,
-                                                      color: Colors.black),
-                                                ),
-                                                const SizedBox(height: 14),
-                                                Text(
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(16),
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          AppColors.brutalYellow,
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                        color: isDark
+                                                            ? const Color(
+                                                                0xFF333B4F)
+                                                            : const Color(
+                                                                0xFF0F172A),
+                                                        width: 2.0,
+                                                      ),
+                                                    ),
+                                                    child: const Icon(
+                                                        Icons.stars_rounded,
+                                                        size: 40,
+                                                        color: Colors.black),
+                                                  ),
+                                                  const SizedBox(height: 14),
+                                                  Text(
+                                                      context.tr(
+                                                          'branch_congrats_title'),
+                                                      style: const TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w900)),
+                                                  const SizedBox(height: 6),
+                                                  Text(
                                                     context.tr(
-                                                        'branch_congrats_title'),
-                                                    style: const TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.w900)),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  context.tr(
                                                       'branch_congrats_desc', {
-                                                    'name': b
-                                                        .getLocalizedName(
-                                                            context),
-                                                    'cap': '${b.maxGarageSlots}'
-                                                  }),
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                NeoBrutalButton(
-                                                  label: context
-                                                      .tr('branch_btn_awesome'),
-                                                  fullWidth: true,
-                                                  backgroundColor:
-                                                      AppColors.brutalYellow,
-                                                  textColor: Colors.black,
-                                                  onPressed: () =>
-                                                      Navigator.pop(ctx),
-                                                ),
-                                              ],
+                                                      'name': b
+                                                          .getLocalizedName(
+                                                              context),
+                                                      'cap': '${b.maxGarageSlots}'
+                                                    }),
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  NeoBrutalButton(
+                                                    label: context
+                                                        .tr('branch_btn_awesome'),
+                                                    fullWidth: true,
+                                                    backgroundColor:
+                                                        AppColors.brutalYellow,
+                                                    textColor: Colors.black,
+                                                    onPressed: () =>
+                                                        Navigator.of(ctx).pop(),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      });
                                     }
                                   },
                                 );

@@ -629,7 +629,7 @@ mixin GameTimeMixin on GameBaseNotifier {
             final nextStage = currentProp.constructionStage + 1;
             currentProp = currentProp.copyWith(
               constructionStage: nextStage,
-              constructionDaysRemaining: nextStage < 4 ? 5 : 0,
+              constructionDaysRemaining: nextStage < 4 ? 30 : 0,
             );
             if (nextStage >= 4) {
               updatedEvents.insert(
@@ -668,8 +668,8 @@ mixin GameTimeMixin on GameBaseNotifier {
           }
         }
 
-        // Random chance to generate a new offer
-        if (updatedOffers.length < 4 && random.nextDouble() < 0.45) {
+        // Real estate market is heavier than cars; offers arrive every 2-4 days
+        if (updatedOffers.length < 4 && nextDaysListed % 2 == 0 && random.nextDouble() < 0.38) {
           final buyers = [
             'Ahmet Yılmaz',
             'Av. Selin Kaya',

@@ -14,7 +14,6 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
-import 'widgets/contractor_negotiation_sheet.dart';
 
 class RealEstateConstructionScreen extends ConsumerWidget {
   final String landId;
@@ -356,13 +355,10 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   NeoBrutalButton(
                     label: context.tr('real_estate_btn_negotiate_contractor'),
-                    icon: Icons.tune_rounded,
+                    icon: Icons.chat_rounded,
                     onPressed: () {
                       HapticFeedback.mediumImpact();
-                      ContractorNegotiationSheet.show(
-                        context: context,
-                        land: land,
-                      );
+                      context.push('/emlak-insaat/${land.id}/muteahhit');
                     },
                     backgroundColor: const Color(0xFFEFF6FF),
                     textColor: const Color(0xFF1D4ED8),
@@ -439,28 +435,45 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 14),
-              NeoBrutalButton(
-                label: canAffordSelfBuild
-                    ? '${context.tr('real_estate_self_build_btn')} • ${CurrencyFormatter.format(selfBuildInitialCost)}'
-                    : context.tr('real_estate_expand_slots_error_funds'),
-                onPressed: canAffordSelfBuild
-                    ? () {
-                        HapticFeedback.mediumImpact();
-                        final success = ref
-                            .read(gameProvider.notifier)
-                            .startSelfBuildConstruction(land.id);
-                        if (success) {
-                          NotificationService.showSuccess(
-                            context,
-                            context.tr('real_estate_self_build_success_toast'),
-                          );
-                        }
-                      }
-                    : null,
-                backgroundColor: canAffordSelfBuild
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFF94A3B8),
-                textColor: Colors.black,
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoBrutalButton(
+                      label: canAffordSelfBuild
+                          ? '${context.tr('real_estate_self_build_btn')} • ${CurrencyFormatter.format(selfBuildInitialCost)}'
+                          : context.tr('real_estate_expand_slots_error_funds'),
+                      onPressed: canAffordSelfBuild
+                          ? () {
+                              HapticFeedback.mediumImpact();
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .startSelfBuildConstruction(land.id);
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('real_estate_self_build_success_toast'),
+                                );
+                              }
+                            }
+                          : null,
+                      backgroundColor: canAffordSelfBuild
+                          ? const Color(0xFFF59E0B)
+                          : const Color(0xFF94A3B8),
+                      textColor: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  NeoBrutalButton(
+                    label: '120 Günlük Şantiye Ağı',
+                    icon: Icons.engineering_rounded,
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      context.push('/emlak-insaat/${land.id}/taseron');
+                    },
+                    backgroundColor: const Color(0xFFFEF3C7),
+                    textColor: const Color(0xFF92400E),
+                  ),
+                ],
               ),
             ],
           ),
@@ -1113,6 +1126,17 @@ class RealEstateConstructionScreen extends ConsumerWidget {
                 ? const Color(0xFFF59E0B)
                 : const Color(0xFF94A3B8),
             textColor: Colors.black,
+          ),
+          const SizedBox(height: 8),
+          NeoBrutalButton(
+            label: '120 Günlük Şantiye & Taşeron Ağı',
+            icon: Icons.engineering_rounded,
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              context.push('/emlak-insaat/${land.id}/taseron');
+            },
+            backgroundColor: const Color(0xFFEFF6FF),
+            textColor: const Color(0xFF1D4ED8),
           ),
         ],
       ),

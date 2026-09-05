@@ -51,6 +51,10 @@ import '../presentation/screens/vasita/vasita_negotiation_screen.dart';
 import '../presentation/screens/real_estate/real_estate_market_screen.dart';
 import '../presentation/screens/real_estate/real_estate_renovation_screen.dart';
 import '../presentation/screens/real_estate/real_estate_construction_screen.dart';
+import '../presentation/screens/real_estate/contractor_negotiation_chat_screen.dart';
+import '../presentation/screens/real_estate/subcontractor_negotiation_chat_screen.dart';
+import '../presentation/screens/real_estate/real_estate_listing_manage_screen.dart';
+import '../presentation/screens/real_estate/real_estate_buyer_negotiation_chat_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -196,6 +200,38 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) {
         final landId = state.pathParameters['landId'] ?? '';
         return _buildCupertinoPage(RealEstateConstructionScreen(landId: landId), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-insaat/:landId/muteahhit',
+      pageBuilder: (context, state) {
+        final landId = state.pathParameters['landId'] ?? '';
+        return _buildCupertinoPage(ContractorNegotiationChatScreen(landId: landId), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-insaat/:landId/taseron',
+      pageBuilder: (context, state) {
+        final landId = state.pathParameters['landId'] ?? '';
+        return _buildCupertinoPage(SubcontractorNegotiationChatScreen(landId: landId), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-ilan/:propertyId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        return _buildCupertinoPage(RealEstateListingManageScreen(propertyId: propertyId), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-pazarlik/:propertyId/:offerId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        final offerId = state.pathParameters['offerId'] ?? '';
+        return _buildCupertinoPage(
+          RealEstateBuyerNegotiationChatScreen(propertyId: propertyId, offerId: offerId),
+          state,
+        );
       },
     ),
     GoRoute(

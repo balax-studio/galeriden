@@ -37,7 +37,8 @@ class NeoBrutalButton extends StatefulWidget {
 
   const NeoBrutalButton({
     super.key,
-    required this.label,
+    String? label,
+    String? text,
     this.appliedLabel,
     this.icon,
     this.appliedIcon = Icons.check_circle_rounded,
@@ -60,7 +61,7 @@ class NeoBrutalButton extends StatefulWidget {
     this.debounceDuration = const Duration(milliseconds: 350),
     this.loadingIcon,
     this.loadingLabel,
-  });
+  }) : label = label ?? text ?? '';
 
   @override
   State<NeoBrutalButton> createState() => _NeoBrutalButtonState();

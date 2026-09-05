@@ -49,7 +49,7 @@ class ShowroomConstructionModal extends ConsumerStatefulWidget {
 
     return showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) => ShowroomConstructionModal(
         title: title,
         subtitle: subtitle,
@@ -107,16 +107,35 @@ class _ShowroomConstructionModalState
     super.dispose();
   }
 
+  void _dismissModal() {
+    if (_isCompleted) return;
+    _progressController.stop();
+    _pulseController.stop();
+    if (mounted) {
+      final nav = Navigator.of(context, rootNavigator: true);
+      if (nav.canPop()) {
+        nav.pop();
+      }
+    }
+  }
+
   void _finishConstruction() {
     if (_isCompleted) return;
     _isCompleted = true;
 
-    HapticFeedback.heavyImpact();
-    widget.onComplete();
+    _progressController.stop();
+    _pulseController.stop();
 
-    if (mounted && Navigator.canPop(context)) {
-      Navigator.of(context).pop();
+    HapticFeedback.heavyImpact();
+
+    if (mounted) {
+      final nav = Navigator.of(context, rootNavigator: true);
+      if (nav.canPop()) {
+        nav.pop();
+      }
     }
+
+    widget.onComplete();
   }
 
   String _getPhaseText(double progress) {
@@ -133,9 +152,9 @@ class _ShowroomConstructionModalState
 
   @override
   Widget build(BuildContext context) {
-    final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
-    final p = themeExt.palette;
-    final isDark = p.isDark;
+    final themeExt = Theme.of(context).extension<AppThemeExtension>();
+    final isDark = themeExt?.palette.isDark ??
+        (Theme.of(context).brightness == Brightness.dark);
 
     final progress = _progressController.value;
     final remainingSec =
@@ -143,7 +162,13 @@ class _ShowroomConstructionModalState
     final percent = (progress * 100).toInt();
 
     return PopScope(
-      canPop: false,
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          _progressController.stop();
+          _pulseController.stop();
+        }
+      },
       child: Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 20),
@@ -157,7 +182,7 @@ class _ShowroomConstructionModalState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. Status Badge & Title
+              // 1. Status Badge, Time Remaining & Close Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -168,15 +193,51 @@ class _ShowroomConstructionModalState
                     textColor: Colors.black,
                     fontSize: 10,
                   ),
-                  Text(
-                    context.tr('construction_seconds_remaining', {
-                      'seconds': '$remainingSec',
-                    }),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        context.tr('construction_seconds_remaining', {
+                          'seconds': '$remainingSec',
+                        }),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Semantics(
+                        label: context.tr('btn_close'),
+                        button: true,
+                        child: InkWell(
+                          onTap: _dismissModal,
+                          borderRadius: BorderRadius.circular(6),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 14,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

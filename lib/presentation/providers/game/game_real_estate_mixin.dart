@@ -458,7 +458,11 @@ mixin GameRealEstateMixin on GameBaseNotifier {
   }
 
   /// Accepts a buyer's offer from the showcase pool
-  bool acceptRealEstateOffer({required String realEstateId, required String offerId}) {
+  bool acceptRealEstateOffer({
+    required String realEstateId,
+    required String offerId,
+    double? customAgreedPrice,
+  }) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
     if (index == -1) return false;
 
@@ -469,7 +473,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     final offer = property.activeOffers[offerIndex];
     return sellRealEstate(
       realEstateId: realEstateId,
-      salePrice: offer.offeredAmount,
+      salePrice: customAgreedPrice ?? offer.offeredAmount,
     );
   }
 
@@ -510,7 +514,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       totalProjectUnits: totalUnits,
       soldPreSaleUnits: 0,
       constructionStage: 1,
-      constructionDaysRemaining: 5,
+      constructionDaysRemaining: 30,
       provenanceLog: [
         ...land.provenanceLog,
         '$nowStr • Müteahhitle kat karşılığı sözleşmesi imzalandı • $totalUnits Dairelik Proje • %$clampedShare Oyuncu Payı',
@@ -569,7 +573,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
   }
 
   /// Funds and advances next milestone in Self-Build mode
-  bool advanceSelfBuildStage(String landId, {bool triggerIncidents = true}) {
+  bool advanceSelfBuildStage(String landId, {bool triggerIncidents = true, double? customStageCost}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
 
@@ -593,7 +597,10 @@ mixin GameRealEstateMixin on GameBaseNotifier {
         stageRate = 0.15;
     }
 
-    final stageCost = (land.baseMarketValue * stageRate).roundToDouble();
+    final calculatedCost = (land.baseMarketValue * stageRate).roundToDouble();
+    final stageCost = (customStageCost != null && customStageCost > 0)
+        ? customStageCost
+        : calculatedCost;
     if (state.balance < stageCost) return false;
 
     final nextStage = land.constructionStage + 1;

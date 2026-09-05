@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/game_sound_haptic_service.dart';
@@ -228,7 +229,27 @@ class RealEstateOffersSheet extends ConsumerWidget {
                                     style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 6),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    HapticFeedback.selectionClick();
+                                    Navigator.of(context).pop();
+                                    context.push('/emlak-pazarlik/${currentProp.id}/${offer.id}');
+                                  },
+                                  icon: const Icon(Icons.chat_rounded, size: 12),
+                                  label: Text(
+                                    context.tr('real_estate_btn_negotiate_contractor'),
+                                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2563EB),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    side: const BorderSide(color: Colors.black, width: 1.5),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
                                 ElevatedButton(
                                   onPressed: () {
                                     HapticFeedback.heavyImpact();
@@ -250,7 +271,7 @@ class RealEstateOffersSheet extends ConsumerWidget {
                                     foregroundColor: Colors.black,
                                     elevation: 0,
                                     side: const BorderSide(color: Colors.black, width: 1.5),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   ),
                                   child: Text(
                                     context.tr('real_estate_offer_btn_accept'),
