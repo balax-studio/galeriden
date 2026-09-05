@@ -13,6 +13,7 @@
 migrate_working_dir/
 scratch/
 brain/
+placeholder_audit_report.txt
 
 # IntelliJ related
 *.iml
