@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -146,12 +147,25 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
             _auction.copyWith(secondsRemaining: _auction.secondsRemaining - 1);
       });
 
+      final wasPlayerLeadingBefore = _auction.isPlayerHighestBidder;
+
       // Process rival bot bid
       final updated = AuctionEngine.processRivalBid(_auction);
       if (updated != null) {
         GameSoundHapticService.playAuctionBid();
+        final wasOvertaken =
+            wasPlayerLeadingBefore && !updated.isPlayerHighestBidder;
+        if (wasOvertaken) {
+          HapticFeedback.vibrate();
+        }
         setState(() {
           _auction = updated;
+          if (updated.isAntiSnipingTriggered) {
+            _bidLogs.insert(
+              0,
+              context.tr('auction_anti_sniping_log', {'sec': '15'}),
+            );
+          }
           _bidLogs.insert(
               0,
               context.tr('auction_bid_raised_log', {
@@ -159,6 +173,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                 'price': CurrencyFormatter.formatShort(updated.currentBid),
               }));
         });
+      } else if (_auction.isHeartbeatPhase &&
+          _auction.secondsRemaining <= 3 &&
+          _auction.secondsRemaining > 0) {
+        HapticFeedback.heavyImpact();
+      } else if (_auction.isHeartbeatPhase && _auction.secondsRemaining <= 5) {
+        HapticFeedback.selectionClick();
       }
     });
   }
@@ -185,6 +205,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
 
+    final wasLateBid = _auction.secondsRemaining <= 5;
+    final nextSeconds = wasLateBid
+        ? math.min(_auction.secondsRemaining + 15, 60)
+        : _auction.secondsRemaining;
+    final extensions = wasLateBid
+        ? _auction.antiSnipingCount + 1
+        : _auction.antiSnipingCount;
+
     GameSoundHapticService.playAuctionBid();
     ref
         .read(gameProvider.notifier)
@@ -196,12 +224,19 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
         highestBidderName:
             '${game.dealershipName} • ${context.tr('profile_player_suffix')}',
         isPlayerHighestBidder: true,
-        secondsRemaining:
-            (_auction.secondsRemaining < 6) ? 7 : _auction.secondsRemaining,
+        secondsRemaining: nextSeconds,
+        antiSnipingCount: extensions,
+        isAntiSnipingTriggered: wasLateBid,
         activeSpeech:
             isAggressiveFlag ? context.tr('auction_flag_raised_speech') : null,
         activeSpeakerName: isAggressiveFlag ? game.dealershipName : null,
       );
+      if (wasLateBid) {
+        _bidLogs.insert(
+          0,
+          context.tr('auction_anti_sniping_log', {'sec': '15'}),
+        );
+      }
       _bidLogs.insert(
           0,
           isAggressiveFlag
@@ -210,6 +245,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
               : context.tr('auction_your_bid_log',
                   {'price': CurrencyFormatter.formatShort(nextBid)}));
     });
+
+    if (wasLateBid) {
+      HapticFeedback.heavyImpact();
+      NotificationService.showWarning(
+        context,
+        context.tr('auction_anti_sniping_alert', {'sec': '15'}),
+      );
+    }
   }
 
   void _executeTrollBluff() {
@@ -392,6 +435,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
           return AuctionLostDialog(
             auction: _auction,
             hasExtendedAuction: _hasExtendedAuction,
+            hasPlayerEnteredBid: _hasPlayerEnteredBid,
             onExtendAuction: () {
               setState(() {
                 _isHandlingAuctionEnd = false;
@@ -849,6 +893,8 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                           auction: _auction,
                           bidLogs: _bidLogs,
                           isDark: isDark,
+                          playerBalance: game.balance,
+                          hasPlayerEnteredBid: _hasPlayerEnteredBid,
                           onPlaceBid: _placePlayerBid,
                           onBluff: _executeTrollBluff,
                         )

@@ -10,8 +10,15 @@ final vasitaMarketFilterProvider =
 
 final vasitaMarketSearchProvider = StateProvider<String>((ref) => '');
 
+final vasitaLockedListingsProvider = StateProvider<Set<String>>((ref) => {});
+
 final vasitaMarketProvider =
     StateNotifierProvider<VasitaMarketNotifier, List<ListingModel>>((ref) {
+  ref.listen<int>(gameProvider.select((g) => g.currentDay), (previous, next) {
+    if (previous != null && next != previous) {
+      ref.read(vasitaLockedListingsProvider.notifier).state = {};
+    }
+  });
   return VasitaMarketNotifier(ref);
 });
 
@@ -40,6 +47,18 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
       categoryFilter: categoryFilter,
       playerLevel: playerLevel,
     );
+    // Prune locked listings so vanished listing IDs don't leak memory
+    Future.microtask(() {
+      if (!mounted) return;
+      final activeIds = state.map((l) => l.id).toSet();
+      _ref.read(vasitaLockedListingsProvider.notifier).update(
+            (current) => current.intersection(activeIds),
+          );
+    });
+  }
+
+  void clearLockedListings() {
+    _ref.read(vasitaLockedListingsProvider.notifier).state = {};
   }
 
   void setCategoryFilter(VehicleCategory? cat) {
@@ -80,6 +99,21 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
 
     if (outcome != null) {
       state = state.where((l) => l.id != listing.id).toList();
+      return true;
+    }
+    return false;
+  }
+
+  bool performDetailedExpertise(String listingId, {double cost = 3500.0}) {
+    final gameNotifier = _ref.read(gameProvider.notifier);
+    final success = gameNotifier.performMarketExpertise(cost);
+    if (success) {
+      state = state.map((l) {
+        if (l.id == listingId) {
+          return l.copyWith(isExpertiseCompleted: true);
+        }
+        return l;
+      }).toList();
       return true;
     }
     return false;

@@ -101,6 +101,9 @@ class AuctionModel {
   final CustomsAnnotation customsNote;
   final String? activeSpeech;
   final String? activeSpeakerName;
+  final int antiSnipingCount;
+  final bool isAntiSnipingTriggered;
+  final int activeWatchersCount;
 
   AuctionModel({
     required this.id,
@@ -116,7 +119,13 @@ class AuctionModel {
     required this.customsNote,
     this.activeSpeech,
     this.activeSpeakerName,
+    this.antiSnipingCount = 0,
+    this.isAntiSnipingTriggered = false,
+    this.activeWatchersCount = 84,
   });
+
+  bool get isHeartbeatPhase => secondsRemaining <= 10 && secondsRemaining > 0;
+  int get activeRivalsCount => rivals.where((r) => !r.isFolded).length;
 
   AuctionGavelStage get gavelStage {
     if (secondsRemaining <= 1) return AuctionGavelStage.finalHammer;
@@ -161,6 +170,9 @@ class AuctionModel {
     CustomsAnnotation? customsNote,
     String? activeSpeech,
     String? activeSpeakerName,
+    int? antiSnipingCount,
+    bool? isAntiSnipingTriggered,
+    int? activeWatchersCount,
   }) {
     return AuctionModel(
       id: id,
@@ -176,6 +188,9 @@ class AuctionModel {
       customsNote: customsNote ?? this.customsNote,
       activeSpeech: activeSpeech ?? this.activeSpeech,
       activeSpeakerName: activeSpeakerName ?? this.activeSpeakerName,
+      antiSnipingCount: antiSnipingCount ?? this.antiSnipingCount,
+      isAntiSnipingTriggered: isAntiSnipingTriggered ?? this.isAntiSnipingTriggered,
+      activeWatchersCount: activeWatchersCount ?? this.activeWatchersCount,
     );
   }
 }

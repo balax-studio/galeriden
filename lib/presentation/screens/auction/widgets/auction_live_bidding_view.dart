@@ -14,6 +14,8 @@ class AuctionLiveBiddingView extends StatelessWidget {
   final AuctionModel auction;
   final List<String> bidLogs;
   final bool isDark;
+  final double playerBalance;
+  final bool hasPlayerEnteredBid;
   final void Function(double increment, {bool isAggressiveFlag}) onPlaceBid;
   final VoidCallback onBluff;
 
@@ -22,6 +24,8 @@ class AuctionLiveBiddingView extends StatelessWidget {
     required this.auction,
     required this.bidLogs,
     required this.isDark,
+    required this.playerBalance,
+    this.hasPlayerEnteredBid = false,
     required this.onPlaceBid,
     required this.onBluff,
   });
@@ -31,6 +35,7 @@ class AuctionLiveBiddingView extends StatelessWidget {
     final car = auction.car;
     final isLastSeconds =
         auction.secondsRemaining <= 5 && auction.secondsRemaining > 0;
+    final isHeartbeat = auction.isHeartbeatPhase;
 
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -40,11 +45,18 @@ class AuctionLiveBiddingView extends StatelessWidget {
         NeoBrutalCard(
           padding: const EdgeInsets.all(12),
           backgroundColor: isLastSeconds
-              ? AppColors.errorRed.withValues(alpha: 0.2)
-              : (isDark ? const Color(0xFF141721) : Colors.white),
+              ? AppColors.errorRed.withValues(alpha: 0.22)
+              : (isHeartbeat
+                  ? AppColors.brutalOrange.withValues(alpha: 0.12)
+                  : (isDark ? const Color(0xFF141721) : Colors.white)),
           borderColor: isLastSeconds
               ? AppColors.errorRed
-              : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
+              : (isHeartbeat
+                  ? AppColors.brutalOrange
+                  : (isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFF0F172A))),
+          borderWidth: isLastSeconds ? 2.5 : (isHeartbeat ? 2.0 : 1.5),
           borderRadius: 14,
           child: Column(
             children: [
@@ -58,7 +70,9 @@ class AuctionLiveBiddingView extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isLastSeconds
                               ? AppColors.errorRed
-                              : AppColors.brutalYellow,
+                              : (isHeartbeat
+                                  ? AppColors.brutalOrange
+                                  : AppColors.brutalYellow),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isDark
@@ -69,7 +83,9 @@ class AuctionLiveBiddingView extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.gavel_rounded,
-                          color: isLastSeconds ? Colors.white : Colors.black,
+                          color: (isLastSeconds || isHeartbeat)
+                              ? Colors.white
+                              : Colors.black,
                           size: 20,
                         ),
                       ),
@@ -118,10 +134,234 @@ class AuctionLiveBiddingView extends StatelessWidget {
                   ),
                 ],
               ),
+              if (auction.antiSnipingCount > 0) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.brutalGreen.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColors.brutalGreen,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.security_rounded,
+                        color: AppColors.brutalGreen,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          context.tr('auction_anti_sniping_badge',
+                              {'sec': '15'}),
+                          style: const TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
         const SizedBox(height: 10),
+
+        // 1.05 HEARTBEAT FOMO BANNER (When seconds <= 10)
+        if (isHeartbeat) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.errorRed.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.errorRed,
+                width: 2.0,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xFF0F172A),
+                  offset: Offset(2.0, 2.0),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.alarm_on_rounded,
+                  color: AppColors.errorRed,
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('auction_fomo_countdown_title'),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.errorRed,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      Text(
+                        context.tr('auction_fomo_countdown_sub'),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: isDark
+                              ? Colors.white70
+                              : const Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+
+        // 1.08 SOCIAL PROOF & FOMO BADGES
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            children: [
+              NeoBrutalBadge(
+                text: context.tr('auction_fomo_watchers_badge',
+                    {'count': '${auction.activeWatchersCount}'}),
+                icon: Icons.visibility_rounded,
+                backgroundColor: isDark
+                    ? const Color(0xFF1E2330)
+                    : const Color(0xFFE2E8F0),
+                textColor: isDark ? Colors.white : Colors.black,
+                fontSize: 10,
+              ),
+              const SizedBox(width: 6),
+              NeoBrutalBadge(
+                text: context.tr('auction_fomo_rivals_badge',
+                    {'count': '${auction.activeRivalsCount}'}),
+                icon: Icons.groups_rounded,
+                backgroundColor: AppColors.brutalOrange.withValues(alpha: 0.2),
+                textColor: AppColors.brutalOrange,
+                fontSize: 10,
+              ),
+              const SizedBox(width: 6),
+              NeoBrutalBadge(
+                text: context.tr('auction_fomo_last_chance'),
+                icon: Icons.local_fire_department_rounded,
+                backgroundColor: AppColors.errorRed.withValues(alpha: 0.2),
+                textColor: AppColors.errorRed,
+                fontSize: 10,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 1.09 LOSS AVERSION / OVERTAKEN REACTION BANNER
+        if (!auction.isPlayerHighestBidder && hasPlayerEnteredBid) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.errorRed.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.errorRed,
+                width: 2.0,
+              ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0xFF0F172A),
+                  offset: Offset(2.0, 2.0),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppColors.errorRed,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        context.tr('auction_overtaken_title',
+                            {'bidder': auction.highestBidderName}),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.errorRed,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  context.tr('auction_overtaken_desc', {
+                    'price': CurrencyFormatter.formatShort(auction.currentBid),
+                  }),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? const Color(0xFFCBD5E1)
+                        : const Color(0xFF475569),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Builder(
+                  builder: (context) {
+                    final canAffordReclaim =
+                        playerBalance >= (auction.currentBid + 5000);
+                    return NeoBrutalButton(
+                      label: canAffordReclaim
+                          ? context.tr(
+                              'auction_reclaim_lead_btn', {'amount': '₺5.000'})
+                          : context.tr('auction_reclaim_insufficient_funds'),
+                      icon: canAffordReclaim
+                          ? Icons.bolt_rounded
+                          : Icons.money_off_rounded,
+                      backgroundColor: canAffordReclaim
+                          ? AppColors.brutalYellow
+                          : (isDark
+                              ? const Color(0xFF1E2330)
+                              : const Color(0xFFCBD5E1)),
+                      textColor: canAffordReclaim
+                          ? Colors.black
+                          : (isDark ? Colors.white38 : Colors.black38),
+                      fontSize: 11.5,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      fullWidth: true,
+                      onPressed:
+                          canAffordReclaim ? () => onPlaceBid(5000) : null,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
 
         // 1.1 CUSTOMS ANNOTATION & OFFICIAL REPORT
         NeoBrutalCard(
@@ -136,23 +376,30 @@ class AuctionLiveBiddingView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.verified_user_rounded,
-                        color: AppColors.brutalOrange,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        auction.customsNote.originOffice,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.verified_user_rounded,
+                          color: AppColors.brutalOrange,
+                          size: 16,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            auction.customsNote.originOffice,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   NeoBrutalBadge(
                     text: auction.customsNote.legalStatus,
                     backgroundColor: isDark
@@ -391,110 +638,146 @@ class AuctionLiveBiddingView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeoBrutalButton(
-                      label: '+₺5.000',
-                      backgroundColor: auction.isPlayerHighestBidder
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : AppColors.brutalYellow,
-                      textColor: auction.isPlayerHighestBidder
-                          ? (isDark ? Colors.white54 : Colors.black54)
-                          : Colors.black,
-                      fontSize: 12,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: auction.isPlayerHighestBidder
-                          ? null
-                          : () => onPlaceBid(5000),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: NeoBrutalButton(
-                      label: '+₺15.000',
-                      backgroundColor: auction.isPlayerHighestBidder
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : AppColors.brutalOrange,
-                      textColor: auction.isPlayerHighestBidder
-                          ? (isDark ? Colors.white54 : Colors.black54)
-                          : Colors.black,
-                      fontSize: 12,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: auction.isPlayerHighestBidder
-                          ? null
-                          : () => onPlaceBid(15000),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: NeoBrutalButton(
-                      label: '+₺30.000',
-                      backgroundColor: auction.isPlayerHighestBidder
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : AppColors.brutalGreen,
-                      textColor: auction.isPlayerHighestBidder
-                          ? (isDark ? Colors.white54 : Colors.black54)
-                          : Colors.black,
-                      fontSize: 12,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      onPressed: auction.isPlayerHighestBidder
-                          ? null
-                          : () => onPlaceBid(30000),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeoBrutalButton(
-                      icon: Icons.flag_rounded,
-                      label: context.tr(
-                        'auction_btn_flag',
-                        {'amount': '₺50.000'},
+              Builder(
+                builder: (context) {
+                  final canAfford5k =
+                      playerBalance >= (auction.currentBid + 5000);
+                  final canAfford15k =
+                      playerBalance >= (auction.currentBid + 15000);
+                  final canAfford30k =
+                      playerBalance >= (auction.currentBid + 30000);
+                  final canAfford50k =
+                      playerBalance >= (auction.currentBid + 50000);
+                  final canAfford20k =
+                      playerBalance >= (auction.currentBid + 20000);
+
+                  final disabledBg = isDark
+                      ? const Color(0xFF1E2330)
+                      : const Color(0xFFE2E8F0);
+                  final disabledText =
+                      isDark ? Colors.white54 : Colors.black54;
+
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              label: '+₺5.000',
+                              backgroundColor:
+                                  (auction.isPlayerHighestBidder || !canAfford5k)
+                                      ? disabledBg
+                                      : AppColors.brutalYellow,
+                              textColor:
+                                  (auction.isPlayerHighestBidder || !canAfford5k)
+                                      ? disabledText
+                                      : Colors.black,
+                              fontSize: 12,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed:
+                                  (auction.isPlayerHighestBidder || !canAfford5k)
+                                      ? null
+                                      : () => onPlaceBid(5000),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              label: '+₺15.000',
+                              backgroundColor:
+                                  (auction.isPlayerHighestBidder || !canAfford15k)
+                                      ? disabledBg
+                                      : AppColors.brutalOrange,
+                              textColor:
+                                  (auction.isPlayerHighestBidder || !canAfford15k)
+                                      ? disabledText
+                                      : Colors.black,
+                              fontSize: 12,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed:
+                                  (auction.isPlayerHighestBidder || !canAfford15k)
+                                      ? null
+                                      : () => onPlaceBid(15000),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              label: '+₺30.000',
+                              backgroundColor:
+                                  (auction.isPlayerHighestBidder || !canAfford30k)
+                                      ? disabledBg
+                                      : AppColors.brutalGreen,
+                              textColor:
+                                  (auction.isPlayerHighestBidder || !canAfford30k)
+                                      ? disabledText
+                                      : Colors.black,
+                              fontSize: 12,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              onPressed:
+                                  (auction.isPlayerHighestBidder || !canAfford30k)
+                                      ? null
+                                      : () => onPlaceBid(30000),
+                            ),
+                          ),
+                        ],
                       ),
-                      backgroundColor: auction.isPlayerHighestBidder
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : const Color(0xFFFFDE59),
-                      textColor: Colors.black,
-                      fontSize: 11,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      onPressed: auction.isPlayerHighestBidder
-                          ? null
-                          : () => onPlaceBid(50000, isAggressiveFlag: true),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: NeoBrutalButton(
-                      icon: Icons.psychology_rounded,
-                      label: context.tr(
-                        'auction_btn_bluff',
-                        {'amount': '₺20.000'},
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.flag_rounded,
+                              label: context.tr(
+                                'auction_btn_flag',
+                                {'amount': '₺50.000'},
+                              ),
+                              backgroundColor:
+                                  (auction.isPlayerHighestBidder || !canAfford50k)
+                                      ? disabledBg
+                                      : const Color(0xFFFFDE59),
+                              textColor:
+                                  (auction.isPlayerHighestBidder || !canAfford50k)
+                                      ? disabledText
+                                      : Colors.black,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              onPressed:
+                                  (auction.isPlayerHighestBidder || !canAfford50k)
+                                      ? null
+                                      : () => onPlaceBid(50000,
+                                          isAggressiveFlag: true),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              icon: Icons.psychology_rounded,
+                              label: context.tr(
+                                'auction_btn_bluff',
+                                {'amount': '₺20.000'},
+                              ),
+                              backgroundColor:
+                                  (auction.isPlayerHighestBidder || !canAfford20k)
+                                      ? disabledBg
+                                      : const Color(0xFFA855F7),
+                              textColor:
+                                  (auction.isPlayerHighestBidder || !canAfford20k)
+                                      ? disabledText
+                                      : Colors.white,
+                              fontSize: 11,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              onPressed:
+                                  (auction.isPlayerHighestBidder || !canAfford20k)
+                                      ? null
+                                      : onBluff,
+                            ),
+                          ),
+                        ],
                       ),
-                      backgroundColor: auction.isPlayerHighestBidder
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : const Color(0xFFA855F7),
-                      textColor: Colors.white,
-                      fontSize: 11,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      onPressed:
-                          auction.isPlayerHighestBidder ? null : onBluff,
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ],
           ),

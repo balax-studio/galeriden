@@ -276,7 +276,7 @@ class ConsignmentAuctionEngine {
   static ConsignmentAuctionModel tick(ConsignmentAuctionModel model) {
     if (model.isEnded) return model;
 
-    final newRemaining = model.secondsRemaining - 1;
+    var newRemaining = model.secondsRemaining - 1;
     final updatedLogs = List<String>.from(model.logs);
     var updatedBuyers = List<ConsignmentBuyer>.from(model.buyers);
     var currentBid = model.currentBid;

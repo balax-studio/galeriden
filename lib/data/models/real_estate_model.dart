@@ -86,6 +86,19 @@ class RealEstateModel {
   final bool isListed;
   final double? customListingPrice;
   final int daysListed;
+  final int renovationStage; // 0: Başlanmadı, 1: Yıkım & Tesisat (%35), 2: Mutfak & Banyo (%70), 3: Tamamlandı (%100)
+  final int renovationDaysRemaining; // Mevcut tadilat aşamasının tamamlanmasına kalan gün (standart 2 gün, acele 0 gün)
+  final bool isRushedRenovation; // Usta aceleye getirdi
+  final bool hasWaterLeakRisk; // Gizli su kaçağı riski
+  final double pendingRentIncome; // Biriken tahsil edilmemiş kira havuzu
+  final int uncollectedRentDays; // Tahsil edilmeden geçen gün sayısı (loss-aversion)
+  final bool isPersonalResidence; // Kişisel ikametgah olarak atanmış mülk
+  final int constructionStage; // 0: Başlanmadı, 1: Hafriyat %25, 2: Kaba İnşaat %50, 3: Çatı & Cephe %75, 4: Tamamlandı & İskanlı %100
+  final String? constructionMode; // null, 'contractor' (Müteahhit Kat Karşılığı), 'selfBuild' (Öz-İnşaat)
+  final int contractorSharePercent; // Müteahhit anlaşmasında 50, öz-inşaatta 0
+  final int _totalProjectUnits; // Toplam daire adedi
+  final int soldPreSaleUnits; // Topraktan satılmış daire adedi
+  final int constructionDaysRemaining; // Mevcut şantiye etabına kalan gün
 
   const RealEstateModel({
     required this.id,
@@ -108,13 +121,29 @@ class RealEstateModel {
     this.isListed = false,
     this.customListingPrice,
     this.daysListed = 0,
-  });
+    this.renovationStage = 0,
+    this.renovationDaysRemaining = 0,
+    this.isRushedRenovation = false,
+    this.hasWaterLeakRisk = false,
+    this.pendingRentIncome = 0.0,
+    this.uncollectedRentDays = 0,
+    this.isPersonalResidence = false,
+    this.constructionStage = 0,
+    this.constructionMode,
+    this.contractorSharePercent = 50,
+    int totalProjectUnits = 0,
+    this.soldPreSaleUnits = 0,
+    this.constructionDaysRemaining = 0,
+  }) : _totalProjectUnits = totalProjectUnits;
 
-  /// Dynamic fair market value accounting for deed status and renovations
+  /// Dynamic fair market value accounting for deed status, renovations, and defects
   double get estimatedRealValue {
     double value = baseMarketValue * deedType.valueMultiplier;
-    if (isRenovated) {
+    if (isRenovated || renovationStage >= 3) {
       value *= 1.15; // +%15 flipping tadilat primi
+    }
+    if (hasWaterLeakRisk) {
+      value *= 0.90; // -%10 gizli su kaçağı hasar kırımı
     }
     return value.roundToDouble();
   }
@@ -122,6 +151,81 @@ class RealEstateModel {
   /// Daily rent passive yield if property is placed on rent
   double get dailyRentIncome {
     return (estimatedRealValue * category.dailyRentYieldRate).roundToDouble();
+  }
+
+  /// Zeigarnik effect renovation progress fraction (0.0 to 1.0)
+  double get renovationProgress {
+    if (isRenovated || renovationStage >= 3) return 1.0;
+    if (renovationStage == 2) return 0.70;
+    if (renovationStage == 1) return 0.35;
+    return 0.0;
+  }
+
+  int get renovationPercent => (renovationProgress * 100).round();
+
+  bool get isUnderRenovation =>
+      !isRenovated &&
+      ((renovationStage > 0 && renovationStage < 3) ||
+          renovationDaysRemaining > 0);
+
+  /// Arsa inşaat durumu hesaplanan özellikleri (FAZ 4)
+  bool get isConstructionActive => constructionMode != null;
+  double get constructionProgress => (constructionStage / 4.0).clamp(0.0, 1.0);
+  int get constructionPercent => (constructionProgress * 100).round();
+
+  int get totalProjectUnits {
+    if (_totalProjectUnits > 0) return _totalProjectUnits;
+    if (category != RealEstateCategory.land) return 0;
+    if (squareMeters >= 800) return 8;
+    if (squareMeters >= 500) return 6;
+    return 4;
+  }
+
+  int get playerShareUnits {
+    if (totalProjectUnits <= 0) return 0;
+    final totalShare = (totalProjectUnits * (100 - contractorSharePercent) ~/ 100);
+    return (totalShare - soldPreSaleUnits).clamp(0, totalProjectUnits);
+  }
+
+  bool get canPreSell =>
+      isConstructionActive &&
+      constructionMode == 'selfBuild' &&
+      constructionStage >= 1 &&
+      constructionStage < 4 &&
+      playerShareUnits > 1;
+
+  double get preSaleUnitPrice => totalProjectUnits > 0
+      ? ((baseMarketValue * 2.2 / totalProjectUnits) * 0.75).roundToDouble()
+      : 0.0;
+
+  double get turnkeyUnitPrice => totalProjectUnits > 0
+      ? (baseMarketValue * 2.5 / totalProjectUnits).roundToDouble()
+      : 0.0;
+
+  /// Whether property can be leased out to tenants
+  bool get canBeRented => !isPersonalResidence && !isUnderRenovation && !isConstructionActive;
+
+  /// Whether property can be sold or listed on the market
+  bool get canBeSold => !isRented && !isPersonalResidence && !isUnderRenovation && !isConstructionActive;
+
+  /// Prestige bonus granted when used as personal residence
+  int get personalResidencePrestigeBonus {
+    switch (category) {
+      case RealEstateCategory.housing:
+        return 15;
+      case RealEstateCategory.commercial:
+        return 10;
+      case RealEstateCategory.building:
+        return 25;
+      case RealEstateCategory.housingProjects:
+        return 20;
+      case RealEstateCategory.timeshare:
+        return 5;
+      case RealEstateCategory.tourismFacility:
+        return 40;
+      case RealEstateCategory.land:
+        return 5;
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -146,10 +250,26 @@ class RealEstateModel {
       'isListed': isListed,
       'customListingPrice': customListingPrice,
       'daysListed': daysListed,
+      'renovationStage': renovationStage,
+      'renovationDaysRemaining': renovationDaysRemaining,
+      'isRushedRenovation': isRushedRenovation,
+      'hasWaterLeakRisk': hasWaterLeakRisk,
+      'pendingRentIncome': pendingRentIncome,
+      'uncollectedRentDays': uncollectedRentDays,
+      'isPersonalResidence': isPersonalResidence,
+      'constructionStage': constructionStage,
+      'constructionMode': constructionMode,
+      'contractorSharePercent': contractorSharePercent,
+      'totalProjectUnits': totalProjectUnits,
+      'soldPreSaleUnits': soldPreSaleUnits,
+      'constructionDaysRemaining': constructionDaysRemaining,
     };
   }
 
   factory RealEstateModel.fromJson(Map<String, dynamic> json) {
+    final isRenovatedVal = json['isRenovated'] as bool? ?? false;
+    final stageVal = json['renovationStage'] as int? ?? (isRenovatedVal ? 3 : 0);
+
     return RealEstateModel(
       id: json['id'] as String? ?? 're_${DateTime.now().millisecondsSinceEpoch}',
       title: json['title'] as String? ?? 'Gayrimenkul',
@@ -171,7 +291,7 @@ class RealEstateModel {
       currentPurchasePrice: (json['currentPurchasePrice'] as num?)?.toDouble() ?? 2500000.0,
       deedFeePaid: (json['deedFeePaid'] as num?)?.toDouble() ?? 0.0,
       commissionPaid: (json['commissionPaid'] as num?)?.toDouble() ?? 0.0,
-      isRenovated: json['isRenovated'] as bool? ?? false,
+      isRenovated: isRenovatedVal || stageVal >= 3,
       isRented: json['isRented'] as bool? ?? false,
       provenanceLog: (json['provenanceLog'] as List<dynamic>?)
               ?.map((e) => e.toString())
@@ -180,6 +300,19 @@ class RealEstateModel {
       isListed: json['isListed'] as bool? ?? false,
       customListingPrice: (json['customListingPrice'] as num?)?.toDouble(),
       daysListed: json['daysListed'] as int? ?? 0,
+      renovationStage: stageVal,
+      renovationDaysRemaining: json['renovationDaysRemaining'] as int? ?? 0,
+      isRushedRenovation: json['isRushedRenovation'] as bool? ?? false,
+      hasWaterLeakRisk: json['hasWaterLeakRisk'] as bool? ?? false,
+      pendingRentIncome: (json['pendingRentIncome'] as num?)?.toDouble() ?? 0.0,
+      uncollectedRentDays: json['uncollectedRentDays'] as int? ?? 0,
+      isPersonalResidence: json['isPersonalResidence'] as bool? ?? false,
+      constructionStage: json['constructionStage'] as int? ?? 0,
+      constructionMode: json['constructionMode'] as String?,
+      contractorSharePercent: json['contractorSharePercent'] as int? ?? 50,
+      totalProjectUnits: json['totalProjectUnits'] as int? ?? 0,
+      soldPreSaleUnits: json['soldPreSaleUnits'] as int? ?? 0,
+      constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
     );
   }
 
@@ -204,8 +337,24 @@ class RealEstateModel {
     bool? isListed,
     double? customListingPrice,
     int? daysListed,
+    int? renovationStage,
+    int? renovationDaysRemaining,
+    bool? isRushedRenovation,
+    bool? hasWaterLeakRisk,
+    double? pendingRentIncome,
+    int? uncollectedRentDays,
+    bool? isPersonalResidence,
+    int? constructionStage,
+    String? constructionMode,
+    int? contractorSharePercent,
+    int? totalProjectUnits,
+    int? soldPreSaleUnits,
+    int? constructionDaysRemaining,
     bool clearCustomPrice = false,
   }) {
+    final nextRenovationStage = renovationStage ?? this.renovationStage;
+    final nextIsRenovated = isRenovated ?? (nextRenovationStage >= 3 || this.isRenovated);
+
     return RealEstateModel(
       id: id ?? this.id,
       title: title ?? this.title,
@@ -221,12 +370,25 @@ class RealEstateModel {
       currentPurchasePrice: currentPurchasePrice ?? this.currentPurchasePrice,
       deedFeePaid: deedFeePaid ?? this.deedFeePaid,
       commissionPaid: commissionPaid ?? this.commissionPaid,
-      isRenovated: isRenovated ?? this.isRenovated,
+      isRenovated: nextIsRenovated,
       isRented: isRented ?? this.isRented,
       provenanceLog: provenanceLog ?? this.provenanceLog,
       isListed: isListed ?? this.isListed,
       customListingPrice: clearCustomPrice ? null : (customListingPrice ?? this.customListingPrice),
       daysListed: daysListed ?? this.daysListed,
+      renovationStage: nextRenovationStage,
+      renovationDaysRemaining: renovationDaysRemaining ?? this.renovationDaysRemaining,
+      isRushedRenovation: isRushedRenovation ?? this.isRushedRenovation,
+      hasWaterLeakRisk: hasWaterLeakRisk ?? this.hasWaterLeakRisk,
+      pendingRentIncome: pendingRentIncome ?? this.pendingRentIncome,
+      uncollectedRentDays: uncollectedRentDays ?? this.uncollectedRentDays,
+      isPersonalResidence: isPersonalResidence ?? this.isPersonalResidence,
+      constructionStage: constructionStage ?? this.constructionStage,
+      constructionMode: constructionMode ?? this.constructionMode,
+      contractorSharePercent: contractorSharePercent ?? this.contractorSharePercent,
+      totalProjectUnits: totalProjectUnits ?? this.totalProjectUnits,
+      soldPreSaleUnits: soldPreSaleUnits ?? this.soldPreSaleUnits,
+      constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
     );
   }
 }

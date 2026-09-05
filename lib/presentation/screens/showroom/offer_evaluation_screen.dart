@@ -17,6 +17,7 @@ import '../../../domain/usecases/negotiation_suspense_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/app_vector_icons.dart';
 import '../../widgets/dialogs/notary_transfer_dialog.dart';
+import '../../widgets/dialogs/rate_us_reward_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -1436,11 +1437,17 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
         salePrice: offer.offeredAmount,
         isBuying: false,
         eventResult: notaryResult,
-        onComplete: () {
+        onComplete: () async {
           if (wasTutorial && mounted) {
             _showTutorialCelebrationDialog(context);
           } else {
-            context.pop();
+            final isProfitable = offer.offeredAmount > car.purchasePrice;
+            if (isProfitable && mounted) {
+              await RateUsRewardDialog.checkAndShow(context, ref);
+            }
+            if (mounted) {
+              context.pop();
+            }
           }
         },
       );

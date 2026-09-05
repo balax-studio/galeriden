@@ -29,6 +29,7 @@ import '../presentation/screens/finance/finance_screen.dart';
 import '../presentation/screens/finance/daily_cashflow_screen.dart';
 import '../presentation/screens/rent_a_car/rent_a_car_screen.dart';
 import '../presentation/screens/side_business/side_business_screen.dart';
+import '../presentation/screens/side_business/side_business_detail_screen.dart';
 import '../presentation/screens/stock_market/stock_market_screen.dart';
 import '../presentation/screens/workshop/tuning_studio_screen.dart';
 import '../presentation/screens/finance/bank_investments_screen.dart';
@@ -44,7 +45,11 @@ import '../presentation/screens/office/media_agency_screen.dart';
 import '../presentation/screens/office/lifestyle_screen.dart';
 import '../presentation/screens/album/collection_album_screen.dart';
 import '../presentation/screens/vasita/vasita_market_screen.dart';
+import '../presentation/screens/vasita/vasita_expertise_screen.dart';
+import '../presentation/screens/vasita/vasita_negotiation_screen.dart';
 import '../presentation/screens/real_estate/real_estate_market_screen.dart';
+import '../presentation/screens/real_estate/real_estate_renovation_screen.dart';
+import '../presentation/screens/real_estate/real_estate_construction_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -112,6 +117,13 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => _buildCupertinoPage(const SideBusinessScreen(), state),
     ),
     GoRoute(
+      path: '/side-business-detail/:businessId',
+      pageBuilder: (context, state) {
+        final businessId = state.pathParameters['businessId'] ?? '';
+        return _buildCupertinoPage(SideBusinessDetailScreen(businessId: businessId), state);
+      },
+    ),
+    GoRoute(
       path: '/stock-market',
       pageBuilder: (context, state) => _buildCupertinoPage(const StockMarketScreen(), state),
     ),
@@ -140,12 +152,50 @@ final appRouter = GoRouter(
       pageBuilder: (context, state) => _buildCupertinoPage(const VasitaMarketScreen(), state),
     ),
     GoRoute(
+      path: '/vasita-ekspertiz/:listingId',
+      pageBuilder: (context, state) {
+        final listingId = state.pathParameters['listingId'];
+        final extraListing = state.extra as ListingModel?;
+        return _buildCupertinoPage(
+          VasitaExpertiseScreen(
+            listingId: listingId,
+            initialListing: extraListing,
+          ),
+          state,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/vasita-pazarlik/:listingId',
+      pageBuilder: (context, state) {
+        final extraListing = state.extra as ListingModel?;
+        if (extraListing != null) {
+          return _buildCupertinoPage(VasitaNegotiationScreen(listing: extraListing), state);
+        }
+        return _buildCupertinoPage(const VasitaMarketScreen(), state);
+      },
+    ),
+    GoRoute(
       path: '/emlak',
       pageBuilder: (context, state) => _buildCupertinoPage(const RealEstateMarketScreen(), state),
     ),
     GoRoute(
       path: '/emlak-market',
       pageBuilder: (context, state) => _buildCupertinoPage(const RealEstateMarketScreen(), state),
+    ),
+    GoRoute(
+      path: '/emlak-tadilat/:propertyId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        return _buildCupertinoPage(RealEstateRenovationScreen(propertyId: propertyId), state);
+      },
+    ),
+    GoRoute(
+      path: '/emlak-insaat/:landId',
+      pageBuilder: (context, state) {
+        final landId = state.pathParameters['landId'] ?? '';
+        return _buildCupertinoPage(RealEstateConstructionScreen(landId: landId), state);
+      },
     ),
     GoRoute(
       path: '/reviews',

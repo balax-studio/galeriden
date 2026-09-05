@@ -133,7 +133,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
         'Gün ${state.currentDay}: Piyasadan ₺${finalPurchasePrice.round()} bedelle galeri stoklarına katıldı.';
     final purchasedCar = outcome.updatedCar.copyWith(
       currentPurchasePrice: finalPurchasePrice,
-      provenanceLog: [...outcome.updatedCar.provenanceLog, logEntry],
+      hasCertifiedExpertise: isExpertiseCompleted,
+      provenanceLog: [
+        ...outcome.updatedCar.provenanceLog,
+        logEntry,
+        if (isExpertiseCompleted)
+          'Gün ${state.currentDay}: Kurumsal ekspertiz raporu tamamlandı • Güven damgası tescillendi.',
+      ],
     );
     final updatedCars = [...state.ownedCars, purchasedCar];
     final modelKey = '${purchasedCar.brand}_${purchasedCar.modelName}'
@@ -186,7 +192,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
         'Gün ${state.currentDay}: Noter tesciliyle ₺${agreedPrice.round()} bedel + ₺${(noterFee + registrationFee).round()} masrafla galeri stoklarına katıldı.';
     final purchasedCar = outcome.updatedCar.copyWith(
       currentPurchasePrice: agreedPrice,
-      provenanceLog: [...outcome.updatedCar.provenanceLog, logEntry],
+      hasCertifiedExpertise: isExpertiseCompleted,
+      provenanceLog: [
+        ...outcome.updatedCar.provenanceLog,
+        logEntry,
+        if (isExpertiseCompleted)
+          'Gün ${state.currentDay}: Kurumsal ekspertiz raporu tamamlandı • Güven damgası tescillendi.',
+      ],
     );
     final updatedCars = [...state.ownedCars, purchasedCar];
     final modelKey = '${purchasedCar.brand}_${purchasedCar.modelName}'

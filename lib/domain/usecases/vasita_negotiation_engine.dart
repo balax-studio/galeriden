@@ -64,6 +64,7 @@ class VasitaNegotiationOutcome {
   final bool isWalkaway;
   final int updatedPatience;
   final VasitaTacticRollOutcome? tacticOutcome;
+  final double? nearMissAmount;
 
   const VasitaNegotiationOutcome({
     required this.currentOfferedPrice,
@@ -72,6 +73,7 @@ class VasitaNegotiationOutcome {
     required this.isWalkaway,
     required this.updatedPatience,
     this.tacticOutcome,
+    this.nearMissAmount,
   });
 }
 
@@ -244,6 +246,69 @@ class VasitaNegotiationEngine {
       failureDialogue: 'Satıcı çayı içti ama • Ağzımız tatlandı ama cebimiz tatlanmadı usta • diyerek duruşunu korudu.',
       walkawayDialogue: 'Satıcı • Çayın için sağ ol ama bu ticaret olmaz kardeşim • diyerek masayı büsbütün terk etti.',
     ),
+
+    // 11. Tofaş / Yerli Araç Specific (LPG ve Çürük)
+    VasitaTactic(
+      id: 'tofas_lpg',
+      title: 'LPG Beyni ve Çürük Kontrolü',
+      badgeText: 'Kuş Serisi Kozu',
+      description: 'Tüp beyninin kaçırdığını ve marşpiyellerdeki macun çatlaklarını koz yap.',
+      iconKey: 'local_gas_station',
+      baseBonusPercent: 24,
+      allowedCategories: [VehicleCategory.car, VehicleCategory.damaged],
+      successDialogue: 'Tüp beyninin kaçırdığını gören satıcı • "Haklısın usta, gaz ayarı masrafını düşelim" dedi!',
+      failureDialogue: 'Satıcı • Bu araba tek marşta çalışır, gazda da benzinde de fişek gibidir • dedi.',
+      walkawayDialogue: 'Satıcı • Kuş serisinin değerini bilmeyenle ticaret yapmam! • Masadan kalktı.',
+    ),
+
+    // 12. German / Premium Specific
+    VasitaTactic(
+      id: 'alman_servis',
+      title: 'Yetkili Servis ve Zincir Seti',
+      badgeText: 'Ağır Bakım Baskısı',
+      description: 'Ağır bakım geçmişini ve şanzıman kavrama boşluğunu masaya koy.',
+      iconKey: 'settings_suggest',
+      baseBonusPercent: 25,
+      allowedCategories: [VehicleCategory.car, VehicleCategory.rentalFleet],
+      successDialogue: 'Servis kaydının eksikliğini kabul eden satıcı • "Ağır bakım payını fiyattan düşüyorum" dedi!',
+      failureDialogue: 'Satıcı • Alman mühendisliği bu, bakımları saat gibidir, kuruş inmem • dedi.',
+      walkawayDialogue: 'Satıcı • Kaliteye bütçesi yetmeyen gitmesin pazara! • Çekip gitti.',
+    ),
+
+    // 13. Commercial / Minivan Specific
+    VasitaTactic(
+      id: 'ticari_kantar',
+      title: 'Kantar Yorgunluğu ve Şasi Esnemesi',
+      badgeText: 'Ağır Tonaj Kozu',
+      description: 'Aracın ağır yükte çalıştığını ve makasların çöktüğünü öne sür.',
+      iconKey: 'local_shipping',
+      baseBonusPercent: 26,
+      allowedCategories: [VehicleCategory.commercial, VehicleCategory.minivan],
+      successDialogue: 'Yük gördüğünü itiraf eden esnaf • "Makas bakımını fiyattan kıralım" dedi!',
+      failureDialogue: 'Satıcı • Arabam hafif yük taşıdı, şasisi ok gibi dimdiktir • diyerek direndi.',
+      walkawayDialogue: 'Satıcı • Ekmek teknemi öldürtmem, ticaret bitti! • Masayı terk etti.',
+    ),
+
+    // 14. Classic / Rare Specific
+    VasitaTactic(
+      id: 'klasik_garaj',
+      title: 'Kapalı Garaj ve Orijinal Döşeme',
+      badgeText: 'Nostalji Kozu',
+      description: 'Döşemedeki güneş yanıklarını ve nikelaj korozyonunu pazarlık kozu yap.',
+      iconKey: 'garage',
+      baseBonusPercent: 27,
+      allowedCategories: [VehicleCategory.classic],
+      successDialogue: 'Nikelajlardaki matlaşmayı gören satıcı • "Gözünden kaçmadı, ikram yapıyorum" dedi!',
+      failureDialogue: 'Satıcı • Yılların hatırası var bu arabada, pazarlık kabul etmem • dedi.',
+      walkawayDialogue: 'Satıcı • Hatırası olan arabaya paha biçilmez! • Masayı terk etti.',
+    ),
+  ];
+
+  /// Thinking suspense step translation keys
+  static const List<String> thinkingStepKeys = [
+    'vasita_think_step_1',
+    'vasita_think_step_2',
+    'vasita_think_step_3',
   ];
 
   /// Get tactics available for a specific vehicle category
@@ -428,10 +493,13 @@ class VasitaNegotiationEngine {
     }
 
     String counterDialogue;
+    double? nearMissAmount;
     if (ratio < 0.85) {
       counterDialogue = 'Satıcı kaşlarını çattı • "Bu teklif benim arabamın değerini çok düşürüyor usta, biraz daha mantıklı bir rakam söyle."';
     } else {
       counterDialogue = 'Satıcı başını salladı • "Teklifin fena değil ama liste fiyatına biraz daha yaklaşman lazım."';
+      // Calculate realistic near-miss shortfall amount
+      nearMissAmount = ((listing.askingPrice * 0.93) - offeredPrice).clamp(1500.0, 30000.0);
     }
 
     return VasitaNegotiationOutcome(
@@ -440,6 +508,7 @@ class VasitaNegotiationEngine {
       isAccepted: false,
       isWalkaway: false,
       updatedPatience: newPatience,
+      nearMissAmount: nearMissAmount,
     );
   }
 

@@ -300,6 +300,7 @@ class AuctionEngine {
 
     allRivalsPool.shuffle(_random);
     final rivals = allRivalsPool.take(4).toList();
+    final watchers = 65 + _random.nextInt(75);
 
     return AuctionModel(
       id: 'auc_${DateTime.now().microsecondsSinceEpoch}',
@@ -313,6 +314,7 @@ class AuctionEngine {
       status: AuctionStatus.active,
       rivals: rivals,
       customsNote: generateCustomsAnnotation(),
+      activeWatchersCount: watchers,
     );
   }
 
@@ -402,13 +404,23 @@ class AuctionEngine {
         final speech = rival.dialogues.isNotEmpty ? rival.dialogues[speechIdx] : 'Teklifim hazır!';
         rival.lastSpeech = speech;
 
+        final wasLateBid = auction.secondsRemaining <= 5;
+        final nextSeconds = wasLateBid
+            ? auction.secondsRemaining + 15
+            : auction.secondsRemaining;
+        final nextExtensions = wasLateBid
+            ? auction.antiSnipingCount + 1
+            : auction.antiSnipingCount;
+
         return auction.copyWith(
           currentBid: newBid,
           highestBidderName: rival.name,
           isPlayerHighestBidder: false,
-          secondsRemaining: (auction.secondsRemaining < 6) ? 7 : auction.secondsRemaining,
+          secondsRemaining: nextSeconds,
           activeSpeech: speech,
           activeSpeakerName: rival.name,
+          antiSnipingCount: nextExtensions,
+          isAntiSnipingTriggered: wasLateBid,
         );
       }
     }
@@ -620,6 +632,7 @@ class AuctionEngine {
       secondsRemaining: 30,
       status: AuctionStatus.active,
       rivals: vipRivals,
+      activeWatchersCount: 120 + _random.nextInt(160),
       customsNote: CustomsAnnotation(
         legalStatus: 'Cumhurbaşkanlığı & Diplomatik Protokol Tasfiyesi',
         riskRewardFactor: 'Kusursuz Orijinallik • Müzelik Kondisyon & Özel Zırh',

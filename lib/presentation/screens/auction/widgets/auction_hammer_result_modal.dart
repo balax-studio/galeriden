@@ -120,6 +120,7 @@ class AuctionWonDialog extends StatelessWidget {
 class AuctionLostDialog extends StatelessWidget {
   final AuctionModel auction;
   final bool hasExtendedAuction;
+  final bool hasPlayerEnteredBid;
   final VoidCallback onExtendAuction;
   final VoidCallback onNextAuction;
 
@@ -127,6 +128,7 @@ class AuctionLostDialog extends StatelessWidget {
     super.key,
     required this.auction,
     required this.hasExtendedAuction,
+    this.hasPlayerEnteredBid = false,
     required this.onExtendAuction,
     required this.onNextAuction,
   });
@@ -185,6 +187,60 @@ class AuctionLostDialog extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              if (hasPlayerEnteredBid) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.errorRed.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppColors.errorRed,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.sentiment_dissatisfied_rounded,
+                            color: AppColors.errorRed,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              context.tr('auction_lost_near_miss', {
+                                'winner': auction.highestBidderName,
+                              }),
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.errorRed,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.tr('auction_lost_sunk_cost_desc'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 18),
               if (!hasExtendedAuction) ...[
                 NeoBrutalButton(

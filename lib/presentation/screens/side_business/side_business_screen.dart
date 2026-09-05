@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -13,7 +14,6 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/dialogs/generic_rush_job_dialog.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
-import 'widgets/side_business_detail_sheet.dart';
 
 class SideBusinessScreen extends ConsumerWidget {
   const SideBusinessScreen({super.key});
@@ -45,13 +45,8 @@ class SideBusinessScreen extends ConsumerWidget {
     }
   }
 
-  void _openDetailSheet(BuildContext context, String businessId) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => SideBusinessDetailSheet(businessId: businessId),
-    );
+  void _openDetailScreen(BuildContext context, String businessId) {
+    context.push('/side-business-detail/$businessId');
   }
 
   @override
@@ -210,6 +205,7 @@ class SideBusinessScreen extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: NeoBrutalCard(
+                onTap: isOwned ? () => _openDetailScreen(context, business.id) : null,
                 padding: const EdgeInsets.all(14),
                 backgroundColor:
                     isDark ? const Color(0xFF141721) : Colors.white,
@@ -600,7 +596,7 @@ class SideBusinessScreen extends ConsumerWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 8),
                                 onPressed: () =>
-                                    _openDetailSheet(context, business.id),
+                                    _openDetailScreen(context, business.id),
                               ),
                             ],
                           )
@@ -614,7 +610,7 @@ class SideBusinessScreen extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 8),
                             onPressed: () =>
-                                _openDetailSheet(context, business.id),
+                                _openDetailScreen(context, business.id),
                           ),
                       ],
                     ),

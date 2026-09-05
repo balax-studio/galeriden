@@ -22,6 +22,7 @@ import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
+import '../../widgets/dialogs/rate_us_reward_dialog.dart';
 import '../marketplace/marketplace_screen.dart';
 import '../showroom/showroom_screen.dart';
 import '../../../core/theme/app_colors.dart';
@@ -208,6 +209,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             }
           });
         }
+      }
+
+      if (previous != null && next.currentDay > previous.currentDay) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted && !_isModalShowing) {
+            RateUsRewardDialog.checkAndShow(context, ref);
+          }
+        });
       }
 
       _checkAndShowPendingDialogs(next);

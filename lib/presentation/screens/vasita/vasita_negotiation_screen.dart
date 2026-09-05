@@ -45,6 +45,7 @@ class _VasitaNegotiationScreenState
   bool _isAccepted = false;
   bool _isWalkaway = false;
   bool _isInspectionExpanded = false;
+  double? _lastNearMissAmount;
 
   @override
   void initState() {
@@ -91,6 +92,8 @@ class _VasitaNegotiationScreenState
         }
       } else if (outcome.isWalkaway) {
         _isWalkaway = true;
+        // Lock this listing for today
+        ref.read(vasitaLockedListingsProvider.notifier).update((state) => {...state, widget.listing.id});
       }
     });
 
@@ -116,11 +119,21 @@ class _VasitaNegotiationScreenState
   Future<void> _submitOffer() async {
     if (_isAccepted || _isWalkaway || _isProcessing) return;
 
-    setState(() => _isProcessing = true);
+    setState(() {
+      _isProcessing = true;
+      _lastNearMissAmount = null;
+    });
     HapticFeedback.mediumImpact();
 
-    // Suspense delay
-    await Future.delayed(const Duration(milliseconds: 800));
+    // Psychological Suspense: Animated Flowing Thinking Steps
+    for (final stepKey in VasitaNegotiationEngine.thinkingStepKeys) {
+      if (!mounted) return;
+      setState(() {
+        _sellerDialogue = context.tr(stepKey);
+      });
+      HapticFeedback.selectionClick();
+      await Future.delayed(const Duration(milliseconds: 700));
+    }
     if (!mounted) return;
 
     final game = ref.read(gameProvider);
@@ -138,6 +151,7 @@ class _VasitaNegotiationScreenState
       _sellerDialogue = outcome.responseMessage;
       _isAccepted = outcome.isAccepted;
       _isWalkaway = outcome.isWalkaway;
+      _lastNearMissAmount = outcome.nearMissAmount;
     });
 
     if (outcome.isAccepted) {
@@ -145,6 +159,8 @@ class _VasitaNegotiationScreenState
       _showNoterTransferDialog();
     } else if (outcome.isWalkaway) {
       GameSoundHapticService.playWarningVibration();
+      // Lock this listing for today so seller doesn't sit down again
+      ref.read(vasitaLockedListingsProvider.notifier).update((state) => {...state, widget.listing.id});
     } else {
       GameSoundHapticService.playTapImpact();
     }
@@ -248,24 +264,32 @@ class _VasitaNegotiationScreenState
                 _buildVehicleHeaderCard(car, isDark),
                 const SizedBox(height: 12),
 
-                // 2. Inspection & Expertise Card
+                // 2. Sunk-Cost Warning (if expertise completed)
+                if (widget.listing.isExpertiseCompleted)
+                  _buildSunkCostNotice(isDark),
+
+                // 3. Inspection & Expertise Card
                 _buildExpertiseCard(car, isDark),
                 const SizedBox(height: 12),
 
-                // 3. Seller Card with Patience & Dialogue
+                // 4. Seller Card with Patience & Dialogue
                 _buildSellerCard(isDark),
                 const SizedBox(height: 14),
 
-                // 4. Dealer Tactics Section
+                // 5. Dealer Tactics Section
                 _buildTacticsSection(applicableTactics, isDark),
                 const SizedBox(height: 16),
 
-                // 5. Offer & Slider Card
+                // 6. Near-Miss Psychological Feedback Banner
+                if (_lastNearMissAmount != null && !_isAccepted && !_isWalkaway)
+                  _buildNearMissCard(isDark),
+
+                // 7. Offer & Slider Card
                 _buildOfferControlCard(successChance, isDark),
                 const SizedBox(height: 14),
 
-                // 6. Action Button
-                _buildActionButton(isGarageFull),
+                // 8. Action Button
+                _buildActionButton(isGarageFull, game.balance),
               ],
             ),
           ),
@@ -910,7 +934,7 @@ class _VasitaNegotiationScreenState
     );
   }
 
-  Widget _buildActionButton(bool isGarageFull) {
+  Widget _buildActionButton(bool isGarageFull, double playerBalance) {
     if (_isAccepted) {
       return NeoBrutalButton(
         label: context.tr('vasita_btn_complete_noter'),
@@ -953,17 +977,107 @@ class _VasitaNegotiationScreenState
       );
     }
 
+    final canAfford = playerBalance >= _offeredPrice;
+    final isWalkaway = _isWalkaway;
+
+    final String buttonLabel;
+    final Color buttonColor;
+    final IconData buttonIcon;
+    final VoidCallback? buttonAction;
+
+    if (_isProcessing) {
+      buttonLabel = '...';
+      buttonColor = const Color(0xFF94A3B8);
+      buttonIcon = Icons.hourglass_top_rounded;
+      buttonAction = null;
+    } else if (isWalkaway) {
+      buttonLabel = context.tr('vasita_btn_seller_walked');
+      buttonColor = const Color(0xFFEF4444);
+      buttonIcon = Icons.cancel_rounded;
+      buttonAction = null;
+    } else if (isGarageFull) {
+      buttonLabel = context.tr('vasita_btn_garage_full');
+      buttonColor = const Color(0xFF94A3B8);
+      buttonIcon = Icons.warehouse_rounded;
+      buttonAction = null;
+    } else if (!canAfford) {
+      buttonLabel = context.tr('vasita_btn_insufficient_funds');
+      buttonColor = const Color(0xFFF59E0B);
+      buttonIcon = Icons.account_balance_wallet_rounded;
+      buttonAction = null;
+    } else {
+      buttonLabel = context.tr('vasita_btn_submit_offer');
+      buttonColor = const Color(0xFF00E575);
+      buttonIcon = Icons.send_rounded;
+      buttonAction = _submitOffer;
+    }
+
     return NeoBrutalButton(
-      label: _isProcessing
-          ? '...'
-          : (isGarageFull
-              ? context.tr('vasita_btn_garage_full')
-              : context.tr('vasita_btn_submit_offer')),
-      icon: isGarageFull ? Icons.warehouse_rounded : Icons.send_rounded,
+      label: buttonLabel,
+      icon: buttonIcon,
       fullWidth: true,
-      backgroundColor: isGarageFull ? const Color(0xFF94A3B8) : const Color(0xFF00E575),
+      backgroundColor: buttonColor,
       textColor: Colors.black,
-      onPressed: (_isProcessing || isGarageFull) ? null : _submitOffer,
+      onPressed: buttonAction,
+    );
+  }
+
+  Widget _buildNearMissCard(bool isDark) {
+    final diffText = CurrencyFormatter.format(_lastNearMissAmount!);
+    final msg = context.tr('vasita_near_miss_message').replaceAll('{amount}', diffText);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFB020).withValues(alpha: isDark ? 0.20 : 0.15),
+        border: Border.all(color: const Color(0xFFFFB020), width: 2.2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.bolt_rounded, color: Color(0xFFFFB020), size: 22),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              msg,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: isDark ? const Color(0xFFFFE082) : const Color(0xFFB45309),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSunkCostNotice(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF00E575).withValues(alpha: isDark ? 0.15 : 0.10),
+        border: Border.all(color: const Color(0xFF00E575), width: 1.8),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.verified_rounded, color: Color(0xFF00E575), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              context.tr('vasita_sunk_cost_warning'),
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

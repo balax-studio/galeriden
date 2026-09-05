@@ -137,7 +137,8 @@ mixin GameTimeMixin on GameBaseNotifier {
     final realEstateResult = _processRealEstateRentals(
         newBalance, List.from(state.ownedRealEstates), newEvents);
     newBalance = realEstateResult.$1;
-    newEvents = realEstateResult.$2;
+    final updatedOwnedRealEstates = realEstateResult.$2;
+    newEvents = realEstateResult.$3;
 
     final stockResult = _processStockMarketAndDividends(nextDay, newBalance,
         List.from(state.marketStocks), state.ownedStocks, newEvents);
@@ -317,6 +318,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       balance: newBalance,
       reputationScore: currentReputation,
       ownedCars: currentCars,
+      ownedRealEstates: updatedOwnedRealEstates,
       hiredStaff: currentStaff,
       activeLoans: activeLoansAfterBk,
       activeRentals: updatedRentals,
@@ -755,41 +757,129 @@ mixin GameTimeMixin on GameBaseNotifier {
     );
   }
 
-  (double, List<GameEventModel>) _processRealEstateRentals(
+  (double, List<RealEstateModel>, List<GameEventModel>) _processRealEstateRentals(
       double balance,
       List<RealEstateModel> properties,
       List<GameEventModel> events) {
-    if (properties.isEmpty) return (balance, events);
+    if (properties.isEmpty) return (balance, properties, events);
 
     double totalDailyRent = 0.0;
     int rentedCount = 0;
+    int atRiskCount = 0;
+    final updatedEvents = List<GameEventModel>.from(events);
 
-    for (final prop in properties) {
-      if (prop.isRented) {
-        totalDailyRent += prop.dailyRentIncome;
+    final updatedProperties = properties.map((prop) {
+      var currentProp = prop;
+      if (currentProp.isRented) {
+        final dailyRent = currentProp.dailyRentIncome;
+        totalDailyRent += dailyRent;
         rentedCount++;
+        final nextDays = currentProp.uncollectedRentDays + 1;
+        if (nextDays >= 5) {
+          atRiskCount++;
+        }
+        currentProp = currentProp.copyWith(
+          pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
+          uncollectedRentDays: nextDays,
+        );
       }
-    }
+
+      if (currentProp.renovationDaysRemaining > 0) {
+        final remaining = currentProp.renovationDaysRemaining - 1;
+        currentProp = currentProp.copyWith(
+          renovationDaysRemaining: remaining,
+        );
+        if (remaining == 0) {
+          final stageName = currentProp.renovationStage == 1
+              ? 'Yıkım ve Sıhhi Tesisat'
+              : (currentProp.renovationStage == 2
+                  ? 'Mutfak ve Banyo'
+                  : 'Boya ve Anahtar Teslim');
+          updatedEvents.insert(
+            0,
+            GameEventModel(
+              id: 'renovation_ready_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+              title: 'Tadilat Aşaması Tamamlandı',
+              description:
+                  '${currentProp.title} için $stageName etabı başarıyla tamamlandı • Mülk kullanıma ve sonraki aşamaya hazır.',
+              amount: 0.0,
+              type: GameEventType.goodEvent,
+              date: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      if (currentProp.isConstructionActive) {
+        final daysLeft = currentProp.constructionDaysRemaining - 1;
+        if (daysLeft <= 0) {
+          if (currentProp.constructionMode == 'contractor') {
+            final nextStage = currentProp.constructionStage + 1;
+            currentProp = currentProp.copyWith(
+              constructionStage: nextStage,
+              constructionDaysRemaining: nextStage < 4 ? 5 : 0,
+            );
+            if (nextStage >= 4) {
+              updatedEvents.insert(
+                0,
+                GameEventModel(
+                  id: 'construction_ready_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  title: 'Şantiye Tamamlandı • Anahtar Teslim Hazır',
+                  description:
+                      '${currentProp.district} arsanızdaki kat karşılığı inşaat tamamlandı ve iskan ruhsatı alındı. Daireleri portföyünüze aktarabilirsiniz.',
+                  amount: 0.0,
+                  type: GameEventType.goodEvent,
+                  date: DateTime.now(),
+                ),
+              );
+            }
+          } else {
+            // selfBuild: milestone ready for next inspection & funding
+            currentProp = currentProp.copyWith(
+              constructionDaysRemaining: 0,
+            );
+          }
+        } else {
+          currentProp = currentProp.copyWith(
+            constructionDaysRemaining: daysLeft,
+          );
+        }
+      }
+
+      return currentProp;
+    }).toList();
 
     if (totalDailyRent > 0) {
-      final updatedEvents = List<GameEventModel>.from(events);
+      if (atRiskCount > 0) {
+        updatedEvents.insert(
+          0,
+          GameEventModel(
+            id: 'real_estate_rent_risk_${DateTime.now().millisecondsSinceEpoch}',
+            title: 'Kira Tahsilat Gecikmesi • Erime Riski',
+            description:
+                '$atRiskCount mülkünüzde biriken kiralar 5 gündür tahsil edilmedi. Kiracı temerrüdü ve kayıp yaşamamak için portföyünüzden hemen tahsil edin.',
+            amount: 0.0,
+            type: GameEventType.badEvent,
+            date: DateTime.now(),
+          ),
+        );
+      }
       updatedEvents.insert(
         0,
         GameEventModel(
           id: 'real_estate_rent_${DateTime.now().millisecondsSinceEpoch}',
-          title: 'Gayrimenkul Kira Geliri',
+          title: 'Kira Geliri Havuzda Birikti',
           description:
-              'Portföyünüzdeki $rentedCount adet kiradaki mülkten toplam ${CurrencyFormatter.format(totalDailyRent)} günlük kira geliri tahsil edildi.',
+              'Portföyünüzdeki $rentedCount mülkten ${CurrencyFormatter.format(totalDailyRent)} günlük kira tahsilat havuzuna eklendi • Kasaya aktarmak için portföyünüzden tahsil edin.',
           amount: totalDailyRent,
           type: GameEventType.income,
           date: DateTime.now(),
         ),
       );
-      addXP(15 * rentedCount);
-      return (balance + totalDailyRent, updatedEvents);
+      addXP(10 * rentedCount);
     }
 
-    return (balance, events);
+    return (balance, updatedProperties, updatedEvents);
   }
 
   (List<CarModel>, double, List<GameEventModel>) _processConsignmentDays(

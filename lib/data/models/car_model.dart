@@ -67,6 +67,7 @@ class CarModel {
   final String? pendingPaintRarity;
   final VehicleCategory vehicleCategory;
   final bool isVasitaUpgraded;
+  final bool hasCertifiedExpertise;
 
   CarModel({
     required this.id,
@@ -126,6 +127,7 @@ class CarModel {
     this.pendingPaintRarity,
     this.vehicleCategory = VehicleCategory.car,
     this.isVasitaUpgraded = false,
+    this.hasCertifiedExpertise = false,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// True if vehicle is currently in the paint oven curing
@@ -476,6 +478,7 @@ class CarModel {
       'pendingPaintRarity': pendingPaintRarity,
       'vehicleCategory': vehicleCategory.name,
       'isVasitaUpgraded': isVasitaUpgraded,
+      'hasCertifiedExpertise': hasCertifiedExpertise,
     };
   }
 
@@ -545,6 +548,7 @@ class CarModel {
       pendingPaintRarity: json['pendingPaintRarity'] as String?,
       vehicleCategory: VehicleCategory.fromString(json['vehicleCategory'] as String?),
       isVasitaUpgraded: json['isVasitaUpgraded'] as bool? ?? false,
+      hasCertifiedExpertise: json['hasCertifiedExpertise'] as bool? ?? false,
     );
   }
 
@@ -608,6 +612,7 @@ class CarModel {
     bool clearPendingPaint = false,
     VehicleCategory? vehicleCategory,
     bool? isVasitaUpgraded,
+    bool? hasCertifiedExpertise,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -667,6 +672,7 @@ class CarModel {
       pendingPaintRarity: clearPendingPaint ? null : (pendingPaintRarity ?? this.pendingPaintRarity),
       vehicleCategory: vehicleCategory ?? this.vehicleCategory,
       isVasitaUpgraded: isVasitaUpgraded ?? this.isVasitaUpgraded,
+      hasCertifiedExpertise: hasCertifiedExpertise ?? this.hasCertifiedExpertise,
     );
   }
 }

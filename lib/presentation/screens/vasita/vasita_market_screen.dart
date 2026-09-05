@@ -18,6 +18,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import 'vasita_expertise_screen.dart';
 import 'vasita_negotiation_screen.dart';
 
 class VasitaMarketScreen extends ConsumerStatefulWidget {
@@ -382,6 +383,8 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     final car = listing.car;
     final cat = car.vehicleCategory;
     final canAfford = gameBalance >= listing.askingPrice;
+    final lockedListings = ref.watch(vasitaLockedListingsProvider);
+    final isLocked = lockedListings.contains(listing.id);
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
@@ -419,6 +422,25 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
               ),
             ],
           ),
+          if (isLocked) ...[
+            const SizedBox(height: 6),
+            NeoBrutalBadge(
+              text: context.tr('vasita_badge_locked_today'),
+              icon: Icons.block_rounded,
+              backgroundColor: const Color(0xFFEF4444),
+              textColor: Colors.white,
+              fontSize: 9.5,
+            ),
+          ] else if (listing.isExpertiseCompleted) ...[
+            const SizedBox(height: 6),
+            NeoBrutalBadge(
+              text: context.tr('vasita_expertise_seal_text'),
+              icon: Icons.verified_rounded,
+              backgroundColor: const Color(0xFF00E575),
+              textColor: Colors.black,
+              fontSize: 9.5,
+            ),
+          ],
           const SizedBox(height: 10),
 
           // Title & Year
@@ -520,21 +542,35 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 textColor: isDark ? Colors.white : Colors.black,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                onPressed: () => _showInspectionDialog(context, listing, isDark, maxSlotsReached),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => VasitaExpertiseScreen(
+                        listingId: listing.id,
+                        initialListing: listing,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 6),
               NeoBrutalButton(
-                icon: Icons.handshake_rounded,
-                label: maxSlotsReached
-                    ? context.tr('vasita_btn_garage_full')
-                    : context.tr('vasita_btn_start_negotiation'),
-                backgroundColor: maxSlotsReached
-                    ? const Color(0xFF94A3B8)
-                    : const Color(0xFF00E575),
-                textColor: Colors.black,
+                icon: isLocked ? Icons.block_rounded : Icons.handshake_rounded,
+                label: isLocked
+                    ? context.tr('vasita_badge_locked_today')
+                    : (maxSlotsReached
+                        ? context.tr('vasita_btn_garage_full')
+                        : context.tr('vasita_btn_start_negotiation')),
+                backgroundColor: isLocked
+                    ? const Color(0xFF64748B)
+                    : (maxSlotsReached
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF00E575)),
+                textColor: isLocked ? Colors.white : Colors.black,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                onPressed: maxSlotsReached
+                onPressed: (maxSlotsReached || isLocked)
                     ? null
                     : () {
                         HapticFeedback.mediumImpact();
@@ -551,112 +587,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
       ),
     );
   }
-
-  void _showInspectionDialog(BuildContext context, ListingModel listing, bool isDark, bool maxSlotsReached) {
-    final car = listing.car;
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-              width: 2.5,
-            ),
-          ),
-          title: Row(
-            children: [
-              Icon(car.vehicleCategory.icon, color: car.vehicleCategory.badgeColor),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  context.tr('vasita_inspect_title'),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${car.brand} ${car.modelName} • ${car.modelYear}',
-                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${context.tr('car_spec_year')}: ${car.modelYear} • ${car.bodyType}',
-                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
-                ),
-                const Divider(height: 20),
-                Text(
-                  '${context.tr('car_expertise_engine')}: %${car.expertise.engineCondition.toInt()}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${context.tr('car_expertise_transmission')}: %${car.expertise.transmissionCondition.toInt()}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${context.tr('listing_tramer')}: ${CurrencyFormatter.format(car.expertise.tramerAmount.toDouble())}',
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFFEF4444)),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  listing.description,
-                  style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Color(0xFF64748B)),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                NeoBrutalButton(
-                  label: context.tr('btn_close'),
-                  backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white : Colors.black,
-                  fontSize: 11,
-                  onPressed: () => Navigator.of(ctx).pop(),
-                ),
-                const SizedBox(width: 8),
-                NeoBrutalButton(
-                  icon: Icons.handshake_rounded,
-                  label: maxSlotsReached
-                      ? context.tr('vasita_btn_garage_full')
-                      : context.tr('vasita_btn_start_negotiation'),
-                  backgroundColor: maxSlotsReached
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF00E575),
-                  textColor: Colors.black,
-                  fontSize: 11,
-                  onPressed: maxSlotsReached
-                      ? null
-                      : () {
-                          Navigator.of(ctx).pop();
-                          HapticFeedback.mediumImpact();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => VasitaNegotiationScreen(listing: listing),
-                            ),
-                          );
-                        },
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
 
   String _formatCatalogCount(int count) {
     if (count >= 1000) {
