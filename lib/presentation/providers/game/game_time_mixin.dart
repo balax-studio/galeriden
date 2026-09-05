@@ -24,6 +24,7 @@ import '../../../data/models/offer_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
 import '../../../data/models/customer_crm_event_model.dart';
 import '../../../data/models/active_service_job_model.dart';
+import '../../../data/models/real_estate_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
 import '../../../domain/usecases/random_event_engine.dart';
@@ -132,6 +133,11 @@ mixin GameTimeMixin on GameBaseNotifier {
         newBalance, currentCars, List.from(state.sideBusinesses));
     newBalance = bizResult.$1;
     final updatedBusinesses = bizResult.$2;
+
+    final realEstateResult = _processRealEstateRentals(
+        newBalance, List.from(state.ownedRealEstates), newEvents);
+    newBalance = realEstateResult.$1;
+    newEvents = realEstateResult.$2;
 
     final stockResult = _processStockMarketAndDividends(nextDay, newBalance,
         List.from(state.marketStocks), state.ownedStocks, newEvents);
@@ -747,6 +753,43 @@ mixin GameTimeMixin on GameBaseNotifier {
       towedCarsLast7Days: state.towedCarsLast7Days,
       activeRentalsCount: state.activeRentals.length,
     );
+  }
+
+  (double, List<GameEventModel>) _processRealEstateRentals(
+      double balance,
+      List<RealEstateModel> properties,
+      List<GameEventModel> events) {
+    if (properties.isEmpty) return (balance, events);
+
+    double totalDailyRent = 0.0;
+    int rentedCount = 0;
+
+    for (final prop in properties) {
+      if (prop.isRented) {
+        totalDailyRent += prop.dailyRentIncome;
+        rentedCount++;
+      }
+    }
+
+    if (totalDailyRent > 0) {
+      final updatedEvents = List<GameEventModel>.from(events);
+      updatedEvents.insert(
+        0,
+        GameEventModel(
+          id: 'real_estate_rent_${DateTime.now().millisecondsSinceEpoch}',
+          title: 'Gayrimenkul Kira Geliri',
+          description:
+              'Portföyünüzdeki $rentedCount adet kiradaki mülkten toplam ${CurrencyFormatter.format(totalDailyRent)} günlük kira geliri tahsil edildi.',
+          amount: totalDailyRent,
+          type: GameEventType.income,
+          date: DateTime.now(),
+        ),
+      );
+      addXP(15 * rentedCount);
+      return (balance + totalDailyRent, updatedEvents);
+    }
+
+    return (balance, events);
   }
 
   (List<CarModel>, double, List<GameEventModel>) _processConsignmentDays(

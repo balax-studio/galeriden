@@ -9,11 +9,12 @@ import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/real_estate_market_provider.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
-import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
 
 class RealEstateMarketScreen extends ConsumerStatefulWidget {
@@ -42,10 +43,144 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     super.dispose();
   }
 
+  void _confirmExpandSlots(BuildContext context) {
+    HapticFeedback.selectionClick();
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        title: Text(
+          context.tr('real_estate_expand_slots_dialog_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+        content: Text(
+          context.tr('real_estate_expand_slots_dialog_desc'),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(
+              context.tr('real_estate_dialog_btn_cancel'),
+              style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              final success =
+                  ref.read(gameProvider.notifier).expandRealEstateSlots();
+              if (success) {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_expand_slots_success_toast'),
+                );
+              } else {
+                NotificationService.showError(
+                  context,
+                  context.tr('real_estate_expand_slots_error_funds'),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF59E0B),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+            ),
+            child: Text(
+              context.tr('real_estate_expand_slots_btn'),
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmSellProperty(
+    BuildContext context,
+    RealEstateModel property,
+    double salePrice,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        title: Text(
+          context.tr('real_estate_sell_dialog_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+        content: Text(
+          '${property.title} • ${CurrencyFormatter.format(salePrice)} ${context.tr('real_estate_sell_dialog_desc')}',
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(
+              context.tr('real_estate_dialog_btn_cancel'),
+              style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              HapticFeedback.heavyImpact();
+              ref.read(gameProvider.notifier).sellRealEstate(
+                    realEstateId: property.id,
+                    salePrice: salePrice,
+                  );
+              NotificationService.showSuccess(
+                context,
+                context.tr('real_estate_sell_success_toast'),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+            ),
+            child: Text(
+              context.tr('real_estate_btn_sell'),
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final game = ref.watch(gameProvider);
+
+    if (!game.isFeatureUnlocked('/emlak')) {
+      return Scaffold(
+        appBar: NeoBrutalAppBar(
+          title: context.tr('real_estate_market_title'),
+          subtitle: context.tr('real_estate_market_subtitle'),
+        ),
+        body: NeoBrutalLockedFeatureView(
+          route: '/emlak',
+          featureTitle: context.tr('real_estate_market_title'),
+          icon: Icons.domain_rounded,
+        ),
+      );
+    }
+
     final allListings = ref.watch(realEstateMarketProvider);
     final activeFilter = ref.watch(realEstateMarketFilterProvider);
     final searchQuery = ref.watch(realEstateMarketSearchProvider);
@@ -138,9 +273,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     final isFull = game.ownedRealEstates.length >= game.maxRealEstateSlots;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        border: const Border(bottom: BorderSide(color: Colors.black, width: 2)),
+      decoration: const BoxDecoration(
+        color: Color(0xFF1E293B),
+        border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -174,6 +309,33 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                   color: isFull ? const Color(0xFFFCA5A5) : Colors.white,
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: () => _confirmExpandSlots(context),
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.black, width: 1),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.add_rounded, size: 14, color: Colors.black),
+                      Text(
+                        context.tr('real_estate_expand_slots_btn'),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -760,18 +922,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     },
                   ),
 
-                  // Sell property button
+                  // Sell property button with confirmation dialog
                   ElevatedButton(
                     onPressed: () {
-                      HapticFeedback.heavyImpact();
-                      ref.read(gameProvider.notifier).sellRealEstate(
-                            realEstateId: property.id,
-                            salePrice: fairValue,
-                          );
-                      NotificationService.showSuccess(
-                        context,
-                        context.tr('real_estate_sell_success_toast'),
-                      );
+                      HapticFeedback.selectionClick();
+                      _confirmSellProperty(context, property, fairValue);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981),

@@ -7,10 +7,12 @@ import 'package:galeriden/core/localization/translations/es_translations.dart';
 import 'package:galeriden/core/localization/translations/pt_translations.dart';
 import 'package:galeriden/core/localization/translations/ru_translations.dart';
 import 'package:galeriden/core/localization/translations/tr_translations.dart';
+import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/vehicle_category.dart';
 import 'package:galeriden/domain/usecases/vasita_market_engine.dart';
+import 'package:galeriden/domain/usecases/vasita_negotiation_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -274,6 +276,58 @@ void main() {
       'vasita_upgrade_err_not_found',
       'vasita_upgrade_err_already_done',
       'vasita_upgrade_err_insufficient_funds',
+      'vasita_negotiation_title',
+      'vasita_negotiation_subtitle',
+      'vasita_tactics_header',
+      'vasita_btn_start_negotiation',
+      'vasita_btn_submit_offer',
+      'vasita_btn_complete_noter',
+      'vasita_btn_rescue_tea',
+      'vasita_btn_leave_table',
+      'vasita_label_your_offer',
+      'vasita_label_bonus_chance',
+      'vasita_label_success_chance',
+      'vasita_garage_slots_badge',
+      'vasita_btn_garage_full',
+      'vasita_tactic_success_toast',
+      'vasita_tactic_failed_toast',
+      'noter_dialog_title',
+      'noter_dialog_subtitle',
+      'noter_certificate_header',
+      'noter_field_plate',
+      'noter_field_vin',
+      'noter_field_vehicle',
+      'noter_field_mileage',
+      'noter_field_seller',
+      'noter_field_buyer',
+      'noter_field_agreed_price',
+      'noter_stamp_text',
+      'noter_costs_breakdown_title',
+      'noter_fee_devir_rate',
+      'noter_fee_registration',
+      'noter_fee_total_cost',
+      'noter_btn_complete_transfer',
+      'noter_label_player_balance',
+      'noter_insufficient_balance_warning',
+      'noter_buy_success_toast',
+      'noter_buy_error_funds',
+      'vasita_btn_asking_price',
+      'vasita_negotiation_walkaway_title',
+      'vasita_negotiation_walkaway_desc',
+      'vasita_expertise_card_title',
+      'vasita_expertise_engine',
+      'vasita_expertise_transmission',
+      'vasita_expertise_tramer',
+      'vasita_expertise_mileage_tampered',
+      'vasita_expertise_mileage_verified',
+      'vasita_expertise_parts_title',
+      'vasita_expertise_paint_original',
+      'vasita_expertise_paint_local',
+      'vasita_expertise_paint_replaced',
+      'vasita_expertise_expand',
+      'vasita_expertise_collapse',
+      'vasita_label_patience',
+      'vasita_tactic_used',
     ];
 
     test('all 7 languages have all vasita keys populated without empty values', () {
@@ -378,6 +432,177 @@ void main() {
       // Cannot be upgraded twice
       final secondRes = container.read(gameProvider.notifier).upgradeVasitaVehicle(marineCar.id);
       expect(secondRes['success'], false);
+    });
+  });
+
+  group('Vasita Negotiation Engine & Notary Transfer Protocol', () {
+    test('calculateNoterFee strictly computes dynamic 2 per mille (0.2%) rounded', () {
+      expect(VasitaNegotiationEngine.calculateNoterFee(100000), 200.0);
+      expect(VasitaNegotiationEngine.calculateNoterFee(250000), 500.0);
+      expect(VasitaNegotiationEngine.calculateNoterFee(1000000), 2000.0);
+      expect(VasitaNegotiationEngine.calculateNoterFee(1234567), 2469.0);
+      expect(VasitaNegotiationEngine.calculateNoterFee(0), 0.0);
+    });
+
+    test('calculateTotalAcquisitionCost combines agreedPrice, noterFee, and fixed registrationFee', () {
+      const price = 500000.0;
+      final noterFee = VasitaNegotiationEngine.calculateNoterFee(price);
+      const regFee = VasitaNegotiationEngine.registrationFee;
+      final total = VasitaNegotiationEngine.calculateTotalAcquisitionCost(price);
+
+      expect(noterFee, 1000.0);
+      expect(regFee, 850.0);
+      expect(total, 501850.0);
+    });
+
+    test('getTacticsForVehicle includes universal tactics and category-specific tactics', () {
+      // Motorcycle
+      final motoTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.motorcycle);
+      final motoIds = motoTactics.map((t) => t.id).toList();
+      expect(motoIds.contains('pesin_noter'), true);
+      expect(motoIds.contains('sanayi_cayi'), true);
+      expect(motoIds.contains('moto_sasi'), true);
+
+      // Caravan
+      final caravanTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.caravan);
+      final caravanIds = caravanTactics.map((t) => t.id).toList();
+      expect(caravanIds.contains('karavan_izolasyon'), true);
+
+      // Marine
+      final marineTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.marine);
+      final marineIds = marineTactics.map((t) => t.id).toList();
+      expect(marineIds.contains('deniz_ozmoz'), true);
+
+      // Classic
+      final classicTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.classic);
+      final classicIds = classicTactics.map((t) => t.id).toList();
+      expect(classicIds.contains('klasik_seri'), true);
+
+      // Damaged
+      final damagedTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.damaged);
+      final damagedIds = damagedTactics.map((t) => t.id).toList();
+      expect(damagedIds.contains('hasarli_kurtarici'), true);
+
+      // ATV / UTV
+      final atvTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.atv);
+      final atvIds = atvTactics.map((t) => t.id).toList();
+      expect(atvIds.contains('arazi_diferansiyel'), true);
+
+      // Commercial
+      final commTactics = VasitaNegotiationEngine.getTacticsForVehicle(VehicleCategory.commercial);
+      final commIds = commTactics.map((t) => t.id).toList();
+      expect(commIds.contains('tramer_baski'), true);
+      expect(commIds.contains('usta_lift'), true);
+    });
+
+    test('calculateOfferSuccessProbability respects asking price ratio, patience, and level', () {
+      final listing = VasitaMarketEngine.generateListings(count: 1).first;
+      final asking = listing.askingPrice;
+
+      // Generous offer (100% of asking) with high patience
+      final highProb = VasitaNegotiationEngine.calculateOfferSuccessProbability(
+        listing: listing,
+        offeredPrice: asking,
+        patience: 90,
+        playerLevel: 10,
+        extraBonusPercent: 0.10,
+      );
+      expect(highProb >= 85, true);
+
+      // Extreme lowball offer (50% of asking) with zero patience
+      final lowProb = VasitaNegotiationEngine.calculateOfferSuccessProbability(
+        listing: listing,
+        offeredPrice: asking * 0.50,
+        patience: 10,
+        playerLevel: 1,
+        extraBonusPercent: 0.0,
+      );
+      expect(lowProb <= 20, true);
+    });
+
+    test('rollTactic outputs consistent outcome, message, and patience change', () {
+      final listing = VasitaMarketEngine.generateListings(count: 1).first;
+      final teaTactic = VasitaNegotiationEngine.allTactics.firstWhere((t) => t.id == 'sanayi_cayi');
+
+      final outcome = VasitaNegotiationEngine.rollTactic(
+        tactic: teaTactic,
+        listing: listing,
+        currentPatience: 50,
+        playerLevel: 5,
+      );
+
+      expect(outcome.message.isNotEmpty, true);
+      expect(outcome.patienceChange != 0, true);
+      expect(outcome.isWalkaway, false);
+    });
+
+    test('buyCarWithNoter updates balance, adds car to garage with notary log, and respects constraints', () {
+      SharedPreferences.setMockInitialValues({});
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final listing = VasitaMarketEngine.generateListings(
+        count: 1,
+        categoryFilter: VehicleCategory.motorcycle,
+      ).first;
+      final car = listing.car;
+
+      const agreedPrice = 200000.0;
+      final noterFee = VasitaNegotiationEngine.calculateNoterFee(agreedPrice);
+      const regFee = VasitaNegotiationEngine.registrationFee;
+      const totalCost = agreedPrice + 400.0 + 850.0;
+
+      // 1. Rejects when insufficient funds
+      notifier.state = notifier.state.copyWith(
+        balance: 100000.0,
+        ownedCars: [],
+        maxGarageSlots: 5,
+      );
+      final failFunds = notifier.buyCarWithNoter(
+        car: car,
+        agreedPrice: agreedPrice,
+        noterFee: noterFee,
+        registrationFee: regFee,
+      );
+      expect(failFunds, isNull);
+      expect(notifier.state.ownedCars.isEmpty, true);
+
+      // 2. Rejects when garage is full
+      notifier.state = notifier.state.copyWith(
+        balance: 1000000.0,
+        ownedCars: List.generate(5, (_) => car),
+        maxGarageSlots: 5,
+      );
+      final failGarage = notifier.buyCarWithNoter(
+        car: car,
+        agreedPrice: agreedPrice,
+        noterFee: noterFee,
+        registrationFee: regFee,
+      );
+      expect(failGarage, isNull);
+      expect(notifier.state.ownedCars.length, 5);
+
+      // 3. Successfully completes purchase
+      notifier.state = notifier.state.copyWith(
+        balance: 500000.0,
+        ownedCars: [],
+        maxGarageSlots: 5,
+        completedFirstTimeActions: {FirstTimeActionKeys.firstCarBuy},
+      );
+      final successOutcome = notifier.buyCarWithNoter(
+        car: car,
+        agreedPrice: agreedPrice,
+        noterFee: noterFee,
+        registrationFee: regFee,
+        isExpertiseCompleted: true,
+      );
+      expect(successOutcome, isNotNull);
+      expect(notifier.state.balance, 500000.0 - totalCost);
+      expect(notifier.state.ownedCars.length, 1);
+      final boughtCar = notifier.state.ownedCars.first;
+      expect(boughtCar.currentPurchasePrice, agreedPrice);
+      expect(boughtCar.provenanceLog.any((l) => l.contains('Noter tesciliyle')), true);
     });
   });
 }

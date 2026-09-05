@@ -1,8 +1,10 @@
+import 'dart:math' as math;
 import '../../../core/constants/first_time_action_keys.dart';
 import '../../../data/models/mega_systems_extensions_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/branch_model.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/sale_record_model.dart';
 import '../../../data/models/vehicle_category.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/dealership_model.dart';
@@ -131,6 +133,59 @@ mixin GameInventoryMixin on GameBaseNotifier {
         'Gün ${state.currentDay}: Piyasadan ₺${finalPurchasePrice.round()} bedelle galeri stoklarına katıldı.';
     final purchasedCar = outcome.updatedCar.copyWith(
       currentPurchasePrice: finalPurchasePrice,
+      provenanceLog: [...outcome.updatedCar.provenanceLog, logEntry],
+    );
+    final updatedCars = [...state.ownedCars, purchasedCar];
+    final modelKey = '${purchasedCar.brand}_${purchasedCar.modelName}'
+        .toLowerCase()
+        .replaceAll(' ', '_');
+    final updatedAlbum =
+        <String>{...state.discoveredCarModelIds, modelKey}.toList();
+
+    state = state.copyWith(
+      balance: updatedBalance,
+      ownedCars: updatedCars,
+      discoveredCarModelIds: updatedAlbum,
+    );
+
+    addXP(50);
+    checkAchievement('first_buy');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarBuy);
+    updateMissionProgress(MissionType.buyCars, 1);
+    saveState();
+    return outcome;
+  }
+
+  /// Purchase a car with official Notary transfer fees and registration
+  PurchaseRiskOutcome? buyCarWithNoter({
+    required CarModel car,
+    required double agreedPrice,
+    required double noterFee,
+    double registrationFee = 850.0,
+    bool isExpertiseCompleted = false,
+  }) {
+    final totalAcquisitionCost = agreedPrice + noterFee + registrationFee;
+    if (state.balance < totalAcquisitionCost) return null;
+    if (state.ownedCars.length >= state.maxGarageSlots) return null;
+
+    final updatedBalance = state.balance - totalAcquisitionCost;
+
+    PurchaseRiskOutcome outcome;
+    if (!isExpertiseCompleted) {
+      outcome = RiskEngine.evaluateUninspectedPurchaseRisk(car);
+    } else {
+      outcome = PurchaseRiskOutcome(
+        isTrapped: false,
+        title: 'Noter Onaylı Alım',
+        description: 'Ekspertiz ve noter tesciliyle güvenle satın alındı.',
+        updatedCar: car,
+      );
+    }
+
+    final logEntry =
+        'Gün ${state.currentDay}: Noter tesciliyle ₺${agreedPrice.round()} bedel + ₺${(noterFee + registrationFee).round()} masrafla galeri stoklarına katıldı.';
+    final purchasedCar = outcome.updatedCar.copyWith(
+      currentPurchasePrice: agreedPrice,
       provenanceLog: [...outcome.updatedCar.provenanceLog, logEntry],
     );
     final updatedCars = [...state.ownedCars, purchasedCar];
@@ -396,6 +451,61 @@ mixin GameInventoryMixin on GameBaseNotifier {
     addXP(100);
     checkAchievement('first_sale');
     updateMissionProgress(MissionType.sellCars, 1);
+    saveState();
+    return true;
+  }
+
+  /// Sell an owned car via Consignment Auction
+  bool sellCarAtAuction({
+    required String carId,
+    required double salePrice,
+    required double commission,
+    required double fixedFee,
+    required String buyerName,
+  }) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
+    if (carIndex == -1) return false;
+
+    final car = state.ownedCars[carIndex];
+    if (car.isLockedInShowcase || car.isRented || car.isConsignment) return false;
+
+    final double totalDeductions = commission + fixedFee;
+    final double netCashReceived = math.max(0.0, salePrice - totalDeductions);
+    final double profit = netCashReceived - car.currentPurchasePrice;
+
+    final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
+
+    final record = SaleRecordModel(
+      id: 'auction_sale_${DateTime.now().millisecondsSinceEpoch}',
+      carTitle: '${car.modelYear} ${car.brand} ${car.modelName} • Müzayede',
+      buyerName: buyerName,
+      purchasePrice: car.currentPurchasePrice,
+      salePrice: salePrice,
+      netProfit: profit,
+      saleDay: state.currentDay,
+      saleDate: DateTime.now(),
+      isConsignment: false,
+    );
+
+    final int newCarsSold = state.carsSold + 1;
+    state = state.copyWith(
+      balance: state.balance + netCashReceived,
+      ownedCars: updatedCars,
+      totalProfit: state.totalProfit + profit,
+      carsSold: newCarsSold,
+      salesHistory: [record, ...state.salesHistory],
+    );
+
+    final int saleXp = 100 +
+        (profit > 0 ? (35.0 * math.log(1.0 + profit / 5000.0)).round() : 0)
+            .clamp(0, 120);
+    addXP(saleXp.clamp(0, 220));
+    checkAchievement('first_sale');
+    checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
+    updateMissionProgress(MissionType.sellCars, 1);
+    if (profit > 0) {
+      updateMissionProgress(MissionType.earnProfit, profit.toInt());
+    }
     saveState();
     return true;
   }

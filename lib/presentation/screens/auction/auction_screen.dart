@@ -22,6 +22,7 @@ import 'widgets/auction_live_bidding_view.dart';
 import 'widgets/auction_low_rep_view.dart';
 import 'widgets/auction_trunk_loot_dialog.dart';
 import 'widgets/auction_upcoming_catalog_tab.dart';
+import 'widgets/auction_sell_tab.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
   const AuctionScreen({super.key});
@@ -774,6 +775,71 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                           ),
                         ),
                       ),
+                      const SizedBox(width: 4),
+
+                      // Tab 3: ARACIMI SAT
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _selectedTabIndex = 3);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: _selectedTabIndex == 3
+                                  ? AppColors.brutalGreen
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: _selectedTabIndex == 3
+                                  ? Border.all(
+                                      color: const Color(0xFF0F172A),
+                                      width: 1.5,
+                                    )
+                                  : null,
+                              boxShadow: _selectedTabIndex == 3
+                                  ? const [
+                                      BoxShadow(
+                                        color: Color(0xFF0F172A),
+                                        offset: Offset(1.5, 1.5),
+                                        blurRadius: 0,
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.sell_rounded,
+                                    size: 13,
+                                    color: _selectedTabIndex == 3
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white60
+                                            : const Color(0xFF64748B)),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    context.tr('auction_sell_tab'),
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.2,
+                                      color: _selectedTabIndex == 3
+                                          ? Colors.black
+                                          : (isDark
+                                              ? Colors.white70
+                                              : const Color(0xFF64748B)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -786,10 +852,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                           onPlaceBid: _placePlayerBid,
                           onBluff: _executeTrollBluff,
                         )
-                      : AuctionUpcomingCatalogTab(
-                          upcomingLots: _upcomingLots,
-                          isDark: isDark,
-                        ),
+                      : (_selectedTabIndex == 2
+                          ? AuctionUpcomingCatalogTab(
+                              upcomingLots: _upcomingLots,
+                              isDark: isDark,
+                            )
+                          : AuctionSellTab(
+                              isDark: isDark,
+                            )),
                 ),
               ],
             ),

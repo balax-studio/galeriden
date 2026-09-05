@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
@@ -162,6 +161,7 @@ class _RealEstateNegotiationScreenState
       realEstate: widget.listing.realEstate,
       buyerName: game.playerName,
       sellerName: widget.listing.sellerName,
+      playerBalance: game.balance,
       agreedPrice: _offeredPrice,
       deedFee: deedFee,
       revolvingFundFee: RealEstateListingModel.revolvingFundFee,
@@ -182,7 +182,7 @@ class _RealEstateNegotiationScreenState
             context,
             context.tr('real_estate_buy_success_toast'),
           );
-          context.pop();
+          Navigator.of(context).pop();
         } else {
           NotificationService.showError(
             context,
@@ -198,6 +198,7 @@ class _RealEstateNegotiationScreenState
     final theme = Theme.of(context);
     final game = ref.watch(gameProvider);
     final askingPrice = widget.listing.askingPrice;
+
     final currentChance = RealEstateNegotiationEngine.calculateBuyerSuccessChance(
       askingPrice: askingPrice,
       offeredPrice: _offeredPrice,
@@ -506,6 +507,8 @@ class _RealEstateNegotiationScreenState
               final isSellerAgency =
                   widget.listing.realEstate.sellerType == RealEstateSellerType.agency;
               final isEnabled = !isUsed &&
+                  !_isAccepted &&
+                  !_isProcessing &&
                   (!isAgencyOnly || isSellerAgency) &&
                   (!_isWalkaway || tactic.isRescue);
 
@@ -531,7 +534,7 @@ class _RealEstateNegotiationScreenState
                                       : const Color(0xFFE0F2FE),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: Icon(
+                              child: Icon(
                                   tactic.isRescue
                                       ? Icons.local_cafe_rounded
                                       : Icons.flash_on_rounded,
@@ -576,6 +579,9 @@ class _RealEstateNegotiationScreenState
   }
 
   Widget _buildOfferControls(ThemeData theme, int currentChance) {
+    final minPrice = (widget.listing.askingPrice * 0.70).roundToDouble();
+    final maxPrice = widget.listing.askingPrice.toDouble();
+
     return NeoBrutalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -614,14 +620,41 @@ class _RealEstateNegotiationScreenState
           const SizedBox(height: 10),
 
           // Preset Percentage Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 6,
             children: [
+              _buildPresetButton(context.tr('real_estate_btn_asking_price'), 0.0),
               _buildPresetButton('-%5', 0.05),
               _buildPresetButton('-%10', 0.10),
               _buildPresetButton('-%15', 0.15),
               _buildPresetButton('-%20', 0.20),
             ],
+          ),
+          const SizedBox(height: 10),
+
+          // Interactive Offer Slider
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: const Color(0xFFF59E0B),
+              inactiveTrackColor: Colors.grey.shade300,
+              thumbColor: Colors.black,
+              overlayColor: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+              trackHeight: 6,
+            ),
+            child: Slider(
+              value: _offeredPrice.clamp(minPrice, maxPrice),
+              min: minPrice,
+              max: maxPrice,
+              onChanged: (_isAccepted || _isWalkaway || _isProcessing)
+                  ? null
+                  : (val) {
+                      setState(() {
+                        _offeredPrice = (val / 10000).round() * 10000.0;
+                      });
+                    },
+            ),
           ),
         ],
       ),
@@ -646,6 +679,16 @@ class _RealEstateNegotiationScreenState
   }
 
   Widget _buildSubmitButton(int currentChance) {
+    if (_isAccepted) {
+      return NeoBrutalButton(
+        label: context.tr('tapu_btn_complete_transfer'),
+        icon: Icons.verified_user_rounded,
+        fullWidth: true,
+        onPressed: _showClosingDeedDialog,
+        backgroundColor: const Color(0xFF10B981),
+      );
+    }
+
     if (_isWalkaway) {
       final canRescue = !_usedTacticIds.contains('sozlesme_kahvesi');
       return NeoBrutalButton(
@@ -660,7 +703,7 @@ class _RealEstateNegotiationScreenState
           if (!_usedTacticIds.contains(rescueTactic.id)) {
             _executeTactic(rescueTactic);
           } else {
-            context.pop();
+            Navigator.of(context).pop();
           }
         },
         backgroundColor: const Color(0xFFEF4444),

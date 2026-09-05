@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../core/utils/notification_service.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../data/models/vehicle_category.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/vasita_market_provider.dart';
-import '../../../core/services/ad_service.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -18,6 +18,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import 'vasita_negotiation_screen.dart';
 
 class VasitaMarketScreen extends ConsumerStatefulWidget {
   const VasitaMarketScreen({super.key});
@@ -29,7 +30,6 @@ class VasitaMarketScreen extends ConsumerStatefulWidget {
 class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String? _purchasingListingId;
 
   @override
   void dispose() {
@@ -129,6 +129,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                     onPressed: () {
+                      HapticFeedback.mediumImpact();
                       ref.read(vasitaMarketProvider.notifier).refreshMarket();
                     },
                   ),
@@ -152,7 +153,10 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     icon: Icons.apps_rounded,
                     activeColor: AppColors.brutalYellow,
                     isDark: isDark,
-                    onTap: () => ref.read(vasitaMarketProvider.notifier).setCategoryFilter(null),
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      ref.read(vasitaMarketProvider.notifier).setCategoryFilter(null);
+                    },
                   ),
                   ...VehicleCategory.values
                       .where((cat) => cat != VehicleCategory.car)
@@ -166,13 +170,68 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                       icon: cat.icon,
                       activeColor: cat.badgeColor,
                       isDark: isDark,
-                      onTap: () => ref.read(vasitaMarketProvider.notifier).setCategoryFilter(cat),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        ref.read(vasitaMarketProvider.notifier).setCategoryFilter(cat);
+                      },
                     );
                   }),
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
+
+            // 2.5 Reactive Status Bar: Garage Capacity & Listing Count
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.warehouse_rounded,
+                          size: 16,
+                          color: game.ownedCars.length >= game.maxGarageSlots
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFF00E575),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${context.tr('vasita_garage_slots_badge')}: ${game.ownedCars.length} / ${game.maxGarageSlots}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: game.ownedCars.length >= game.maxGarageSlots
+                                ? const Color(0xFFEF4444)
+                                : (isDark ? Colors.white70 : Colors.black87),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '${filteredListings.length} • ${context.tr('vasita_filter_all')}',
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
 
             // 3. Listings View
             Expanded(
@@ -323,7 +382,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     final car = listing.car;
     final cat = car.vehicleCategory;
     final canAfford = gameBalance >= listing.askingPrice;
-    final isPurchasing = _purchasingListingId == listing.id;
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
@@ -462,21 +520,30 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 textColor: isDark ? Colors.white : Colors.black,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                onPressed: () => _showInspectionDialog(context, listing, isDark),
+                onPressed: () => _showInspectionDialog(context, listing, isDark, maxSlotsReached),
               ),
               const SizedBox(width: 6),
               NeoBrutalButton(
-                icon: Icons.shopping_cart_checkout_rounded,
-                label: isPurchasing ? '...' : context.tr('vasita_buy_button'),
-                backgroundColor: canAfford && !maxSlotsReached && !isPurchasing
-                    ? const Color(0xFF00E575)
-                    : const Color(0xFF94A3B8),
+                icon: Icons.handshake_rounded,
+                label: maxSlotsReached
+                    ? context.tr('vasita_btn_garage_full')
+                    : context.tr('vasita_btn_start_negotiation'),
+                backgroundColor: maxSlotsReached
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF00E575),
                 textColor: Colors.black,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                onPressed: (!canAfford || maxSlotsReached || isPurchasing)
+                onPressed: maxSlotsReached
                     ? null
-                    : () => _handlePurchase(context, listing),
+                    : () {
+                        HapticFeedback.mediumImpact();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => VasitaNegotiationScreen(listing: listing),
+                          ),
+                        );
+                      },
               ),
             ],
           ),
@@ -485,7 +552,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     );
   }
 
-  void _showInspectionDialog(BuildContext context, ListingModel listing, bool isDark) {
+  void _showInspectionDialog(BuildContext context, ListingModel listing, bool isDark, bool maxSlotsReached) {
     final car = listing.car;
     showDialog(
       context: context,
@@ -549,11 +616,40 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
             ),
           ),
           actions: [
-            NeoBrutalButton(
-              label: context.tr('btn_close'),
-              backgroundColor: AppColors.brutalYellow,
-              textColor: Colors.black,
-              onPressed: () => Navigator.of(ctx).pop(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                NeoBrutalButton(
+                  label: context.tr('btn_close'),
+                  backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  textColor: isDark ? Colors.white : Colors.black,
+                  fontSize: 11,
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  icon: Icons.handshake_rounded,
+                  label: maxSlotsReached
+                      ? context.tr('vasita_btn_garage_full')
+                      : context.tr('vasita_btn_start_negotiation'),
+                  backgroundColor: maxSlotsReached
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF00E575),
+                  textColor: Colors.black,
+                  fontSize: 11,
+                  onPressed: maxSlotsReached
+                      ? null
+                      : () {
+                          Navigator.of(ctx).pop();
+                          HapticFeedback.mediumImpact();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => VasitaNegotiationScreen(listing: listing),
+                            ),
+                          );
+                        },
+                ),
+              ],
             ),
           ],
         );
@@ -561,28 +657,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     );
   }
 
-  Future<void> _handlePurchase(BuildContext context, ListingModel listing) async {
-    setState(() => _purchasingListingId = listing.id);
-
-    try {
-      final success = ref.read(vasitaMarketProvider.notifier).buyVasita(listing);
-      if (success && mounted) {
-        NotificationService.showSuccess(
-          context,
-          context.tr('vasita_buy_success'),
-        );
-      } else if (mounted) {
-        NotificationService.showError(
-          context,
-          context.tr('err_insufficient_cash'),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _purchasingListingId = null);
-      }
-    }
-  }
 
   String _formatCatalogCount(int count) {
     if (count >= 1000) {

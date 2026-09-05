@@ -4,6 +4,8 @@ import 'package:galeriden/data/models/real_estate_category.dart';
 import 'package:galeriden/data/models/real_estate_model.dart';
 import 'package:galeriden/domain/usecases/real_estate_market_engine.dart';
 import 'package:galeriden/domain/usecases/real_estate_negotiation_engine.dart';
+import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('RealEstateCategory & DeedType Tests', () {
@@ -283,6 +285,123 @@ void main() {
 
       expect(dealershipLevel4.isFeatureUnlocked('/emlak'), true);
       expect(dealershipLevel4.isFeatureUnlocked('/emlak-market'), true);
+    });
+  });
+
+  group('GameNotifier Real Estate Management Tests', () {
+    late GameNotifier gameNotifier;
+
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      gameNotifier = GameNotifier();
+      await Future.delayed(const Duration(milliseconds: 50));
+      gameNotifier.stopPeriodicOrganicOfferTimer();
+    });
+
+    tearDown(() {
+      gameNotifier.stopPeriodicOrganicOfferTimer();
+    });
+
+    test('expandRealEstateSlots adds 2 slots when player has sufficient balance', () {
+      gameNotifier.state = gameNotifier.state.copyWith(
+        balance: 1000000,
+        maxRealEstateSlots: 5,
+      );
+
+      final success = gameNotifier.expandRealEstateSlots();
+      expect(success, true);
+      expect(gameNotifier.state.maxRealEstateSlots, 7);
+      expect(gameNotifier.state.balance, 500000);
+    });
+
+    test('expandRealEstateSlots fails when player has insufficient balance', () {
+      gameNotifier.state = gameNotifier.state.copyWith(
+        balance: 100000,
+        maxRealEstateSlots: 5,
+      );
+
+      final success = gameNotifier.expandRealEstateSlots();
+      expect(success, false);
+      expect(gameNotifier.state.maxRealEstateSlots, 5);
+      expect(gameNotifier.state.balance, 100000);
+    });
+
+    test('toggleRealEstateRent and daily rental processing credit income on nextDay', () {
+      const property = RealEstateModel(
+        id: 'prop_rental_test',
+        title: 'Kiralık Daire',
+        category: RealEstateCategory.housing,
+        city: 'İzmir',
+        district: 'Karşıyaka',
+        squareMeters: 100,
+        roomCount: '2+1',
+        buildingAge: 3,
+        baseMarketValue: 3000000.0,
+        currentPurchasePrice: 3000000.0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        isRented: false,
+      );
+
+      gameNotifier.state = gameNotifier.state.copyWith(
+        balance: 500000,
+        ownedRealEstates: [property],
+      );
+
+      // Toggle rent to active
+      final toggleSuccess = gameNotifier.toggleRealEstateRent('prop_rental_test');
+      expect(toggleSuccess, true);
+      expect(gameNotifier.state.ownedRealEstates.first.isRented, true);
+
+      final dailyRent = gameNotifier.state.ownedRealEstates.first.dailyRentIncome;
+      expect(dailyRent, greaterThan(0));
+
+      final balanceBefore = gameNotifier.state.balance;
+      // Advance to next day
+      gameNotifier.advanceGameDay();
+
+      // Verify rental income was credited and logged
+      expect(gameNotifier.state.balance, greaterThan(balanceBefore));
+      expect(
+        gameNotifier.state.recentEvents.any((e) => e.title == 'Gayrimenkul Kira Geliri'),
+        true,
+      );
+    });
+
+    test('sellRealEstate removes property, credits fair value, and adds profit and XP', () {
+      const property = RealEstateModel(
+        id: 'prop_sell_test',
+        title: 'Satılık Arsa',
+        category: RealEstateCategory.land,
+        city: 'Muğla',
+        district: 'Bodrum',
+        squareMeters: 500,
+        roomCount: 'Arsa',
+        buildingAge: 0,
+        baseMarketValue: 2000000.0,
+        currentPurchasePrice: 2000000.0,
+        deedFeePaid: 80000.0,
+        commissionPaid: 0.0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+      );
+
+      gameNotifier.state = gameNotifier.state.copyWith(
+        balance: 100000,
+        totalProfit: 50000,
+        ownedRealEstates: [property],
+      );
+
+      final success = gameNotifier.sellRealEstate(
+        realEstateId: 'prop_sell_test',
+        salePrice: 2500000.0,
+      );
+
+      expect(success, true);
+      expect(gameNotifier.state.ownedRealEstates, isEmpty);
+      expect(gameNotifier.state.balance, 2600000.0);
+      // Net profit = 2,500,000 - (2,000,000 + 80,000 + 0) = 420,000
+      expect(gameNotifier.state.totalProfit, 50000 + 420000.0);
     });
   });
 }

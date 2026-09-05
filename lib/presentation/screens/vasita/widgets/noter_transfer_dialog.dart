@@ -2,68 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../data/models/real_estate_category.dart';
-import '../../../../data/models/real_estate_model.dart';
+import '../../../../data/models/car_model.dart';
 import '../../../widgets/neo_brutal_button.dart';
 
-class TapuTransferDialog extends StatefulWidget {
-  final RealEstateModel realEstate;
+class NoterTransferDialog extends StatefulWidget {
+  final CarModel car;
   final String buyerName;
   final String sellerName;
   final double agreedPrice;
-  final double deedFee;
-  final double revolvingFundFee;
-  final double commission;
+  final double noterFee;
+  final double registrationFee;
   final double playerBalance;
+  final bool isGarageFull;
   final VoidCallback? onComplete;
 
-  const TapuTransferDialog({
+  const NoterTransferDialog({
     super.key,
-    required this.realEstate,
+    required this.car,
     required this.buyerName,
     required this.sellerName,
     required this.agreedPrice,
-    required this.deedFee,
-    this.revolvingFundFee = RealEstateListingModel.revolvingFundFee,
-    required this.commission,
+    required this.noterFee,
+    this.registrationFee = 850.0,
     this.playerBalance = 0.0,
+    this.isGarageFull = false,
     this.onComplete,
   });
 
   static Future<void> show({
     required BuildContext context,
-    required RealEstateModel realEstate,
+    required CarModel car,
     required String buyerName,
     required String sellerName,
     required double agreedPrice,
-    required double deedFee,
-    double revolvingFundFee = RealEstateListingModel.revolvingFundFee,
-    required double commission,
+    required double noterFee,
+    double registrationFee = 850.0,
     double playerBalance = 0.0,
+    bool isGarageFull = false,
     VoidCallback? onComplete,
   }) {
     return showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (_) => TapuTransferDialog(
-        realEstate: realEstate,
+      builder: (_) => NoterTransferDialog(
+        car: car,
         buyerName: buyerName,
         sellerName: sellerName,
         agreedPrice: agreedPrice,
-        deedFee: deedFee,
-        revolvingFundFee: revolvingFundFee,
-        commission: commission,
+        noterFee: noterFee,
+        registrationFee: registrationFee,
         playerBalance: playerBalance,
+        isGarageFull: isGarageFull,
         onComplete: onComplete,
       ),
     );
   }
 
   @override
-  State<TapuTransferDialog> createState() => _TapuTransferDialogState();
+  State<NoterTransferDialog> createState() => _NoterTransferDialogState();
 }
 
-class _TapuTransferDialogState extends State<TapuTransferDialog>
+class _NoterTransferDialogState extends State<NoterTransferDialog>
     with SingleTickerProviderStateMixin {
   late AnimationController _stampController;
   late Animation<double> _scaleAnimation;
@@ -89,7 +88,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 350), () {
+    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         _stampController.forward();
         HapticFeedback.heavyImpact();
@@ -106,11 +105,17 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalCost = widget.agreedPrice +
-        widget.deedFee +
-        widget.revolvingFundFee +
-        widget.commission;
+    final totalCost = widget.agreedPrice + widget.noterFee + widget.registrationFee;
     final hasEnoughFunds = widget.playerBalance >= totalCost;
+    final canComplete = hasEnoughFunds && !widget.isGarageFull;
+
+    final maskedVin = widget.car.id.length >= 8
+        ? 'VF3${widget.car.id.substring(0, 4).toUpperCase()}...${widget.car.id.substring(widget.car.id.length - 4).toUpperCase()}'
+        : 'TR-${widget.car.id.toUpperCase()}';
+
+    final effectivePlate = widget.car.plateNumber.isNotEmpty
+        ? widget.car.plateNumber
+        : '34 GLR 101';
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -158,7 +163,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              context.tr('tapu_dialog_title'),
+                              context.tr('noter_dialog_title'),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -168,7 +173,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              context.tr('tapu_dialog_subtitle'),
+                              context.tr('noter_dialog_subtitle'),
                               style: const TextStyle(
                                 color: Color(0xFF94A3B8),
                                 fontSize: 12,
@@ -187,7 +192,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                   ),
                 ),
 
-                // Official Deed Certificate Card
+                // Official Vehicle Deed Certificate Card
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Stack(
@@ -205,57 +210,58 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Header of Deed
+                            // Certificate Header
                             Center(
                               child: Column(
                                 children: [
                                   Text(
-                                    context.tr('tapu_certificate_header'),
+                                    context.tr('noter_certificate_header'),
                                     style: const TextStyle(
                                       color: Color(0xFF92400E),
-                                      fontSize: 14,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w900,
-                                      letterSpacing: 1.2,
+                                      letterSpacing: 1.1,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Container(
                                     height: 2,
-                                    width: 120,
+                                    width: 130,
                                     color: const Color(0xFFD97706),
                                   ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 14),
 
-                            _buildDeedRow(
-                              context.tr('tapu_field_province_district'),
-                              '${widget.realEstate.city} • ${widget.realEstate.district}',
+                            _buildCertificateRow(
+                              context.tr('noter_field_plate'),
+                              effectivePlate,
+                              isBold: true,
                             ),
-                            _buildDeedRow(
-                              context.tr('tapu_field_property_type'),
-                              context.tr(widget.realEstate.category.localizationKey),
+                            _buildCertificateRow(
+                              context.tr('noter_field_vin'),
+                              maskedVin,
                             ),
-                            _buildDeedRow(
-                              context.tr('tapu_field_deed_status'),
-                              context.tr(widget.realEstate.deedType.localizationKey),
+                            _buildCertificateRow(
+                              context.tr('noter_field_vehicle'),
+                              '${widget.car.modelYear} ${widget.car.brand} ${widget.car.modelName}',
                             ),
-                            _buildDeedRow(
-                              context.tr('tapu_field_area_rooms'),
-                              '${widget.realEstate.squareMeters} m² • ${widget.realEstate.roomCount}',
+                            _buildCertificateRow(
+                              context.tr('noter_field_mileage'),
+                              '${widget.car.expertise.mileage} KM',
                             ),
-                            _buildDeedRow(
-                              context.tr('tapu_field_seller'),
+                            _buildCertificateRow(
+                              context.tr('noter_field_seller'),
                               widget.sellerName,
                             ),
-                            _buildDeedRow(
-                              context.tr('tapu_field_buyer'),
+                            _buildCertificateRow(
+                              context.tr('noter_field_buyer'),
                               widget.buyerName,
                             ),
-                            const Divider(color: Color(0xFFD97706), height: 20),
-                            _buildDeedRow(
-                              context.tr('tapu_field_agreed_price'),
+                            const Divider(color: Color(0xFFD97706), height: 18),
+                            _buildCertificateRow(
+                              context.tr('noter_field_agreed_price'),
                               CurrencyFormatter.format(widget.agreedPrice),
                               isBold: true,
                               textColor: const Color(0xFFB45309),
@@ -266,8 +272,8 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
 
                       // Elastic Stamp Overlay
                       Positioned(
-                        right: 20,
-                        bottom: 25,
+                        right: 16,
+                        bottom: 22,
                         child: AnimatedBuilder(
                           animation: _stampController,
                           builder: (context, child) {
@@ -276,26 +282,26 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                               child: Opacity(
                                 opacity: _opacityAnimation.value,
                                 child: Transform.rotate(
-                                  angle: -0.22,
+                                  angle: -0.20,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
+                                      horizontal: 14,
+                                      vertical: 7,
                                     ),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: const Color(0xFFDC2626),
-                                        width: 3,
+                                        width: 2.5,
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
-                                      context.tr('tapu_stamp_text'),
+                                      context.tr('noter_stamp_text'),
                                       style: const TextStyle(
                                         color: Color(0xFFDC2626),
-                                        fontSize: 18,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w900,
-                                        letterSpacing: 2.0,
+                                        letterSpacing: 1.8,
                                       ),
                                     ),
                                   ),
@@ -323,7 +329,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          context.tr('tapu_costs_breakdown_title'),
+                          context.tr('noter_costs_breakdown_title'),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
@@ -332,24 +338,19 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                         ),
                         const SizedBox(height: 8),
                         _buildFeeLine(
-                          context.tr('tapu_fee_deed_rate'),
-                          CurrencyFormatter.format(widget.deedFee),
+                          context.tr('noter_fee_devir_rate'),
+                          CurrencyFormatter.format(widget.noterFee),
                         ),
                         _buildFeeLine(
-                          context.tr('tapu_fee_revolving_fund'),
-                          CurrencyFormatter.format(widget.revolvingFundFee),
+                          context.tr('noter_fee_registration'),
+                          CurrencyFormatter.format(widget.registrationFee),
                         ),
-                        if (widget.commission > 0)
-                          _buildFeeLine(
-                            context.tr('tapu_fee_commission_rate'),
-                            CurrencyFormatter.format(widget.commission),
-                          ),
                         const Divider(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              context.tr('tapu_fee_total_cost'),
+                              context.tr('noter_fee_total_cost'),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w900,
@@ -367,7 +368,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                         ),
                         const SizedBox(height: 6),
                         _buildFeeLine(
-                          context.tr('tapu_label_player_balance'),
+                          context.tr('noter_label_player_balance'),
                           CurrencyFormatter.format(widget.playerBalance),
                           textColor: hasEnoughFunds
                               ? const Color(0xFF10B981)
@@ -377,26 +378,69 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                           const SizedBox(height: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFEE2E2),
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                  color: const Color(0xFFEF4444), width: 1),
+                                color: const Color(0xFFEF4444),
+                                width: 1,
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline_rounded,
-                                    color: Color(0xFFDC2626), size: 14),
+                                const Icon(
+                                  Icons.error_outline_rounded,
+                                  color: Color(0xFFDC2626),
+                                  size: 14,
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
-                                    context.tr(
-                                        'tapu_insufficient_balance_warning'),
+                                    context.tr('noter_insufficient_balance_warning'),
                                     style: const TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
                                       color: Color(0xFFB91C1C),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (widget.isGarageFull) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFEF3C7),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(0xFFF59E0B),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.warehouse_rounded,
+                                  color: Color(0xFFD97706),
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    context.tr('vasita_btn_garage_full'),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF92400E),
                                     ),
                                   ),
                                 ),
@@ -415,21 +459,23 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: NeoBrutalButton(
-                    label: hasEnoughFunds
-                        ? context.tr('tapu_btn_complete_transfer')
-                        : context.tr('tapu_insufficient_balance_warning'),
-                    icon: hasEnoughFunds
-                        ? Icons.assignment_turned_in_rounded
+                    label: widget.isGarageFull
+                        ? context.tr('vasita_btn_garage_full')
+                        : (hasEnoughFunds
+                            ? context.tr('noter_btn_complete_transfer')
+                            : context.tr('noter_insufficient_balance_warning')),
+                    icon: canComplete
+                        ? Icons.verified_rounded
                         : Icons.block_rounded,
                     fullWidth: true,
-                    onPressed: hasEnoughFunds
+                    onPressed: canComplete
                         ? () {
                             HapticFeedback.heavyImpact();
                             Navigator.of(context).pop();
                             widget.onComplete?.call();
                           }
                         : null,
-                    backgroundColor: hasEnoughFunds
+                    backgroundColor: canComplete
                         ? const Color(0xFF10B981)
                         : Colors.grey.shade400,
                   ),
@@ -442,10 +488,14 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
     );
   }
 
-  Widget _buildDeedRow(String label, String value,
-      {bool isBold = false, Color? textColor}) {
+  Widget _buildCertificateRow(
+    String label,
+    String value, {
+    bool isBold = false,
+    Color? textColor,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 2.5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

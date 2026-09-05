@@ -63,6 +63,32 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
     return false;
   }
 
+  bool buyVasitaNegotiated({
+    required ListingModel listing,
+    required double agreedPrice,
+    required double noterFee,
+    double registrationFee = 850.0,
+  }) {
+    final gameNotifier = _ref.read(gameProvider.notifier);
+    final outcome = gameNotifier.buyCarWithNoter(
+      car: listing.car,
+      agreedPrice: agreedPrice,
+      noterFee: noterFee,
+      registrationFee: registrationFee,
+      isExpertiseCompleted: listing.isExpertiseCompleted,
+    );
+
+    if (outcome != null) {
+      state = state.where((l) => l.id != listing.id).toList();
+      return true;
+    }
+    return false;
+  }
+
+  void removeListing(String listingId) {
+    state = state.where((l) => l.id != listingId).toList();
+  }
+
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();
