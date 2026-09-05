@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/slot_text_composer.dart';
 import '../../data/models/real_estate_category.dart';
 import '../../data/models/real_estate_model.dart';
@@ -467,7 +468,7 @@ class RealEstateNegotiationEngine {
 
     if (isAccepted) {
       final msg = SlotTextComposer.sanitizeText(
-        '${listing.sellerName} • Teklif ettiğin ₺${offeredPrice.round()} rakamını kabul ediyorum. Web - Tapu başvurusunu yapıp harçları yatıralım.',
+        'Teklif ettiğiniz ${CurrencyFormatter.format(offeredPrice)} rakamını kabul ediyorum. Web - Tapu başvurusunu yapıp harçları yatıralım.',
       );
       return RealEstateNegotiationOutcome(
         currentOfferedPrice: offeredPrice,
@@ -493,7 +494,7 @@ class RealEstateNegotiationEngine {
 
     if (isWalkaway) {
       final walkawayMsg = SlotTextComposer.sanitizeText(
-        '${listing.sellerName} • ₺${offeredPrice.round()} teklifin gayrimenkulümün değerini hiçe sayıyor. Pazarlık bitmiştir, tapu dairesine gitmiyoruz!',
+        '${CurrencyFormatter.format(offeredPrice)} teklifiniz gayrimenkulün değerini hiçe sayıyor. Pazarlık bitmiştir, tapu dairesine gitmiyoruz!',
       );
       return RealEstateNegotiationOutcome(
         currentOfferedPrice: offeredPrice,
@@ -530,14 +531,15 @@ class RealEstateNegotiationEngine {
     String responseMsg;
     String? rejectionReason;
     if (shouldMakeCounter && counterPrice != null) {
-      final counterFormatted = '₺${counterPrice.round()}';
+      final counterFormatted = CurrencyFormatter.format(counterPrice);
+      final offeredFormatted = CurrencyFormatter.format(offeredPrice);
       final dialogues = [
-        '${listing.sellerName} • Liste fiyatımız ortada lakin masadan eli boş dönmeyelim. Son olarak $counterFormatted rakamına bırakırım, var mısın?',
-        '${listing.sellerName} • ₺${offeredPrice.round()} kurtarmaz ama mülk sahibini aradım, $counterFormatted seviyesine inerse onay verdi.',
-        '${listing.sellerName} • Teklifin çok kırıcı oldu usta. Aramızda kalacaksa $counterFormatted yapalım, hemen vekaleti çıkaralım.',
+        'Liste fiyatımız ortada lakin masadan eli boş dönmeyelim. Son olarak $counterFormatted rakamına bırakırım, var mısınız?',
+        '$offeredFormatted kurtarmaz ama mülk sahibini aradım, $counterFormatted seviyesine inerse onay verdi.',
+        'Teklifiniz çok kırıcı oldu usta. Aramızda kalacaksa $counterFormatted yapalım, hemen vekaleti çıkaralım.',
       ];
       responseMsg = SlotTextComposer.sanitizeText(dialogues[_random.nextInt(dialogues.length)]);
-      rejectionReason = 'Satıcı ₺${offeredPrice.round()} teklifini yetersiz buldu ve $counterFormatted karşı teklif sundu.';
+      rejectionReason = 'Satıcı $offeredFormatted teklifini yetersiz buldu ve $counterFormatted karşı teklif sundu.';
     } else {
       final esnafRejections = [
         'Bu rakama bölgede kapıcı dairesi bile vermiyorlar!',
@@ -577,18 +579,18 @@ class RealEstateNegotiationEngine {
     required double askingPrice,
     required int patience,
   }) {
-    final formattedOffer = '₺${offeredPrice.round()}';
+    final formattedOffer = CurrencyFormatter.format(offeredPrice);
 
     if (patience < 25) {
       final slot1 = [
-        '$sellerName • Sabrımı tüketiyorsun.',
-        '$sellerName • Bu son ikazımdır.',
-        '$sellerName • Artık canımı sıkmaya başladı bu pazarlık.',
+        'Sabrımı tüketiyorsunuz.',
+        'Bu son ikazımdır.',
+        'Artık canımı sıkmaya başladı bu pazarlık.',
       ];
       final slot2 = <String>[];
       if (category == RealEstateCategory.land) {
         slot2.addAll([
-          'Arsamı üç kuruşa kapatıp müteahhide kat karşılığı vermeyi mi düşünüyorsun?',
+          'Arsamı üç kuruşa kapatıp müteahhide kat karşılığı vermeyi mi düşünüyorsunuz?',
           'İmarı açık kupon arsayı tarla parasına bırakmam usta.',
         ]);
       } else if (category == RealEstateCategory.commercial) {
@@ -614,9 +616,9 @@ class RealEstateNegotiationEngine {
     switch (sellerType) {
       case RealEstateSellerType.individual:
         final slot1 = [
-          '$sellerName • Selamlar usta.',
-          '$sellerName • Beyefendi iyi günler.',
-          '$sellerName • İlanımı incelediğiniz için teşekkürler.',
+          'Selamlar usta.',
+          'Beyefendi iyi günler.',
+          'İlanımı incelediğiniz için teşekkürler.',
         ];
         final slot2 = <String>[];
         if (category == RealEstateCategory.land) {
@@ -642,17 +644,17 @@ class RealEstateNegotiationEngine {
           ]);
         }
         final slot3 = [
-          '$formattedOffer kurtarmaz, ₺${(askingPrice * 0.96).round()} seviyesinde anlaşırsak tapuya geçebiliriz.',
-          '$formattedOffer çok düşük kaldı, ₺${(askingPrice * 0.97).round()} altına kesinlikle imza atmam.',
-          '$formattedOffer teklifinize karşı son teklifim ₺${(askingPrice * 0.95).round()} olur.',
+          '$formattedOffer kurtarmaz, ${CurrencyFormatter.format((askingPrice * 0.96).roundToDouble())} seviyesinde anlaşırsak tapuya geçebiliriz.',
+          '$formattedOffer çok düşük kaldı, ${CurrencyFormatter.format((askingPrice * 0.97).roundToDouble())} altına kesinlikle imza atmam.',
+          '$formattedOffer teklifinize karşı son teklifim ${CurrencyFormatter.format((askingPrice * 0.95).roundToDouble())} olur.',
         ];
         return SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3);
 
       case RealEstateSellerType.agency:
         final slot1 = [
-          '$sellerName • Ofisimize hoş geldiniz.',
-          '$sellerName • Portföyümüz çok canlı usta.',
-          '$sellerName • Emlak piyasasında fırsatlar hızlı tükenir.',
+          'Ofisimize hoş geldiniz.',
+          'Portföyümüz çok canlı usta.',
+          'Emlak piyasasında fırsatlar hızlı tükenir.',
         ];
         final slot2 = <String>[];
         if (category == RealEstateCategory.land) {
@@ -678,24 +680,24 @@ class RealEstateNegotiationEngine {
           ]);
         }
         final slot3 = [
-          '$formattedOffer teklifinizi mal sahibine iletsem masadan kovar. ₺${(askingPrice * 0.95).round()} olursa ikna ederim.',
-          '$formattedOffer ile el sıkışamayız, ₺${(askingPrice * 0.96).round()} peşin çalışırsa hemen sözleşmeyi hazırlarım.',
-          '$formattedOffer çok kırıcı oldu. ₺${(askingPrice * 0.97).round()} yapalım, iki tarafın da gönlü olsun.',
+          '$formattedOffer teklifinizi mal sahibine iletsem masadan kovar. ${CurrencyFormatter.format((askingPrice * 0.95).roundToDouble())} olursa ikna ederim.',
+          '$formattedOffer ile el sıkışamayız, ${CurrencyFormatter.format((askingPrice * 0.96).roundToDouble())} peşin çalışırsa hemen sözleşmeyi hazırlarım.',
+          '$formattedOffer çok kırıcı oldu. ${CurrencyFormatter.format((askingPrice * 0.97).roundToDouble())} yapalım, iki tarafın da gönlü olsun.',
         ];
         return SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3);
 
       case RealEstateSellerType.bankAuction:
         final slot1 = [
-          '$sellerName • İhale Takip Birimi.',
-          '$sellerName • Banka Gayrimenkul Tasfiye Masası.',
+          'İhale Takip Birimi.',
+          'Banka Gayrimenkul Tasfiye Masası.',
         ];
         final slot2 = [
           'Ekspertiz değerleme raporu resmi olarak onaylanmıştır.',
           'Banka kurul kararı olmaksızın taban fiyatın altına inilemez.',
         ];
         final slot3 = [
-          '$formattedOffer teklifi ihale taban fiyatı sınırını karşılamıyor. Teklifinizi ₺${(askingPrice * 0.97).round()} seviyesine revize ediniz.',
-          '$formattedOffer kurul onayından geçmez. Asgari kabul sınırı ₺${(askingPrice * 0.96).round()} olarak belirlenmiştir.',
+          '$formattedOffer teklifi ihale taban fiyatı sınırını karşılamıyor. Teklifinizi ${CurrencyFormatter.format((askingPrice * 0.97).roundToDouble())} seviyesine revize ediniz.',
+          '$formattedOffer kurul onayından geçmez. Asgari kabul sınırı ${CurrencyFormatter.format((askingPrice * 0.96).roundToDouble())} olarak belirlenmiştir.',
         ];
         return SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3);
     }

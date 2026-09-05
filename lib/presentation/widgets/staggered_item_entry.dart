@@ -26,7 +26,7 @@ class _StaggeredItemEntryState extends State<StaggeredItemEntry>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
+  late Animation<Offset> _slideAnimation;
   Timer? _timer;
 
   @override
@@ -41,8 +41,10 @@ class _StaggeredItemEntryState extends State<StaggeredItemEntry>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    _slideAnimation =
-        Tween<double>(begin: widget.slideOffset, end: 0.0).animate(
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0.0, (widget.slideOffset / 200.0).clamp(0.02, 0.15)),
+      end: Offset.zero,
+    ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
 
@@ -69,17 +71,12 @@ class _StaggeredItemEntryState extends State<StaggeredItemEntry>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _fadeAnimation.value,
-          child: Transform.translate(
-            offset: Offset(0, _slideAnimation.value),
-            child: widget.child,
-          ),
-        );
-      },
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: widget.child,
+      ),
     );
   }
 }

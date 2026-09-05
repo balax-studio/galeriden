@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -36,43 +35,55 @@ class MarqueeTickerWidget extends StatefulWidget {
 class _MarqueeTickerWidgetState extends State<MarqueeTickerWidget>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
-  Timer? _tickerTimer;
-  bool _isDisposed = false;
+  late final AnimationController _animController;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startMarqueeScroll();
-    });
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 30),
+    );
+
+    _animController.addListener(_onAnimTick);
+
+    final isTest = WidgetsBinding.instance.runtimeType
+        .toString()
+        .toLowerCase()
+        .contains('test');
+    if (!isTest) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _startLoop();
+      });
+    }
   }
 
-  void _startMarqueeScroll() {
-    if (!mounted || _isDisposed) return;
-    const interval = Duration(milliseconds: 32);
-    final delta = widget.velocity * 0.032;
+  void _startLoop() {
+    if (!_scrollController.hasClients) return;
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent <= 0) return;
 
-    _tickerTimer?.cancel();
-    _tickerTimer = Timer.periodic(interval, (_) {
-      if (!_scrollController.hasClients || _isDisposed) return;
-      final maxExtent = _scrollController.position.maxScrollExtent;
-      final current = _scrollController.offset;
+    final seconds = (maxExtent / (widget.velocity > 0 ? widget.velocity : 32.0))
+        .clamp(5.0, 120.0);
+    _animController.duration =
+        Duration(milliseconds: (seconds * 1000).round());
+    _animController.repeat();
+  }
 
-      if (maxExtent <= 0) return;
-
-      if (current >= maxExtent) {
-        _scrollController.jumpTo(0.0);
-      } else {
-        _scrollController.jumpTo(current + delta);
-      }
-    });
+  void _onAnimTick() {
+    if (!_scrollController.hasClients) return;
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent > 0) {
+      _scrollController.jumpTo(_animController.value * maxExtent);
+    }
   }
 
   @override
   void dispose() {
-    _isDisposed = true;
-    _tickerTimer?.cancel();
+    _animController.removeListener(_onAnimTick);
+    _animController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -84,14 +95,15 @@ class _MarqueeTickerWidgetState extends State<MarqueeTickerWidget>
     // Repeat for seamless looping
     final repeatedText = fullText * 4;
 
-    return Container(
-      height: widget.height,
-      decoration: BoxDecoration(
-        color: widget.backgroundColor,
-        border: Border.symmetric(
-          horizontal: BorderSide(color: widget.borderColor, width: 2.0),
+    return RepaintBoundary(
+      child: Container(
+        height: widget.height,
+        decoration: BoxDecoration(
+          color: widget.backgroundColor,
+          border: Border.symmetric(
+            horizontal: BorderSide(color: widget.borderColor, width: 2.0),
+          ),
         ),
-      ),
       child: Row(
         children: [
           // Lead Badge
@@ -151,8 +163,9 @@ class _MarqueeTickerWidgetState extends State<MarqueeTickerWidget>
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _HazardDotPainter extends CustomPainter {

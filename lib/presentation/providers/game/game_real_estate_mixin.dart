@@ -78,10 +78,14 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final property = state.ownedRealEstates[index];
-    // Strict gating: Rented, personal residence, or active renovation properties cannot be sold
-    if (!property.canBeSold) {
+    // Strict gating: Rented, personal residence, active renovation, or active construction properties cannot be sold
+    if (property.isRented ||
+        property.isPersonalResidence ||
+        property.isUnderRenovation ||
+        property.isConstructionActive) {
       if (kDebugMode) {
-        debugPrint('Cannot sell property: rented=${property.isRented}, residence=${property.isPersonalResidence}, underRenovation=${property.isUnderRenovation}');
+        debugPrint(
+            'Cannot sell property: rented=${property.isRented}, residence=${property.isPersonalResidence}, underRenovation=${property.isUnderRenovation}, construction=${property.isConstructionActive}');
       }
       return false;
     }
@@ -553,16 +557,43 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Rejects a tenant candidate or matching rental offer
+  bool rejectTenantCandidate({required String propertyId, required String candidateId}) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == propertyId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    final updatedOffers = property.activeOffers.where((o) => o.id != candidateId).toList();
+    if (updatedOffers.length != property.activeOffers.length) {
+      final updatedProperty = property.copyWith(activeOffers: updatedOffers);
+      final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+      updatedList[index] = updatedProperty;
+      state = state.copyWith(ownedRealEstates: updatedList);
+      saveState();
+    }
+    return true;
+  }
+
   /// Leases property to a specific tenant candidate with deposit collection and provenance logging
   bool leaseRealEstateToTenant({
     required String realEstateId,
     required TenantModel tenant,
+    bool force = false,
   }) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
     if (index == -1) return false;
 
     final property = state.ownedRealEstates[index];
-    if (!property.canBeRented) return false;
+    if (property.isRented ||
+        property.isPersonalResidence ||
+        property.isUnderRenovation ||
+        property.isConstructionActive) {
+      return false;
+    }
+
+    if (!force && property.category == RealEstateCategory.land) {
+      return false;
+    }
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
     final updatedOffers = property.activeOffers.where((o) => !o.isRentalOffer).toList();
@@ -571,6 +602,8 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       isRented: true,
       currentTenant: tenant,
       isRentalListed: false,
+      isListed: false,
+      clearCustomPrice: true,
       activeOffers: updatedOffers,
       provenanceLog: [
         ...property.provenanceLog,
@@ -705,16 +738,16 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final property = state.ownedRealEstates[index];
-    final offer = property.activeOffers.firstWhere(
-      (o) => o.id == offerId,
-      orElse: () => throw StateError('Offer not found'),
-    );
+    final offerIndex = property.activeOffers.indexWhere((o) => o.id == offerId);
+    if (offerIndex == -1) return false;
 
+    final offer = property.activeOffers[offerIndex];
     if (!offer.isRentalOffer || offer.tenant == null) return false;
 
     return leaseRealEstateToTenant(
       realEstateId: realEstateId,
       tenant: offer.tenant!,
+      force: true,
     );
   }
 

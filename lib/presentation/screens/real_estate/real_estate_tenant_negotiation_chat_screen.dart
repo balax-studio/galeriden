@@ -10,64 +10,115 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
-import '../../../domain/usecases/real_estate_buyer_negotiation_expansion.dart';
+import '../../../data/models/tenant_model.dart';
 import '../../../domain/usecases/real_estate_chat_negotiation_engine.dart';
+import '../../../domain/usecases/real_estate_tenant_negotiation_expansion.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/chat_typing_indicator_bubble.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
-import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 
-class RealEstateBuyerNegotiationChatScreen extends ConsumerStatefulWidget {
+class RealEstateTenantNegotiationChatScreen extends ConsumerStatefulWidget {
   final String propertyId;
-  final String offerId;
+  final String candidateId;
+  final TenantModel? candidate;
 
-  const RealEstateBuyerNegotiationChatScreen({
+  const RealEstateTenantNegotiationChatScreen({
     super.key,
     required this.propertyId,
-    required this.offerId,
+    required this.candidateId,
+    this.candidate,
   });
 
   @override
-  ConsumerState<RealEstateBuyerNegotiationChatScreen> createState() =>
-      _RealEstateBuyerNegotiationChatScreenState();
+  ConsumerState<RealEstateTenantNegotiationChatScreen> createState() =>
+      _RealEstateTenantNegotiationChatScreenState();
 }
 
-class _RealEstateBuyerNegotiationChatScreenState
-    extends ConsumerState<RealEstateBuyerNegotiationChatScreen> {
-  late ChatNegotiationState _chatState;
+class _RealEstateTenantNegotiationChatScreenState
+    extends ConsumerState<RealEstateTenantNegotiationChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final Random _random = Random();
-  bool _isInitialized = false;
+
+  late TenantModel _currentTenant;
+  late TenantArchetype _archetype;
+  late double _negotiatedRent;
+  late double _negotiatedDeposit;
+  int _patience = 100;
+  int _satisfaction = 50;
+  bool _isAgreed = false;
+  bool _isWalkedAway = false;
   bool _isApplying = false;
   bool _isOpponentTyping = false;
   bool _isTypingPaused = false;
-  final Map<ChatTacticType, int> _tacticUseCounts = {};
+
+  final List<ChatMessageModel> _messages = [];
+  final Map<TenantTacticType, int> _tacticUseCounts = {};
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isInitialized) {
-      final game = ref.read(gameProvider);
-      final prop = game.ownedRealEstates.firstWhere(
-        (r) => r.id == widget.propertyId,
-      );
-      final offer = prop.activeOffers.firstWhere(
-        (o) => o.id == widget.offerId,
-        orElse: () => prop.activeOffers.isNotEmpty
-            ? prop.activeOffers.first
-            : throw StateError('Offer not found'),
-      );
+  void initState() {
+    super.initState();
+    _initSession();
+  }
 
-      _chatState = RealEstateChatNegotiationEngine.createBuyerSession(
-        propertyId: prop.id,
-        buyerName: offer.buyerName,
-        offeredPrice: offer.offeredAmount,
-        buyerNote: offer.buyerNote,
-        isRental: prop.isRented,
+  void _initSession() {
+    final game = ref.read(gameProvider);
+    final prop = game.ownedRealEstates.firstWhere(
+      (r) => r.id == widget.propertyId,
+      orElse: () => RealEstateModel(
+        id: widget.propertyId,
+        title: 'Kiralık Mülk',
+        category: RealEstateCategory.housing,
+        city: 'İstanbul',
+        district: 'Kadıköy',
+        squareMeters: 100,
+        roomCount: '2+1',
+        buildingAge: 5,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 4000000.0,
+        currentPurchasePrice: 4000000.0,
+      ),
+    );
+
+    if (widget.candidate != null) {
+      _currentTenant = widget.candidate!;
+    } else {
+      final baseMonthly = (prop.estimatedRealValue *
+              prop.category.dailyRentYieldRate *
+              30)
+          .roundToDouble();
+      final candidates = TenantModel.generateCandidates(
+        baseMonthlyRent: baseMonthly > 0 ? baseMonthly : 15000.0,
+        count: 1,
       );
-      _isInitialized = true;
+      _currentTenant = candidates.first;
     }
+
+    _archetype = RealEstateTenantNegotiationExpansion.detectTenantArchetype(
+      _currentTenant.profession,
+      _currentTenant.name,
+    );
+
+    _negotiatedRent = _currentTenant.monthlyRent;
+    _negotiatedDeposit = _currentTenant.depositAmount;
+
+    // Initial opening thought / greeting message
+    final openingText = _currentTenant.evaluationThought.isNotEmpty
+        ? _currentTenant.evaluationThought
+        : 'İlanınızı inceledim • Şartlarda uzlaşırsak uzun vadeli ve düzenli bir kiracı olmak isterim.';
+
+    _messages.add(
+      ChatMessageModel(
+        id: 'msg_tenant_0',
+        senderName: _currentTenant.name,
+        role: ChatSenderRole.tenant,
+        message: openingText,
+        timestamp: DateTime.now(),
+        isFromPlayer: false,
+        badgeText: 'KİRA TEKLİFİ • ${CurrencyFormatter.format(_negotiatedRent)}',
+      ),
+    );
   }
 
   @override
@@ -89,42 +140,51 @@ class _RealEstateBuyerNegotiationChatScreenState
   }
 
   Future<void> _applyTactic({
-    required ChatTacticType tactic,
+    required TenantTacticType tactic,
     required String playerMessage,
-    required RealEstateCategory category,
   }) async {
-    if (_isApplying || _isOpponentTyping || _chatState.isAgreed || _chatState.isWalkedAway) return;
+    if (_isApplying || _isOpponentTyping || _isAgreed || _isWalkedAway) return;
     _isApplying = true;
     HapticFeedback.mediumImpact();
 
-    final plan = RealEstateChatNegotiationEngine.evaluateTacticPlan(
-      state: _chatState,
-      tactic: tactic,
-      playerMessageText: playerMessage,
-      random: _random,
-      propertyCategory: category,
-    );
-    if (plan == null) {
-      _isApplying = false;
-      return;
-    }
+    final count = _tacticUseCounts[tactic] ?? 0;
+    _tacticUseCounts[tactic] = count + 1;
 
-    _tacticUseCounts[tactic] = (_tacticUseCounts[tactic] ?? 0) + 1;
-
-    // 1. Oyuncu mesajını hemen ekrana ekle
+    // 1. Add player message immediately
     setState(() {
-      _chatState = plan.stateWithPlayerMessageOnly;
+      _messages.add(
+        ChatMessageModel(
+          id: 'msg_player_${DateTime.now().millisecondsSinceEpoch}',
+          senderName: context.tr('tenant_chat_player_role_tag'),
+          role: ChatSenderRole.player,
+          message: playerMessage,
+          timestamp: DateTime.now(),
+          isFromPlayer: true,
+        ),
+      );
       _isOpponentTyping = true;
       _isTypingPaused = false;
     });
     _scrollToBottom();
 
-    // 2. Aşama 1: Karşı taraf yazıyor... (1100ms - 1700ms)
+    // 2. Evaluate tactic outcome
+    final outcome = RealEstateTenantNegotiationExpansion.evaluateTactic(
+      tactic: tactic,
+      currentRent: _negotiatedRent,
+      currentDeposit: _negotiatedDeposit,
+      patience: _patience,
+      satisfaction: _satisfaction,
+      archetype: _archetype,
+      useCount: count,
+      random: _random,
+    );
+
+    // 3. Stage 1: Typing animation (1100ms - 1700ms)
     final stage1Ms = 1100 + _random.nextInt(600);
     await Future.delayed(Duration(milliseconds: stage1Ms));
     if (!mounted) return;
 
-    // 3. Aşama 2: Duraksama / Kaybolma (Düşünme gerilimi: 600ms - 1100ms)
+    // 4. Stage 2: Pause / Kaybolma (Düşünme gerilimi: 600ms - 1100ms)
     setState(() {
       _isTypingPaused = true;
     });
@@ -132,7 +192,7 @@ class _RealEstateBuyerNegotiationChatScreenState
     await Future.delayed(Duration(milliseconds: pauseMs));
     if (!mounted) return;
 
-    // 4. Aşama 3: Tekrar yazıyor (1000ms - 1600ms)
+    // 5. Stage 3: Typing resumes (1000ms - 1600ms)
     setState(() {
       _isTypingPaused = false;
     });
@@ -140,31 +200,61 @@ class _RealEstateBuyerNegotiationChatScreenState
     await Future.delayed(Duration(milliseconds: stage3Ms));
     if (!mounted) return;
 
-    // 5. Aşama 4: Cevap ekrana düşer
+    // 6. Stage 4: Deliver counterparty message & update numbers
     setState(() {
-      _chatState = plan.finalState;
+      _patience = (_patience + outcome.patienceDelta).clamp(0, 100);
+      _satisfaction = (_satisfaction + outcome.satisfactionDelta).clamp(0, 100);
+      _negotiatedRent = outcome.nextRent;
+      _negotiatedDeposit = outcome.nextDeposit;
+      _isAgreed = outcome.isAgreed;
+      _isWalkedAway = outcome.isWalkedAway;
+
+      if (_patience <= 0 && !_isAgreed) {
+        _isWalkedAway = true;
+      }
+
+      String finalReply = outcome.replyText;
+      String? finalBadge = outcome.replyBadge;
+      if (_isWalkedAway && !outcome.isWalkedAway) {
+        finalReply =
+            'Görüşmelerde ortak bir noktada buluşamadık ve sabrım tükendi • Masadan kalkıyorum, iyi günler dilerim.';
+        finalBadge = 'MASADAN KALKILDI';
+      }
+
+      _messages.add(
+        ChatMessageModel(
+          id: 'msg_tenant_${DateTime.now().millisecondsSinceEpoch}',
+          senderName: _currentTenant.name,
+          role: ChatSenderRole.tenant,
+          message: finalReply,
+          timestamp: DateTime.now(),
+          isFromPlayer: false,
+          badgeText: finalBadge,
+        ),
+      );
+
       _isOpponentTyping = false;
       _isTypingPaused = false;
       _isApplying = false;
     });
     _scrollToBottom();
 
-    if (_chatState.isAgreed) {
+    if (_isAgreed) {
       GameSoundHapticService.playCashSuccess();
       NotificationService.showSuccess(
         context,
-        context.tr('buyer_chat_agreed_toast'),
+        context.tr('tenant_chat_agreed_toast'),
       );
-      _finalizeSale();
-    } else if (_chatState.isWalkedAway) {
+      _finalizeLease();
+    } else if (_isWalkedAway) {
       GameSoundHapticService.playWarningVibration();
       NotificationService.showError(
         context,
-        context.tr('buyer_chat_walkaway_toast'),
+        context.tr('tenant_chat_walkaway_toast'),
       );
-      ref.read(gameProvider.notifier).rejectRealEstateOffer(
-            realEstateId: widget.propertyId,
-            offerId: widget.offerId,
+      ref.read(gameProvider.notifier).rejectTenantCandidate(
+            propertyId: widget.propertyId,
+            candidateId: widget.candidateId,
           );
       Future.delayed(const Duration(milliseconds: 700), () {
         if (mounted) context.pop();
@@ -172,25 +262,30 @@ class _RealEstateBuyerNegotiationChatScreenState
     }
   }
 
-  void _finalizeSale() {
-    ref.read(gameProvider.notifier).acceptRealEstateOffer(
+  void _finalizeLease() {
+    final updatedTenant = _currentTenant.copyWith(
+      monthlyRent: _negotiatedRent,
+      depositAmount: _negotiatedDeposit,
+    );
+    ref.read(gameProvider.notifier).leaseRealEstateToTenant(
           realEstateId: widget.propertyId,
-          offerId: widget.offerId,
-          customAgreedPrice: _chatState.currentPrice,
+          tenant: updatedTenant,
+          force: true,
         );
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted) context.pop();
+
+    Future.delayed(const Duration(milliseconds: 900), () {
+      if (mounted) context.pop(true);
     });
   }
 
   String _resolvePatienceLabel(BuildContext context, int patience) {
     if (patience > 50) {
-      return context.tr('buyer_chat_patience_normal');
+      return context.tr('tenant_chat_patience_normal');
     }
     if (patience > 20) {
-      return context.tr('buyer_chat_patience_tense');
+      return context.tr('tenant_chat_patience_tense');
     }
-    return context.tr('buyer_chat_patience_critical');
+    return context.tr('tenant_chat_patience_critical');
   }
 
   @override
@@ -202,7 +297,7 @@ class _RealEstateBuyerNegotiationChatScreenState
       (r) => r.id == widget.propertyId,
       orElse: () => RealEstateModel(
         id: widget.propertyId,
-        title: 'Gayrimenkul',
+        title: 'Kiralık Mülk',
         category: RealEstateCategory.housing,
         city: 'İstanbul',
         district: 'Kadıköy',
@@ -216,23 +311,18 @@ class _RealEstateBuyerNegotiationChatScreenState
       ),
     );
 
-    final archetype = RealEstateBuyerNegotiationExpansion.detectBuyerArchetype(
-      _chatState.counterpartyName,
-      prop.category,
-    );
-
-    final patienceText = _resolvePatienceLabel(context, _chatState.patience);
-    final isPatienceCalm = _chatState.patience > 50;
-    final isPatienceTense = _chatState.patience > 20 && !isPatienceCalm;
+    final patienceText = _resolvePatienceLabel(context, _patience);
+    final isPatienceCalm = _patience > 50;
+    final isPatienceTense = _patience > 20 && !isPatienceCalm;
 
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF0B1120) : const Color(0xFFF8FAFC),
       appBar: NeoBrutalAppBar(
-        title: _chatState.counterpartyName,
+        title: _currentTenant.name,
         subtitle: (_isOpponentTyping && !_isTypingPaused)
-            ? '${context.tr(archetype.titleKey)} • ${context.tr('chat_status_typing')}'
-            : '${context.tr(archetype.titleKey)} • ${context.tr('chat_status_online')}',
+            ? '${context.tr(_archetype.titleKey)} • ${context.tr('chat_status_typing')}'
+            : '${context.tr(_archetype.titleKey)} • ${context.tr('chat_status_online')}',
         onLeadingPressed: () => context.pop(),
         showHazardUnderline: true,
         headerAnimation: NeoBrutalHeaderAnimation.none,
@@ -242,7 +332,7 @@ class _RealEstateBuyerNegotiationChatScreenState
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Industrial Patience Plaque
+                // Patience Indicator Badge
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4.5),
@@ -280,7 +370,7 @@ class _RealEstateBuyerNegotiationChatScreenState
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '%${_chatState.patience} • $patienceText',
+                        '%$_patience • $patienceText',
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w900,
@@ -295,7 +385,8 @@ class _RealEstateBuyerNegotiationChatScreenState
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Glowing Mint Current Price Badge
+
+                // Agreed Rent Badge
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 9, vertical: 4.5),
@@ -312,7 +403,7 @@ class _RealEstateBuyerNegotiationChatScreenState
                     ],
                   ),
                   child: Text(
-                    CurrencyFormatter.formatShort(_chatState.currentPrice),
+                    CurrencyFormatter.formatShort(_negotiatedRent),
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
@@ -328,44 +419,44 @@ class _RealEstateBuyerNegotiationChatScreenState
       ),
       body: Column(
         children: [
-          // Tactical Property Placard Banner
+          // Property Overview Header Strip
           _buildPropertyBanner(
             context: context,
             prop: prop,
-            archetype: archetype,
+            archetype: _archetype,
             isDark: isDark,
           ),
 
-          // Negotiation Dialogue Scroll Area
+          // Main Chat Area
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              itemCount: _chatState.messages.length +
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+              itemCount: _messages.length +
                   (_isOpponentTyping && !_isTypingPaused ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == _chatState.messages.length) {
+                if (index == _messages.length) {
                   return ChatTypingIndicatorBubble(
-                    senderName: _chatState.counterpartyName,
-                    role: _chatState.counterpartyRole,
+                    senderName: _currentTenant.name,
+                    role: ChatSenderRole.tenant,
                     isDark: isDark,
                   );
                 }
-                final msg = _chatState.messages[index];
+                final msg = _messages[index];
                 return _buildMessageBubble(
                   context: context,
                   msg: msg,
-                  archetype: archetype,
+                  archetype: _archetype,
                   isDark: isDark,
                 );
               },
             ),
           ),
 
-          // Status Placard or Tactical Deck
-          if (_chatState.isAgreed)
-            _buildAgreedBanner(context)
-          else if (_chatState.isWalkedAway)
+          // Agreement or Walkaway Banner
+          if (_isAgreed)
+            _buildAgreementBanner(context)
+          else if (_isWalkedAway)
             _buildWalkAwayBanner(context)
           else
             _buildTacticalDeck(
@@ -381,34 +472,25 @@ class _RealEstateBuyerNegotiationChatScreenState
   Widget _buildPropertyBanner({
     required BuildContext context,
     required RealEstateModel prop,
-    required BuyerArchetype archetype,
+    required TenantArchetype archetype,
     required bool isDark,
   }) {
-    final diff = prop.estimatedRealValue > 0
-        ? ((_chatState.currentPrice - prop.estimatedRealValue) /
-                prop.estimatedRealValue) *
-            100
-        : 0.0;
-    final diffPrefix = diff >= 0 ? '+' : '';
-    final diffText = '$diffPrefix${diff.toStringAsFixed(1)}%';
-
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
         border: const Border(
-          bottom: BorderSide(color: Colors.black, width: 2.5),
+          bottom: BorderSide(color: Colors.black, width: 2),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Archetype Line
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(3.5),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: archetype.themeColor,
                   borderRadius: BorderRadius.circular(4),
@@ -420,7 +502,7 @@ class _RealEstateBuyerNegotiationChatScreenState
               Text(
                 context.tr(archetype.titleKey),
                 style: TextStyle(
-                  fontSize: 10.5,
+                  fontSize: 11,
                   fontWeight: FontWeight.w900,
                   color: isDark ? Colors.white : const Color(0xFF0F172A),
                 ),
@@ -443,7 +525,6 @@ class _RealEstateBuyerNegotiationChatScreenState
             ],
           ),
           const SizedBox(height: 6),
-          // Property Title & Valuation Details
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -460,41 +541,15 @@ class _RealEstateBuyerNegotiationChatScreenState
                 ),
               ),
               const SizedBox(width: 8),
-              Row(
-                children: [
-                  Text(
-                    '${context.tr('real_estate_showcase_btn_market_val')}: ${CurrencyFormatter.formatShort(prop.estimatedRealValue)}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: isDark
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF475569),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 5, vertical: 1.5),
-                    decoration: BoxDecoration(
-                      color: diff >= 0
-                          ? const Color(0xFFD1FAE5)
-                          : const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.black, width: 1.2),
-                    ),
-                    child: Text(
-                      diffText,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        color: diff >= 0
-                            ? const Color(0xFF065F46)
-                            : const Color(0xFF991B1B),
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                'Depozito: ${CurrencyFormatter.formatShort(_negotiatedDeposit)}',
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
+                ),
               ),
             ],
           ),
@@ -506,7 +561,7 @@ class _RealEstateBuyerNegotiationChatScreenState
   Widget _buildMessageBubble({
     required BuildContext context,
     required ChatMessageModel msg,
-    required BuyerArchetype archetype,
+    required TenantArchetype archetype,
     required bool isDark,
   }) {
     final isPlayer = msg.isFromPlayer;
@@ -517,7 +572,7 @@ class _RealEstateBuyerNegotiationChatScreenState
         crossAxisAlignment:
             isPlayer ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          // Sender Header Tag
+          // Header Tag
           if (isPlayer)
             Padding(
               padding: const EdgeInsets.only(right: 4, bottom: 4),
@@ -525,7 +580,7 @@ class _RealEstateBuyerNegotiationChatScreenState
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    context.tr('buyer_chat_player_role_tag'),
+                    context.tr('tenant_chat_player_role_tag'),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
@@ -537,9 +592,9 @@ class _RealEstateBuyerNegotiationChatScreenState
                   ),
                   const SizedBox(width: 4),
                   const Icon(
-                    Icons.person_pin_rounded,
+                    Icons.home_work_rounded,
                     size: 13,
-                    color: Color(0xFFEAB308),
+                    color: Color(0xFF10B981),
                   ),
                 ],
               ),
@@ -571,57 +626,70 @@ class _RealEstateBuyerNegotiationChatScreenState
               ),
             ),
 
-          // Dialogue Bubble Container
+          // Speech Bubble Card
           Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.78,
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            constraints: const BoxConstraints(maxWidth: 320),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               color: isPlayer
-                  ? const Color(0xFFFFDE59) // High-voltage Electric Yellow
+                  ? const Color(0xFF10B981)
                   : (isDark ? const Color(0xFF1E293B) : Colors.white),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2.5),
-              boxShadow: [
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(10),
+                topRight: const Radius.circular(10),
+                bottomLeft: Radius.circular(isPlayer ? 10 : 2),
+                bottomRight: Radius.circular(isPlayer ? 2 : 10),
+              ),
+              border: Border.all(color: Colors.black, width: 2.2),
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black,
-                  offset: isPlayer
-                      ? const Offset(-3.5, 3.5)
-                      : const Offset(3.5, 3.5),
+                  offset: Offset(2.5, 2.5),
                   blurRadius: 0,
                 ),
               ],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isPlayer ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
+                if (msg.badgeText != null) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isPlayer
+                          ? Colors.black
+                          : archetype.themeColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: isPlayer ? Colors.white70 : Colors.black,
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      msg.badgeText!,
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        color: isPlayer ? Colors.white : Colors.black,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ),
+                ],
                 Text(
                   msg.message,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isPlayer ? FontWeight.w900 : FontWeight.w800,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
                     color: isPlayer
-                        ? Colors.black
+                        ? Colors.white
                         : (isDark ? Colors.white : const Color(0xFF0F172A)),
                     height: 1.35,
                   ),
                 ),
-                if (msg.badgeText != null) ...[
-                  const SizedBox(height: 8),
-                  NeoBrutalBadge(
-                    text: msg.badgeText!,
-                    backgroundColor:
-                        isPlayer ? Colors.black : const Color(0xFFFEF3C7),
-                    textColor: isPlayer
-                        ? const Color(0xFFFFDE59)
-                        : const Color(0xFF92400E),
-                    borderColor: Colors.black,
-                    borderWidth: 1.5,
-                    showHardShadow: !isPlayer,
-                    shadowOffset: const Offset(1.5, 1.5),
-                  ),
-                ],
               ],
             ),
           ),
@@ -630,7 +698,7 @@ class _RealEstateBuyerNegotiationChatScreenState
     );
   }
 
-  Widget _buildAgreedBanner(BuildContext context) {
+  Widget _buildAgreementBanner(BuildContext context) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
@@ -654,7 +722,7 @@ class _RealEstateBuyerNegotiationChatScreenState
           const SizedBox(width: 8),
           Flexible(
             child: Text(
-              '${context.tr('buyer_chat_agreed_toast')} • ${CurrencyFormatter.format(_chatState.currentPrice)}',
+              '${context.tr('tenant_chat_agreed_toast')} • ${CurrencyFormatter.format(_negotiatedRent)} / ay',
               style: const TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w900,
@@ -690,7 +758,7 @@ class _RealEstateBuyerNegotiationChatScreenState
           const Icon(Icons.cancel_rounded, color: Colors.white, size: 22),
           const SizedBox(width: 8),
           Text(
-            context.tr('buyer_chat_walkaway_toast'),
+            context.tr('tenant_chat_walkaway_toast'),
             style: const TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w900,
@@ -707,38 +775,8 @@ class _RealEstateBuyerNegotiationChatScreenState
     required RealEstateModel prop,
     required bool isDark,
   }) {
-    final availableTactics = [
-      (
-        tactic: ChatTacticType.counterPrice,
-        icon: Icons.trending_up_rounded,
-        accentColor: const Color(0xFFFACC15),
-      ),
-      (
-        tactic: ChatTacticType.transferDeedCosts,
-        icon: Icons.description_rounded,
-        accentColor: const Color(0xFF38BDF8),
-      ),
-      (
-        tactic: ChatTacticType.demandCashDiscount,
-        icon: Icons.account_balance_wallet_rounded,
-        accentColor: const Color(0xFF4ADE80),
-      ),
-      (
-        tactic: ChatTacticType.demandPrimeFloors,
-        icon: Icons.location_city_rounded,
-        accentColor: const Color(0xFFC084FC),
-      ),
-      (
-        tactic: ChatTacticType.demandQualityUpgrade,
-        icon: Icons.handshake_rounded,
-        accentColor: const Color(0xFFFB923C),
-      ),
-      (
-        tactic: ChatTacticType.askJokeOrChat,
-        icon: Icons.coffee_rounded,
-        accentColor: const Color(0xFFE0E7FF),
-      ),
-    ];
+    final availableDeck =
+        RealEstateTenantNegotiationExpansion.getAvailableDeck(_tacticUseCounts);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
@@ -752,36 +790,17 @@ class _RealEstateBuyerNegotiationChatScreenState
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Tactical Header Strip
           Row(
             children: [
               const Icon(Icons.bolt_rounded, size: 16, color: Color(0xFFEAB308)),
               const SizedBox(width: 4),
               Text(
-                context.tr('buyer_chat_tactics_title'),
+                context.tr('tenant_chat_tactics_title'),
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.5,
                   color: isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: Colors.black, width: 1.2),
-                ),
-                child: Text(
-                  context.tr('buyer_chat_patience_tense'),
-                  style: const TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF92400E),
-                  ),
                 ),
               ),
             ],
@@ -794,16 +813,13 @@ class _RealEstateBuyerNegotiationChatScreenState
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              itemCount: availableTactics.length,
+              itemCount: availableDeck.length,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, i) {
-                final item = availableTactics[i];
+                final card = availableDeck[i];
                 return _buildDynamicTacticCard(
                   context: context,
-                  tactic: item.tactic,
-                  icon: item.icon,
-                  accentColor: item.accentColor,
-                  category: prop.category,
+                  card: card,
                   isDark: isDark,
                 );
               },
@@ -811,28 +827,28 @@ class _RealEstateBuyerNegotiationChatScreenState
           ),
           const SizedBox(height: 12),
 
-          // Primary Accept / Reject Action Bar
+          // Direct Accept / Reject Action Bar
           Row(
             children: [
               Expanded(
                 flex: 3,
                 child: NeoBrutalButton(
                   label:
-                      '${context.tr('real_estate_offer_btn_accept')} • ${CurrencyFormatter.format(_chatState.currentPrice)}',
-                  icon: Icons.check_circle_rounded,
+                      '${context.tr('tenant_btn_sign_lease')} • ${CurrencyFormatter.format(_negotiatedRent)}',
+                  icon: Icons.drive_file_rename_outline_rounded,
                   backgroundColor: const Color(0xFF10B981),
                   textColor: Colors.white,
                   borderWidth: 2.5,
                   borderRadius: 8,
                   shadowOffset: const Offset(3.5, 3.5),
-                  fontSize: 12.5,
-                  minHeight: 50,
+                  fontSize: 12,
+                  minHeight: 48,
                   onPressed: _isApplying
                       ? null
                       : () => _applyTactic(
-                            tactic: ChatTacticType.acceptAgreement,
-                            playerMessage: context.tr('buyer_msg_accept'),
-                            category: prop.category,
+                            tactic: TenantTacticType.acceptLease,
+                            playerMessage:
+                                'Tüm şartlar üzerinde anlaştık • Kira kontratını imzalıyoruz, mülkünüz hayırlı olsun!',
                           ),
                 ),
               ),
@@ -840,21 +856,21 @@ class _RealEstateBuyerNegotiationChatScreenState
               Expanded(
                 flex: 2,
                 child: NeoBrutalButton(
-                  label: context.tr('real_estate_offer_btn_reject'),
+                  label: context.tr('tenant_btn_walk_away'),
                   icon: Icons.close_rounded,
                   backgroundColor: const Color(0xFFEF4444),
                   textColor: Colors.white,
                   borderWidth: 2.5,
                   borderRadius: 8,
                   shadowOffset: const Offset(3.5, 3.5),
-                  fontSize: 12.5,
-                  minHeight: 50,
+                  fontSize: 12,
+                  minHeight: 48,
                   onPressed: _isApplying
                       ? null
                       : () => _applyTactic(
-                            tactic: ChatTacticType.walkAway,
-                            playerMessage: context.tr('buyer_msg_reject'),
-                            category: prop.category,
+                            tactic: TenantTacticType.walkAway,
+                            playerMessage:
+                                'Şartlarımız uyuşmuyor • Bu koşullarda kiralama yapamayız, iyi günler.',
                           ),
                 ),
               ),
@@ -867,50 +883,35 @@ class _RealEstateBuyerNegotiationChatScreenState
 
   Widget _buildDynamicTacticCard({
     required BuildContext context,
-    required ChatTacticType tactic,
-    required IconData icon,
-    required Color accentColor,
-    required RealEstateCategory category,
+    required TenantTacticCard card,
     required bool isDark,
   }) {
-    final count = _tacticUseCounts[tactic] ?? 0;
-    String label;
-    String message;
-    int patienceImpact;
+    final count = _tacticUseCounts[card.type] ?? 0;
+    final label = context.tr(card.labelKey);
 
-    if (tactic == ChatTacticType.askJokeOrChat) {
-      label = context.tr('buyer_tactic_coffee_label');
-      message = context.tr('buyer_tactic_coffee_msg');
-      patienceImpact = -22; // negative delta means gain in evaluation
+    String message;
+    if (card.type == TenantTacticType.offerRentDiscount) {
+      final discountStr =
+          CurrencyFormatter.format((_negotiatedRent * 0.05).roundToDouble());
+      message = context.tr(card.messageKey, {'discount': discountStr});
     } else {
-      final step =
-          RealEstateBuyerNegotiationExpansion.getTacticStep(tactic, count);
-      label = context.tr(step.labelKey);
-      message = tactic == ChatTacticType.counterPrice
-          ? context.tr(step.messageKey, {
-              'price': CurrencyFormatter.format(
-                (_chatState.currentPrice * 1.05).roundToDouble(),
-              ),
-            })
-          : context.tr(step.messageKey);
-      patienceImpact = step.patienceCost;
+      message = context.tr(card.messageKey);
     }
 
-    final patienceBadgeText = tactic == ChatTacticType.askJokeOrChat
+    final patienceBadge = card.patienceCost <= 0
         ? '+%22'
-        : '-%$patienceImpact';
+        : '-%${card.patienceCost}';
 
     return InkWell(
       onTap: _isApplying
           ? null
           : () => _applyTactic(
-                tactic: tactic,
+                tactic: card.type,
                 playerMessage: message,
-                category: category,
               ),
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        width: 172,
+        width: 175,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
@@ -933,11 +934,11 @@ class _RealEstateBuyerNegotiationChatScreenState
                 Container(
                   padding: const EdgeInsets.all(3.5),
                   decoration: BoxDecoration(
-                    color: accentColor,
+                    color: card.accentColor,
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: Colors.black, width: 1.5),
                   ),
-                  child: Icon(icon, size: 13, color: Colors.black),
+                  child: Icon(card.icon, size: 13, color: Colors.black),
                 ),
                 const Spacer(),
                 Container(
@@ -951,13 +952,13 @@ class _RealEstateBuyerNegotiationChatScreenState
                     border: Border.all(color: Colors.black54, width: 1),
                   ),
                   child: Text(
-                    tactic == ChatTacticType.askJokeOrChat
-                        ? patienceBadgeText
-                        : '#${count + 1} • $patienceBadgeText',
+                    card.patienceCost <= 0
+                        ? patienceBadge
+                        : '#${count + 1} • $patienceBadge',
                     style: TextStyle(
                       fontSize: 9.5,
                       fontWeight: FontWeight.w900,
-                      color: tactic == ChatTacticType.askJokeOrChat
+                      color: card.patienceCost <= 0
                           ? const Color(0xFF10B981)
                           : (isDark ? Colors.white70 : const Color(0xFF334155)),
                     ),

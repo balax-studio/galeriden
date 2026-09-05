@@ -13,6 +13,7 @@ import '../../../data/models/real_estate_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/real_estate_chat_negotiation_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/chat_typing_indicator_bubble.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -36,6 +37,9 @@ class _SubcontractorNegotiationChatScreenState
   int _selectedStage = 1;
   SubcontractorProfile? _activeSubcontractor;
   ChatNegotiationState? _chatState;
+  bool _isApplying = false;
+  bool _isOpponentTyping = false;
+  bool _isTypingPaused = false;
   final ScrollController _scrollController = ScrollController();
   final Random _random = Random();
 
@@ -80,6 +84,9 @@ class _SubcontractorNegotiationChatScreenState
 
     setState(() {
       _activeSubcontractor = sub;
+      _isApplying = false;
+      _isOpponentTyping = false;
+      _isTypingPaused = false;
       _chatState = ChatNegotiationState(
         targetId: '${widget.landId}_stage_$_selectedStage',
         counterpartyName: sub.name,
@@ -110,18 +117,7 @@ class _SubcontractorNegotiationChatScreenState
     });
   }
 
-  void _applyTactic(ChatTacticType tactic, String playerMessage) {
-    if (_chatState == null) return;
-    HapticFeedback.mediumImpact();
-    setState(() {
-      _chatState = RealEstateChatNegotiationEngine.executeTactic(
-        state: _chatState!,
-        tactic: tactic,
-        playerMessageText: playerMessage,
-        random: _random,
-      );
-    });
-
+  void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -131,6 +127,61 @@ class _SubcontractorNegotiationChatScreenState
         );
       }
     });
+  }
+
+  Future<void> _applyTactic(ChatTacticType tactic, String playerMessage) async {
+    if (_chatState == null || _isApplying || _isOpponentTyping || _chatState!.isAgreed || _chatState!.isWalkedAway) return;
+    _isApplying = true;
+    HapticFeedback.mediumImpact();
+
+    final plan = RealEstateChatNegotiationEngine.evaluateTacticPlan(
+      state: _chatState!,
+      tactic: tactic,
+      playerMessageText: playerMessage,
+      random: _random,
+    );
+    if (plan == null) {
+      _isApplying = false;
+      return;
+    }
+
+    // 1. Oyuncu mesajını hemen ekrana ekle
+    setState(() {
+      _chatState = plan.stateWithPlayerMessageOnly;
+      _isOpponentTyping = true;
+      _isTypingPaused = false;
+    });
+    _scrollToBottom();
+
+    // 2. Asama 1: Yaziyor animasyonu (1100ms - 1700ms)
+    final stage1Ms = 1100 + _random.nextInt(600);
+    await Future.delayed(Duration(milliseconds: stage1Ms));
+    if (!mounted) return;
+
+    // 3. Asama 2: Duraksama / Kaybolma (Dusunme gerilimi: 600ms - 1100ms)
+    setState(() {
+      _isTypingPaused = true;
+    });
+    final pauseMs = 600 + _random.nextInt(500);
+    await Future.delayed(Duration(milliseconds: pauseMs));
+    if (!mounted) return;
+
+    // 4. Asama 3: Tekrar yaziyor (1000ms - 1600ms)
+    setState(() {
+      _isTypingPaused = false;
+    });
+    final stage3Ms = 1000 + _random.nextInt(600);
+    await Future.delayed(Duration(milliseconds: stage3Ms));
+    if (!mounted) return;
+
+    // 5. Asama 4: Karsi tarafin cevabini teslim et
+    setState(() {
+      _chatState = plan.finalState;
+      _isOpponentTyping = false;
+      _isTypingPaused = false;
+      _isApplying = false;
+    });
+    _scrollToBottom();
 
     if (_chatState!.isAgreed) {
       GameSoundHapticService.playCashSuccess();
@@ -201,6 +252,11 @@ class _SubcontractorNegotiationChatScreenState
         title: _chatState != null
             ? _chatState!.counterpartyName
             : context.tr('subcontractor_screen_title'),
+        subtitle: _chatState != null
+            ? ((_isOpponentTyping && !_isTypingPaused)
+                ? context.tr('chat_status_typing')
+                : context.tr('chat_status_online'))
+            : null,
         onLeadingPressed: () {
           if (_chatState != null) {
             setState(() {
@@ -573,8 +629,16 @@ class _SubcontractorNegotiationChatScreenState
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.all(16),
-            itemCount: _chatState!.messages.length,
+            itemCount: _chatState!.messages.length +
+                (_isOpponentTyping && !_isTypingPaused ? 1 : 0),
             itemBuilder: (context, index) {
+              if (index == _chatState!.messages.length) {
+                return ChatTypingIndicatorBubble(
+                  senderName: _chatState!.counterpartyName,
+                  role: ChatSenderRole.subcontractor,
+                  isDark: isDark,
+                );
+              }
               final msg = _chatState!.messages[index];
               final isPlayer = msg.isFromPlayer;
               return Padding(
@@ -641,106 +705,122 @@ class _SubcontractorNegotiationChatScreenState
         ),
 
         // Action Panel
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B) : Colors.white,
-            border:
-                const Border(top: BorderSide(color: Colors.black, width: 2)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildTacticChip(
-                    label: context.tr('subcontractor_tactic_discount_label'),
-                    onTap: () => _applyTactic(
-                      ChatTacticType.counterPrice,
-                      context.tr('subcontractor_tactic_discount_msg'),
-                    ),
-                  ),
-                  _buildTacticChip(
-                    label: context.tr('subcontractor_tactic_double_shift_label'),
-                    onTap: () => _applyTactic(
-                      ChatTacticType.demandDoubleShift,
-                      context.tr('subcontractor_tactic_double_shift_msg'),
-                    ),
-                  ),
-                  _buildTacticChip(
-                    label: context.tr('subcontractor_tactic_cash_materials_label'),
-                    onTap: () => _applyTactic(
-                      ChatTacticType.demandCashMaterials,
-                      context.tr('subcontractor_tactic_cash_materials_msg'),
-                    ),
-                  ),
-                  _buildTacticChip(
-                    label: context.tr('subcontractor_tactic_penalty_clause_label'),
-                    onTap: () => _applyTactic(
-                      ChatTacticType.demandPenaltyClause,
-                      context.tr('subcontractor_tactic_penalty_clause_msg'),
-                    ),
-                  ),
-                  _buildTacticChip(
-                    label: context.tr('subcontractor_tactic_guarantee_label'),
-                    onTap: () => _applyTactic(
-                      ChatTacticType.demandPrimeFloors,
-                      context.tr('subcontractor_tactic_guarantee_msg'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: NeoBrutalButton(
-                      text: context.tr('subcontractor_btn_agree_cost', {
-                        'cost': CurrencyFormatter.format(_chatState!.currentPrice),
-                      }),
-                      backgroundColor: const Color(0xFF10B981),
-                      textColor: Colors.white,
-                      onPressed: () => _applyTactic(
-                        ChatTacticType.acceptAgreement,
-                        context.tr('subcontractor_msg_agree_cost'),
+        if (!_chatState!.isAgreed && !_chatState!.isWalkedAway)
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
+              border:
+                  const Border(top: BorderSide(color: Colors.black, width: 2)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildTacticChip(
+                      label: context.tr('subcontractor_tactic_discount_label'),
+                      isEnabled: !_isApplying,
+                      onTap: () => _applyTactic(
+                        ChatTacticType.counterPrice,
+                        context.tr('subcontractor_tactic_discount_msg'),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  NeoBrutalButton(
-                    text: context.tr('subcontractor_btn_end_chat'),
-                    backgroundColor: const Color(0xFFEF4444),
-                    textColor: Colors.white,
-                    onPressed: () => _applyTactic(
-                      ChatTacticType.walkAway,
-                      context.tr('subcontractor_msg_end_chat'),
+                    _buildTacticChip(
+                      label: context.tr('subcontractor_tactic_double_shift_label'),
+                      isEnabled: !_isApplying,
+                      onTap: () => _applyTactic(
+                        ChatTacticType.demandDoubleShift,
+                        context.tr('subcontractor_tactic_double_shift_msg'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                    _buildTacticChip(
+                      label: context.tr('subcontractor_tactic_cash_materials_label'),
+                      isEnabled: !_isApplying,
+                      onTap: () => _applyTactic(
+                        ChatTacticType.demandCashMaterials,
+                        context.tr('subcontractor_tactic_cash_materials_msg'),
+                      ),
+                    ),
+                    _buildTacticChip(
+                      label: context.tr('subcontractor_tactic_penalty_clause_label'),
+                      isEnabled: !_isApplying,
+                      onTap: () => _applyTactic(
+                        ChatTacticType.demandPenaltyClause,
+                        context.tr('subcontractor_tactic_penalty_clause_msg'),
+                      ),
+                    ),
+                    _buildTacticChip(
+                      label: context.tr('subcontractor_tactic_guarantee_label'),
+                      isEnabled: !_isApplying,
+                      onTap: () => _applyTactic(
+                        ChatTacticType.demandPrimeFloors,
+                        context.tr('subcontractor_tactic_guarantee_msg'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoBrutalButton(
+                        text: context.tr('subcontractor_btn_agree_cost', {
+                          'cost': CurrencyFormatter.format(_chatState!.currentPrice),
+                        }),
+                        backgroundColor: const Color(0xFF10B981),
+                        textColor: Colors.white,
+                        onPressed: _isApplying
+                            ? null
+                            : () => _applyTactic(
+                                  ChatTacticType.acceptAgreement,
+                                  context.tr('subcontractor_msg_agree_cost'),
+                                ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    NeoBrutalButton(
+                      text: context.tr('subcontractor_btn_end_chat'),
+                      backgroundColor: const Color(0xFFEF4444),
+                      textColor: Colors.white,
+                      onPressed: _isApplying
+                          ? null
+                          : () => _applyTactic(
+                                ChatTacticType.walkAway,
+                                context.tr('subcontractor_msg_end_chat'),
+                              ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
 
-  Widget _buildTacticChip(
-      {required String label, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEFF6FF),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.black, width: 1.5),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+  Widget _buildTacticChip({
+    required String label,
+    required VoidCallback onTap,
+    bool isEnabled = true,
+  }) {
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.45,
+      child: InkWell(
+        onTap: isEnabled ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Colors.black, width: 1.5),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+          ),
         ),
       ),
     );

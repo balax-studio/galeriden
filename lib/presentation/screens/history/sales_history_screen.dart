@@ -72,373 +72,393 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
         subtitle: context.tr('sales_history_slug'),
         headerAnimation: NeoBrutalHeaderAnimation.receiptPrint,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(14),
+      body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. KPI Overview Metrics
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor:
+                              isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFF0F172A),
+                          borderRadius: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('history_total_sold'),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF64748B)),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                context.tr('history_sold_count',
+                                    {'count': '${game.carsSold}'}),
+                                style: const TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.w900),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor:
+                              isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFF0F172A),
+                          borderRadius: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('history_total_revenue'),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF64748B)),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                CurrencyFormatter.formatShort(totalRevenue),
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.brutalGreen),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor:
+                              isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFF0F172A),
+                          borderRadius: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('history_total_profit'),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF64748B)),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                CurrencyFormatter.formatShort(totalProfit),
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: totalProfit >= 0
+                                        ? AppColors.brutalGreen
+                                        : AppColors.errorRed),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor:
+                              isDark ? const Color(0xFF141721) : Colors.white,
+                          borderColor: isDark
+                              ? const Color(0xFF2A3142)
+                              : const Color(0xFF0F172A),
+                          borderRadius: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('history_avg_profit'),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF64748B)),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                CurrencyFormatter.formatShort(avgProfit),
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: avgProfit >= 0
+                                        ? AppColors.brutalGreen
+                                        : AppColors.errorRed),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 2. Filter Bar
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                          child: Text(
+                        context.tr('history_sales_records_count',
+                            {'count': '${filteredHistory.length}'}),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                          color: isDark ? Colors.white70 : const Color(0xFF0F172A),
+                        ),
+                      )),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterBtn(
+                                context.tr('history_filter_all'), 0, isDark),
+                            const SizedBox(width: 4),
+                            _buildFilterBtn(
+                                context.tr('history_filter_profitable'), 1, isDark),
+                            const SizedBox(width: 4),
+                            _buildFilterBtn(
+                                context.tr('history_filter_consignment'), 2, isDark),
+                            const SizedBox(width: 4),
+                            _buildFilterBtn(
+                                context.tr('history_filter_loss'), 3, isDark),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // 3. Empty state if no records
+                  if (filteredHistory.isEmpty)
+                    NeoBrutalEmptyState(
+                      icon: Icons.receipt_long_rounded,
+                      accentColor: AppColors.brutalGreen,
+                      badgeText: context.tr('history_empty_badge'),
+                      title: context.tr('history_empty_title'),
+                      description: context.tr('history_empty_desc'),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 24),
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          // 4. Virtualized Sales History List
+          if (filteredHistory.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _buildSaleCard(filteredHistory[index], isDark),
+                  ),
+                  childCount: filteredHistory.length,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaleCard(SaleRecordModel sale, bool isDark) {
+    final isProfitable = sale.netProfit >= 0;
+    final profitPercentage = sale.purchasePrice > 0
+        ? (sale.netProfit / sale.purchasePrice) * 100
+        : 0.0;
+    final formattedDate =
+        DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(14),
+      backgroundColor:
+          isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor:
+          isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
+      borderRadius: 14,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        showDialog(
+          context: context,
+          builder: (ctx) => Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: const EdgeInsets.symmetric(
+                horizontal: 18, vertical: 24),
+            child: ThermalReceiptCard(
+              title: context.tr('history_receipt_title'),
+              subtitle: sale.carTitle,
+              receiptNumber:
+                  'SLS-${sale.id.substring(0, math.min(6, sale.id.length)).toUpperCase()}',
+              dateText: formattedDate,
+              items: [
+                ReceiptLineItem(
+                    label: context.tr('history_receipt_purchase_price'),
+                    value: CurrencyFormatter.format(
+                        sale.purchasePrice)),
+                if (sale.maintenanceCost > 0)
+                  ReceiptLineItem(
+                      label: context.tr('history_receipt_maintenance_cost'),
+                      value: CurrencyFormatter.format(
+                          sale.maintenanceCost)),
+                if (sale.maintenanceCost > 0)
+                  ReceiptLineItem(
+                      label: context.tr('history_receipt_total_cost'),
+                      value: CurrencyFormatter.format(
+                          sale.totalCost),
+                      isBold: true),
+                ReceiptLineItem(
+                    label: context.tr('history_receipt_sale_price'),
+                    value:
+                        CurrencyFormatter.format(sale.salePrice),
+                    isBold: true),
+                ReceiptLineItem(
+                  label: context.tr('history_receipt_net_profit'),
+                  value:
+                      '${isProfitable ? '+' : ''}${CurrencyFormatter.format(sale.netProfit)} • %${profitPercentage.toStringAsFixed(1)}',
+                  textColor: isProfitable
+                      ? const Color(0xFF00E575)
+                      : const Color(0xFFEF4444),
+                  isBold: true,
+                ),
+                if (sale.isConsignment)
+                  ReceiptLineItem(
+                      label: context.tr('history_receipt_tx_type'),
+                      value: context.tr('history_receipt_tx_consignment')),
+              ],
+              totalLabel: context.tr('history_receipt_collected_amount'),
+              totalAmount: CurrencyFormatter.format(sale.salePrice),
+              stampOverlay: NeoBrutalStamp(
+                text: isProfitable
+                    ? context.tr('history_receipt_stamp_profit')
+                    : context.tr('history_receipt_stamp_loss'),
+                color: isProfitable
+                    ? const Color(0xFF00E575)
+                    : const Color(0xFFEF4444),
+              ),
+              bottomAction: NeoBrutalButton(
+                label: context.tr('btn_close'),
+                icon: Icons.close_rounded,
+                backgroundColor: const Color(0xFFFFDE59),
+                textColor: Colors.black,
+                fullWidth: true,
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. KPI Overview Metrics
-          Row(
-            children: [
-              Expanded(
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(12),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark
-                      ? const Color(0xFF2A3142)
-                      : const Color(0xFF0F172A),
-                  borderRadius: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('history_total_sold'),
-                        style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        context.tr('history_sold_count',
-                            {'count': '${game.carsSold}'}),
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(12),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark
-                      ? const Color(0xFF2A3142)
-                      : const Color(0xFF0F172A),
-                  borderRadius: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('history_total_revenue'),
-                        style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.formatShort(totalRevenue),
-                        style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.brutalGreen),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          Row(
-            children: [
-              Expanded(
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(12),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark
-                      ? const Color(0xFF2A3142)
-                      : const Color(0xFF0F172A),
-                  borderRadius: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('history_total_profit'),
-                        style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.formatShort(totalProfit),
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
-                          color: totalProfit >= 0
-                              ? AppColors.brutalGreen
-                              : AppColors.errorRed,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(12),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark
-                      ? const Color(0xFF2A3142)
-                      : const Color(0xFF0F172A),
-                  borderRadius: 12,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('history_avg_profit'),
-                        style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF64748B)),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.formatShort(avgProfit),
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
-                          color: avgProfit >= 0
-                              ? AppColors.brutalYellow
-                              : AppColors.errorRed,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // 2. Filter Bar
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                  child: Text(
-                context.tr('history_sales_records_count',
-                    {'count': '${filteredHistory.length}'}),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                  color: isDark ? Colors.white70 : const Color(0xFF0F172A),
-                ),
-              )),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildFilterBtn(
-                        context.tr('history_filter_all'), 0, isDark),
-                    const SizedBox(width: 4),
-                    _buildFilterBtn(
-                        context.tr('history_filter_profitable'), 1, isDark),
-                    const SizedBox(width: 4),
-                    _buildFilterBtn(
-                        context.tr('history_filter_consignment'), 2, isDark),
-                    const SizedBox(width: 4),
-                    _buildFilterBtn(
-                        context.tr('history_filter_loss'), 3, isDark),
+                    Text(
+                      sale.carTitle,
+                      style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      context.tr('history_buyer_day', {
+                        'buyer': sale.buyerName,
+                        'day': '${sale.saleDay}'
+                      }),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
+                    ),
                   ],
                 ),
+              ),
+              NeoBrutalBadge(
+                text:
+                    '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
+                backgroundColor: isProfitable
+                    ? AppColors.brutalGreen
+                    : AppColors.errorRed,
+                textColor:
+                    isProfitable ? Colors.black : Colors.white,
+                fontSize: 11,
               ),
             ],
           ),
           const SizedBox(height: 10),
-
-          // 3. Sales History List
-          if (filteredHistory.isEmpty)
-            NeoBrutalEmptyState(
-              icon: Icons.receipt_long_rounded,
-              accentColor: AppColors.brutalGreen,
-              badgeText: context.tr('history_empty_badge'),
-              title: context.tr('history_empty_title'),
-              description: context.tr('history_empty_desc'),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-            )
-          else
-            ...filteredHistory.map((sale) {
-              final isProfitable = sale.netProfit >= 0;
-              final profitPercentage = sale.purchasePrice > 0
-                  ? (sale.netProfit / sale.purchasePrice) * 100
-                  : 0.0;
-              final formattedDate =
-                  DateFormat('dd.MM.yyyy HH:mm').format(sale.saleDate);
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor:
-                      isProfitable ? AppColors.brutalGreen : AppColors.errorRed,
-                  borderRadius: 14,
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => Dialog(
-                        backgroundColor: Colors.transparent,
-                        insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 24),
-                        child: ThermalReceiptCard(
-                          title: context.tr('history_receipt_title'),
-                          subtitle: sale.carTitle,
-                          receiptNumber:
-                              'SLS-${sale.id.substring(0, math.min(6, sale.id.length)).toUpperCase()}',
-                          dateText: formattedDate,
-                          items: [
-                            ReceiptLineItem(
-                                label: context.tr('history_receipt_purchase_price'),
-                                value: CurrencyFormatter.format(
-                                    sale.purchasePrice)),
-                            if (sale.maintenanceCost > 0)
-                              ReceiptLineItem(
-                                  label: context.tr('history_receipt_maintenance_cost'),
-                                  value: CurrencyFormatter.format(
-                                      sale.maintenanceCost)),
-                            if (sale.maintenanceCost > 0)
-                              ReceiptLineItem(
-                                  label: context.tr('history_receipt_total_cost'),
-                                  value: CurrencyFormatter.format(
-                                      sale.totalCost),
-                                  isBold: true),
-                            ReceiptLineItem(
-                                label: context.tr('history_receipt_sale_price'),
-                                value:
-                                    CurrencyFormatter.format(sale.salePrice),
-                                isBold: true),
-                            ReceiptLineItem(
-                              label: context.tr('history_receipt_net_profit'),
-                              value:
-                                  '${isProfitable ? '+' : ''}${CurrencyFormatter.format(sale.netProfit)} • %${profitPercentage.toStringAsFixed(1)}',
-                              textColor: isProfitable
-                                  ? const Color(0xFF00E575)
-                                  : const Color(0xFFEF4444),
-                              isBold: true,
-                            ),
-                            if (sale.isConsignment)
-                              ReceiptLineItem(
-                                  label: context.tr('history_receipt_tx_type'),
-                                  value: context.tr('history_receipt_tx_consignment')),
-                          ],
-                          totalLabel: context.tr('history_receipt_collected_amount'),
-                          totalAmount: CurrencyFormatter.format(sale.salePrice),
-                          stampOverlay: NeoBrutalStamp(
-                            text: isProfitable
-                                ? context.tr('history_receipt_stamp_profit')
-                                : context.tr('history_receipt_stamp_loss'),
-                            color: isProfitable
-                                ? const Color(0xFF00E575)
-                                : const Color(0xFFEF4444),
-                          ),
-                          bottomAction: NeoBrutalButton(
-                            label: context.tr('btn_close'),
-                            icon: Icons.close_rounded,
-                            backgroundColor: const Color(0xFFFFDE59),
-                            textColor: Colors.black,
-                            fullWidth: true,
-                            onPressed: () => Navigator.of(ctx).pop(),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  sale.carTitle,
-                                  style: const TextStyle(
-                                      fontSize: 14.5,
-                                      fontWeight: FontWeight.w900),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  context.tr('history_buyer_day', {
-                                    'buyer': sale.buyerName,
-                                    'day': '${sale.saleDay}'
-                                  }),
-                                  style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF64748B)),
-                                ),
-                              ],
-                            ),
-                          ),
-                          NeoBrutalBadge(
-                            text:
-                                '${isProfitable ? '+' : ''}${profitPercentage.toStringAsFixed(1)}%',
-                            backgroundColor: isProfitable
-                                ? AppColors.brutalGreen
-                                : AppColors.errorRed,
-                            textColor:
-                                isProfitable ? Colors.black : Colors.white,
-                            fontSize: 11,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Divider(
-                          height: 1,
-                          color: isDark
-                              ? const Color(0xFF2A3142)
-                              : const Color(0xFFE2E8F0)),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildPriceColumn(
-                              context.tr('history_purchase_price'),
-                              CurrencyFormatter.formatShort(sale.purchasePrice),
-                              const Color(0xFF64748B)),
-                          _buildPriceColumn(
-                              context.tr('history_sale_price'),
-                              CurrencyFormatter.formatShort(sale.salePrice),
-                              isDark ? Colors.white : Colors.black),
-                          _buildPriceColumn(
-                            context.tr('history_net_profit'),
-                            CurrencyFormatter.formatShort(sale.netProfit),
-                            isProfitable
-                                ? AppColors.brutalGreen
-                                : AppColors.errorRed,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          formattedDate,
-                          style: const TextStyle(
-                              fontSize: 10, color: Color(0xFF64748B)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
+          Divider(
+              height: 1,
+              color: isDark
+                  ? const Color(0xFF2A3142)
+                  : const Color(0xFFE2E8F0)),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildPriceColumn(
+                  context.tr('history_purchase_price'),
+                  CurrencyFormatter.formatShort(sale.purchasePrice),
+                  const Color(0xFF64748B)),
+              _buildPriceColumn(
+                  context.tr('history_sale_price'),
+                  CurrencyFormatter.formatShort(sale.salePrice),
+                  isDark ? Colors.white : Colors.black),
+              _buildPriceColumn(
+                context.tr('history_net_profit'),
+                CurrencyFormatter.formatShort(sale.netProfit),
+                isProfitable
+                    ? AppColors.brutalGreen
+                    : AppColors.errorRed,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              formattedDate,
+              style: const TextStyle(
+                  fontSize: 10, color: Color(0xFF64748B)),
+            ),
+          ),
         ],
       ),
     );

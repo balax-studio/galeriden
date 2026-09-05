@@ -184,83 +184,152 @@ class _RealEstateNegotiationLogBoxState extends State<RealEstateNegotiationLogBo
                 }
 
                 final msg = widget.messages[index];
+
+                // Check for system event messages (e.g. table opened, notary records)
+                if (msg.id.startsWith('start_') || msg.id.startsWith('system_')) {
+                  return _buildSystemBanner(msg);
+                }
+
                 final isPlayer = msg.isFromPlayer;
 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Column(
-                    crossAxisAlignment: isPlayer
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    mainAxisAlignment: isPlayer
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Sender Name & Role
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        child: Text(
-                          msg.senderName,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: isDark
-                                ? const Color(0xFF94A3B8)
-                                : const Color(0xFF64748B),
+                      // Seller Avatar
+                      if (!isPlayer) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          margin: const EdgeInsets.only(right: 8, top: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black, width: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(1.5, 1.5),
+                                blurRadius: 0,
+                              ),
+                            ],
                           ),
+                          child: const Icon(
+                            Icons.real_estate_agent_rounded,
+                            size: 18,
+                            color: Color(0xFFB45309),
+                          ),
+                        ),
+                      ],
+
+                      // Message Bubble Column
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: isPlayer
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            // Sender Name
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              child: Text(
+                                msg.senderName,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? const Color(0xFF94A3B8)
+                                      : const Color(0xFF475569),
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
+
+                            // Speech Bubble
+                            Container(
+                              constraints: BoxConstraints(
+                                maxWidth: MediaQuery.sizeOf(context).width * 0.72,
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isPlayer
+                                    ? const Color(0xFF2563EB)
+                                    : (isDark
+                                        ? const Color(0xFF1E293B)
+                                        : Colors.white),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Colors.black,
+                                  width: 2,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black,
+                                    offset: Offset(2.5, 2.5),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    msg.message,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: isPlayer
+                                          ? Colors.white
+                                          : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  if (msg.badgeText != null &&
+                                      !msg.message.startsWith(msg.badgeText!)) ...[
+                                    const SizedBox(height: 6),
+                                    NeoBrutalBadge(
+                                      text: msg.badgeText!,
+                                      backgroundColor:
+                                          _getBadgeBackgroundColor(msg.badgeText),
+                                      textColor: _getBadgeTextColor(msg.badgeText),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
-                      // Speech Bubble
-                      Container(
-                        constraints: BoxConstraints(
-                          maxWidth: MediaQuery.sizeOf(context).width * 0.75,
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isPlayer
-                              ? const Color(0xFF2563EB)
-                              : (isDark
-                                  ? const Color(0xFF1E293B)
-                                  : Colors.white),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isPlayer
-                                ? const Color(0xFF1D4ED8)
-                                : Colors.black,
-                            width: 1.6,
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black,
-                              offset: Offset(2, 2),
-                              blurRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              msg.message,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: isPlayer
-                                    ? Colors.white
-                                    : (isDark ? Colors.white : Colors.black87),
-                                height: 1.35,
-                              ),
-                            ),
-                            if (msg.badgeText != null) ...[
-                              const SizedBox(height: 6),
-                              NeoBrutalBadge(
-                                text: msg.badgeText!,
-                                backgroundColor:
-                                    _getBadgeBackgroundColor(msg.badgeText),
-                                textColor: _getBadgeTextColor(msg.badgeText),
+                      // Player Avatar
+                      if (isPlayer) ...[
+                        Container(
+                          width: 32,
+                          height: 32,
+                          margin: const EdgeInsets.only(left: 8, top: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDBEAFE),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black, width: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(1.5, 1.5),
+                                blurRadius: 0,
                               ),
                             ],
-                          ],
+                          ),
+                          child: const Icon(
+                            Icons.person_rounded,
+                            size: 18,
+                            color: Color(0xFF1D4ED8),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 );
@@ -268,6 +337,46 @@ class _RealEstateNegotiationLogBoxState extends State<RealEstateNegotiationLogBo
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSystemBanner(ChatMessageModel msg) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF9C3),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.black, width: 1.8),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black,
+              offset: Offset(2, 2),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.gavel_rounded, size: 14, color: Color(0xFF854D0E)),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                msg.message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF713F12),
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -327,12 +436,43 @@ class _RealEstateNegotiationLogBoxState extends State<RealEstateNegotiationLogBo
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  _buildBouncingDots(),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBouncingDots() {
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, child) {
+        final val = _pulseController.value;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (i) {
+            final shift = (val - (i * 0.25)).clamp(0.0, 1.0);
+            final bounce = -3.0 * (1.0 - (shift * 2 - 1).abs());
+            return Transform.translate(
+              offset: Offset(0, bounce),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                width: 4.5,
+                height: 4.5,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB45309),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 0.8),
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }

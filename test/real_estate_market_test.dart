@@ -30,7 +30,11 @@ void main() {
     test('Verifies category renovation costs and daily rent yields', () {
       for (final cat in RealEstateCategory.values) {
         expect(cat.renovationBaseCost, greaterThan(0));
-        expect(cat.dailyRentYieldRate, greaterThan(0));
+        if (cat == RealEstateCategory.land) {
+          expect(cat.dailyRentYieldRate, equals(0.0));
+        } else {
+          expect(cat.dailyRentYieldRate, greaterThan(0));
+        }
         expect(cat.localizationKey.isNotEmpty, true);
         expect(cat.renovationTitleKey.isNotEmpty, true);
       }

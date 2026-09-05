@@ -162,23 +162,22 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                     width: 2.0,
                   ),
                 ),
-                child: AnimatedBuilder(
-                  animation: _progressController,
-                  builder: (context, _) {
-                    final progress = _progressController.value;
-                    final phase = _getPhase(progress);
-                    final (icon, accentColor) = _getPhaseVisuals(phase);
-
-                    return Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // Centered Content Row (Matches height of all other HUD pills)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Centered Content Row (Static text, only icon listens to phase)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 2.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedBuilder(
+                            animation: _progressController,
+                            builder: (context, _) {
+                              final phase = _getPhase(_progressController.value);
+                              final (icon, accentColor) =
+                                  _getPhaseVisuals(phase);
+                              return Container(
                                 padding: const EdgeInsets.all(3),
                                 decoration: BoxDecoration(
                                   color: accentColor,
@@ -195,36 +194,44 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                                   size: 12,
                                   color: Colors.black,
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${context.tr('hud_day')} ',
-                                style: AppTypography.labelSmall(isDark).copyWith(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                              Text(
-                                '${widget.currentDay}',
-                                style: AppTypography.monoSpec(isDark).copyWith(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark
-                                      ? Colors.white
-                                      : const Color(0xFF0F172A),
-                                ),
-                              ),
-                            ],
+                              );
+                            },
                           ),
-                        ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${context.tr('hud_day')} ',
+                            style: AppTypography.labelSmall(isDark).copyWith(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          Text(
+                            '${widget.currentDay}',
+                            style: AppTypography.monoSpec(isDark).copyWith(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w900,
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                        // Full-Width Bottom Progress Gauge Bar
-                        Positioned(
-                          left: -4,
-                          right: -4,
-                          bottom: -4,
-                          child: Container(
+                    // Full-Width Bottom Progress Gauge Bar (Isolated rebuild)
+                    Positioned(
+                      left: -4,
+                      right: -4,
+                      bottom: -4,
+                      child: AnimatedBuilder(
+                        animation: _progressController,
+                        builder: (context, _) {
+                          final progress = _progressController.value;
+                          final phase = _getPhase(progress);
+                          final (_, accentColor) = _getPhaseVisuals(phase);
+                          return Container(
                             height: 2.5,
                             decoration: BoxDecoration(
                               color: trackColor,
@@ -242,11 +249,11 @@ class _DayProgressHudPillState extends State<DayProgressHudPill>
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

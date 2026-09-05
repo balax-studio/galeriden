@@ -15,7 +15,6 @@ import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
-import '../../widgets/neo_brutal_card.dart';
 import 'widgets/real_estate_offers_sheet.dart';
 
 class RealEstateListingManageScreen extends ConsumerStatefulWidget {
@@ -50,6 +49,9 @@ class _RealEstateListingManageScreenState
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -328,22 +330,56 @@ class _RealEstateListingManageScreenState
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+          isDark ? const Color(0xFF0B1120) : const Color(0xFFF8FAFC),
       appBar: NeoBrutalAppBar(
         title: context.tr('real_estate_manage_app_title'),
         onLeadingPressed: () => context.pop(),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: const Color(0xFF2563EB),
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: const Color(0xFF2563EB),
-          indicatorWeight: 3,
-          labelStyle:
-              const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-          tabs: [
-            Tab(text: context.tr('real_estate_manage_tab_sell')),
-            Tab(text: context.tr('real_estate_manage_tab_rent')),
-          ],
+        showHazardUnderline: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(58),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.black, width: 2.2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(2.5, 2.5),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildCustomTabItem(
+                      title: context.tr('real_estate_manage_tab_sell'),
+                      icon: Icons.sell_rounded,
+                      index: 0,
+                      activeColor: const Color(0xFFFFDE59),
+                      activeTextColor: Colors.black,
+                      isDark: isDark,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _buildCustomTabItem(
+                      title: context.tr('real_estate_manage_tab_rent'),
+                      icon: Icons.key_rounded,
+                      index: 1,
+                      activeColor: const Color(0xFF38BDF8),
+                      activeTextColor: Colors.black,
+                      isDark: isDark,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
       body: TabBarView(
@@ -356,35 +392,36 @@ class _RealEstateListingManageScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1.1 Mülk Genel Bilgi & Finansman Kartı
+                // 1.1 Mülk Genel Bilgi Kartı
                 _buildPropertyHeader(prop, isDark),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
+                // 1.2 Finansman & Emsal Bento Grid
                 _buildFinancialOverviewCard(
                     prop, totalCost, netProfit, profitPercent, isDark),
                 const SizedBox(height: 16),
 
-                // 1.2 Mülk Özellikleri Seçimi (detaylar girme seçme olsun ekranda)
+                // 1.3 Mülk Özellikleri Seçimi (Renkli Kategori Paletleri)
                 _buildFeaturesSelectionCard(featureGroups, isDark, prop),
                 const SizedBox(height: 16),
 
-                // 1.3 İlan Başlığı & Manşet Seçimi
+                // 1.4 İlan Başlığı & Manşet Seçimi
                 _buildHeadlineCard(headlinePresets, isDark),
                 const SizedBox(height: 16),
 
-                // 1.4 İlan Detay Metni & Organik Üretici
+                // 1.5 İlan Detay Metni & Organik Üretici
                 _buildDescriptionCard(prop, isDark),
                 const SizedBox(height: 16),
 
-                // 1.5 Fiyatlandırma Stratejisi
+                // 1.6 Fiyatlandırma Stratejisi
                 _buildPricingStrategyCard(prop, isDark),
                 const SizedBox(height: 16),
 
-                // 1.6 Vitrin & Pazarlama Paketleri
+                // 1.7 Vitrin & Pazarlama Paketleri
                 _buildMarketingPackagesCard(game, isDark),
                 const SizedBox(height: 20),
 
-                // 1.7 Aksiyon Butonları
+                // 1.8 Aksiyon Butonları
                 _buildActionButtons(prop),
                 const SizedBox(height: 32),
               ],
@@ -401,70 +438,173 @@ class _RealEstateListingManageScreenState
                 _buildPropertyHeader(prop, isDark),
                 const SizedBox(height: 14),
 
-                // Rayiç & Getiri Özeti
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            context.tr('rental_monthly_rent'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white60 : Colors.black54,
-                              fontWeight: FontWeight.w700,
+                // Rayiç & Getiri Bento Grid
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 2.2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(2.5, 2.5),
+                              blurRadius: 0,
                             ),
-                          ),
-                          Text(
-                            CurrencyFormatter.format(prop.dailyRentIncome * 30),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF10B981),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(3.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFD1FAE5),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                        color: Colors.black, width: 1.2),
+                                  ),
+                                  child: const Icon(Icons.calendar_month_rounded,
+                                      size: 13, color: Color(0xFF059669)),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    context.tr('rental_monthly_rent'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              CurrencyFormatter.format(prop.dailyRentIncome * 30),
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF059669),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            context.tr('rental_daily_rent'),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white60 : Colors.black54,
-                              fontWeight: FontWeight.w700,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 2.2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(2.5, 2.5),
+                              blurRadius: 0,
                             ),
-                          ),
-                          Text(
-                            CurrencyFormatter.format(prop.dailyRentIncome),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(3.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDBEAFE),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                        color: Colors.black, width: 1.2),
+                                  ),
+                                  child: const Icon(Icons.today_rounded,
+                                      size: 13, color: Color(0xFF2563EB)),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    context.tr('rental_daily_rent'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark
+                                          ? const Color(0xFF94A3B8)
+                                          : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              CurrencyFormatter.format(prop.dailyRentIncome),
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF1D4ED8),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 16),
 
                 // Eğer kirada ise: Aktif Kiracı Kartı
                 if (prop.isRented && prop.currentTenant != null) ...[
-                  Text(
-                    context.tr('rental_active_tenant_header'),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.person_pin_rounded,
+                          size: 16, color: Color(0xFF10B981)),
+                      const SizedBox(width: 6),
+                      Text(
+                        context.tr('rental_active_tenant_header'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
-                  NeoBrutalCard(
+                  Container(
                     padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 2.2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(2.5, 2.5),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -545,8 +685,20 @@ class _RealEstateListingManageScreenState
 
                 // Eğer kirada değilse: Kiralık İlanı Aç / Kiracı Seç
                 if (!prop.isRented) ...[
-                  NeoBrutalCard(
+                  Container(
                     padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.black, width: 2.2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(2.5, 2.5),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -573,7 +725,7 @@ class _RealEstateListingManageScreenState
                         const SizedBox(height: 8),
                         Text(
                           prop.isRentalListed
-                              ? 'Kiralık ilanı aktif. Teklifler Showroom sekmesine düşecektir.'
+                              ? 'Kiralık ilanı aktif • Teklifler Showroom sekmesine düşecektir.'
                               : 'Kiralık ilanını açarak teklif toplayabilir ya da aşağıdaki adaylardan birini hemen kiralayabilirsiniz.',
                           style: const TextStyle(
                             fontSize: 11,
@@ -615,20 +767,40 @@ class _RealEstateListingManageScreenState
                   ),
                   const SizedBox(height: 16),
 
-                  Text(
-                    context.tr('rental_quick_candidates_title'),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  Row(
+                    children: [
+                      const Icon(Icons.groups_rounded,
+                          size: 16, color: Color(0xFF8B5CF6)),
+                      const SizedBox(width: 6),
+                      Text(
+                        context.tr('rental_quick_candidates_title'),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   if (_candidates != null)
                     ..._candidates!.map(
                       (cand) => Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: NeoBrutalCard(
+                        child: Container(
                           padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color:
+                                isDark ? const Color(0xFF1E293B) : Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 2),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -732,64 +904,344 @@ class _RealEstateListingManageScreenState
 
   // --- WIDGET BUILDERS ---
 
+  Widget _buildCustomTabItem({
+    required String title,
+    required IconData icon,
+    required int index,
+    required Color activeColor,
+    required Color activeTextColor,
+    required bool isDark,
+  }) {
+    final isSelected = _tabController.index == index;
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        _tabController.animateTo(index);
+        setState(() {});
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: isSelected
+              ? Border.all(color: Colors.black, width: 2)
+              : Border.all(color: Colors.transparent, width: 2),
+          boxShadow: isSelected
+              ? const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(2, 2),
+                    blurRadius: 0,
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 15,
+              color: isSelected
+                  ? activeTextColor
+                  : (isDark ? Colors.white60 : Colors.black54),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                color: isSelected
+                    ? activeTextColor
+                    : (isDark ? Colors.white60 : Colors.black54),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPropertyHeader(RealEstateModel prop, bool isDark) {
     IconData catIcon;
+    Color catAccent;
     switch (prop.category) {
       case RealEstateCategory.land:
         catIcon = Icons.landscape_rounded;
+        catAccent = const Color(0xFF10B981);
         break;
       case RealEstateCategory.commercial:
         catIcon = Icons.storefront_rounded;
+        catAccent = const Color(0xFFF59E0B);
         break;
       case RealEstateCategory.building:
         catIcon = Icons.domain_rounded;
+        catAccent = const Color(0xFFEC4899);
         break;
       case RealEstateCategory.tourismFacility:
         catIcon = Icons.hotel_rounded;
+        catAccent = const Color(0xFFEF4444);
         break;
       case RealEstateCategory.timeshare:
         catIcon = Icons.beach_access_rounded;
+        catAccent = const Color(0xFF06B6D4);
         break;
       case RealEstateCategory.housingProjects:
         catIcon = Icons.location_city_rounded;
+        catAccent = const Color(0xFF8B5CF6);
         break;
       case RealEstateCategory.housing:
         catIcon = Icons.apartment_rounded;
+        catAccent = const Color(0xFF3B82F6);
         break;
     }
 
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFDE59),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.black, width: 2),
-            ),
-            child: Icon(catIcon, color: Colors.black, size: 24),
+    String deedName;
+    switch (prop.deedType) {
+      case DeedType.ownershipDeed:
+        deedName = 'Kat Mülkiyetli';
+        break;
+      case DeedType.constructionServitude:
+        deedName = 'Kat İrtifaklı';
+        break;
+      case DeedType.sharedDeed:
+        deedName = 'Hisseli Tapulu';
+        break;
+      case DeedType.unlicensedBuilding:
+        deedName = 'Müstakil Parsel';
+        break;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Category Banner Ribbon
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: catAccent,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(7.5),
+                topRight: Radius.circular(7.5),
+              ),
+              border: const Border(
+                bottom: BorderSide(color: Colors.black, width: 2),
+              ),
+            ),
+            child: Row(
               children: [
+                Icon(catIcon, size: 14, color: Colors.white),
+                const SizedBox(width: 6),
                 Text(
-                  prop.title,
+                  context.tr(prop.category.localizationKey),
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w900),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '${prop.city} • ${prop.district} • ${prop.squareMeters} m² • ${prop.roomCount}',
-                  style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF64748B)),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    deedName,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w900,
+                      color: catAccent,
+                    ),
+                  ),
                 ),
               ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFDE59),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Icon(catIcon, color: Colors.black, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        prop.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          _buildMiniSpecBadge(
+                            icon: Icons.location_on_rounded,
+                            text: '${prop.city} • ${prop.district}',
+                            bgColor: const Color(0xFFEFF6FF),
+                            textColor: const Color(0xFF1E40AF),
+                          ),
+                          _buildMiniSpecBadge(
+                            icon: Icons.square_foot_rounded,
+                            text: '${prop.squareMeters} m²',
+                            bgColor: const Color(0xFFFEF3C7),
+                            textColor: const Color(0xFF92400E),
+                          ),
+                          if (prop.roomCount.isNotEmpty)
+                            _buildMiniSpecBadge(
+                              icon: Icons.meeting_room_rounded,
+                              text: prop.roomCount,
+                              bgColor: const Color(0xFFEDE9FE),
+                              textColor: const Color(0xFF5B21B6),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+            child: Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [
+                GestureDetector(
+                  onTap: () => context.push('/emlak-kiralama'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.key_rounded, size: 10, color: Color(0xFF047857)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_rental_desk'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF047857))),
+                      ],
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => context.push('/showroom?tab=1'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3E8FF),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.local_offer_rounded, size: 10, color: Color(0xFF7E22CE)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_showroom_offers'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF7E22CE))),
+                      ],
+                    ),
+                  ),
+                ),
+                if (prop.category == RealEstateCategory.land)
+                  GestureDetector(
+                    onTap: () => context.push('/emlak-insaat/${prop.id}'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF08A),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.construction_rounded, size: 10, color: Colors.black),
+                          const SizedBox(width: 4),
+                          Text(context.tr('real_estate_nav_construction_site'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniSpecBadge({
+    required IconData icon,
+    required String text,
+    required Color bgColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Colors.black, width: 1.2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: textColor),
+          const SizedBox(width: 3.5),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w900,
+              color: textColor,
             ),
           ),
         ],
@@ -804,105 +1256,291 @@ class _RealEstateListingManageScreenState
     int profitPercent,
     bool isDark,
   ) {
-    return NeoBrutalCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_manage_total_cost'),
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: isDark ? Colors.white60 : Colors.black54,
-                  fontWeight: FontWeight.w700,
+    return Row(
+      children: [
+        // Tile 1: Toplam Maliyet
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFFFF1F2),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 2.2),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(2.5, 2.5),
+                  blurRadius: 0,
                 ),
-              ),
-              Text(
-                CurrencyFormatter.format(totalCost),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFE4E6),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1.2),
+                      ),
+                      child: const Icon(Icons.receipt_long_rounded,
+                          size: 12, color: Color(0xFFE11D48)),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        context.tr('real_estate_manage_total_cost'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_manage_estimated_value'),
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: isDark ? Colors.white60 : Colors.black54,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                CurrencyFormatter.format(prop.estimatedRealValue),
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF2563EB),
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_expected_arrival_label'),
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: isDark ? Colors.white60 : Colors.black54,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF2563EB), width: 1.2),
-                ),
-                child: Text(
-                  _getEstimatedWaitLabel(prop),
+                const SizedBox(height: 8),
+                Text(
+                  CurrencyFormatter.format(totalCost),
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        // Tile 2: Tahmini Emsal Değeri
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFECFDF5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 2.2),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(2.5, 2.5),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD1FAE5),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1.2),
+                      ),
+                      child: const Icon(Icons.trending_up_rounded,
+                          size: 12, color: Color(0xFF059669)),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        context.tr('real_estate_manage_estimated_value'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  CurrencyFormatter.format(prop.estimatedRealValue),
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF059669),
+                    letterSpacing: -0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        // Tile 3: Tahmini Teklif Süresi
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 2.2),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(2.5, 2.5),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDBEAFE),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1.2),
+                      ),
+                      child: const Icon(Icons.speed_rounded,
+                          size: 12, color: Color(0xFF2563EB)),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        context.tr('real_estate_expected_arrival_label'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _getEstimatedWaitLabel(prop),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11.5,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1D4ED8),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  static const List<({Color badgeColor, Color iconColor, Color selectedBg, Color unselectedBg})>
+      _groupThemes = [
+    // 0: Amber / Sunburst
+    (
+      badgeColor: Color(0xFFFEF3C7),
+      iconColor: Color(0xFFD97706),
+      selectedBg: Color(0xFFFDE047),
+      unselectedBg: Color(0xFFFFFBEB),
+    ),
+    // 1: Warm Tangerine / Flame
+    (
+      badgeColor: Color(0xFFFFEDD5),
+      iconColor: Color(0xFFEA580C),
+      selectedBg: Color(0xFFFDBA74),
+      unselectedBg: Color(0xFFFFF7ED),
+    ),
+    // 2: Sky Azure / Ocean
+    (
+      badgeColor: Color(0xFFE0F2FE),
+      iconColor: Color(0xFF0284C7),
+      selectedBg: Color(0xFF7DD3FC),
+      unselectedBg: Color(0xFFF0F9FF),
+    ),
+    // 3: Royal Lilac / Purple
+    (
+      badgeColor: Color(0xFFEDE9FE),
+      iconColor: Color(0xFF7C3AED),
+      selectedBg: Color(0xFFC4B5FD),
+      unselectedBg: Color(0xFFFAF5FF),
+    ),
+  ];
 
   Widget _buildFeaturesSelectionCard(
     List<ListingFeatureGroup> groups,
     bool isDark,
     RealEstateModel prop,
   ) {
-    return NeoBrutalCard(
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.tune_rounded, size: 18, color: Color(0xFF2563EB)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2563EB),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.tune_rounded,
+                    size: 15, color: Colors.white),
+              ),
               const SizedBox(width: 8),
-              Text(
-                context.tr('real_estate_listing_features_header'),
-                style:
-                    const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+              Expanded(
+                child: Text(
+                  context.tr('real_estate_listing_features_header'),
+                  style: const TextStyle(
+                      fontSize: 13.5, fontWeight: FontWeight.w900),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1FAE5),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.black, width: 1.2),
+                ),
+                child: Text(
+                  '${_selectedFeatures.length} Seçildi',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF065F46),
+                  ),
+                ),
               ),
             ],
           ),
@@ -912,97 +1550,159 @@ class _RealEstateListingManageScreenState
             style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
           ),
           const SizedBox(height: 14),
-          ...groups.map((group) {
+
+          ...groups.asMap().entries.map((entry) {
+            final index = entry.key;
+            final group = entry.value;
+            final theme = _groupThemes[index % _groupThemes.length];
+            final selectedCount = group.features
+                .where((f) => _selectedFeatures.contains(f.id))
+                .length;
+
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    group.groupTitle,
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: group.features.map((feature) {
-                      final isSelected = _selectedFeatures.contains(feature.id);
-                      return InkWell(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            if (isSelected) {
-                              _selectedFeatures.remove(feature.id);
-                            } else {
-                              _selectedFeatures.add(feature.id);
-                            }
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(6),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : theme.unselectedBg,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black, width: 1.8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                              horizontal: 6, vertical: 2.5),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF0F172A)
-                                : (isDark
-                                    ? const Color(0xFF1E293B)
-                                    : Colors.white),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: Colors.black,
-                              width: isSelected ? 2 : 1.5,
-                            ),
-                            boxShadow: isSelected
-                                ? [
-                                    const BoxShadow(
-                                      color: Color(0xFF10B981),
-                                      offset: Offset(2, 2),
-                                      blurRadius: 0,
-                                    )
-                                  ]
-                                : null,
+                            color: theme.badgeColor,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.black, width: 1.2),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
-                                isSelected
-                                    ? Icons.check_circle_rounded
-                                    : feature.icon,
-                                size: 14,
-                                color: isSelected
-                                    ? const Color(0xFF10B981)
-                                    : (isDark
-                                        ? Colors.white70
-                                        : const Color(0xFF334155)),
-                              ),
-                              const SizedBox(width: 6),
+                              Icon(Icons.category_rounded,
+                                  size: 11, color: theme.iconColor),
+                              const SizedBox(width: 4),
                               Text(
-                                feature.label,
+                                group.groupTitle,
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : (isDark
-                                          ? Colors.white
-                                          : Colors.black87),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: theme.iconColor,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: selectedCount > 0
+                                ? const Color(0xFF10B981)
+                                : (isDark
+                                    ? const Color(0xFF334155)
+                                    : const Color(0xFFE2E8F0)),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.black, width: 1),
+                          ),
+                          child: Text(
+                            '$selectedCount / ${group.features.length}',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w900,
+                              color: selectedCount > 0
+                                  ? Colors.white
+                                  : (isDark ? Colors.white70 : Colors.black54),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: group.features.map((feature) {
+                        final isSelected =
+                            _selectedFeatures.contains(feature.id);
+                        return InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              if (isSelected) {
+                                _selectedFeatures.remove(feature.id);
+                              } else {
+                                _selectedFeatures.add(feature.id);
+                              }
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6.5),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? theme.selectedBg
+                                  : (isDark
+                                      ? const Color(0xFF1E293B)
+                                      : Colors.white),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: Colors.black,
+                                width: isSelected ? 2.2 : 1.5,
+                              ),
+                              boxShadow: isSelected
+                                  ? const [
+                                      BoxShadow(
+                                        color: Colors.black,
+                                        offset: Offset(2.2, 2.2),
+                                        blurRadius: 0,
+                                      )
+                                    ]
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  isSelected
+                                      ? Icons.check_circle_rounded
+                                      : feature.icon,
+                                  size: 14,
+                                  color: isSelected
+                                      ? Colors.black
+                                      : theme.iconColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  feature.label,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w900
+                                        : FontWeight.w700,
+                                    color: isSelected
+                                        ? Colors.black
+                                        : (isDark
+                                            ? Colors.white
+                                            : const Color(0xFF0F172A)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
             );
           }),
@@ -1012,20 +1712,50 @@ class _RealEstateListingManageScreenState
   }
 
   Widget _buildHeadlineCard(List<String> presets, bool isDark) {
-    return NeoBrutalCard(
+    final presetStyles = [
+      (bg: const Color(0xFFFFE4E6), border: const Color(0xFFF43F5E), text: const Color(0xFF9F1239)),
+      (bg: const Color(0xFFFEF3C7), border: const Color(0xFFF59E0B), text: const Color(0xFF92400E)),
+      (bg: const Color(0xFFEDE9FE), border: const Color(0xFF8B5CF6), text: const Color(0xFF5B21B6)),
+      (bg: const Color(0xFFD1FAE5), border: const Color(0xFF10B981), text: const Color(0xFF065F46)),
+      (bg: const Color(0xFFE0F2FE), border: const Color(0xFF0284C7), text: const Color(0xFF075985)),
+    ];
+
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.campaign_rounded,
-                  size: 18, color: Color(0xFFD97706)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.campaign_rounded,
+                    size: 15, color: Colors.white),
+              ),
               const SizedBox(width: 8),
-              Text(
-                context.tr('real_estate_listing_headline_header'),
-                style:
-                    const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+              Expanded(
+                child: Text(
+                  context.tr('real_estate_listing_headline_header'),
+                  style: const TextStyle(
+                      fontSize: 13.5, fontWeight: FontWeight.w900),
+                ),
               ),
             ],
           ),
@@ -1037,12 +1767,17 @@ class _RealEstateListingManageScreenState
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF64748B)),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
             child: Row(
-              children: presets.map((preset) {
+              children: presets.asMap().entries.map((entry) {
+                final i = entry.key;
+                final preset = entry.value;
                 final isCurrent = _headlineController.text == preset;
+                final style = presetStyles[i % presetStyles.length];
+
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: InkWell(
@@ -1055,28 +1790,35 @@ class _RealEstateListingManageScreenState
                     borderRadius: BorderRadius.circular(6),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                          horizontal: 10, vertical: 6.5),
                       decoration: BoxDecoration(
                         color: isCurrent
-                            ? const Color(0xFFFEF3C7)
+                            ? style.bg
                             : (isDark
-                                ? const Color(0xFF1E293B)
-                                : const Color(0xFFF1F5F9)),
+                                ? const Color(0xFF0F172A)
+                                : const Color(0xFFF8FAFC)),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: isCurrent
-                              ? const Color(0xFFD97706)
-                              : Colors.black,
-                          width: 1.5,
+                          color: isCurrent ? Colors.black : Colors.black45,
+                          width: isCurrent ? 2.2 : 1.5,
                         ),
+                        boxShadow: isCurrent
+                            ? const [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 0,
+                                )
+                              ]
+                            : null,
                       ),
                       child: Text(
                         preset,
                         style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          fontWeight: isCurrent ? FontWeight.w900 : FontWeight.w700,
                           color: isCurrent
-                              ? const Color(0xFF92400E)
+                              ? style.text
                               : (isDark ? Colors.white70 : Colors.black87),
                         ),
                       ),
@@ -1087,25 +1829,69 @@ class _RealEstateListingManageScreenState
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _headlineController,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: isDark
-                  ? const Color(0xFF0F172A)
-                  : const Color(0xFFF8FAFC),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black, width: 2),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _headlineController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: isDark
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFFF8FAFC),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide:
+                          const BorderSide(color: Colors.black, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide:
+                          const BorderSide(color: Colors.black, width: 2),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(
+                          color: Color(0xFFF59E0B), width: 2.5),
+                    ),
+                  ),
+                  style: const TextStyle(
+                      fontSize: 12.5, fontWeight: FontWeight.w800),
+                ),
               ),
-              enabledBorder: OutlineInputBorder(
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  final nextIndex = (presets.indexOf(_headlineController.text) +
+                          1) %
+                      presets.length;
+                  setState(() {
+                    _headlineController.text = presets[nextIndex];
+                  });
+                },
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black, width: 2),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.black, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.shuffle_rounded,
+                      size: 18, color: Colors.black),
+                ),
               ),
-            ),
-            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+            ],
           ),
         ],
       ),
@@ -1113,8 +1899,20 @@ class _RealEstateListingManageScreenState
   }
 
   Widget _buildDescriptionCard(RealEstateModel prop, bool isDark) {
-    return NeoBrutalCard(
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1123,8 +1921,16 @@ class _RealEstateListingManageScreenState
             children: [
               Row(
                 children: [
-                  const Icon(Icons.description_rounded,
-                      size: 18, color: Color(0xFF10B981)),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981),
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    child: const Icon(Icons.description_rounded,
+                        size: 15, color: Colors.white),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     context.tr('real_estate_listing_desc_header'),
@@ -1138,23 +1944,30 @@ class _RealEstateListingManageScreenState
                 borderRadius: BorderRadius.circular(6),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1FAE5),
+                    color: const Color(0xFF10B981),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(color: Colors.black, width: 1.8),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black,
+                        offset: Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       const Icon(Icons.auto_awesome_rounded,
-                          size: 13, color: Color(0xFF047857)),
+                          size: 13, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
                         context.tr('real_estate_listing_desc_auto_generate'),
                         style: const TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF047857),
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -1171,7 +1984,7 @@ class _RealEstateListingManageScreenState
               filled: true,
               fillColor: isDark
                   ? const Color(0xFF0F172A)
-                  : const Color(0xFFF8FAFC),
+                  : const Color(0xFFFFFDF8),
               contentPadding: const EdgeInsets.all(12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -1181,8 +1994,44 @@ class _RealEstateListingManageScreenState
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Colors.black, width: 2),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    const BorderSide(color: Color(0xFF10B981), width: 2.5),
+              ),
             ),
-            style: const TextStyle(fontSize: 11.5, height: 1.4),
+            style: const TextStyle(fontSize: 12, height: 1.45),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1FAE5),
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.black, width: 1.2),
+                ),
+                child: Text(
+                  '${_selectedFeatures.length} Özellik İlan Metnine Dahil',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF065F46),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                'AI Anlatı Motoru Aktif',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white60 : Colors.black45,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1196,34 +2045,56 @@ class _RealEstateListingManageScreenState
     final profitPercent =
         totalCost > 0 ? ((netProfit / totalCost) * 100).round() : 0;
 
-    return NeoBrutalCard(
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.attach_money_rounded,
-                  size: 20, color: Color(0xFF10B981)),
-              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.attach_money_rounded,
+                    size: 16, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
               Text(
                 context.tr('real_estate_listing_strategy_header'),
-                style:
-                    const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                style: const TextStyle(
+                    fontSize: 13.5, fontWeight: FontWeight.w900),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
-          // 4 Strateji Butonu
+          // 4 Strateji Butonu (2x2 veya yatay şerit)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
             child: Row(
               children: [
                 _buildStrategyChip(
                   label: context.tr('real_estate_strategy_kelepir'),
                   strategyKey: 'kelepir',
-                  color: const Color(0xFFD1FAE5),
+                  color: const Color(0xFFFFE4E6),
+                  tagText: '-%10',
                   onTap: () => _applyPricingStrategy(prop, 'kelepir'),
                   isDark: isDark,
                 ),
@@ -1231,7 +2102,8 @@ class _RealEstateListingManageScreenState
                 _buildStrategyChip(
                   label: context.tr('real_estate_strategy_market'),
                   strategyKey: 'rayic',
-                  color: const Color(0xFFEFF6FF),
+                  color: const Color(0xFFDBEAFE),
+                  tagText: 'Piyasa',
                   onTap: () => _applyPricingStrategy(prop, 'rayic'),
                   isDark: isDark,
                 ),
@@ -1240,6 +2112,7 @@ class _RealEstateListingManageScreenState
                   label: context.tr('real_estate_strategy_premium'),
                   strategyKey: 'primli',
                   color: const Color(0xFFFEF3C7),
+                  tagText: '+%10',
                   onTap: () => _applyPricingStrategy(prop, 'primli'),
                   isDark: isDark,
                 ),
@@ -1247,7 +2120,8 @@ class _RealEstateListingManageScreenState
                 _buildStrategyChip(
                   label: context.tr('real_estate_strategy_tok_satici'),
                   strategyKey: 'tok',
-                  color: const Color(0xFFFCE7F3),
+                  color: const Color(0xFFF3E8FF),
+                  tagText: '+%25',
                   onTap: () => _applyPricingStrategy(prop, 'tok'),
                   isDark: isDark,
                 ),
@@ -1274,8 +2148,13 @@ class _RealEstateListingManageScreenState
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Colors.black, width: 2),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide:
+                    const BorderSide(color: Color(0xFF10B981), width: 2.5),
+              ),
             ),
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
             onChanged: (val) {
               final parsed = double.tryParse(val) ?? 0.0;
               setState(() {
@@ -1285,42 +2164,67 @@ class _RealEstateListingManageScreenState
           ),
           const SizedBox(height: 12),
 
-          // Canlı Kâr Marjı Göstergesi
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_manage_est_profit'),
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          // Canlı Kâr Marjı Bento Paneli
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: netProfit >= 0
+                  ? const Color(0xFFECFDF5)
+                  : const Color(0xFFFFF1F2),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: netProfit >= 0
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFFEF4444),
+                width: 1.8,
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: netProfit >= 0
-                      ? const Color(0xFFD1FAE5)
-                      : const Color(0xFFFEE2E2),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      netProfit >= 0
+                          ? Icons.arrow_upward_rounded
+                          : Icons.arrow_downward_rounded,
+                      size: 16,
+                      color: netProfit >= 0
+                          ? const Color(0xFF059669)
+                          : const Color(0xFFE11D48),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.tr('real_estate_manage_est_profit'),
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
                     color: netProfit >= 0
                         ? const Color(0xFF10B981)
                         : const Color(0xFFEF4444),
-                    width: 1.5,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: Colors.black, width: 1.2),
+                  ),
+                  child: Text(
+                    '${netProfit >= 0 ? '+' : ''}${CurrencyFormatter.format(netProfit)} • %$profitPercent',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                child: Text(
-                  '${netProfit >= 0 ? '+' : ''}${CurrencyFormatter.format(netProfit)} • %$profitPercent',
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w900,
-                    color: netProfit >= 0
-                        ? const Color(0xFF065F46)
-                        : const Color(0xFF991B1B),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1331,61 +2235,103 @@ class _RealEstateListingManageScreenState
     required String label,
     required String strategyKey,
     required Color color,
+    required String tagText,
     required VoidCallback onTap,
     required bool isDark,
   }) {
     final isSelected = _selectedStrategy == strategyKey;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected
               ? color
-              : (isDark ? const Color(0xFF1E293B) : Colors.white),
-          borderRadius: BorderRadius.circular(6),
+              : (isDark ? const Color(0xFF0F172A) : Colors.white),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? Colors.black : Colors.black45,
-            width: isSelected ? 2 : 1.5,
+            width: isSelected ? 2.2 : 1.5,
           ),
           boxShadow: isSelected
-              ? [
-                  const BoxShadow(
+              ? const [
+                  BoxShadow(
                     color: Colors.black,
-                    offset: Offset(1.5, 1.5),
+                    offset: Offset(2, 2),
                     blurRadius: 0,
                   )
                 ]
               : null,
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-            color: isDark && !isSelected ? Colors.white70 : Colors.black,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                color: isDark && !isSelected ? Colors.white70 : Colors.black,
+              ),
+            ),
+            const SizedBox(width: 5),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.black : Colors.black12,
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                tagText,
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildMarketingPackagesCard(dynamic game, bool isDark) {
-    return NeoBrutalCard(
+    return Container(
       padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2.5),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black,
+            offset: Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.workspace_premium_rounded,
-                  size: 20, color: Color(0xFF8B5CF6)),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.workspace_premium_rounded,
+                    size: 16, color: Colors.white),
+              ),
               const SizedBox(width: 8),
               Text(
                 context.tr('real_estate_listing_package_header'),
-                style:
-                    const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                style: const TextStyle(
+                    fontSize: 13.5, fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -1395,8 +2341,9 @@ class _RealEstateListingManageScreenState
             packageId: 'standard',
             title: context.tr('real_estate_pkg_standard_title'),
             feeText: 'Ücretsiz',
+            badgeTag: 'Organik Hız',
             description: context.tr('real_estate_pkg_standard_desc'),
-            accentColor: const Color(0xFF94A3B8),
+            accentColor: const Color(0xFF64748B),
             isDark: isDark,
           ),
           const SizedBox(height: 10),
@@ -1405,6 +2352,7 @@ class _RealEstateListingManageScreenState
             packageId: 'featured',
             title: context.tr('real_estate_pkg_featured_title'),
             feeText: '₺25.000',
+            badgeTag: '+%40 Hızlı Teklif',
             description: context.tr('real_estate_pkg_featured_desc'),
             accentColor: const Color(0xFFF59E0B),
             isDark: isDark,
@@ -1415,6 +2363,7 @@ class _RealEstateListingManageScreenState
             packageId: 'super',
             title: context.tr('real_estate_pkg_super_title'),
             feeText: '₺60.000',
+            badgeTag: 'Anında VIP Alıcı',
             description: context.tr('real_estate_pkg_super_desc'),
             accentColor: const Color(0xFF8B5CF6),
             isDark: isDark,
@@ -1428,6 +2377,7 @@ class _RealEstateListingManageScreenState
     required String packageId,
     required String title,
     required String feeText,
+    required String badgeTag,
     required String description,
     required Color accentColor,
     required bool isDark,
@@ -1441,22 +2391,25 @@ class _RealEstateListingManageScreenState
         });
       },
       borderRadius: BorderRadius.circular(8),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
-              ? accentColor.withValues(alpha: 0.15)
-              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+              ? (isDark
+                  ? accentColor.withValues(alpha: 0.25)
+                  : accentColor.withValues(alpha: 0.15))
+              : (isDark ? const Color(0xFF0F172A) : Colors.white),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? accentColor : Colors.black,
+            color: isSelected ? Colors.black : Colors.black45,
             width: isSelected ? 2.5 : 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
                     color: accentColor,
-                    offset: const Offset(2, 2),
+                    offset: const Offset(2.5, 2.5),
                     blurRadius: 0,
                   )
                 ]
@@ -1464,12 +2417,20 @@ class _RealEstateListingManageScreenState
         ),
         child: Row(
           children: [
-            Icon(
-              isSelected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_unchecked_rounded,
-              color: isSelected ? accentColor : Colors.grey,
-              size: 20,
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: isSelected ? accentColor : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 1.5),
+              ),
+              child: Icon(
+                isSelected
+                    ? Icons.check_rounded
+                    : Icons.circle_outlined,
+                color: isSelected ? Colors.white : Colors.grey,
+                size: 14,
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -1484,25 +2445,60 @@ class _RealEstateListingManageScreenState
                         style: const TextStyle(
                             fontSize: 12.5, fontWeight: FontWeight.w900),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: isSelected ? accentColor : Colors.black12,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          feeText,
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w900,
-                            color: isSelected ? Colors.white : Colors.black87,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.black
+                                  : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              badgeTag,
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w900,
+                                color: isSelected
+                                    ? accentColor
+                                    : const Color(0xFF475569),
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 5),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? accentColor
+                                  : (isDark
+                                      ? const Color(0xFF334155)
+                                      : const Color(0xFFE2E8F0)),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                  color: Colors.black, width: 1),
+                            ),
+                            child: Text(
+                              feeText,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: isSelected
+                                    ? Colors.white
+                                    : (isDark
+                                        ? Colors.white
+                                        : Colors.black87),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     description,
                     style: TextStyle(
@@ -1526,8 +2522,13 @@ class _RealEstateListingManageScreenState
           NeoBrutalButton(
             text:
                 '${context.tr('real_estate_btn_view_offers')} • ${prop.activeOffers.length} Teklif',
+            icon: Icons.local_fire_department_rounded,
             backgroundColor: const Color(0xFFF59E0B),
             textColor: Colors.black,
+            borderWidth: 2.5,
+            borderRadius: 8,
+            shadowOffset: const Offset(3.5, 3.5),
+            minHeight: 50,
             onPressed: () {
               HapticFeedback.selectionClick();
               RealEstateOffersSheet.show(context: context, property: prop);
@@ -1539,16 +2540,27 @@ class _RealEstateListingManageScreenState
           text: prop.isListed
               ? context.tr('real_estate_manage_btn_update')
               : context.tr('real_estate_btn_list_for_sale'),
+          icon: Icons.rocket_launch_rounded,
           backgroundColor: const Color(0xFF10B981),
           textColor: Colors.white,
+          borderWidth: 2.5,
+          borderRadius: 8,
+          shadowOffset: const Offset(3.5, 3.5),
+          minHeight: 52,
+          fontSize: 14,
           onPressed: () => _publishSaleListing(prop),
         ),
         if (prop.isListed) ...[
           const SizedBox(height: 10),
           NeoBrutalButton(
             text: context.tr('real_estate_manage_btn_unlist'),
+            icon: Icons.cancel_rounded,
             backgroundColor: const Color(0xFFEF4444),
             textColor: Colors.white,
+            borderWidth: 2.5,
+            borderRadius: 8,
+            shadowOffset: const Offset(3.5, 3.5),
+            minHeight: 48,
             onPressed: () => _unlistSaleListing(prop),
           ),
         ],

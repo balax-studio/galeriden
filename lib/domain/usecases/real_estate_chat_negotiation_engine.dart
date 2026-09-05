@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import '../../../data/models/real_estate_category.dart';
 import 'contractor_negotiation_expansion.dart';
+import 'real_estate_buyer_negotiation_expansion.dart';
 
 enum ChatSenderRole {
   player,
@@ -59,6 +61,20 @@ class ChatTacticOption {
     required this.labelKey,
     required this.patienceCost,
     required this.successChance,
+  });
+}
+
+class ChatTacticExecutionPlan {
+  final ChatNegotiationState stateWithPlayerMessageOnly;
+  final ChatNegotiationState finalState;
+  final ChatMessageModel playerMessage;
+  final ChatMessageModel counterpartyReply;
+
+  const ChatTacticExecutionPlan({
+    required this.stateWithPlayerMessageOnly,
+    required this.finalState,
+    required this.playerMessage,
+    required this.counterpartyReply,
   });
 }
 
@@ -241,30 +257,106 @@ class RealEstateChatNegotiationEngine {
     );
   }
 
-  /// Taktik çalıştırma durum makinesi
+  /// Taktik çalıştırma durum makinesi (geriye dönük tam uyumlu)
   static ChatNegotiationState executeTactic({
     required ChatNegotiationState state,
     required ChatTacticType tactic,
     required String playerMessageText,
     required Random random,
+    RealEstateCategory? propertyCategory,
   }) {
-    if (state.isAgreed || state.isWalkedAway) return state;
+    final plan = evaluateTacticPlan(
+      state: state,
+      tactic: tactic,
+      playerMessageText: playerMessageText,
+      random: random,
+      propertyCategory: propertyCategory,
+    );
+    return plan?.finalState ?? state;
+  }
 
-    final updatedMessages = List<ChatMessageModel>.from(state.messages);
+  /// Taktik çalıştırma planı: Oyuncunun mesajı ile karşı tarafın cevabını ayrı aşamalarda teslim eder
+  static ChatTacticExecutionPlan? evaluateTacticPlan({
+    required ChatNegotiationState state,
+    required ChatTacticType tactic,
+    required String playerMessageText,
+    required Random random,
+    RealEstateCategory? propertyCategory,
+  }) {
+    if (state.isAgreed || state.isWalkedAway) return null;
 
-    // 1. Oyuncu mesajını ekle
-    updatedMessages.add(
-      ChatMessageModel(
-        id: 'msg_${DateTime.now().millisecondsSinceEpoch}_player',
-        senderName: 'Siz',
-        role: ChatSenderRole.player,
-        message: playerMessageText,
-        timestamp: DateTime.now(),
-        isFromPlayer: true,
-      ),
+    // 1. Oyuncu mesajını oluştur
+    final playerMessage = ChatMessageModel(
+      id: 'msg_${DateTime.now().millisecondsSinceEpoch}_player',
+      senderName: 'Siz',
+      role: ChatSenderRole.player,
+      message: playerMessageText,
+      timestamp: DateTime.now(),
+      isFromPlayer: true,
     );
 
-    // 2. Taktik değerlendirmesi
+    final stateWithPlayer = state.copyWith(
+      messages: [...state.messages, playerMessage],
+    );
+
+    // 2. Alıcı veya Kiracı rolü ise genişletilmiş alıcı motorunu işlet
+    if (state.counterpartyRole == ChatSenderRole.buyer ||
+        state.counterpartyRole == ChatSenderRole.tenant) {
+      final archetype = RealEstateBuyerNegotiationExpansion.detectBuyerArchetype(
+        state.counterpartyName,
+        propertyCategory ?? RealEstateCategory.housing,
+      );
+      final outcome = RealEstateBuyerNegotiationExpansion.evaluateBuyerTactic(
+        state: state,
+        tactic: tactic,
+        archetype: archetype,
+        random: random,
+      );
+
+      int nextPatience = max(0, state.patience + outcome.patienceDelta);
+      int nextSatisfaction =
+          min(100, max(0, state.satisfaction + outcome.satisfactionDelta));
+      double nextPrice = outcome.nextPrice;
+      bool nextAgreed = outcome.isAgreed;
+      bool nextWalkedAway = outcome.isWalkedAway;
+      String replyText = outcome.replyText;
+      String? replyBadge = outcome.replyBadge;
+
+      if (nextPatience <= 0 && !nextAgreed) {
+        nextWalkedAway = true;
+        replyText =
+            'Israrlarınız ve şartlarınız sınırımızı aştı • Masadan kalkıyoruz, teklif geçerliliğini yitirdi.';
+        replyBadge = 'MASADAN KALKTI';
+      }
+
+      final replyMessage = ChatMessageModel(
+        id: 'msg_${DateTime.now().millisecondsSinceEpoch}_reply',
+        senderName: state.counterpartyName,
+        role: state.counterpartyRole,
+        message: replyText,
+        timestamp: DateTime.now(),
+        isFromPlayer: false,
+        badgeText: replyBadge,
+      );
+
+      final finalState = stateWithPlayer.copyWith(
+        patience: nextPatience,
+        satisfaction: nextSatisfaction,
+        currentPrice: nextPrice,
+        messages: [...stateWithPlayer.messages, replyMessage],
+        isAgreed: nextAgreed,
+        isWalkedAway: nextWalkedAway,
+      );
+
+      return ChatTacticExecutionPlan(
+        stateWithPlayerMessageOnly: stateWithPlayer,
+        finalState: finalState,
+        playerMessage: playerMessage,
+        counterpartyReply: replyMessage,
+      );
+    }
+
+    // 3. Müteahhit ve diğer roller için taktik değerlendirmesi
     int nextPatience = state.patience;
     int nextSatisfaction = state.satisfaction;
     double nextPrice = state.currentPrice;
@@ -487,31 +579,35 @@ class RealEstateChatNegotiationEngine {
     if (nextPatience <= 0 && !nextAgreed) {
       nextWalkedAway = true;
       replyText =
-          'Israrlarınız ve şartlarınız sınırımızı aştı. Masadan kalkıyoruz, teklif geçerliliğini yitirdi.';
+          'Israrlarınız ve şartlarınız sınırımızı aştı • Masadan kalkıyoruz, teklif geçerliliğini yitirdi.';
       replyBadge = 'MASADAN KALKTI';
     }
 
-    // 3. Karşı taraf yanıt mesajını ekle
-    updatedMessages.add(
-      ChatMessageModel(
-        id: 'msg_${DateTime.now().millisecondsSinceEpoch}_reply',
-        senderName: state.counterpartyName,
-        role: state.counterpartyRole,
-        message: replyText,
-        timestamp: DateTime.now(),
-        isFromPlayer: false,
-        badgeText: replyBadge,
-      ),
+    final replyMessage = ChatMessageModel(
+      id: 'msg_${DateTime.now().millisecondsSinceEpoch}_reply',
+      senderName: state.counterpartyName,
+      role: state.counterpartyRole,
+      message: replyText,
+      timestamp: DateTime.now(),
+      isFromPlayer: false,
+      badgeText: replyBadge,
     );
 
-    return state.copyWith(
+    final finalState = stateWithPlayer.copyWith(
       patience: max(0, nextPatience),
       satisfaction: min(100, max(0, nextSatisfaction)),
       currentPrice: nextPrice,
       currentSharePercent: nextShare,
-      messages: updatedMessages,
+      messages: [...stateWithPlayer.messages, replyMessage],
       isAgreed: nextAgreed,
       isWalkedAway: nextWalkedAway,
+    );
+
+    return ChatTacticExecutionPlan(
+      stateWithPlayerMessageOnly: stateWithPlayer,
+      finalState: finalState,
+      playerMessage: playerMessage,
+      counterpartyReply: replyMessage,
     );
   }
 

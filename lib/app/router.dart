@@ -56,6 +56,8 @@ import '../presentation/screens/real_estate/subcontractor_negotiation_chat_scree
 import '../presentation/screens/real_estate/real_estate_listing_manage_screen.dart';
 import '../presentation/screens/real_estate/real_estate_buyer_negotiation_chat_screen.dart';
 import '../presentation/screens/real_estate/real_estate_rental_screen.dart';
+import '../presentation/screens/real_estate/real_estate_tenant_negotiation_chat_screen.dart';
+import '../data/models/tenant_model.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -249,6 +251,22 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/emlak-kiraci-pazarlik/:propertyId/:candidateId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        final candidateId = state.pathParameters['candidateId'] ?? '';
+        final candidate = state.extra as TenantModel?;
+        return _buildCupertinoPage(
+          RealEstateTenantNegotiationChatScreen(
+            propertyId: propertyId,
+            candidateId: candidateId,
+            candidate: candidate,
+          ),
+          state,
+        );
+      },
+    ),
+    GoRoute(
       path: '/reviews',
       pageBuilder: (context, state) => _buildCupertinoPage(const CustomerReviewsScreen(), state),
     ),
@@ -308,7 +326,11 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/showroom',
-      pageBuilder: (context, state) => _buildCupertinoPage(const ShowroomScreen(), state),
+      pageBuilder: (context, state) {
+        final tabQuery = state.uri.queryParameters['tab'];
+        final tabIndex = int.tryParse(tabQuery ?? '') ?? (state.extra as int? ?? 0);
+        return _buildCupertinoPage(ShowroomScreen(initialTabIndex: tabIndex), state);
+      },
     ),
     GoRoute(
       path: '/settings',

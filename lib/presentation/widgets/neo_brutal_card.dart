@@ -22,6 +22,7 @@ class NeoBrutalCard extends StatefulWidget {
   final bool showDotGrid;
   final bool showBlueprintGrid;
   final BlueprintPatternType patternType;
+  final Clip? clipBehavior;
 
   const NeoBrutalCard({
     super.key,
@@ -40,6 +41,7 @@ class NeoBrutalCard extends StatefulWidget {
     this.showDotGrid = false,
     this.showBlueprintGrid = false,
     this.patternType = BlueprintPatternType.blueprintGrid,
+    this.clipBehavior,
   });
 
   @override
@@ -86,7 +88,8 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
             ? const Offset(2.5, 2.5)
             : Offset.zero,
         child: Container(
-          clipBehavior: Clip.antiAlias,
+          clipBehavior: widget.clipBehavior ??
+              (widget.showHazardHeader ? Clip.antiAlias : Clip.none),
           decoration: BoxDecoration(
             color: effectiveBg,
             borderRadius: BorderRadius.circular(widget.borderRadius),

@@ -334,7 +334,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       marketForex: updatedForex,
       activeIpos: updatedIpos,
       playerIpoRequests: updatedIpoReqs,
-      recentEvents: newEvents,
+      recentEvents: newEvents.length > 50 ? newEvents.sublist(0, 50) : newEvents,
       activeNews: currentNews,
       scrapyardCars: currentScrapCars,
       blackMarketCars: currentBlackCars,

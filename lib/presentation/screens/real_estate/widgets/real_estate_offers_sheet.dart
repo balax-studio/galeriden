@@ -234,11 +234,18 @@ class RealEstateOffersSheet extends ConsumerWidget {
                                   onPressed: () {
                                     HapticFeedback.selectionClick();
                                     Navigator.of(context).pop();
-                                    context.push('/emlak-pazarlik/${currentProp.id}/${offer.id}');
+                                    if (offer.isRentalOffer) {
+                                      context.push(
+                                        '/emlak-kiraci-pazarlik/${currentProp.id}/${offer.tenant?.id ?? offer.id}',
+                                        extra: offer.tenant,
+                                      );
+                                    } else {
+                                      context.push('/emlak-pazarlik/${currentProp.id}/${offer.id}');
+                                    }
                                   },
                                   icon: const Icon(Icons.chat_rounded, size: 12),
                                   label: Text(
-                                    context.tr('real_estate_btn_negotiate_contractor'),
+                                    context.tr('real_estate_btn_negotiate'),
                                     style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
                                   ),
                                   style: ElevatedButton.styleFrom(
@@ -253,17 +260,42 @@ class RealEstateOffersSheet extends ConsumerWidget {
                                 ElevatedButton(
                                   onPressed: () {
                                     HapticFeedback.heavyImpact();
-                                    GameSoundHapticService.playCashSuccess();
-                                    final ok = ref.read(gameProvider.notifier).acceptRealEstateOffer(
-                                          realEstateId: currentProp.id,
-                                          offerId: offer.id,
+                                    if (offer.isRentalOffer) {
+                                      final ok = ref.read(gameProvider.notifier).acceptRealEstateRentalOffer(
+                                            realEstateId: currentProp.id,
+                                            offerId: offer.id,
+                                          );
+                                      if (ok) {
+                                        GameSoundHapticService.playCashSuccess();
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('real_estate_lease_contract_success', {'buyer': offer.buyerName}),
                                         );
-                                    if (ok) {
-                                      NotificationService.showSuccess(
-                                        context,
-                                        context.tr('real_estate_offer_accepted_toast'),
-                                      );
-                                      Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        NotificationService.showWarning(
+                                          context,
+                                          context.tr('real_estate_lease_blocked_warning'),
+                                        );
+                                      }
+                                    } else {
+                                      final ok = ref.read(gameProvider.notifier).acceptRealEstateOffer(
+                                            realEstateId: currentProp.id,
+                                            offerId: offer.id,
+                                          );
+                                      if (ok) {
+                                        GameSoundHapticService.playCashSuccess();
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('real_estate_offer_accepted_toast'),
+                                        );
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        NotificationService.showWarning(
+                                          context,
+                                          context.tr('real_estate_sale_blocked_warning'),
+                                        );
+                                      }
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -274,7 +306,9 @@ class RealEstateOffersSheet extends ConsumerWidget {
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   ),
                                   child: Text(
-                                    context.tr('real_estate_offer_btn_accept'),
+                                    offer.isRentalOffer
+                                        ? context.tr('real_estate_btn_lease_accept')
+                                        : context.tr('real_estate_offer_btn_accept'),
                                     style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 11),
                                   ),
                                 ),

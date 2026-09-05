@@ -151,6 +151,8 @@ class NegotiationEngine {
   static FraudInspectionResult evaluatePlayerFraudInspection({
     required CarModel car,
     required CustomerModel customer,
+    Random? random,
+    bool? forceInspect,
   }) {
     final exp = car.expertise;
     final hasBodyFlaws = exp.bodyParts.values.any((status) =>
@@ -175,7 +177,8 @@ class NegotiationEngine {
       );
     }
 
-    final bool didInspect = _random.nextDouble() < customer.inspectionProbability;
+    final rng = random ?? _random;
+    final bool didInspect = forceInspect ?? (rng.nextDouble() < customer.inspectionProbability);
 
     if (!didInspect) {
       return FraudInspectionResult(

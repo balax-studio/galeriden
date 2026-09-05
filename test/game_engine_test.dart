@@ -458,6 +458,7 @@ void main() {
       final damagedResult = NegotiationEngine.evaluatePlayerFraudInspection(
         car: damagedCar,
         customer: customer,
+        forceInspect: true,
       );
       expect(damagedResult.caughtFraud, isTrue);
       expect(damagedResult.fineAmount, equals(10000.0));

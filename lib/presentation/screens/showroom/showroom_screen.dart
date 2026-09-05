@@ -20,11 +20,13 @@ import 'widgets/showroom_offers_tab.dart';
 class ShowroomScreen extends ConsumerStatefulWidget {
   final bool showLeading;
   final bool embeddedInDashboard;
+  final int initialTabIndex;
 
   const ShowroomScreen({
     super.key,
     this.showLeading = true,
     this.embeddedInDashboard = false,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -497,6 +499,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
     if (widget.embeddedInDashboard) {
       return DefaultTabController(
         length: 2,
+        initialIndex: widget.initialTabIndex.clamp(0, 1),
         child: Column(
           children: [
             Padding(
@@ -511,6 +514,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
 
     return DefaultTabController(
       length: 2,
+      initialIndex: widget.initialTabIndex.clamp(0, 1),
       child: Scaffold(
         backgroundColor:
             isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),

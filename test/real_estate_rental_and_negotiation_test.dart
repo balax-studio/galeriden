@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/localization/translations/ar_translations.dart';
@@ -11,6 +12,7 @@ import 'package:galeriden/data/models/real_estate_category.dart';
 import 'package:galeriden/data/models/real_estate_model.dart';
 import 'package:galeriden/data/models/tenant_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:galeriden/domain/usecases/real_estate_tenant_negotiation_expansion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -219,6 +221,7 @@ void main() {
       'real_estate_dark_obstinacy_desc',
       'real_estate_dark_title_deed_clear',
       'real_estate_dark_estimated_rent_badge',
+      'real_estate_financial_overview',
       'real_estate_dark_deed_tax_est',
       'real_estate_dark_revolving_fund',
       'real_estate_dark_agency_commission',
@@ -230,8 +233,8 @@ void main() {
       'rental_ineligible_construction_desc',
       'rental_ineligible_residence',
       'rental_ineligible_residence_desc',
-      'rental_ineligible_listed',
-      'rental_ineligible_listed_desc',
+      'rental_ineligible_for_sale',
+      'rental_ineligible_for_sale_desc',
       'rental_candidates_header',
       'rental_btn_sign_lease',
       'rental_screen_title',
@@ -240,6 +243,71 @@ void main() {
       'rental_filter_rented',
       'rental_filter_vacant',
       'rental_action_go_construction',
+      'rental_filter_ineligible',
+      'rental_est_monthly_rent',
+      'rental_est_annual_yield',
+      'rental_contract_type_header',
+      'rental_lease_duration_1yr',
+      'rental_lease_duration_2yr',
+      'rental_candidates_subtitle',
+      'rental_label_monthly_rent',
+      'rental_label_deposit_held',
+      'rental_label_risk_status',
+      'rental_risk_score_low',
+      'rental_risk_score_med',
+      'rental_risk_score_high',
+      'rental_btn_collect_rent',
+      'rental_tenant_header',
+      'rental_actions_header',
+      'rental_lease_success',
+      'rental_evict_confirm_title',
+      'rental_evict_confirm_desc',
+      'rental_evict_success',
+      'rental_btn_evict_tenant',
+      'rental_label_pending_accumulated',
+      'rental_btn_chat_negotiate',
+      'rental_candidate_evaluating',
+      'rental_candidate_accepted',
+      'rental_candidate_counter',
+      'rental_candidate_rejected',
+      'rental_btn_dismiss_candidate',
+      'rental_candidate_thought_label',
+      'rental_inspecting_time_left',
+      'rental_btn_instant_inspect',
+      'tenant_archetype_civil_servant_title',
+      'tenant_archetype_civil_servant_sub',
+      'tenant_archetype_corporate_title',
+      'tenant_archetype_corporate_sub',
+      'tenant_archetype_doctor_title',
+      'tenant_archetype_doctor_sub',
+      'tenant_archetype_merchant_title',
+      'tenant_archetype_merchant_sub',
+      'tenant_archetype_designer_title',
+      'tenant_archetype_designer_sub',
+      'tenant_archetype_student_title',
+      'tenant_archetype_student_sub',
+      'tenant_chat_title',
+      'tenant_chat_patience_normal',
+      'tenant_chat_patience_tense',
+      'tenant_chat_patience_critical',
+      'tenant_chat_agreed_toast',
+      'tenant_chat_walkaway_toast',
+      'tenant_chat_player_role_tag',
+      'tenant_chat_tactics_title',
+      'tenant_tactic_discount_label',
+      'tenant_tactic_discount_msg',
+      'tenant_tactic_renovation_label',
+      'tenant_tactic_renovation_msg',
+      'tenant_tactic_two_year_label',
+      'tenant_tactic_two_year_msg',
+      'tenant_tactic_guarantor_label',
+      'tenant_tactic_guarantor_msg',
+      'tenant_tactic_deposit_label',
+      'tenant_tactic_deposit_msg',
+      'tenant_tactic_coffee_label',
+      'tenant_tactic_coffee_msg',
+      'tenant_tactic_firm_label',
+      'tenant_tactic_firm_msg',
     ];
 
     final languageMaps = <String, Map<String, String>>{
@@ -271,4 +339,77 @@ void main() {
       });
     }
   });
+
+  group('Tenant Dynamic Inspection & Negotiation Deck Tests', () {
+    test('TenantModel candidates generation creates evaluating state and dynamic thoughts', () {
+      final candidates = TenantModel.generateCandidates(
+        baseMonthlyRent: 20000.0,
+        count: 3,
+        buildingAge: 12,
+        propertyTitle: 'Kadıköy Moda Dairesi',
+      );
+
+      expect(candidates.length, 3);
+      for (final candidate in candidates) {
+        expect(candidate.name.isNotEmpty, isTrue);
+        expect(candidate.monthlyRent, greaterThan(0));
+        expect(candidate.depositAmount, greaterThan(0));
+        expect(candidate.evaluationStatus, isNotNull);
+        expect(candidate.inspectionRemainingSeconds, greaterThanOrEqualTo(0));
+        expect(candidate.evaluationThought.isNotEmpty, isTrue);
+
+        // Test JSON roundtrip
+        final json = candidate.toJson();
+        final restored = TenantModel.fromJson(json);
+        expect(restored.id, candidate.id);
+        expect(restored.evaluationStatus, candidate.evaluationStatus);
+        expect(restored.evaluationThought, candidate.evaluationThought);
+        expect(restored.inspectionRemainingSeconds, candidate.inspectionRemainingSeconds);
+      }
+    });
+
+    test('RealEstateTenantNegotiationExpansion archetype and deck cycling works', () {
+      final archetype = RealEstateTenantNegotiationExpansion.detectTenantArchetype('Memur', 'Mehmet Yılmaz');
+      expect(archetype.titleKey, 'tenant_archetype_civil_servant_title');
+
+      final useCounts = <TenantTacticType, int>{};
+      final initialDeck = RealEstateTenantNegotiationExpansion.getAvailableDeck(useCounts);
+
+      expect(initialDeck.isNotEmpty, isTrue);
+
+      // Play / consume first tactic
+      final playedTactic = initialDeck.first;
+      useCounts[playedTactic.type] = 1;
+
+      final secondDeck = RealEstateTenantNegotiationExpansion.getAvailableDeck(useCounts);
+      expect(secondDeck.isNotEmpty, isTrue);
+    });
+
+    test('RealEstateTenantNegotiationExpansion evaluateTactic triggers responses and patience changes', () {
+      const initialCandidate = TenantModel(
+        id: 'tenant_test_1',
+        name: 'Ali Kaya',
+        profession: 'Memur',
+        reliabilityScore: 85,
+        monthlyRent: 25000.0,
+        depositAmount: 50000.0,
+      );
+
+      final archetype = RealEstateTenantNegotiationExpansion.detectTenantArchetype(initialCandidate.profession, initialCandidate.name);
+      final result = RealEstateTenantNegotiationExpansion.evaluateTactic(
+        tactic: TenantTacticType.offerRentDiscount,
+        currentRent: 25000.0,
+        currentDeposit: 50000.0,
+        patience: 70,
+        satisfaction: 50,
+        archetype: archetype,
+        useCount: 0,
+        random: Random(42),
+      );
+
+      expect(result.nextRent, lessThan(25000.0), reason: 'Discount tactic should lower rent');
+      expect(result.replyText.isNotEmpty, isTrue);
+    });
+  });
 }
+

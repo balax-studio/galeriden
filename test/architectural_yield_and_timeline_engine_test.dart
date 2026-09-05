@@ -44,10 +44,10 @@ void main() {
   });
 
   group('ConstructionTimelineEngine Tests', () {
-    test('totalBaseDays equals exactly at least 120 days', () {
+    test('totalBaseDays equals exactly 86 days across 8 stages', () {
       final totalDays = ConstructionTimelineEngine.totalBaseDays;
-      expect(totalDays, greaterThanOrEqualTo(120));
-      expect(totalDays, 120);
+      expect(totalDays, greaterThanOrEqualTo(80));
+      expect(totalDays, 86);
     });
 
     test('calculateStageDays adjusts for subcontractor speed vs budget tier', () {

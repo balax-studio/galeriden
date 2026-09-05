@@ -34,7 +34,8 @@ class RealEstateNegotiationScreen extends ConsumerStatefulWidget {
 }
 
 class _RealEstateNegotiationScreenState
-    extends ConsumerState<RealEstateNegotiationScreen> {
+    extends ConsumerState<RealEstateNegotiationScreen>
+    with SingleTickerProviderStateMixin {
   late double _offeredPrice;
   late int _sellerPatience;
   String? _sellerDialogue;
@@ -57,6 +58,8 @@ class _RealEstateNegotiationScreenState
   // Dark pattern live investor pulse & countdown timer
   Timer? _urgencyTimer;
   int _remainingSeconds = 180;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -74,6 +77,12 @@ class _RealEstateNegotiationScreenState
       patience: _sellerPatience,
     );
 
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(_pulseController);
+
     _urgencyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
       if (_remainingSeconds > 0) {
@@ -88,6 +97,7 @@ class _RealEstateNegotiationScreenState
 
   @override
   void dispose() {
+    _pulseController.dispose();
     _urgencyTimer?.cancel();
     super.dispose();
   }
@@ -105,7 +115,6 @@ class _RealEstateNegotiationScreenState
           message: '${context.tr('real_estate_badge_table_opened')} • ${widget.listing.sellerName} • ${CurrencyFormatter.format(widget.listing.askingPrice)}',
           timestamp: DateTime.now(),
           isFromPlayer: false,
-          badgeText: context.tr('real_estate_badge_table_opened'),
         ),
       );
       if (_sellerDialogue != null && _sellerDialogue!.isNotEmpty) {
@@ -132,7 +141,7 @@ class _RealEstateNegotiationScreenState
     });
   }
 
-  void _executeTactic(RealEstateTactic tactic) {
+  Future<void> _executeTactic(RealEstateTactic tactic) async {
     if (_usedTacticIds.contains(tactic.id) || _isAccepted || _isProcessing || _isThinking) return;
     if (_isWalkaway && !tactic.isRescue) return;
 
@@ -144,8 +153,55 @@ class _RealEstateNegotiationScreenState
       playerLevel: game.level,
     );
 
+    // 1. Oyuncu taktik mesajini hemen ekle ve bekleme modunu baslat
     setState(() {
       _usedTacticIds.add(tactic.id);
+      _isThinking = true;
+      _thinkingText = context.tr('chat_status_thinking');
+      _messages.add(
+        ChatMessageModel(
+          id: 'tactic_${DateTime.now().millisecondsSinceEpoch}',
+          senderName: game.playerName,
+          role: ChatSenderRole.player,
+          message: '${tactic.title} • ${tactic.description}',
+          timestamp: DateTime.now(),
+          isFromPlayer: true,
+          badgeText: outcome.isSuccess
+              ? context.tr('real_estate_badge_tactic_success')
+              : context.tr('real_estate_badge_tactic_failed'),
+        ),
+      );
+    });
+    HapticFeedback.mediumImpact();
+
+    // 2. Asama 1: Satici dusunuyor / yaziyor (800ms - 1300ms)
+    final r = widget.listing.askingPrice.toInt();
+    final delay1 = 800 + (r % 500);
+    await Future.delayed(Duration(milliseconds: delay1));
+    if (!mounted) return;
+
+    // 3. Asama 2: Duraksama / Kaybolma (500ms - 800ms)
+    setState(() {
+      _isThinking = false;
+      _thinkingText = null;
+    });
+    final delay2 = 500 + (r % 300);
+    await Future.delayed(Duration(milliseconds: delay2));
+    if (!mounted) return;
+
+    // 4. Asama 3: Tekrar yaziyor (700ms - 1100ms)
+    setState(() {
+      _isThinking = true;
+      _thinkingText = context.tr('chat_status_typing');
+    });
+    final delay3 = 700 + (r % 400);
+    await Future.delayed(Duration(milliseconds: delay3));
+    if (!mounted) return;
+
+    // 5. Asama 4: Saticinin cevabi teslim edilir
+    setState(() {
+      _isThinking = false;
+      _thinkingText = null;
       _sellerPatience = (_sellerPatience + outcome.patienceChange).clamp(0, 100);
       _sellerDialogue = outcome.message;
 
@@ -158,20 +214,6 @@ class _RealEstateNegotiationScreenState
         _isWalkaway = true;
       }
 
-      // Add tactic events to log
-      _messages.add(
-        ChatMessageModel(
-          id: 'tactic_${DateTime.now().millisecondsSinceEpoch}',
-          senderName: ref.read(gameProvider).playerName,
-          role: ChatSenderRole.player,
-          message: '${tactic.title} • ${tactic.description}',
-          timestamp: DateTime.now(),
-          isFromPlayer: true,
-          badgeText: outcome.isSuccess
-              ? context.tr('real_estate_badge_tactic_success')
-              : context.tr('real_estate_badge_tactic_failed'),
-        ),
-      );
       _messages.add(
         ChatMessageModel(
           id: 'tactic_res_${DateTime.now().millisecondsSinceEpoch}',
@@ -491,11 +533,11 @@ class _RealEstateNegotiationScreenState
     final seconds = (_remainingSeconds % 60).toString().padLeft(2, '0');
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF08A),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.black, width: 2),
+        color: const Color(0xFFFEF9C3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black, width: 2.2),
         boxShadow: const [
           BoxShadow(
             color: Colors.black,
@@ -509,72 +551,101 @@ class _RealEstateNegotiationScreenState
         children: [
           Row(
             children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEF4444),
-                  shape: BoxShape.circle,
+              ScaleTransition(
+                scale: _pulseAnimation,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.5),
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  context.tr('real_estate_dark_live_investors'),
+                  context.tr('real_estate_dark_live_investors', {
+                    'count': widget.listing.isHotDeal ? '5' : '3',
+                    'bids': widget.listing.isHotDeal ? '3' : '1',
+                  }),
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF1E293B),
+                    height: 1.35,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_dark_timer_label'),
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isUrgent ? const Color(0xFFFEE2E2) : Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
-                    width: 1.5,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 1.8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
                   children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 14,
-                      color: isUrgent ? const Color(0xFFDC2626) : Colors.black,
-                    ),
-                    const SizedBox(width: 4),
+                    const Icon(Icons.schedule_rounded, size: 16, color: Colors.black87),
+                    const SizedBox(width: 6),
                     Text(
-                      _remainingSeconds > 0
-                          ? '$minutes:$seconds'
-                          : context.tr('real_estate_dark_timer_expired'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: isUrgent ? const Color(0xFFDC2626) : Colors.black,
+                      context.tr('real_estate_dark_timer_label'),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isUrgent ? const Color(0xFFFEE2E2) : const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.timer_outlined,
+                        size: 13,
+                        color: isUrgent ? const Color(0xFFDC2626) : const Color(0xFFFCD34D),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _remainingSeconds > 0
+                            ? '$minutes:$seconds'
+                            : context.tr('real_estate_dark_timer_expired'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'monospace',
+                          color: isUrgent ? const Color(0xFFDC2626) : const Color(0xFFFCD34D),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -591,58 +662,67 @@ class _RealEstateNegotiationScreenState
     switch (cat) {
       case RealEstateCategory.land:
         textKey = 'real_estate_dark_urgency_land';
-        bgColor = const Color(0xFFFEF3C7);
-        borderColor = const Color(0xFFD97706);
+        bgColor = const Color(0xFFECFDF5);
+        borderColor = const Color(0xFF059669);
         iconData = Icons.terrain_rounded;
         break;
       case RealEstateCategory.housing:
       case RealEstateCategory.housingProjects:
         textKey = 'real_estate_dark_urgency_housing';
-        bgColor = const Color(0xFFD1FAE5);
-        borderColor = const Color(0xFF059669);
+        bgColor = const Color(0xFFEFF6FF);
+        borderColor = const Color(0xFF2563EB);
         iconData = Icons.apartment_rounded;
         break;
       case RealEstateCategory.commercial:
       case RealEstateCategory.tourismFacility:
         textKey = 'real_estate_dark_urgency_commercial';
-        bgColor = const Color(0xFFDBEAFE);
-        borderColor = const Color(0xFF2563EB);
+        bgColor = const Color(0xFFFFFBEB);
+        borderColor = const Color(0xFFD97706);
         iconData = Icons.storefront_rounded;
         break;
       case RealEstateCategory.building:
       case RealEstateCategory.timeshare:
         textKey = 'real_estate_dark_urgency_building';
-        bgColor = const Color(0xFFEDE9FE);
+        bgColor = const Color(0xFFFAF5FF);
         borderColor = const Color(0xFF7C3AED);
         iconData = Icons.location_city_rounded;
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor, width: 2),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black, width: 2),
         boxShadow: const [
           BoxShadow(
             color: Colors.black,
-            offset: Offset(2, 2),
+            offset: Offset(2.5, 2.5),
             blurRadius: 0,
           ),
         ],
       ),
       child: Row(
         children: [
-          Icon(iconData, size: 20, color: borderColor),
-          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: borderColor.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: borderColor, width: 1.5),
+            ),
+            child: Icon(iconData, size: 18, color: borderColor),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               context.tr(textKey),
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w900,
                 color: borderColor.withValues(alpha: 0.95),
+                height: 1.35,
               ),
             ),
           ),
@@ -662,15 +742,22 @@ class _RealEstateNegotiationScreenState
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: re.category.accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: re.category.accentColor, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ],
                 ),
-                child: Icon(re.category.icon, color: re.category.accentColor, size: 24),
+                child: Icon(re.category.icon, color: re.category.accentColor, size: 26),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,65 +767,104 @@ class _RealEstateNegotiationScreenState
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w900,
+                        color: Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${re.city} • ${re.district}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFF64748B)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${re.city} • ${re.district}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
-          // Badges Row
+          // Bento Specs Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildBentoSpecTile(
+                  icon: Icons.square_foot_rounded,
+                  label: 'Alan',
+                  value: '${re.squareMeters} m²',
+                  bgColor: const Color(0xFFF1F5F9),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: _buildBentoSpecTile(
+                  icon: Icons.meeting_room_rounded,
+                  label: 'Oda',
+                  value: re.roomCount,
+                  bgColor: const Color(0xFFF1F5F9),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: _buildBentoSpecTile(
+                  icon: Icons.calendar_month_rounded,
+                  label: 'Bina Yaşı',
+                  value: '${re.buildingAge} Yıl',
+                  bgColor: const Color(0xFFF1F5F9),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: _buildBentoSpecTile(
+                  icon: Icons.assignment_rounded,
+                  label: 'Tapu',
+                  value: re.deedType == DeedType.ownershipDeed ? 'Müstakil' : 'Kat İrtifakı',
+                  bgColor: re.deedType == DeedType.ownershipDeed
+                      ? const Color(0xFFD1FAE5)
+                      : const Color(0xFFFEF3C7),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Secondary Badges Row
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: [
               NeoBrutalBadge(
-                text: '${re.squareMeters} m²',
-                backgroundColor: const Color(0xFFE2E8F0),
-              ),
-              NeoBrutalBadge(
-                text: re.roomCount,
-                backgroundColor: const Color(0xFFE2E8F0),
-              ),
-              NeoBrutalBadge(
-                text: '${re.buildingAge} ${context.tr('real_estate_badge_years_old')}',
-                backgroundColor: const Color(0xFFE2E8F0),
-              ),
-              NeoBrutalBadge(
-                text: context.tr(re.deedType.localizationKey),
-                backgroundColor: re.deedType == DeedType.ownershipDeed
-                    ? const Color(0xFFD1FAE5)
-                    : const Color(0xFFFEF3C7),
-              ),
-              NeoBrutalBadge(
                 text: context.tr('real_estate_dark_title_deed_clear'),
                 backgroundColor: const Color(0xFFDCFCE7),
+                textColor: const Color(0xFF166534),
               ),
               if (isLand)
                 NeoBrutalBadge(
                   text: context.tr('rental_ineligible_land'),
                   backgroundColor: const Color(0xFFFEF3C7),
+                  textColor: const Color(0xFF92400E),
                 )
               else
                 NeoBrutalBadge(
-                  text: '${context.tr('real_estate_dark_estimated_rent_badge')}: ${CurrencyFormatter.format((re.estimatedRealValue * re.category.dailyRentYieldRate * 30).roundToDouble())}',
+                  text: context.tr('real_estate_dark_estimated_rent_badge', {
+                    'rent': CurrencyFormatter.format((re.estimatedRealValue * re.category.dailyRentYieldRate * 30).roundToDouble()),
+                  }),
                   backgroundColor: const Color(0xFFE0E7FF),
+                  textColor: const Color(0xFF3730A3),
                 ),
               if (widget.listing.isHotDeal)
                 NeoBrutalBadge(
                   text: context.tr('real_estate_badge_hot_deal'),
                   backgroundColor: const Color(0xFFFEE2E2),
+                  textColor: const Color(0xFF991B1B),
                 ),
             ],
           ),
@@ -747,11 +873,11 @@ class _RealEstateNegotiationScreenState
           if (_discrepancy != null && _discrepancy!.hasDiscrepancy) ...[
             const SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFFBEB),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFF59E0B), width: 1.5),
+                border: Border.all(color: const Color(0xFFF59E0B), width: 1.8),
               ),
               child: Row(
                 children: [
@@ -772,23 +898,79 @@ class _RealEstateNegotiationScreenState
             ),
           ],
 
-          const Divider(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                context.tr('real_estate_label_asking_price'),
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-              ),
-              Text(
-                CurrencyFormatter.format(widget.listing.askingPrice),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFD97706),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF3C7),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.black, width: 1.8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.sell_rounded, size: 16, color: Color(0xFFB45309)),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.tr('real_estate_label_asking_price'),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF78350F)),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                Text(
+                  CurrencyFormatter.format(widget.listing.askingPrice),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF78350F),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBentoSpecTile({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color bgColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 16, color: Colors.black87),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -805,7 +987,6 @@ class _RealEstateNegotiationScreenState
 
     final isPatienceCritical = _sellerPatience < 25 && !_isWalkaway && !_isAccepted;
 
-    // Obstinacy level based on personality
     int obstinacyPercent = 50;
     Color obstinacyColor = const Color(0xFFF59E0B);
     if (_personality == RealEstateSellerPersonality.stubborn) {
@@ -824,8 +1005,33 @@ class _RealEstateNegotiationScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  widget.listing.realEstate.sellerType == RealEstateSellerType.agency
+                      ? Icons.real_estate_agent_rounded
+                      : (widget.listing.realEstate.sellerType == RealEstateSellerType.bankAuction
+                          ? Icons.account_balance_rounded
+                          : Icons.person_pin_rounded),
+                  color: const Color(0xFFB45309),
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,7 +1040,7 @@ class _RealEstateNegotiationScreenState
                       widget.listing.sellerName,
                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 3),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
@@ -844,18 +1050,11 @@ class _RealEstateNegotiationScreenState
                           context.tr(widget.listing.realEstate.sellerType.localizationKey),
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
-                        Text(
-                          '•',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                        ),
+                        const Text('•', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                         NeoBrutalBadge(
                           text: context.tr(_personality.localizationKey),
                           backgroundColor: _personality == RealEstateSellerPersonality.urgent
@@ -863,28 +1062,59 @@ class _RealEstateNegotiationScreenState
                               : (_personality == RealEstateSellerPersonality.stubborn
                                   ? const Color(0xFFFEE2E2)
                                   : const Color(0xFFE0E7FF)),
+                          textColor: _personality == RealEstateSellerPersonality.urgent
+                              ? const Color(0xFF065F46)
+                              : (_personality == RealEstateSellerPersonality.stubborn
+                                  ? const Color(0xFF991B1B)
+                                  : const Color(0xFF3730A3)),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              NeoBrutalBadge(
-                text: '$_sellerPatience%',
-                backgroundColor: patienceColor.withValues(alpha: 0.2),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: patienceColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: patienceColor, width: 1.8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.bolt_rounded, size: 14, color: patienceColor),
+                    const SizedBox(width: 2),
+                    Text(
+                      '$_sellerPatience%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: patienceColor,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
 
           // Patience Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: _sellerPatience / 100.0,
-              minHeight: 8,
-              backgroundColor: Colors.grey.shade300,
-              valueColor: AlwaysStoppedAnimation<Color>(patienceColor),
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.black, width: 1.5),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3.5),
+              child: LinearProgressIndicator(
+                value: _sellerPatience / 100.0,
+                backgroundColor: Colors.transparent,
+                valueColor: AlwaysStoppedAnimation<Color>(patienceColor),
+              ),
             ),
           ),
 
@@ -892,7 +1122,7 @@ class _RealEstateNegotiationScreenState
           if (isPatienceCritical) ...[
             const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: const Color(0xFFFEE2E2),
                 borderRadius: BorderRadius.circular(6),
@@ -931,18 +1161,26 @@ class _RealEstateNegotiationScreenState
               ),
               NeoBrutalBadge(
                 text: '%$obstinacyPercent',
-                backgroundColor: obstinacyColor.withValues(alpha: 0.2),
+                backgroundColor: obstinacyColor.withValues(alpha: 0.15),
+                textColor: obstinacyColor,
               ),
             ],
           ),
           const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: obstinacyPercent / 100.0,
-              minHeight: 6,
-              backgroundColor: Colors.grey.shade300,
-              valueColor: AlwaysStoppedAnimation<Color>(obstinacyColor),
+          Container(
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.black, width: 1.2),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2.8),
+              child: LinearProgressIndicator(
+                value: obstinacyPercent / 100.0,
+                backgroundColor: Colors.transparent,
+                valueColor: AlwaysStoppedAnimation<Color>(obstinacyColor),
+              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -994,6 +1232,7 @@ class _RealEstateNegotiationScreenState
               NeoBrutalBadge(
                 text: CurrencyFormatter.format(_counterOfferPrice!),
                 backgroundColor: const Color(0xFFFDE68A),
+                textColor: const Color(0xFF78350F),
               ),
             ],
           ),
@@ -1024,6 +1263,60 @@ class _RealEstateNegotiationScreenState
     );
   }
 
+  Color _getTacticCardBg(RealEstateTactic tactic) {
+    if (tactic.isRescue) return const Color(0xFFFFFBEB);
+    switch (tactic.id) {
+      case 'blokeli_cek':
+        return const Color(0xFFECFDF5);
+      case 'imar_kusuru':
+        return const Color(0xFFFAF5FF);
+      case 'komisyonu_kir':
+        return const Color(0xFFEFF6FF);
+      case 'yuksek_faiz':
+        return const Color(0xFFFFF1F2);
+      case 'tapu_harci_bolus':
+        return const Color(0xFFF0F9FF);
+      default:
+        return const Color(0xFFF8FAFC);
+    }
+  }
+
+  Color _getTacticAccent(RealEstateTactic tactic) {
+    if (tactic.isRescue) return const Color(0xFFD97706);
+    switch (tactic.id) {
+      case 'blokeli_cek':
+        return const Color(0xFF059669);
+      case 'imar_kusuru':
+        return const Color(0xFF7C3AED);
+      case 'komisyonu_kir':
+        return const Color(0xFF2563EB);
+      case 'yuksek_faiz':
+        return const Color(0xFFE11D48);
+      case 'tapu_harci_bolus':
+        return const Color(0xFF0284C7);
+      default:
+        return Colors.black;
+    }
+  }
+
+  IconData _getTacticIcon(RealEstateTactic tactic) {
+    if (tactic.isRescue) return Icons.local_cafe_rounded;
+    switch (tactic.id) {
+      case 'blokeli_cek':
+        return Icons.payments_rounded;
+      case 'imar_kusuru':
+        return Icons.gavel_rounded;
+      case 'komisyonu_kir':
+        return Icons.storefront_rounded;
+      case 'yuksek_faiz':
+        return Icons.trending_down_rounded;
+      case 'tapu_harci_bolus':
+        return Icons.account_balance_rounded;
+      default:
+        return Icons.flash_on_rounded;
+    }
+  }
+
   Widget _buildTacticsSection(ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1036,12 +1329,20 @@ class _RealEstateNegotiationScreenState
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
             ),
             if (_bonusChancePercent > 0)
-              Text(
-                '+$_bonusChancePercent% ${context.tr('real_estate_label_bonus_chance')}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF10B981),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+                ),
+                child: Text(
+                  '+$_bonusChancePercent% ${context.tr('real_estate_label_bonus_chance')}',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF065F46),
+                  ),
                 ),
               ),
           ],
@@ -1049,7 +1350,7 @@ class _RealEstateNegotiationScreenState
         const SizedBox(height: 8),
 
         SizedBox(
-          height: 82,
+          height: 94,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: RealEstateNegotiationEngine.allTactics.length,
@@ -1066,60 +1367,101 @@ class _RealEstateNegotiationScreenState
                   (!isAgencyOnly || isSellerAgency) &&
                   (!_isWalkaway || tactic.isRescue);
 
+              final cardBg = _getTacticCardBg(tactic);
+              final accentColor = _getTacticAccent(tactic);
+              final icon = _getTacticIcon(tactic);
+
               return Opacity(
-                opacity: isEnabled ? 1.0 : 0.45,
+                opacity: isEnabled ? 1.0 : (isUsed ? 0.6 : 0.35),
                 child: SizedBox(
-                  width: 145,
-                  child: NeoBrutalCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    child: InkWell(
-                      onTap: isEnabled ? () => _executeTactic(tactic) : null,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: tactic.isRescue
-                                      ? const Color(0xFFFDE047)
-                                      : const Color(0xFFE0F2FE),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Icon(
-                                  tactic.isRescue
-                                      ? Icons.local_cafe_rounded
-                                      : Icons.flash_on_rounded,
-                                  size: 14,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  tactic.badgeText,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                  width: 155,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isUsed ? const Color(0xFFE2E8F0) : cardBg,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isUsed ? const Color(0xFF94A3B8) : Colors.black,
+                        width: 2,
+                      ),
+                      boxShadow: isUsed
+                          ? []
+                          : const [
+                              BoxShadow(
+                                color: Colors.black,
+                                offset: Offset(2.5, 2.5),
+                                blurRadius: 0,
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            tactic.title,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10),
+                      onTap: isEnabled ? () => _executeTactic(tactic) : null,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: accentColor.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: accentColor, width: 1.2),
+                                  ),
+                                  child: Icon(icon, size: 14, color: accentColor),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    tactic.badgeText,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      color: accentColor,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                            Text(
+                              tactic.title,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: isUsed ? const Color(0xFF64748B) : Colors.black87,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFDCFCE7),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    '+%${tactic.baseBonusPercent} Şans',
+                                    style: const TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF166534),
+                                    ),
+                                  ),
+                                ),
+                                if (isUsed)
+                                  const Icon(Icons.check_circle_rounded, size: 14, color: Color(0xFF10B981)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -1136,6 +1478,16 @@ class _RealEstateNegotiationScreenState
     final minPrice = (widget.listing.askingPrice * 0.70).roundToDouble();
     final maxPrice = widget.listing.askingPrice.toDouble();
 
+    Color chanceColor = const Color(0xFF10B981);
+    Color chanceBg = const Color(0xFFD1FAE5);
+    if (currentChance < 40) {
+      chanceColor = const Color(0xFFDC2626);
+      chanceBg = const Color(0xFFFEE2E2);
+    } else if (currentChance < 70) {
+      chanceColor = const Color(0xFFD97706);
+      chanceBg = const Color(0xFFFEF3C7);
+    }
+
     return NeoBrutalCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1147,31 +1499,49 @@ class _RealEstateNegotiationScreenState
                 context.tr('real_estate_label_your_offer'),
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
               ),
-              Text(
-                '${context.tr('real_estate_label_success_chance')}: $currentChance%',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: currentChance > 50
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: chanceBg,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: chanceColor, width: 1.5),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      currentChance > 50 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                      size: 13,
+                      color: chanceColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${context.tr('real_estate_label_success_chance')}: $currentChance%',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        color: chanceColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           Center(
             child: Text(
               CurrencyFormatter.format(_offeredPrice),
               style: const TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF1E293B),
+                color: Color(0xFF0F172A),
+                letterSpacing: 0.5,
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Preset Percentage Buttons with tactile neo-brutal styling & rich colors
           Wrap(
@@ -1186,7 +1556,7 @@ class _RealEstateNegotiationScreenState
               _buildPresetButton('-%20', 0.20, const Color(0xFFDDD6FE)),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Interactive Offer Slider
           SliderTheme(
@@ -1195,7 +1565,7 @@ class _RealEstateNegotiationScreenState
               inactiveTrackColor: Colors.grey.shade300,
               thumbColor: Colors.black,
               overlayColor: const Color(0xFFF59E0B).withValues(alpha: 0.2),
-              trackHeight: 6,
+              trackHeight: 7,
             ),
             child: Slider(
               value: _offeredPrice.clamp(minPrice, maxPrice),
@@ -1270,15 +1640,23 @@ class _RealEstateNegotiationScreenState
         children: [
           Row(
             children: [
-              const Icon(Icons.calculate_rounded, size: 18, color: Colors.black),
-              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                ),
+                child: const Icon(Icons.calculate_rounded, size: 16, color: Color(0xFFB45309)),
+              ),
+              const SizedBox(width: 8),
               Text(
                 context.tr('real_estate_financial_overview'),
                 style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           // Tapu Harci
           _buildBreakdownRow(
@@ -1286,7 +1664,7 @@ class _RealEstateNegotiationScreenState
             value: CurrencyFormatter.format(deedFee),
             isCost: true,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 5),
 
           // Doner Sermaye
           _buildBreakdownRow(
@@ -1295,7 +1673,7 @@ class _RealEstateNegotiationScreenState
             isCost: true,
           ),
           if (isAgency) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 5),
             // Emlakci Komisyonu
             _buildBreakdownRow(
               label: context.tr('real_estate_dark_agency_commission'),
@@ -1303,7 +1681,7 @@ class _RealEstateNegotiationScreenState
               isCost: true,
             ),
           ],
-          const Divider(height: 14),
+          const Divider(height: 16),
 
           // Brut Tasarruf Avantaji
           _buildBreakdownRow(
@@ -1312,36 +1690,53 @@ class _RealEstateNegotiationScreenState
             isCost: false,
             highlightGreen: true,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           // Net Yatirim Kazanci
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: netAdvantage >= 0 ? const Color(0xFFDCFCE7) : const Color(0xFFFEE2E2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: netAdvantage >= 0 ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                width: 1.5,
+                width: 2,
               ),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black,
+                  offset: Offset(2, 2),
+                  blurRadius: 0,
+                ),
+              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  context.tr('real_estate_dark_net_advantage'),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
-                  ),
+                Row(
+                  children: [
+                    Icon(
+                      netAdvantage >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                      size: 18,
+                      color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.tr('real_estate_dark_net_advantage'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
                   netAdvantage >= 0
                       ? '+${CurrencyFormatter.format(netAdvantage)}'
                       : '-${CurrencyFormatter.format(netAdvantage.abs())}',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w900,
                     color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
                   ),

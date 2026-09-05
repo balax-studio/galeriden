@@ -19,6 +19,7 @@ import '../../../../data/models/trade_in_offer_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../data/models/real_estate_model.dart';
 import '../../../../data/models/real_estate_offer_model.dart';
+import '../../../../data/models/real_estate_category.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -115,158 +116,218 @@ class ShowroomOffersTab extends ConsumerWidget {
           }
         }
       },
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(14, 12, 14, bottomPadding ?? 24),
+      child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
-        children: [
+        slivers: [
           // 1. Trade-in Offers Section (§4.6.2)
           if (game.incomingTradeInOffers.isNotEmpty) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.sync_alt_rounded,
-                        color: Color(0xFFFFDE59), size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.tr('title_trade_in_offers',
-                          {'count': '${game.incomingTradeInOffers.length}'}),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.sync_alt_rounded,
+                            color: Color(0xFFFFDE59), size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          context.tr('title_trade_in_offers',
+                              {'count': '${game.incomingTradeInOffers.length}'}),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                if (game.incomingTradeInOffers.length >= 2)
-                  InkWell(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      ref.read(gameProvider.notifier).rejectAllTradeInOffers();
-                      NotificationService.showInfo(
-                          context, context.tr('toast_all_trade_ins_cleared'));
-                    },
-                    borderRadius: BorderRadius.circular(6),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      child: Text(
-                        context.tr('btn_reject'),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? const Color(0xFFF87171)
-                              : const Color(0xFFDC2626),
+                    if (game.incomingTradeInOffers.length >= 2)
+                      InkWell(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          ref.read(gameProvider.notifier).rejectAllTradeInOffers();
+                          NotificationService.showInfo(
+                              context, context.tr('toast_all_trade_ins_cleared'));
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          child: Text(
+                            context.tr('btn_reject'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: isDark
+                                  ? const Color(0xFFF87171)
+                                  : const Color(0xFFDC2626),
+                            ),
+                          ),
                         ),
                       ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => RepaintBoundary(
+                    child: _buildTradeInOfferCard(
+                      context,
+                      ref,
+                      game.incomingTradeInOffers[index],
+                      isDark,
                     ),
                   ),
-              ],
+                  childCount: game.incomingTradeInOffers.length,
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            ...game.incomingTradeInOffers.map((tradeOffer) =>
-                _buildTradeInOfferCard(context, ref, tradeOffer, isDark)),
-            const SizedBox(height: 14),
+            const SliverToBoxAdapter(child: SizedBox(height: 2)),
           ],
 
           // 2. Regular Cash Offers Section
           if (game.incomingOffers.isNotEmpty) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                14,
+                game.incomingTradeInOffers.isNotEmpty ? 2 : 12,
+                14,
+                8,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.payments_outlined,
-                        color: Color(0xFF00E575), size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.tr('title_cash_offers',
-                          {'count': '${game.incomingOffers.length}'}),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.payments_outlined,
+                            color: Color(0xFF00E575), size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          context.tr('title_cash_offers',
+                              {'count': '${game.incomingOffers.length}'}),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                if (game.incomingOffers.length >= 2)
-                  InkWell(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      ref.read(gameProvider.notifier).rejectAllOffers();
-                      NotificationService.showInfo(
-                          context, context.tr('toast_all_cash_offers_cleared'));
-                    },
-                    borderRadius: BorderRadius.circular(6),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      child: Text(
-                        context.tr('btn_reject'),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? const Color(0xFFF87171)
-                              : const Color(0xFFDC2626),
+                    if (game.incomingOffers.length >= 2)
+                      InkWell(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          ref.read(gameProvider.notifier).rejectAllOffers();
+                          NotificationService.showInfo(
+                              context, context.tr('toast_all_cash_offers_cleared'));
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          child: Text(
+                            context.tr('btn_reject'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: isDark
+                                  ? const Color(0xFFF87171)
+                                  : const Color(0xFFDC2626),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            ...game.incomingOffers.asMap().entries.map((entry) {
-              final index = entry.key;
-              final offer = entry.value;
-              return _buildCashOfferCard(context, ref, offer, index, isDark);
-            }),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final offer = game.incomingOffers[index];
+                    return RepaintBoundary(
+                      child: _buildCashOfferCard(context, ref, offer, index, isDark),
+                    );
+                  },
+                  childCount: game.incomingOffers.length,
+                ),
+              ),
+            ),
           ],
 
           // 3. Real Estate Offers Section (Sales & Rentals)
           if (realEstateOffers.isNotEmpty) ...[
-            if (game.incomingTradeInOffers.isNotEmpty ||
-                game.incomingOffers.isNotEmpty)
-              const SizedBox(height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(
+                14,
+                (game.incomingTradeInOffers.isNotEmpty ||
+                        game.incomingOffers.isNotEmpty)
+                    ? 14
+                    : 12,
+                14,
+                8,
+              ),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.home_work_rounded,
-                        color: Color(0xFF3B82F6), size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.tr('title_real_estate_offers',
-                          {'count': '${realEstateOffers.length}'}),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.home_work_rounded,
+                            color: Color(0xFF3B82F6), size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          context.tr('title_real_estate_offers',
+                              {'count': '${realEstateOffers.length}'}),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-            const SizedBox(height: 8),
-            ...realEstateOffers.map((item) =>
-                _buildRealEstateOfferCard(context, ref, item.property, item.offer, isDark)),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final item = realEstateOffers[index];
+                    return RepaintBoundary(
+                      child: _buildRealEstateOfferCard(
+                          context, ref, item.property, item.offer, isDark),
+                    );
+                  },
+                  childCount: realEstateOffers.length,
+                ),
+              ),
+            ),
           ],
+          SliverToBoxAdapter(
+            child: SizedBox(height: bottomPadding ?? 24),
+          ),
         ],
       ),
     );
@@ -316,43 +377,114 @@ class ShowroomOffersTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                context.push('/emlak-ilan/${property.id}');
+              },
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+                    ),
+                    child: const Icon(Icons.key_rounded, color: Color(0xFF3B82F6), size: 20),
                   ),
-                  child: const Icon(Icons.key_rounded, color: Color(0xFF3B82F6), size: 20),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        property.title,
-                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        '${property.city} - ${property.district} • ${context.tr('real_estate_offer_rent_subtitle')}',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          property.title,
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        Text(
+                          '${property.city} - ${property.district} • ${context.tr('real_estate_offer_rent_subtitle')}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  NeoBrutalBadge(
+                    text: '${offer.daysRemaining} ${context.tr('day')}',
+                    color: const Color(0xFFFEF3C7),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              children: [
+                GestureDetector(
+                  onTap: () => context.push('/emlak-ilan/${property.id}'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.open_in_new_rounded, size: 10, color: Color(0xFF1D4ED8)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_listing_desk'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF1D4ED8))),
+                      ],
+                    ),
                   ),
                 ),
-                NeoBrutalBadge(
-                  text: '${offer.daysRemaining} ${context.tr('day')}',
-                  color: const Color(0xFFFEF3C7),
+                GestureDetector(
+                  onTap: () => context.push('/emlak-kiralama'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.key_rounded, size: 10, color: Color(0xFF047857)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_rental_desk'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF047857))),
+                      ],
+                    ),
+                  ),
                 ),
+                if (property.category == RealEstateCategory.land)
+                  GestureDetector(
+                    onTap: () => context.push('/emlak-insaat/${property.id}'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF08A),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.construction_rounded, size: 10, color: Colors.black),
+                          const SizedBox(width: 4),
+                          Text(context.tr('real_estate_nav_construction_site'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
             const Divider(height: 18),
@@ -446,11 +578,32 @@ class ShowroomOffersTab extends ConsumerWidget {
                           context,
                           context.tr('real_estate_lease_contract_success', {'buyer': offer.buyerName}),
                         );
+                      } else {
+                        NotificationService.showWarning(
+                          context,
+                          context.tr('real_estate_lease_blocked_warning'),
+                        );
                       }
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
+                Expanded(
+                  flex: 3,
+                  child: NeoBrutalButton(
+                    text: context.tr('real_estate_btn_negotiate'),
+                    backgroundColor: const Color(0xFFF59E0B),
+                    textColor: Colors.black,
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      context.push(
+                        '/emlak-kiraci-pazarlik/${property.id}/${offer.tenant?.id ?? offer.id}',
+                        extra: offer.tenant,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 6),
                 Expanded(
                   flex: 2,
                   child: NeoBrutalButton(
@@ -493,43 +646,114 @@ class ShowroomOffersTab extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                context.push('/emlak-ilan/${property.id}');
+              },
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+                    ),
+                    child: const Icon(Icons.storefront_rounded, color: Color(0xFF10B981), size: 20),
                   ),
-                  child: const Icon(Icons.storefront_rounded, color: Color(0xFF10B981), size: 20),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        property.title,
-                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        '${property.city} - ${property.district} • ${context.tr('real_estate_offer_sale_subtitle')}',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          property.title,
+                          style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        Text(
+                          '${property.city} - ${property.district} • ${context.tr('real_estate_offer_sale_subtitle')}',
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  NeoBrutalBadge(
+                    text: '${offer.daysRemaining} ${context.tr('day')}',
+                    color: const Color(0xFFFEF3C7),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              children: [
+                GestureDetector(
+                  onTap: () => context.push('/emlak-ilan/${property.id}'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.open_in_new_rounded, size: 10, color: Color(0xFF1D4ED8)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_listing_desk'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF1D4ED8))),
+                      ],
+                    ),
                   ),
                 ),
-                NeoBrutalBadge(
-                  text: '${offer.daysRemaining} ${context.tr('day')}',
-                  color: const Color(0xFFFEF3C7),
+                GestureDetector(
+                  onTap: () => context.push('/emlak-kiralama'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFECFDF5),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.key_rounded, size: 10, color: Color(0xFF047857)),
+                        const SizedBox(width: 4),
+                        Text(context.tr('real_estate_nav_rental_desk'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF047857))),
+                      ],
+                    ),
+                  ),
                 ),
+                if (property.category == RealEstateCategory.land)
+                  GestureDetector(
+                    onTap: () => context.push('/emlak-insaat/${property.id}'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF08A),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.construction_rounded, size: 10, color: Colors.black),
+                          const SizedBox(width: 4),
+                          Text(context.tr('real_estate_nav_construction_site'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
             const Divider(height: 18),
@@ -617,6 +841,11 @@ class ShowroomOffersTab extends ConsumerWidget {
                         NotificationService.showSuccess(
                           context,
                           context.tr('real_estate_sale_success_short', {'title': property.title}),
+                        );
+                      } else {
+                        NotificationService.showWarning(
+                          context,
+                          context.tr('real_estate_sale_blocked_warning'),
                         );
                       }
                     },

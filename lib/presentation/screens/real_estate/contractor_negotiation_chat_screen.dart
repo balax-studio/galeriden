@@ -14,6 +14,7 @@ import '../../../domain/usecases/architectural_yield_engine.dart';
 import '../../../domain/usecases/contractor_negotiation_expansion.dart';
 import '../../../domain/usecases/real_estate_chat_negotiation_engine.dart';
 import '../../providers/game_provider.dart';
+import '../../widgets/chat_typing_indicator_bubble.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -40,6 +41,9 @@ class _ContractorNegotiationChatScreenState
   final ScrollController _scrollController = ScrollController();
   final Random _random = Random();
   bool _isInitialized = false;
+  bool _isApplying = false;
+  bool _isOpponentTyping = false;
+  bool _isTypingPaused = false;
 
   @override
   void didChangeDependencies() {
@@ -108,15 +112,57 @@ class _ContractorNegotiationChatScreenState
     _scrollToBottom();
   }
 
-  void _applyTactic(ChatTacticType tactic, String playerMessage) {
+  Future<void> _applyTactic(ChatTacticType tactic, String playerMessage) async {
+    if (_isApplying || _isOpponentTyping || _chatState.isAgreed || _chatState.isWalkedAway) return;
+    _isApplying = true;
     HapticFeedback.mediumImpact();
+
+    final plan = RealEstateChatNegotiationEngine.evaluateTacticPlan(
+      state: _chatState,
+      tactic: tactic,
+      playerMessageText: playerMessage,
+      random: _random,
+    );
+    if (plan == null) {
+      _isApplying = false;
+      return;
+    }
+
+    // 1. Oyuncu mesajını hemen ekrana ekle
     setState(() {
-      _chatState = RealEstateChatNegotiationEngine.executeTactic(
-        state: _chatState,
-        tactic: tactic,
-        playerMessageText: playerMessage,
-        random: _random,
-      );
+      _chatState = plan.stateWithPlayerMessageOnly;
+      _isOpponentTyping = true;
+      _isTypingPaused = false;
+    });
+    _scrollToBottom();
+
+    // 2. Aşama 1: Yazıyor animasyonu (1100ms - 1700ms)
+    final stage1Ms = 1100 + _random.nextInt(600);
+    await Future.delayed(Duration(milliseconds: stage1Ms));
+    if (!mounted) return;
+
+    // 3. Aşama 2: Duraksama / Kaybolma (Düşünme gerilimi: 600ms - 1100ms)
+    setState(() {
+      _isTypingPaused = true;
+    });
+    final pauseMs = 600 + _random.nextInt(500);
+    await Future.delayed(Duration(milliseconds: pauseMs));
+    if (!mounted) return;
+
+    // 4. Aşama 3: Tekrar yazıyor (1000ms - 1600ms)
+    setState(() {
+      _isTypingPaused = false;
+    });
+    final stage3Ms = 1000 + _random.nextInt(600);
+    await Future.delayed(Duration(milliseconds: stage3Ms));
+    if (!mounted) return;
+
+    // 5. Aşama 4: Karşı tarafın cevabını teslim et
+    setState(() {
+      _chatState = plan.finalState;
+      _isOpponentTyping = false;
+      _isTypingPaused = false;
+      _isApplying = false;
     });
     _scrollToBottom();
 
@@ -167,6 +213,9 @@ class _ContractorNegotiationChatScreenState
           isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: NeoBrutalAppBar(
         title: _currentContractor.defaultName,
+        subtitle: (_isOpponentTyping && !_isTypingPaused)
+            ? context.tr('chat_status_typing')
+            : context.tr('chat_status_online'),
         onLeadingPressed: () => context.pop(),
         actions: [
           Padding(
@@ -201,8 +250,16 @@ class _ContractorNegotiationChatScreenState
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              itemCount: _chatState.messages.length,
+              itemCount: _chatState.messages.length +
+                  (_isOpponentTyping && !_isTypingPaused ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == _chatState.messages.length) {
+                  return ChatTypingIndicatorBubble(
+                    senderName: _currentContractor.defaultName,
+                    role: ChatSenderRole.contractor,
+                    isDark: isDark,
+                  );
+                }
                 final msg = _chatState.messages[index];
                 return _buildChatBubble(msg, isDark);
               },
@@ -670,10 +727,12 @@ class _ContractorNegotiationChatScreenState
                   }),
                   backgroundColor: const Color(0xFF10B981),
                   textColor: Colors.white,
-                  onPressed: () => _applyTactic(
-                    ChatTacticType.acceptAgreement,
-                    context.tr('contractor_msg_accept'),
-                  ),
+                  onPressed: _isApplying
+                      ? null
+                      : () => _applyTactic(
+                            ChatTacticType.acceptAgreement,
+                            context.tr('contractor_msg_accept'),
+                          ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -681,10 +740,12 @@ class _ContractorNegotiationChatScreenState
                 text: context.tr('contractor_btn_walk_away'),
                 backgroundColor: const Color(0xFFEF4444),
                 textColor: Colors.white,
-                onPressed: () => _applyTactic(
-                  ChatTacticType.walkAway,
-                  context.tr('contractor_msg_walk_away'),
-                ),
+                onPressed: _isApplying
+                    ? null
+                    : () => _applyTactic(
+                          ChatTacticType.walkAway,
+                          context.tr('contractor_msg_walk_away'),
+                        ),
               ),
             ],
           ),
@@ -700,7 +761,7 @@ class _ContractorNegotiationChatScreenState
     required Color color,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: _isApplying ? null : onTap,
       borderRadius: BorderRadius.circular(6),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
