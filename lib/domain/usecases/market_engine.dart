@@ -181,6 +181,9 @@ class MarketEngine {
     final hasDamagedParts = bodyParts.values.any((s) => s != PartStatus.original);
     final tramerAmount = hasDamagedParts ? (2500 + _random.nextInt(7500)) : 0;
 
+    final isChassisAligned = bodyParts['Şasi/Podye'] == PartStatus.original;
+    final hasAirbag = !isChassisAligned || tramerAmount > 45000;
+
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
       transmissionCondition: transCondition.toDouble(),
@@ -188,6 +191,8 @@ class MarketEngine {
       mileage: mileage,
       isMileageTampered: false,
       bodyParts: bodyParts,
+      isChassisAligned: isChassisAligned,
+      hasAirbagDeployed: hasAirbag,
     );
 
     final cityData = GameConstants.cities[_random.nextInt(min(6, GameConstants.cities.length))];
@@ -623,6 +628,9 @@ class MarketEngine {
         ? (88.0 + _random.nextInt(13)).clamp(85.0, 100.0)
         : (45.0 + _random.nextInt(56)).clamp(45.0, 100.0);
 
+    final isChassisAligned = bodyParts['Şasi/Podye'] == PartStatus.original;
+    final hasAirbag = (!isChassisAligned && _random.nextDouble() < 0.70) || (tramerAmount > 45000 && _random.nextDouble() < 0.60);
+
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
       transmissionCondition: transCondition.toDouble(),
@@ -630,6 +638,8 @@ class MarketEngine {
       mileage: mileage,
       isMileageTampered: isTampered,
       bodyParts: bodyParts,
+      isChassisAligned: isChassisAligned,
+      hasAirbagDeployed: hasAirbag,
     );
 
     double baseValue = _calculateBaseValue(brandData.segment, year, isClassicModel, isRare);
@@ -713,6 +723,8 @@ class MarketEngine {
                 'Bagaj': PartStatus.original,
                 'Şasi/Podye': PartStatus.original,
               },
+              isChassisAligned: true,
+              hasAirbagDeployed: false,
             )
           : expertise,
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -58,6 +59,14 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
       return titleMatch || brandMatch || modelMatch || cityMatch;
     }).toList();
 
+    // Generate random ad positions
+    final Random adRandom = Random(game.currentDay);
+    final Set<int> adIndices = {};
+    int nextAd = adRandom.nextInt(3) + 2; // 2-4 interval
+    while (nextAd < filteredListings.length) {
+      adIndices.add(nextAd);
+      nextAd += adRandom.nextInt(3) + 2;
+    }
     return Scaffold(
       appBar: NeoBrutalAppBar(
         title: context.tr('vasita_market_title'),
@@ -258,8 +267,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                         final showAdBefore = AdService.shouldShowNativeAdForDay(
                                 game.currentDay,
                                 NativeAdContextType.marketplace) &&
-                            index > 0 &&
-                            index % 4 == 0;
+                            adIndices.contains(index);
 
                         final listingWidget = _buildListingCard(
                           context: context,

@@ -665,10 +665,10 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
             icon: Icons.security_rounded,
             title: context.tr('vasita_exp_airbag_integrity_label'),
             value: isCompleted
-                ? (exp.tramerAmount > 45000 ? context.tr('vasita_exp_airbag_repaired') : context.tr('vasita_exp_airbag_factory'))
+                ? (exp.hasAirbagDeployed ? context.tr('vasita_exp_airbag_repaired') : context.tr('vasita_exp_airbag_factory'))
                 : context.tr('vasita_exp_uninspected_masked'),
             statusColor: isCompleted
-                ? (exp.tramerAmount > 45000 ? const Color(0xFFFF3B30) : const Color(0xFF00E575))
+                ? (exp.hasAirbagDeployed ? const Color(0xFFFF3B30) : const Color(0xFF00E575))
                 : const Color(0xFFFFB020),
             isDark: isDark,
           ),

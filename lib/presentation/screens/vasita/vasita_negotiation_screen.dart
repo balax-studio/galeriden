@@ -145,7 +145,10 @@ class _VasitaNegotiationScreenState
 
     if (outcome.isAccepted) {
       GameSoundHapticService.playCashSuccess();
-      _showNoterTransferDialog();
+      NotificationService.showSuccess(
+        context,
+        context.tr('vasita_neg_offer_accepted_toast'),
+      );
     } else if (outcome.isWalkaway) {
       GameSoundHapticService.playWarningVibration();
     } else {
@@ -1434,6 +1437,22 @@ class _VasitaNegotiationScreenState
             child: Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Color(0xFF00E575), size: 16),
+                    const SizedBox(width: 6),
+                    Text(
+                      context.tr('vasita_neg_accepted_badge'),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF00E575),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
@@ -1484,6 +1503,18 @@ class _VasitaNegotiationScreenState
             backgroundColor: const Color(0xFF10B981),
             textColor: Colors.white,
             onPressed: _showNoterTransferDialog,
+          ),
+          const SizedBox(height: 8),
+          NeoBrutalButton(
+            label: context.tr('vasita_btn_cancel_deal'),
+            icon: Icons.close_rounded,
+            fullWidth: true,
+            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            textColor: isDark ? Colors.white70 : Colors.black87,
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              Navigator.of(context).pop();
+            },
           ),
         ],
       );

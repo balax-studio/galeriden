@@ -583,19 +583,54 @@ class VasitaMarketEngine {
       tramer = _random.nextDouble() < 0.4 ? 0.0 : 5000.0 + _random.nextInt(35000);
     }
 
+    final bool isChassisAligned;
+    if (isDamagedCategory) {
+      isChassisAligned = _random.nextDouble() < 0.25;
+    } else if (isAircraft || tramer <= 0) {
+      isChassisAligned = true;
+    } else if (tramer > 60000) {
+      isChassisAligned = _random.nextDouble() < 0.65;
+    } else if (tramer > 25000) {
+      isChassisAligned = _random.nextDouble() < 0.85;
+    } else {
+      isChassisAligned = _random.nextDouble() < 0.97;
+    }
+
+    final bool isMileageTampered;
+    if (isAircraft || t.category == VehicleCategory.marine) {
+      isMileageTampered = false;
+    } else {
+      isMileageTampered = mileage > 45000 && _random.nextDouble() < 0.12;
+    }
+
+    final bool hasAirbagDeployed;
+    if (t.category == VehicleCategory.motorcycle ||
+        t.category == VehicleCategory.marine ||
+        t.category == VehicleCategory.aircraft) {
+      hasAirbagDeployed = false;
+    } else if (!isChassisAligned) {
+      hasAirbagDeployed = _random.nextDouble() < 0.70;
+    } else if (tramer > 45000) {
+      hasAirbagDeployed = _random.nextDouble() < 0.60;
+    } else {
+      hasAirbagDeployed = false;
+    }
+
+    final generatedBodyParts = _generateBodyPartsForCategory(
+      t.category,
+      isDamagedCategory,
+      tramer,
+    );
+
     final expertise = ExpertiseReport(
       engineCondition: engineCond.clamp(10.0, 100.0),
       transmissionCondition: transCond.clamp(10.0, 100.0),
       tramerAmount: tramer.round(),
       mileage: mileage,
-      isMileageTampered: false,
-      bodyParts: isDamagedCategory
-          ? {
-              'frontBumper': PartStatus.changed,
-              'hood': PartStatus.painted,
-              'frontFenderRight': PartStatus.painted,
-            }
-          : {},
+      isMileageTampered: isMileageTampered,
+      bodyParts: generatedBodyParts,
+      isChassisAligned: isChassisAligned,
+      hasAirbagDeployed: hasAirbagDeployed,
     );
 
     final firstName = sellerFirstNames[_random.nextInt(sellerFirstNames.length)];
@@ -783,5 +818,110 @@ class VasitaMarketEngine {
       case VehicleCategory.car:
         return 'İlk sahibinden titizlikle kullanılmış, tüm bakımları zamanında yapılmış masrafsız binek araç.';
     }
+  }
+
+  static Map<String, PartStatus> _generateBodyPartsForCategory(
+    VehicleCategory category,
+    bool isDamagedCategory,
+    double tramer,
+  ) {
+    final List<String> partNames;
+    switch (category) {
+      case VehicleCategory.motorcycle:
+      case VehicleCategory.atv:
+      case VehicleCategory.utv:
+        partNames = [
+          'Ön Maşa & Gidon',
+          'Depo / Yakıt Tankı',
+          'Sağ Grenaj',
+          'Sol Grenaj',
+          'Kuyruk & Arka Şasi',
+        ];
+        break;
+      case VehicleCategory.marine:
+        partNames = [
+          'Gövde / Karina',
+          'Güverte',
+          'Motor Kapağı & Havuzluk',
+          'Pervane & Şaft',
+        ];
+        break;
+      case VehicleCategory.aircraft:
+        partNames = [
+          'Gövde (Füzelaj)',
+          'Sağ Kanat',
+          'Sol Kanat',
+          'Kuyruk (Rudder)',
+          'İniş Takımları',
+        ];
+        break;
+      case VehicleCategory.car:
+      case VehicleCategory.minivan:
+      case VehicleCategory.commercial:
+      case VehicleCategory.rentalFleet:
+      case VehicleCategory.classic:
+      case VehicleCategory.caravan:
+      case VehicleCategory.damaged:
+        partNames = [
+          'Kaput',
+          'Tavan',
+          'Ön Tampon',
+          'Arka Tampon',
+          'Sol Ön Çamurluk',
+          'Sağ Ön Çamurluk',
+          'Sol Ön Kapı',
+          'Sağ Ön Kapı',
+          'Bagaj',
+        ];
+        break;
+    }
+
+    if (category == VehicleCategory.aircraft) {
+      return {for (var p in partNames) p: PartStatus.original};
+    }
+
+    if (isDamagedCategory) {
+      final parts = <String, PartStatus>{};
+      for (final p in partNames) {
+        final roll = _random.nextDouble();
+        if (roll < 0.35) {
+          parts[p] = PartStatus.damaged;
+        } else if (roll < 0.65) {
+          parts[p] = PartStatus.changed;
+        } else if (roll < 0.85) {
+          parts[p] = PartStatus.painted;
+        } else {
+          parts[p] = PartStatus.original;
+        }
+      }
+      return parts;
+    }
+
+    if (tramer <= 0) {
+      return {for (var p in partNames) p: PartStatus.original};
+    }
+
+    final parts = <String, PartStatus>{};
+    final damagedCount = tramer > 25000 ? 2 + _random.nextInt(2) : 1;
+    final damagedIndices = <int>{};
+    while (damagedIndices.length < min(damagedCount, partNames.length)) {
+      damagedIndices.add(_random.nextInt(partNames.length));
+    }
+
+    for (int i = 0; i < partNames.length; i++) {
+      final p = partNames[i];
+      if (damagedIndices.contains(i)) {
+        if (tramer > 35000 && _random.nextDouble() < 0.40) {
+          parts[p] = PartStatus.changed;
+        } else if (_random.nextDouble() < 0.50) {
+          parts[p] = PartStatus.localPainted;
+        } else {
+          parts[p] = PartStatus.painted;
+        }
+      } else {
+        parts[p] = PartStatus.original;
+      }
+    }
+    return parts;
   }
 }

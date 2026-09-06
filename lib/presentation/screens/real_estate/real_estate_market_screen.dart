@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -376,30 +377,39 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
 
         // Listings List
         Expanded(
-          child: listings.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.home_work_outlined,
-                          size: 48, color: Colors.grey),
-                      const SizedBox(height: 12),
-                      Text(
-                        context.tr('real_estate_empty_listings'),
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w700),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: listings.length,
-                  itemBuilder: (context, index) {
-                    final listing = listings[index];
-                    final showNativeAd = index > 0 && index % 4 == 0;
+          child: () {
+            final adIndices = <int>{};
+            final rng = Random(game.currentDay * 23 + listings.length);
+            int currentTarget = 2 + rng.nextInt(3);
+            while (currentTarget < listings.length) {
+              adIndices.add(currentTarget);
+              currentTarget += (3 + rng.nextInt(2));
+            }
 
-                    final card = _buildListingCard(theme, listing, game);
+            return listings.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.home_work_outlined,
+                            size: 48, color: Colors.grey),
+                        const SizedBox(height: 12),
+                        Text(
+                          context.tr('real_estate_empty_listings'),
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: listings.length,
+                    itemBuilder: (context, index) {
+                      final listing = listings[index];
+                      final showNativeAd = adIndices.contains(index);
+
+                      final card = _buildListingCard(theme, listing, game);
 
                     if (showNativeAd) {
                       return Column(
@@ -414,12 +424,13 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       );
                     }
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: card,
-                    );
-                  },
-                ),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: card,
+                      );
+                    },
+                  );
+          }(),
         ),
       ],
     );

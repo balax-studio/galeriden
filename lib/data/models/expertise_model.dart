@@ -10,6 +10,7 @@ class ExpertiseReport {
   final Map<String, double> partConditions; // 0 - 100% condition score per part
   final bool isEcuCleaned;
   final bool isChassisAligned;
+  final bool hasAirbagDeployed;
 
   ExpertiseReport({
     required this.engineCondition,
@@ -20,7 +21,8 @@ class ExpertiseReport {
     required this.bodyParts,
     Map<String, double>? partConditions,
     this.isEcuCleaned = false,
-    this.isChassisAligned = false,
+    this.isChassisAligned = true,
+    this.hasAirbagDeployed = false,
   }) : partConditions = partConditions ?? _defaultConditions(bodyParts);
 
   static Map<String, double> _defaultConditions(Map<String, PartStatus> parts) {
@@ -51,6 +53,7 @@ class ExpertiseReport {
       'partConditions': partConditions,
       'isEcuCleaned': isEcuCleaned,
       'isChassisAligned': isChassisAligned,
+      'hasAirbagDeployed': hasAirbagDeployed,
     };
   }
 
@@ -69,16 +72,22 @@ class ExpertiseReport {
         ? rawConditions.map((key, value) => MapEntry(key, (value as num?)?.toDouble() ?? 100.0))
         : _defaultConditions(bodyPartsMap);
 
+    final tramer = (json['tramerAmount'] as num?)?.toInt() ?? 0;
+    final isChassis = json['isChassisAligned'] as bool? ??
+        (bodyPartsMap['Şasi/Podye'] != PartStatus.changed && bodyPartsMap['Şasi/Podye'] != PartStatus.damaged);
+    final isAirbag = json['hasAirbagDeployed'] as bool? ?? (!isChassis && tramer > 45000);
+
     return ExpertiseReport(
       engineCondition: (json['engineCondition'] as num?)?.toDouble() ?? 100.0,
       transmissionCondition: (json['transmissionCondition'] as num?)?.toDouble() ?? 100.0,
-      tramerAmount: (json['tramerAmount'] as num?)?.toInt() ?? 0,
+      tramerAmount: tramer,
       mileage: (json['mileage'] as num?)?.toInt() ?? 50000,
       isMileageTampered: json['isMileageTampered'] as bool? ?? false,
       bodyParts: bodyPartsMap,
       partConditions: conditionsMap,
       isEcuCleaned: json['isEcuCleaned'] as bool? ?? false,
-      isChassisAligned: json['isChassisAligned'] as bool? ?? false,
+      isChassisAligned: isChassis,
+      hasAirbagDeployed: isAirbag,
     );
   }
 
@@ -92,6 +101,7 @@ class ExpertiseReport {
     Map<String, double>? partConditions,
     bool? isEcuCleaned,
     bool? isChassisAligned,
+    bool? hasAirbagDeployed,
   }) {
     return ExpertiseReport(
       engineCondition: engineCondition ?? this.engineCondition,
@@ -103,12 +113,15 @@ class ExpertiseReport {
       partConditions: partConditions ?? Map.from(this.partConditions),
       isEcuCleaned: isEcuCleaned ?? this.isEcuCleaned,
       isChassisAligned: isChassisAligned ?? this.isChassisAligned,
+      hasAirbagDeployed: hasAirbagDeployed ?? this.hasAirbagDeployed,
     );
   }
 
   bool get isCleanPristine =>
       tramerAmount == 0 &&
       !isMileageTampered &&
+      isChassisAligned &&
+      !hasAirbagDeployed &&
       engineCondition >= 85.0 &&
       transmissionCondition >= 85.0 &&
       bodyParts.values.every((v) => v == PartStatus.original);
