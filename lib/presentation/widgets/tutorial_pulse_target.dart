@@ -98,30 +98,32 @@ class _TutorialPulseTargetState extends State<TutorialPulseTarget>
   Widget build(BuildContext context) {
     if (!widget.isEnabled) return widget.child;
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          alignment: Alignment.center,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: widget.borderRadius ?? BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: widget.pulseColor.withValues(
-                    alpha: 0.20 + (_glowAnimation.value * 0.45),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            alignment: Alignment.center,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: widget.borderRadius ?? BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.pulseColor.withValues(
+                      alpha: 0.20 + (_glowAnimation.value * 0.45),
+                    ),
+                    blurRadius: 6.0 + (_glowAnimation.value * 10.0),
+                    spreadRadius: 1.0 + (_glowAnimation.value * 3.0),
                   ),
-                  blurRadius: 6.0 + (_glowAnimation.value * 10.0),
-                  spreadRadius: 1.0 + (_glowAnimation.value * 3.0),
-                ),
-              ],
+                ],
+              ),
+              child: child,
             ),
-            child: child,
-          ),
-        );
-      },
-      child: widget.child,
+          );
+        },
+        child: widget.child,
+      ),
     );
   }
 }

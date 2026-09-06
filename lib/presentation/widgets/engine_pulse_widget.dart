@@ -59,27 +59,29 @@ class _EnginePulseWidgetState extends State<EnginePulseWidget>
             ? const Color(0xFFFFDE59)
             : const Color(0xFFEF4444));
 
-    return AnimatedBuilder(
-      animation: _pulseScale,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _pulseScale.value,
-          child: child,
-        );
-      },
-      child: Container(
-        width: widget.size,
-        height: widget.size,
-        decoration: BoxDecoration(
-          color: healthColor.withValues(alpha: 0.15),
-          shape: BoxShape.circle,
-          border: Border.all(color: healthColor, width: 2.0),
-        ),
-        alignment: Alignment.center,
-        child: Icon(
-          Icons.speed_rounded,
-          color: healthColor,
-          size: widget.size * 0.58,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _pulseScale,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _pulseScale.value,
+            child: child,
+          );
+        },
+        child: Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: healthColor.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+            border: Border.all(color: healthColor, width: 2.0),
+          ),
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.speed_rounded,
+            color: healthColor,
+            size: widget.size * 0.58,
+          ),
         ),
       ),
     );

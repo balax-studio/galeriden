@@ -66,15 +66,17 @@ class _HydraulicLiftWidgetState extends State<HydraulicLiftWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _liftAnimation,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _liftAnimation.value),
-          child: child,
-        );
-      },
-      child: widget.child,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _liftAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, _liftAnimation.value),
+            child: child,
+          );
+        },
+        child: widget.child,
+      ),
     );
   }
 }

@@ -7,10 +7,10 @@ import '../../../data/models/real_estate_model.dart';
 import '../../../data/models/real_estate_offer_model.dart';
 import '../../../data/models/staff_model.dart';
 import '../../../data/models/tenant_model.dart';
-import '../../../data/models/weather_model.dart';
-import '../../../domain/usecases/construction_negative_events_engine.dart';
+import '../../../data/models/home_interior_design_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/real_estate_listing_narrative_engine.dart';
+import '../../../domain/usecases/real_estate_renovation_expansion.dart';
 import '../../../domain/usecases/zoning_engine.dart';
 import 'game_base_notifier.dart';
 
@@ -187,6 +187,64 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Purchases and installs an interior design item for a personal residence.
+  /// Replaces any existing item from the same category or adds a new one.
+  bool buyHomeInteriorItem(String propertyId, String itemId) {
+    final item = HomeInteriorItem.getItemById(itemId);
+    if (item == null) return false;
+
+    final index = state.ownedRealEstates.indexWhere((p) => p.id == propertyId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    // Property must be housing category
+    if (property.category != RealEstateCategory.housing) {
+      return false;
+    }
+
+    if (state.balance < item.basePrice) return false;
+
+    // Filter out previous item of same category if any
+    final updatedItemIds = property.interiorDesignItemIds.where((existingId) {
+      final existingItem = HomeInteriorItem.getItemById(existingId);
+      return existingItem != null && existingItem.category != item.category;
+    }).toList();
+
+    updatedItemIds.add(itemId);
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+    final updatedProperty = property.copyWith(
+      interiorDesignItemIds: updatedItemIds,
+      provenanceLog: [
+        ...property.provenanceLog,
+        '$nowStr • İç Mimari Donanımı Tesis Edildi: ${item.id} • Değerleme Katkısı Güncellendi',
+      ],
+    );
+
+    final updatedRealEstates = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedRealEstates[index] = updatedProperty;
+
+    state = state.copyWith(
+      balance: state.balance - item.basePrice,
+      ownedRealEstates: updatedRealEstates,
+      reputationScore: state.reputationScore + item.prestigeBonus,
+    );
+
+    saveState();
+    return true;
+  }
+
+  /// Convenience alias for purchasing interior items
+  bool purchaseHomeInteriorItem({required String realEstateId, required HomeInteriorItem item}) {
+    return buyHomeInteriorItem(realEstateId, item.id);
+  }
+
+  /// Manually triggers a refresh for the real estate market listings (pull-to-refresh).
+  bool refreshRealEstateMarketListings() {
+    saveState();
+    return true;
+  }
+
   /// Collects accumulated pending rent for a specific real estate property
   double collectRent(String realEstateId) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
@@ -252,7 +310,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       return false;
     }
 
-    final stageCost = (property.category.renovationBaseCost / 3).roundToDouble();
+    final stageCost = RealEstateRenovationExpansion.getStageCost(property, property.renovationStage + 1);
     if (state.balance < stageCost) return false;
 
     final nextStage = property.renovationStage + 1;
@@ -269,18 +327,10 @@ mixin GameRealEstateMixin on GameBaseNotifier {
           : 'Tesisat şaftında gizli su kaçağı ve kablo korozyonu ortaya çıktı';
     }
 
-    String stageLog;
-    switch (nextStage) {
-      case 1:
-        stageLog = '$nowStr • 1. Aşama: Yıkım, kırım ve sıhhi tesisat yapıldı • ₺${stageCost.round()}';
-        break;
-      case 2:
-        stageLog = '$nowStr • 2. Aşama: Mutfak, banyo ve seramik işçiliği tamamlandı • ₺${stageCost.round()}';
-        break;
-      default:
-        stageLog = '$nowStr • 3. Aşama: Boya, parke ve anahtar teslim tamamlandı • ₺${stageCost.round()}';
-        break;
-    }
+    final package = RealEstateRenovationExpansion.getPackageForProperty(property);
+    final stageIndex = (nextStage - 1).clamp(0, package.stages.length - 1);
+    final stageDef = package.stages[stageIndex];
+    final stageLog = '$nowStr • $nextStage. Aşama: ${stageDef.titleKey} tamamlandı • ₺${stageCost.round()}';
 
     final updatedLogs = [
       ...property.provenanceLog,
@@ -305,6 +355,52 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     );
 
     addXP(75);
+    saveState();
+    return true;
+  }
+
+  /// Sets the renovation expansion package for a property before starting stage 1
+  bool setRenovationPackage(String realEstateId, String packageId) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    if (property.renovationStage > 0 || property.isRenovated) return false;
+
+    final updatedProperty = property.copyWith(
+      renovationPackageId: packageId,
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedProperty;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    saveState();
+    return true;
+  }
+
+  /// Accelerates the current stage wait timer to 0 via rewarded ad without defect risk
+  bool accelerateRenovationTimer(String realEstateId) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
+    if (index == -1) return false;
+
+    final property = state.ownedRealEstates[index];
+    if (property.renovationDaysRemaining <= 0) return false;
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+    final updatedProperty = property.copyWith(
+      renovationDaysRemaining: 0,
+      provenanceLog: [
+        ...property.provenanceLog,
+        '$nowStr • Usta ekibi takviye edildi • Bekleme süresi reklamla tamamlandı',
+      ],
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedProperty;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    addXP(50);
     saveState();
     return true;
   }
@@ -924,9 +1020,9 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Starts Self-Build Development Project (Kendi İnşaatını Yap • Kendi Şantiyen)
-  /// 100% flat share, Stage 1 (Permits) funded upfront, ready for Stage 2 (Excavation)
-  bool startSelfBuildConstruction(String landId, {ZoningUnitMix? customUnitMix}) {
+  /// Starts Self-Build Pre-Construction: Architectural Planning (Mimari Plan & Statik Proje)
+  /// Dynamic fee, takes 1 in-game day.
+  bool startSelfBuildArchitecturalPlan(String landId, {ZoningUnitMix? customUnitMix}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
 
@@ -947,10 +1043,12 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       if (zoning.isEmsalExceeded) return false;
     }
 
-    // F1·13, F2·5: Ruhsat harcı %10, Hukuk Müşaviri varsa %30 indirim, malzeme endeksi çarpanı
-    final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
-    final discountMultiplier = hasLegalAdvisor ? 0.70 : 1.0;
-    final stageCost = (land.baseMarketValue * 0.10 * discountMultiplier * state.constructionCostIndex).roundToDouble();
+    final hasArchitectStaff = state.hiredStaff.any((s) => s.role == StaffRole.appraiser || s.role == StaffRole.legalAdvisor);
+    final stageCost = ConstructionPricing.architecturalPlanCost(
+      land,
+      costIndex: state.constructionCostIndex,
+      hasArchitectStaff: hasArchitectStaff,
+    );
     if (state.balance < stageCost) return false;
 
     final totalUnits = effectiveMix?.totalUnits ?? land.totalProjectUnits;
@@ -963,14 +1061,17 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       customUnitMix: effectiveMix?.toMap(),
       totalConstructionSpent: stageCost,
       soldPreSaleUnits: 0,
-      constructionStage: 2,
-      constructionDaysRemaining: 0,
-      isConstructionWorking: false,
-      clearActiveSubcontractor: true,
-      stageTotalDays: 0,
+      constructionStage: 1,
+      constructionDaysRemaining: 1,
+      isConstructionWorking: true,
+      isArchitecturalApproved: false,
+      hasBuildingPermit: false,
+      preConstructionStep: 'drafting',
+      activeSubcontractorName: 'Mimari Proje Ekibi',
+      stageTotalDays: 1,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Öz-inşaat şantiyesi kuruldu • Ruhsat ve saha izinleri tamamlandı (1. Etap)${hasLegalAdvisor ? ' • Hukuk Müşaviri %30 İndirimi' : ''} • ₺${stageCost.round()}',
+        '$nowStr • Öz sermaye şantiyesi: Mimari plan ve statik hesaplar başlatıldı • 1 Gün • ₺${stageCost.round()}',
       ],
     );
 
@@ -982,9 +1083,63 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       ownedRealEstates: updatedList,
     );
 
-    addXP(150);
+    addXP(50);
     saveState();
     return true;
+  }
+
+  /// Submits the approved Architectural Project to the Municipality for Official Building Permit
+  /// Dynamic fee, takes 1 in-game day.
+  bool submitSelfBuildMunicipalPermit(String landId) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (index == -1) return false;
+
+    final land = state.ownedRealEstates[index];
+    if (land.constructionMode != 'selfBuild') return false;
+    if (land.constructionStage != 1) return false;
+    if (!land.isArchitecturalApproved) return false;
+    if (land.hasBuildingPermit) return false;
+    if (land.isConstructionWorking) return false;
+
+    final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
+    final permitCost = ConstructionPricing.municipalPermitCost(
+      land,
+      costIndex: state.constructionCostIndex,
+      hasLegalAdvisor: hasLegalAdvisor,
+    );
+    if (state.balance < permitCost) return false;
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+
+    final updatedLand = land.copyWith(
+      totalConstructionSpent: land.totalConstructionSpent + permitCost,
+      constructionDaysRemaining: 1,
+      isConstructionWorking: true,
+      preConstructionStep: 'municipalReview',
+      activeSubcontractorName: 'Belediye İmar Komisyonu',
+      stageTotalDays: 1,
+      provenanceLog: [
+        ...land.provenanceLog,
+        '$nowStr • Belediye imar müdürlüğüne yapı ruhsatı başvurusu yapıldı • Resmi harçlar ödendi${hasLegalAdvisor ? ' • Hukuk Müşaviri %30 İndirimi' : ''} • 1 Gün • ₺${permitCost.round()}',
+      ],
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedLand;
+
+    state = state.copyWith(
+      balance: state.balance - permitCost,
+      ownedRealEstates: updatedList,
+    );
+
+    addXP(75);
+    saveState();
+    return true;
+  }
+
+  /// Starts Self-Build Development Project (delegates to architectural plan)
+  bool startSelfBuildConstruction(String landId, {ZoningUnitMix? customUnitMix}) {
+    return startSelfBuildArchitecturalPlan(landId, customUnitMix: customUnitMix);
   }
 
   /// Funds and starts the current Self-Build stage with a selected subcontractor

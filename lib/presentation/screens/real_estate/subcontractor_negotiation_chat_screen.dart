@@ -12,6 +12,7 @@ import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/real_estate_chat_negotiation_engine.dart';
+import '../../../domain/usecases/subcontractor_negotiation_expansion.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/chat_typing_indicator_bubble.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -42,6 +43,7 @@ class _SubcontractorNegotiationChatScreenState
   bool _isTypingPaused = false;
   final ScrollController _scrollController = ScrollController();
   final Random _random = Random();
+  final Map<String, int> _tacticUseCounts = <String, int>{};
 
   @override
   void initState() {
@@ -58,6 +60,7 @@ class _SubcontractorNegotiationChatScreenState
   }
 
   void _startChatWithSubcontractor(SubcontractorProfile sub, double stageCost) {
+    _tacticUseCounts.clear();
     final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
           (r) => r.id == widget.landId,
           orElse: () => RealEstateModel(
@@ -176,8 +179,29 @@ class _SubcontractorNegotiationChatScreenState
     if (!mounted) return;
 
     // 5. Asama 4: Karsi tarafin cevabini teslim et
+    ChatMessageModel reply = plan.counterpartyReply;
+    if (_activeSubcontractor != null &&
+        tactic != ChatTacticType.acceptAgreement &&
+        tactic != ChatTacticType.walkAway) {
+      final customKey = SubcontractorNegotiationExpansion.getTradeDialogue(
+        stageNumber: _selectedStage,
+        tier: _activeSubcontractor!.tier,
+        tactic: tactic,
+        isSuccess: plan.finalState.satisfaction >= _chatState!.satisfaction,
+        random: _random,
+      );
+      final localized = context.tr(customKey);
+      if (localized != customKey && localized.isNotEmpty) {
+        reply = reply.copyWith(message: localized);
+      }
+    }
+
+    final finalChatState = plan.finalState.copyWith(
+      messages: [...plan.stateWithPlayerMessageOnly.messages, reply],
+    );
+
     setState(() {
-      _chatState = plan.finalState;
+      _chatState = finalChatState;
       _isOpponentTyping = false;
       _isTypingPaused = false;
       _isApplying = false;
@@ -731,51 +755,58 @@ class _SubcontractorNegotiationChatScreenState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildTacticChip(
-                      label: context.tr('subcontractor_tactic_discount_label'),
-                      isEnabled: !_isApplying,
-                      onTap: () => _applyTactic(
-                        ChatTacticType.counterPrice,
-                        context.tr('subcontractor_tactic_discount_msg'),
-                      ),
-                    ),
-                    _buildTacticChip(
-                      label: context.tr('subcontractor_tactic_double_shift_label'),
-                      isEnabled: !_isApplying,
-                      onTap: () => _applyTactic(
-                        ChatTacticType.demandDoubleShift,
-                        context.tr('subcontractor_tactic_double_shift_msg'),
-                      ),
-                    ),
-                    _buildTacticChip(
-                      label: context.tr('subcontractor_tactic_cash_materials_label'),
-                      isEnabled: !_isApplying,
-                      onTap: () => _applyTactic(
-                        ChatTacticType.demandCashMaterials,
-                        context.tr('subcontractor_tactic_cash_materials_msg'),
-                      ),
-                    ),
-                    _buildTacticChip(
-                      label: context.tr('subcontractor_tactic_penalty_clause_label'),
-                      isEnabled: !_isApplying,
-                      onTap: () => _applyTactic(
-                        ChatTacticType.demandPenaltyClause,
-                        context.tr('subcontractor_tactic_penalty_clause_msg'),
-                      ),
-                    ),
-                    _buildTacticChip(
-                      label: context.tr('subcontractor_tactic_guarantee_label'),
-                      isEnabled: !_isApplying,
-                      onTap: () => _applyTactic(
-                        ChatTacticType.demandPrimeFloors,
-                        context.tr('subcontractor_tactic_guarantee_msg'),
-                      ),
-                    ),
-                  ],
+                Builder(
+                  builder: (context) {
+                    final availableTracks = SubcontractorNegotiationExpansion.tacticTracks.where((track) {
+                      final count = _tacticUseCounts[track.id] ?? 0;
+                      return count < track.maxStages;
+                    }).toList();
+
+                    if (availableTracks.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: NeoBrutalCard(
+                          backgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF64748B)),
+                              const SizedBox(width: 6),
+                              Text(
+                                context.tr('subcontractor_tactics_exhausted_banner'),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: availableTracks.map((track) {
+                        final currentStageIndex = _tacticUseCounts[track.id] ?? 0;
+                        final stageDef = track.stages[currentStageIndex];
+                        return _buildTacticChip(
+                          label: context.tr(stageDef.labelKey),
+                          icon: stageDef.icon,
+                          backgroundColor: stageDef.chipColor,
+                          isEnabled: !_isApplying,
+                          onTap: () {
+                            setState(() {
+                              _tacticUseCounts[track.id] = currentStageIndex + 1;
+                            });
+                            _applyTactic(
+                              stageDef.tacticType,
+                              context.tr(stageDef.messageKey),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -819,6 +850,8 @@ class _SubcontractorNegotiationChatScreenState
   Widget _buildTacticChip({
     required String label,
     required VoidCallback onTap,
+    IconData? icon,
+    Color backgroundColor = const Color(0xFFEFF6FF),
     bool isEnabled = true,
   }) {
     return Opacity(
@@ -828,13 +861,22 @@ class _SubcontractorNegotiationChatScreenState
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: Colors.black, width: 1.5),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 14, color: Colors.black87),
+                const SizedBox(width: 5),
+              ],
+              Text(
+                label,
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
+              ),
+            ],
           ),
         ),
       ),

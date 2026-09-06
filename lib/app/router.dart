@@ -58,6 +58,9 @@ import '../presentation/screens/real_estate/real_estate_buyer_negotiation_chat_s
 import '../presentation/screens/real_estate/real_estate_rental_screen.dart';
 import '../presentation/screens/real_estate/real_estate_tenant_negotiation_chat_screen.dart';
 import '../data/models/tenant_model.dart';
+import '../data/models/home_interior_design_model.dart';
+import '../presentation/screens/real_estate/home_interior_design_screen.dart';
+import '../presentation/screens/real_estate/home_interior_category_detail_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -261,6 +264,34 @@ final appRouter = GoRouter(
             propertyId: propertyId,
             candidateId: candidateId,
             candidate: candidate,
+          ),
+          state,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/emlak-ev-dizayn/:propertyId',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        return _buildCupertinoPage(
+          HomeInteriorDesignScreen(propertyId: propertyId),
+          state,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/emlak-ev-dizayn/:propertyId/:category',
+      pageBuilder: (context, state) {
+        final propertyId = state.pathParameters['propertyId'] ?? '';
+        final categoryName = state.pathParameters['category'] ?? '';
+        final category = HomeInteriorCategory.values.firstWhere(
+          (c) => c.name == categoryName,
+          orElse: () => HomeInteriorCategory.carpet,
+        );
+        return _buildCupertinoPage(
+          HomeInteriorCategoryDetailScreen(
+            propertyId: propertyId,
+            category: category,
           ),
           state,
         );

@@ -77,13 +77,14 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   @override
   Widget build(BuildContext context) {
     final allListings = ref.watch(marketProvider);
-    final game = ref.watch(gameProvider);
+    final balance = ref.watch(gameProvider.select((g) => g.balance));
+    final currentDay = ref.watch(gameProvider.select((g) => g.currentDay));
+    final marketSenseLevel =
+        ref.watch(gameProvider.select((g) => g.skills.marketSense));
+    final trend = ref.watch(gameProvider.select((g) => g.marketTrend));
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
-
-    final marketSenseLevel = game.skills.marketSense;
-    final trend = game.marketTrend;
 
     // Filter listings based on active chip filter and search query (Single-pass normalized search)
     final String query = _searchQuery;
@@ -111,7 +112,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 .every((v) => v == PartStatus.original) &&
             !item.car.expertise.isMileageTampered;
       } else if (_selectedFilter == 'affordable') {
-        return item.askingPrice <= game.balance;
+        return item.askingPrice <= balance;
       }
       return true;
     }).toList();
@@ -349,7 +350,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                 Expanded(
                     child: Text(
                   context.tr('cash_balance_label',
-                      {'amount': CurrencyFormatter.formatShort(game.balance)}),
+                      {'amount': CurrencyFormatter.formatShort(balance)}),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w900,
@@ -423,7 +424,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
                             final showAdBefore =
                                 AdService.shouldShowNativeAdForDay(
-                                        game.currentDay,
+                                        currentDay,
                                         NativeAdContextType.marketplace) &&
                                     index > 0 &&
                                     index % 4 == 0;

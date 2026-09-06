@@ -96,12 +96,14 @@ class _HazardStripeWidgetState extends State<HazardStripeWidget>
     }
 
     Widget content = widget.isAnimated && _controller != null
-        ? AnimatedBuilder(
-            animation: _controller!,
-            builder: (context, child) {
-              final offset = _controller!.value * (widget.stripeWidth * 2);
-              return buildPainter(offset);
-            },
+        ? RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: _controller!,
+              builder: (context, child) {
+                final offset = _controller!.value * (widget.stripeWidth * 2);
+                return buildPainter(offset);
+              },
+            ),
           )
         : buildPainter(0.0);
 

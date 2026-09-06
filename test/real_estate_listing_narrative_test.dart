@@ -31,11 +31,11 @@ void main() {
       expect(landGroups.isNotEmpty, isTrue);
       expect(landGroups.any((g) => g.groupId == 'land_zoning'), isTrue);
 
-      final villaGroups = RealEstateListingNarrativeEngine.getFeatureGroups(
-        RealEstateCategory.tourismFacility,
+      final buildingGroups = RealEstateListingNarrativeEngine.getFeatureGroups(
+        RealEstateCategory.building,
       );
-      expect(villaGroups.isNotEmpty, isTrue);
-      expect(villaGroups.any((g) => g.groupId == 'villa_luxury'), isTrue);
+      expect(buildingGroups.isNotEmpty, isTrue);
+      expect(buildingGroups.any((g) => g.groupId == 'commercial_architecture'), isTrue);
     });
 
     test('Returns category-appropriate headline presets', () {
@@ -85,9 +85,9 @@ void main() {
 
     test('Generates high-intent super vitrin offer', () {
       const property = RealEstateModel(
-        id: 'prop_villa_test',
-        title: 'Göl Manzaralı Müstakil Villa',
-        category: RealEstateCategory.tourismFacility,
+        id: 'prop_building_test',
+        title: 'Komple Satılık Bina',
+        category: RealEstateCategory.building,
         city: 'Bursa',
         district: 'Nilüfer',
         squareMeters: 380,

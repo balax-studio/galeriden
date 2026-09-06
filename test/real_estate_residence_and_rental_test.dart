@@ -35,8 +35,6 @@ void main() {
         RealEstateCategory.land,
         RealEstateCategory.building,
         RealEstateCategory.housingProjects,
-        RealEstateCategory.timeshare,
-        RealEstateCategory.tourismFacility,
       ];
 
       for (final cat in nonHousingCategories) {

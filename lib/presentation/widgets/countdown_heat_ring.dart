@@ -79,36 +79,38 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
     final progress =
         (widget.remainingSeconds / widget.totalSeconds).clamp(0.0, 1.0);
 
-    return AnimatedBuilder(
-      animation: _pulseScale,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: isUrgent ? _pulseScale.value : 1.0,
-          child: child,
-        );
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: widget.size,
-            height: widget.size,
-            child: CircularProgressIndicator(
-              value: progress,
-              strokeWidth: 4.5,
-              backgroundColor: Colors.black12,
-              valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _pulseScale,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: isUrgent ? _pulseScale.value : 1.0,
+            child: child,
+          );
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: widget.size,
+              height: widget.size,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 4.5,
+                backgroundColor: Colors.black12,
+                valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+              ),
             ),
-          ),
-          Text(
-            '${widget.remainingSeconds}s',
-            style: TextStyle(
-              fontSize: widget.size * 0.28,
-              fontWeight: FontWeight.w900,
-              color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
+            Text(
+              '${widget.remainingSeconds}s',
+              style: TextStyle(
+                fontSize: widget.size * 0.28,
+                fontWeight: FontWeight.w900,
+                color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

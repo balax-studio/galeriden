@@ -90,7 +90,7 @@ class _CrackedGlassBadgeState extends State<CrackedGlassBadge>
       );
     }
 
-    if (widget.isChassisRepaired || exp.isChassisAligned) {
+    if (widget.isChassisRepaired || !exp.isChassisAligned) {
       return _DefectBadgeInfo(
         label: context.tr('sticker_chassis_flaw'),
         backgroundColor: const Color(0xFFE11D48), // Rose Red

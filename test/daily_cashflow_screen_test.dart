@@ -117,7 +117,7 @@ void main() {
 
       expect(find.text('POZİTİF KÂR AKIŞI'), findsOneWidget);
       expect(find.text('7 & 30 GÜNLÜK PROJEKSİYON'), findsOneWidget);
-      expect(find.textContaining('Finansal Durum Mükemmel'), findsOneWidget);
+      expect(find.textContaining('Kasanın Durumu Tıkırında'), findsOneWidget);
     });
 
     testWidgets('3. DailyCashflowScreen correctly calculates negative cashflow status', (tester) async {

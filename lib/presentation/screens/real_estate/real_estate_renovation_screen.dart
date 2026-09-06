@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../domain/usecases/real_estate_renovation_expansion.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -51,8 +53,11 @@ class RealEstateRenovationScreen extends ConsumerWidget {
     }
 
     final property = game.ownedRealEstates[propertyIndex];
-    final stageCost =
-        (property.category.renovationBaseCost / 3).roundToDouble();
+    final package = RealEstateRenovationExpansion.getPackageForProperty(property);
+    final nextStageNumber = property.renovationStage + 1;
+    final stageCost = nextStageNumber <= 3
+        ? RealEstateRenovationExpansion.getStageCost(property, nextStageNumber)
+        : 0.0;
     final canAffordStage = game.balance >= stageCost;
     final isFinished = property.renovationStage >= 3 || property.isRenovated;
 
@@ -83,6 +88,10 @@ class RealEstateRenovationScreen extends ConsumerWidget {
           children: [
             // 1. PROPERTY OVERVIEW CARD
             _buildPropertyOverviewCard(context, theme, property, isDark),
+            const SizedBox(height: 12),
+
+            // 1.5 RENOVATION EXPANSION PACKAGE OVERVIEW CARD
+            _buildRenovationPackageCard(context, theme, property, package, ref, isDark),
             const SizedBox(height: 14),
 
             // 2. ZEIGARNIK SUSPENSE PROGRESS BAR
@@ -95,39 +104,23 @@ class RealEstateRenovationScreen extends ConsumerWidget {
               const SizedBox(height: 14),
             ],
 
-            // 4. THREE RENOVATION STAGE MILESTONES
-            _buildStageMilestoneCard(
-              context: context,
-              stageNumber: 1,
-              title: context.tr('real_estate_stage1_title'),
-              description: context.tr('real_estate_stage1_desc'),
-              cost: stageCost,
-              currentStage: property.renovationStage,
-              icon: Icons.plumbing_rounded,
-              isDark: isDark,
-            ),
-            const SizedBox(height: 10),
-            _buildStageMilestoneCard(
-              context: context,
-              stageNumber: 2,
-              title: context.tr('real_estate_stage2_title'),
-              description: context.tr('real_estate_stage2_desc'),
-              cost: stageCost,
-              currentStage: property.renovationStage,
-              icon: Icons.countertops_rounded,
-              isDark: isDark,
-            ),
-            const SizedBox(height: 10),
-            _buildStageMilestoneCard(
-              context: context,
-              stageNumber: 3,
-              title: context.tr('real_estate_stage3_title'),
-              description: context.tr('real_estate_stage3_desc'),
-              cost: stageCost,
-              currentStage: property.renovationStage,
-              icon: Icons.format_paint_rounded,
-              isDark: isDark,
-            ),
+            // 4. THREE RENOVATION STAGE MILESTONES (DYNAMIC EXPANSION PACKAGE)
+            for (int i = 0; i < package.stages.length; i++) ...[
+              _buildStageMilestoneCard(
+                context: context,
+                stageNumber: package.stages[i].stageNumber,
+                title: context.tr(package.stages[i].titleKey),
+                description: context.tr(package.stages[i].descKey),
+                cost: RealEstateRenovationExpansion.getStageCost(
+                  property,
+                  package.stages[i].stageNumber,
+                ),
+                currentStage: property.renovationStage,
+                icon: package.stages[i].icon,
+                isDark: isDark,
+              ),
+              if (i < package.stages.length - 1) const SizedBox(height: 10),
+            ],
             const SizedBox(height: 16),
 
             // 5. RUSHED RENOVATION AD LORE CARD (Only visible if not finished)
@@ -206,19 +199,38 @@ class RealEstateRenovationScreen extends ConsumerWidget {
                       child: Builder(
                         builder: (context) {
                           final isWorkInProgress = property.renovationDaysRemaining > 0;
-                          final canStart = canAffordStage && !isWorkInProgress;
+                          if (isWorkInProgress) {
+                            return NeoBrutalButton(
+                              label: '${context.tr('real_estate_rush_timer_btn')} • ${property.renovationDaysRemaining} ${context.tr('real_estate_days_suffix')}',
+                              icon: Icons.fast_forward_rounded,
+                              backgroundColor: const Color(0xFFF59E0B),
+                              onPressed: () {
+                                HapticFeedback.mediumImpact();
+                                AdService.instance.showRewardedAdWithFallback(
+                                  context: context,
+                                  customRewardTitle: context.tr('real_estate_rush_timer_title'),
+                                  onRewardEarned: () {
+                                    final ok = ref
+                                        .read(gameProvider.notifier)
+                                        .accelerateRenovationTimer(property.id);
+                                    if (ok) {
+                                      NotificationService.showSuccess(
+                                        context,
+                                        context.tr('real_estate_rush_timer_toast'),
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          }
 
+                          final canStart = canAffordStage;
                           return NeoBrutalButton(
-                            label: isWorkInProgress
-                                ? context.tr('real_estate_renovation_in_progress', {
-                                    'days': '${property.renovationDaysRemaining}',
-                                  })
-                                : (canAffordStage
-                                    ? context.tr('real_estate_stage_btn_start')
-                                    : context.tr('real_estate_expand_slots_error_funds')),
-                            icon: isWorkInProgress
-                                ? Icons.hourglass_top_rounded
-                                : Icons.handyman_rounded,
+                            label: canAffordStage
+                                ? context.tr('real_estate_stage_btn_start')
+                                : context.tr('real_estate_expand_slots_error_funds'),
+                            icon: Icons.handyman_rounded,
                             backgroundColor: canStart
                                 ? const Color(0xFFF59E0B)
                                 : const Color(0xFF94A3B8),
@@ -662,15 +674,234 @@ class RealEstateRenovationScreen extends ConsumerWidget {
               backgroundColor: const Color(0xFFF59E0B),
               onPressed: () {
                 HapticFeedback.heavyImpact();
-                ref.read(gameProvider.notifier).rushRenovation(property.id);
-                NotificationService.showWarning(
-                  context,
-                  context.tr('real_estate_rush_warning_toast'),
+                AdService.instance.showRewardedAdWithFallback(
+                  context: context,
+                  customRewardTitle: context.tr('real_estate_rush_title'),
+                  onRewardEarned: () {
+                    final success = ref.read(gameProvider.notifier).rushRenovation(property.id);
+                    if (success) {
+                      NotificationService.showWarning(
+                        context,
+                        context.tr('real_estate_rush_warning_toast'),
+                      );
+                    }
+                  },
                 );
               },
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRenovationPackageCard(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel property,
+    RenovationPackageDefinition package,
+    WidgetRef ref,
+    bool isDark,
+  ) {
+    final bonusPercent = ((package.bonusMultiplier - 1.0) * 100).round();
+    final canChangePackage = property.renovationStage == 0 && !property.isRenovated;
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(14),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: package.accentColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: package.accentColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: package.accentColor, width: 1.5),
+                ),
+                child: Icon(package.icon, color: package.accentColor, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        NeoBrutalBadge(
+                          text: context.tr(package.badgeKey),
+                          backgroundColor: package.accentColor.withValues(alpha: 0.2),
+                          textColor: isDark ? Colors.white : Colors.black87,
+                          fontSize: 9.5,
+                        ),
+                        const SizedBox(width: 6),
+                        NeoBrutalBadge(
+                          text: '+%$bonusPercent ${context.tr('real_estate_renovation_bonus_tag')}',
+                          backgroundColor: const Color(0xFFD1FAE5),
+                          textColor: const Color(0xFF065F46),
+                          fontSize: 9.5,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      context.tr(package.nameKey),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+              ),
+              if (canChangePackage) ...[
+                const SizedBox(width: 8),
+                NeoBrutalButton(
+                  label: context.tr('real_estate_change_package_btn'),
+                  icon: Icons.tune_rounded,
+                  fontSize: 10,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  backgroundColor: isDark ? const Color(0xFF1E2330) : const Color(0xFFF1F5F9),
+                  textColor: isDark ? Colors.white : Colors.black87,
+                  onPressed: () => _showPackageSelectionSheet(
+                    context,
+                    ref,
+                    property,
+                    package,
+                    isDark,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            context.tr(package.descKey),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPackageSelectionSheet(
+    BuildContext context,
+    WidgetRef ref,
+    RealEstateModel property,
+    RenovationPackageDefinition activePackage,
+    bool isDark,
+  ) {
+    final available = RealEstateRenovationExpansion.getAvailablePackages(property.category);
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.tr('real_estate_select_package_title'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                context.tr('real_estate_select_package_desc'),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: available.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (ctx, i) {
+                    final pkg = available[i];
+                    final isSelected = pkg.id == activePackage.id;
+                    final bonusPercent = ((pkg.bonusMultiplier - 1.0) * 100).round();
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        ref.read(gameProvider.notifier).setRenovationPackage(property.id, pkg.id);
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('real_estate_package_applied_toast'),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? pkg.accentColor.withValues(alpha: 0.15)
+                              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC)),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? pkg.accentColor : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                            width: isSelected ? 2.0 : 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(pkg.icon, color: pkg.accentColor, size: 24),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        context.tr(pkg.nameKey),
+                                        style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      NeoBrutalBadge(
+                                        text: '+%$bonusPercent',
+                                        backgroundColor: const Color(0xFFD1FAE5),
+                                        textColor: const Color(0xFF065F46),
+                                        fontSize: 9,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    context.tr(pkg.descKey),
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      color: isDark ? Colors.white60 : Colors.black54,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isSelected)
+                              const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

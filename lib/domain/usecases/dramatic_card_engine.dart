@@ -21,7 +21,7 @@ class DramaticResolutionResult {
 }
 
 class DramaticCardEngine {
-  /// Generates the daily dilemma card for the specified calendar day (Day 1 to 365+)
+  /// Generates the daily dilemma card for the specified calendar day • Day 1 to 365+
   static DramaticCardModel generateDailyDilemma(int day, DealershipModel state, {Random? randomInstance}) {
     // 1. Check milestone cards first
     final milestone = _getMilestoneCard(day, state);
@@ -33,8 +33,8 @@ class DramaticCardEngine {
     final daySeed = day * 7919 + 1013;
     final rng = randomInstance ?? Random(daySeed);
     
-    // Cycle through 5 vibrant categories: Comedy, Drama/Loss, Opportunity, Conscience, Legacy
-    final categoryIndex = day % 5;
+    // Cycle dynamically through 5 vibrant categories: Comedy, Drama/Loss, Opportunity, Conscience, Legacy
+    final categoryIndex = ((day * 3 + (day ~/ 7)) % 5);
     DramaticCardModel generatedCard;
 
     switch (categoryIndex) {
@@ -90,7 +90,6 @@ class DramaticCardEngine {
     // Strict upfront cost deduction - prevent ₺0 balance exploit where expensive choices are taken for free
     final double upfrontCost = choice.upfrontCost;
     double newBalance = state.balance - upfrontCost + selectedOutcome.moneyDelta;
-    // Allow debt if upfront cost was paid, but if player had 0, they incur realistic debt
 
     int newReputation = (state.reputation + selectedOutcome.reputationDelta).clamp(0, 1000);
     int newXP = state.experience + selectedOutcome.xpReward;
@@ -222,7 +221,7 @@ class DramaticCardEngine {
   }
 
   // -------------------------------------------------------------
-  // MILESTONE CARDS (Dönüm Noktası Günleri)
+  // MILESTONE CARDS • Dönüm Noktası Günleri
   // -------------------------------------------------------------
   static DramaticCardModel? _getMilestoneCard(int day, DealershipModel state) {
     switch (day) {
@@ -400,6 +399,66 @@ class DramaticCardEngine {
           ],
         );
 
+      case 21:
+        return const DramaticCardModel(
+          id: 'milestone_day_21',
+          dayNumber: 21,
+          category: DramaticCategory.betrayal,
+          severity: DramaticSeverity.high,
+          title: 'Protestolu Senet Yangını',
+          characterName: 'Tefeci Deli Cavit',
+          characterRole: 'Mahalle Çıkmazı',
+          characterAvatar: 'sunglasses',
+          icon: Icons.warning_amber_rounded,
+          dialogue:
+              '"Galerici kardeş, geçen hafta sattığın panelvanın arkasından gelen müşteri sana vadeli senet vermişti ya... İşte o senet karşılıksız çıktı, banka protesto çekti!"',
+          foreshadowHint: 'Sütten ağzı yanan yoğurdu üfleyerek yer • Hukuk yolu mu yoksa esnaf uzlaşması mı?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm21_lawyer',
+              label: 'İcra Avukatını Devreye Sok • -₺3.000 Harç',
+              shortDescription: 'Hukuk yoluyla tahsilat başlat • %80 ihtimalle ₺15.000 geri döner.',
+              upfrontCost: 3000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 0.8,
+                  title: 'Yasal Zafer & Hızlı Haciz',
+                  message: 'Avukat borçlunun diğer hesabına tedbir koydurdu, ana para kuruşu kuruşuna tahsil edildi!',
+                  isSuccess: true,
+                  moneyDelta: 15000.0,
+                  reputationDelta: 5,
+                  xpReward: 120,
+                ),
+                DramaticOutcomeModel(
+                  probability: 0.2,
+                  title: 'Uzatmalı Hukuk Mücadelesi',
+                  message: 'Borçlu adres değiştirmiş, dava icra mahkemesinde uzadı gitti.',
+                  isSuccess: false,
+                  reputationDelta: 1,
+                  xpReward: 40,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm21_settle',
+              label: 'Bizzat Masaya Otur & Hurdayla Takas Et',
+              shortDescription: 'Nakit yerine dükkanındaki yedek parçaları devral • Masrafsız çözüm.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Zararın Neresinden Dönülse Kârdır',
+                  message: 'Nakit çıkmadı ama dükkandaki kaliteli jant ve motor parçalarını alıp zararı amorti ettin.',
+                  isSuccess: true,
+                  moneyDelta: 6000.0,
+                  reputationDelta: 3,
+                  xpReward: 80,
+                ),
+              ],
+            ),
+          ],
+        );
+
       case 30:
         return const DramaticCardModel(
           id: 'milestone_day_30',
@@ -444,6 +503,57 @@ class DramaticCardEngine {
                   isSuccess: true,
                   reputationDelta: 2,
                   xpReward: 40,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 45:
+        return const DramaticCardModel(
+          id: 'milestone_day_45',
+          dayNumber: 45,
+          category: DramaticCategory.opportunity,
+          severity: DramaticSeverity.extreme,
+          title: 'Samanlıkta Yatan Efsanevi Klasik',
+          characterName: 'Köy Muhtarı Rüstem',
+          characterRole: 'Taşra Temsilcisi',
+          characterAvatar: 'mustache',
+          icon: Icons.garage_rounded,
+          dialogue:
+              '"Galerici evlat! Rahmetli Hacı Emin Emmi\'nin samanlığında 38 yıldır branda altında yatan tek el hatasız bir Alman klasiği var. Varisler satmak istiyor, ilk sana haber verdim."',
+          foreshadowHint: 'Körün istediği bir göz, Allah verdi iki göz • Saman altından su yürütmeyen temiz bir hazine!',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm45_buy_barn',
+              label: 'Nakit Çantayla Köye Git & Kapat • -₺40.000',
+              shortDescription: 'Koleksiyonluk antika aracı kap • Değeri ₺120.000 üzeri!',
+              upfrontCost: 40000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Samanlıktan Çıkan Sultan!',
+                  message: 'Branda kalktı, nikelajlar ayna gibi parladı! Sanayide herkes hayranlıkla aracı izlemeye geldi.',
+                  isSuccess: true,
+                  spawnBargainCar: true,
+                  reputationDelta: 20,
+                  xpReward: 300,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm45_pass',
+              label: 'Riske Girme & Teşekkür Et',
+              shortDescription: 'Uzak köye yol masrafı yapma, nakiti galeride tut.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Temkinli Esnaflık',
+                  message: 'Uzak yola gitmedin. Kasandaki sermaye hazır bekliyor.',
+                  isSuccess: true,
+                  reputationDelta: 0,
+                  xpReward: 50,
                 ),
               ],
             ),
@@ -500,6 +610,166 @@ class DramaticCardEngine {
           ],
         );
 
+      case 60:
+        return const DramaticCardModel(
+          id: 'milestone_day_60',
+          dayNumber: 60,
+          category: DramaticCategory.comedy,
+          severity: DramaticSeverity.extreme,
+          title: 'Gece Yarısı Çevre Yolu Kapışması',
+          characterName: 'Deli Tayfun',
+          characterRole: 'Şehrin Namlı Driftçisi',
+          characterAvatar: 'sunglasses',
+          icon: Icons.speed_rounded,
+          dialogue:
+              '"Usta vitrindeki turbolu makineyi ver, gece çevre yolunda rakip çetenin arabasıyla kalkış yapalım. Bahis büyük, kazanırsak parayı kırışırız!"',
+          foreshadowHint: 'Dimyat\'a pirince giderken evdeki bulgurdan olma riski • Yüksek bahis mi yoksa dükkan huzuru mu?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm60_race',
+              label: 'Gizlice Anahtarı Ver • Büyük Kumar',
+              shortDescription: '%60 ihtimalle ₺45.000 nakit ve şöhret, %40 araba çizilir ve ceza gelir.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 0.6,
+                  title: 'Asfalt Ağladı & Kasa Doldu!',
+                  message: 'Tayfun yarışı açık ara aldı! Gece yarısı dükkana çantayla ₺45.000 pay getirdi.',
+                  isSuccess: true,
+                  moneyDelta: 45000.0,
+                  reputationDelta: 12,
+                  xpReward: 200,
+                ),
+                DramaticOutcomeModel(
+                  probability: 0.4,
+                  title: 'Polis Radarı & Çizik Tampon',
+                  message: 'Gece devriyesi kovalamış! Tayfun kıl payı kaçtı ama tampon çizik ve ₺8.000 ceza makbuzu kaldı.',
+                  isSuccess: false,
+                  moneyDelta: -8000.0,
+                  reputationDelta: -6,
+                  xpReward: 60,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm60_kick',
+              label: 'Kapı Dışarı Et • Burası Düzgün Galeri',
+              shortDescription: 'Dükkanın namusu ve araçlar güvende • +5 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Ağırbaşlı Esnaf Duruşu',
+                  message: 'Tayfun\'u dükkandan kovdun. Sanayi esnafı senin dürüstlüğünü takdir etti.',
+                  isSuccess: true,
+                  reputationDelta: 5,
+                  xpReward: 70,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 75:
+        return const DramaticCardModel(
+          id: 'milestone_day_75',
+          dayNumber: 75,
+          category: DramaticCategory.betrayal,
+          severity: DramaticSeverity.high,
+          title: 'Şüpheli Ekspertiz & Ekleme Şasi',
+          characterName: 'Eksper Necmi',
+          characterRole: 'Kıdemli Ekspertiz Ustası',
+          characterAvatar: 'wrench',
+          icon: Icons.car_crash_rounded,
+          dialogue:
+              '"Patron acil gel! Takasa gelen o lüks arabanın şasisini lifte kaldırdık; meğer iki ayrı pert aracın önüyle arkasını kaynakla birleştirip macunlamışlar! Takke düştü kel göründü!"',
+          foreshadowHint: 'Ucuz etin yahnisi yavan olur • Ağır kusuru örtbas etmek mi yoksa ifşa etmek mi?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm75_report',
+              label: 'Satıcıya İade Et & Savcılığa Şikayet Et',
+              shortDescription: 'Dolandırıcılığı ifşa et • Sanayide kahraman ilan edilirsin • +15 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Dolandırıcılık Çökertildi!',
+                  message: 'Sahtekar satıcı panikle parayı iade etti, polis şebekeyi yakaladı. Adın sanayide altın harflerle yazıldı!',
+                  isSuccess: true,
+                  reputationDelta: 15,
+                  xpReward: 180,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm75_settle_quiet',
+              label: 'Gizlice Parça Fiyatına Geri İade Al',
+              shortDescription: 'Sessiz sedasız aracı geri ver, nakitini kurtar • +40 Deneyim.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Sessiz Çıkış',
+                  message: 'Zarar etmeden aracı geri verdin ve konuyu kapattın.',
+                  isSuccess: true,
+                  reputationDelta: 2,
+                  xpReward: 40,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 90:
+        return const DramaticCardModel(
+          id: 'milestone_day_90',
+          dayNumber: 90,
+          category: DramaticCategory.legacy,
+          severity: DramaticSeverity.medium,
+          title: 'Çeyrek Yıl Maliye Barışı & Matrah Artırımı',
+          characterName: 'Yeminli Mali Müşavir Fuat',
+          characterRole: 'Mali Danışman',
+          characterAvatar: 'briefcase',
+          icon: Icons.account_balance_wallet_rounded,
+          dialogue:
+              '"Üç ayı geride bıraktık. Hükümet yeni bir vergi barışı ve matrah artırımı paketi açıkladı. Şimdi ₺15.000 yatırırsan önümüzdeki iki yıl boyunca maliye incelemesine karşı tam kalkan kazanırsın."',
+          foreshadowHint: 'Ayağını yorganına göre uzat • Geleceğe yatırım mı yoksa parayı işletmek mi?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm90_shield',
+              label: 'Matrah Artırımına Katıl • -₺15.000',
+              shortDescription: 'Mali güvence kalkanı ve temiz sicil • +12 İtibar, +150 Deneyim.',
+              upfrontCost: 15000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Mali Kalkan Sağlandı',
+                  message: 'Resmi onay belgesi çerçevelenip duvara asıldı. Artık müfettiş korkusu olmadan ticaret yapabilirsin.',
+                  isSuccess: true,
+                  reputationDelta: 12,
+                  xpReward: 150,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm90_cash_in_hand',
+              label: 'Sermayeyi Kasada Bırak • Defterime Güveniyorum',
+              shortDescription: 'Paranı bağlama, dürüst muhasebene güven.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Nakit Gücü',
+                  message: 'Paran kasada kaldı. Fırsat araçları için hazır bekliyorsun.',
+                  isSuccess: true,
+                  reputationDelta: 0,
+                  xpReward: 50,
+                ),
+              ],
+            ),
+          ],
+        );
+
       case 100:
         return const DramaticCardModel(
           id: 'milestone_day_100',
@@ -545,6 +815,431 @@ class DramaticCardEngine {
                   isSuccess: true,
                   reputationDelta: 8,
                   xpReward: 100,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 120:
+        return const DramaticCardModel(
+          id: 'milestone_day_120',
+          dayNumber: 120,
+          category: DramaticCategory.betrayal,
+          severity: DramaticSeverity.high,
+          title: 'Rakip Galericinin Sahte Yorum Saldırısı',
+          characterName: 'Bilişim Uzmanı Kerem',
+          characterRole: 'İtibar Danışmanı',
+          characterAvatar: 'sunglasses',
+          icon: Icons.rate_review_rounded,
+          dialogue:
+              '"Patron, rakip oto galeri tuttuğu bot hesaplarla harita sayfamıza bir gecede yüzlerce 1 yıldızlı sahte yorum ve iftira yağdırdı! Telefonlar kesildi."',
+          foreshadowHint: 'Meyve veren ağaç taşlanır • Hukuk ve siber danışmanlık ile karşı atağa geçmek şart.',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm120_counter',
+              label: 'Bilişim Avukatı & Siber Temizlik • -₺6.000',
+              shortDescription: 'Sahte yorumları sildir ve rakibi savcılığa ver • +18 İtibar.',
+              upfrontCost: 6000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'İtibar Zaferle Temizlendi!',
+                  message: 'Platform tüm sahte hesapları sildi ve rakip galericiye yüklü tazminat davası açıldı!',
+                  isSuccess: true,
+                  reputationDelta: 18,
+                  xpReward: 200,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm120_video',
+              label: 'Vitrinden Şeffaflık Videosu Yayınla • Masrafsız',
+              shortDescription: 'Sosyal medyada samimi bir video çekip gerçeği anlat • +10 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Halkın Desteği Yanında!',
+                  message: 'Videon viral oldu! Eski müşterilerin sayfana akın edip seni öven yorumlar yazdı.',
+                  isSuccess: true,
+                  reputationDelta: 10,
+                  xpReward: 120,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 150:
+        return const DramaticCardModel(
+          id: 'milestone_day_150',
+          dayNumber: 150,
+          category: DramaticCategory.comedy,
+          severity: DramaticSeverity.medium,
+          title: 'Aşiret Düğünü Gelin Arabası Krizi',
+          characterName: 'Kirve Mahmut Ağa',
+          characterRole: 'Aşiret Temsilcisi',
+          characterAvatar: 'mustache',
+          icon: Icons.celebration_rounded,
+          dialogue:
+              '"Galerici bey! Yeğenimin düğünü var, vitrindeki en fiyakalı zırhlı siyah SUV\'u 3 günlüğüne gelin arabası yapacağız. Masrafı neyse iki katını veririz ama konvoyda korna çalmaktan şanzıman ısınırsa karışmam!"',
+          foreshadowHint: 'Hamama giren terler • Yüksek kiralama geliri mi yoksa arabanın sağlığı mı?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm150_rent',
+              label: 'Özel Şoförünle Kirala • +₺25.000 Gelir',
+              shortDescription: 'Kendi güvendiğin şoförü direksiyona oturt, aracı koru • +10 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 0.85,
+                  title: 'Görkemli Düğün & Bol Bahşiş',
+                  message: 'Şoförün aracı tereyağından kıl çeker gibi idare etti. Aşiret cömertçe ₺25.000 ödedi!',
+                  isSuccess: true,
+                  moneyDelta: 25000.0,
+                  reputationDelta: 10,
+                  xpReward: 160,
+                ),
+                DramaticOutcomeModel(
+                  probability: 0.15,
+                  title: 'Ufak Çizik & Ekstra Cila',
+                  message: 'Düğün coşkusunda tavana konfeti yapışmış, ₺3.000 temizlik masrafı çıktı ama kâr yine büyük.',
+                  isSuccess: true,
+                  moneyDelta: 18000.0,
+                  reputationDelta: 5,
+                  xpReward: 100,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm150_decline',
+              label: 'Araçlar Sadece Satılıktır De • Kibarca Reddet',
+              shortDescription: 'Araban vitrinde sıfır riskle kalsın.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Vitrin Korundu',
+                  message: 'Ağa başka yere gitti, showroomun düzeni bozulmadı.',
+                  isSuccess: true,
+                  reputationDelta: 1,
+                  xpReward: 30,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 180:
+        return const DramaticCardModel(
+          id: 'milestone_day_180',
+          dayNumber: 180,
+          category: DramaticCategory.legacy,
+          severity: DramaticSeverity.high,
+          title: 'Yarı Yıl Ticaret Odası Özel Plaketi',
+          characterName: 'Ticaret Odası Başkanı',
+          characterRole: 'Protokol Başkanı',
+          characterAvatar: 'suit',
+          icon: Icons.military_tech_rounded,
+          dialogue:
+              '"Altı ayı geride bıraktınız. Şehrin en dürüst ve cirosu en yüksek bağımsız galerilerinden biri olarak Ticaret Odası Üstün Esnaflık Plaketi\'ne layık görüldünüz."',
+          foreshadowHint: 'Yarım yıllık alın teri meyvesini veriyor.',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm180_accept',
+              label: 'Protokol Törenine Katıl • -₺5.000 Bağış',
+              shortDescription: 'Şehrin önde gelen iş insanlarıyla tanış • +22 İtibar, +200 Deneyim.',
+              upfrontCost: 5000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Plaket Vitrinde Parlıyor!',
+                  message: 'Törende alkışlar eşliğinde plaketi aldın. Yerel gazeteler galerini örnek işletme yazdı.',
+                  isSuccess: true,
+                  reputationDelta: 22,
+                  xpReward: 200,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm180_humble',
+              label: 'Törensiz Plaketi Kabul Et • Mütevazı',
+              shortDescription: 'Masrafsız kabul et • +10 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Sade Başarı',
+                  message: 'Plaket dükkana teslim edildi ve kasadaki parayı korudun.',
+                  isSuccess: true,
+                  reputationDelta: 10,
+                  xpReward: 80,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 200:
+        return const DramaticCardModel(
+          id: 'milestone_day_200',
+          dayNumber: 200,
+          category: DramaticCategory.opportunity,
+          severity: DramaticSeverity.extreme,
+          title: 'Gurbetçi Hasan Emmi\'nin Döviz Bavulu',
+          characterName: 'Gurbetçi Hasan',
+          characterRole: 'Köln Emeklisi',
+          characterAvatar: 'mustache',
+          icon: Icons.euro_rounded,
+          dialogue:
+              '"Selamünaleyküm hemşerim! Almanya\'dan kesin dönüş yaptım. Köyün yollarında tozu dumana katacak, akarı kokarı olmayan sağlam bir Alman cipi istiyorum. Nakit döviz bavulda hazır!"',
+          foreshadowHint: 'Ağzı laf yapan esnaf kazanır • Doğru aracı sunarsan büyük kâr kasada.',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm200_deal',
+              label: 'En Değerli SUV\'unu Sat & Döviz Kârı Al',
+              shortDescription: 'Piyasa değerinin %25 üzerine peşin nakit satış • +₺60.000 Kâr!',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Tarihi Dövizli Satış!',
+                  message: 'Hasan Emmi arabayı gördüğü gibi bayıldı ve parayı kuruşuna kadar masaya saydı!',
+                  isSuccess: true,
+                  moneyDelta: 60000.0,
+                  reputationDelta: 15,
+                  xpReward: 250,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm200_tea',
+              label: 'Çay İkram Et & Pazarlıkta Esne',
+              shortDescription: 'Dostluk kur, gelecekte akrabalarını da getirsin • +₺40.000 Kâr, +20 İtibar.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Gurbetçi Ağının Anahtarı',
+                  message: 'Hasan Emmi Almanya\'daki tüm akrabalarına senin kartvizitini dağıtacağını söyledi!',
+                  isSuccess: true,
+                  moneyDelta: 40000.0,
+                  reputationDelta: 20,
+                  xpReward: 220,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 240:
+        return const DramaticCardModel(
+          id: 'milestone_day_240',
+          dayNumber: 240,
+          category: DramaticCategory.betrayal,
+          severity: DramaticSeverity.extreme,
+          title: 'Sahte Noter & İkiz Plaka Operasyonu',
+          characterName: 'Başkomiser Murat',
+          characterRole: 'Asayiş Şube Amiri',
+          characterAvatar: 'detective',
+          icon: Icons.local_police_rounded,
+          dialogue:
+              '"Galerici Bey, şehre dadanan profesyonel bir ikiz plaka şebekesi var. Dükkanınızın önünden geçen şüpheli bir lüks aracın şasi numarasını kontrol etmemiz için desteğinize ihtiyacımız var."',
+          foreshadowHint: 'Devletin yanında duran esnafın sırtı yere gelmez.',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm240_cooperate',
+              label: 'Polise Tam Destek Ver & Tuzağı Kur',
+              shortDescription: 'Emniyetle iş birliği yap • Çete yakalanırsa +25 İtibar ve Takdir Belgesi.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Kusursuz Asayiş Operasyonu!',
+                  message: 'Şebeke suçüstü yakalandı! Emniyet Müdürü şahsen teşekkür edip galerinize teşekkür plaketi verdi.',
+                  isSuccess: true,
+                  reputationDelta: 25,
+                  xpReward: 300,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm240_stay_out',
+              label: 'Karışmak İstemiyorum De • Tarafsız Kal',
+              shortDescription: 'İşine bak, sıfır risk.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Olaylardan Uzak',
+                  message: 'Polis başka yerde operasyonu yaptı, dükkanın olağan seyrinde devam etti.',
+                  isSuccess: true,
+                  reputationDelta: 0,
+                  xpReward: 40,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 270:
+        return const DramaticCardModel(
+          id: 'milestone_day_270',
+          dayNumber: 270,
+          category: DramaticCategory.opportunity,
+          severity: DramaticSeverity.high,
+          title: 'Konsolosluk Zırhlı Filo Tasfiyesi',
+          characterName: 'Ataşe Temsilcisi Stefan',
+          characterRole: 'Diplomatik Misyon',
+          characterAvatar: 'suit',
+          icon: Icons.shield_rounded,
+          dialogue:
+              '"Konsolosluğumuzun görev süresi dolan 2 adet zırhlı diplomatik arazi aracını kapalı teklif usulüyle satıyoruz. Teminat bedeli ₺30.000."',
+          foreshadowHint: 'Çantada keklik bir fırsat • Doğru teklifle servet kazandırabilir.',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm270_bid',
+              label: 'Teminatı Yatır & Teklif Ver • -₺30.000',
+              shortDescription: '%75 ihtimalle zırhlı efsane filoya eklenir • Değeri ₺100.000 üzeri!',
+              upfrontCost: 30000.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 0.75,
+                  title: 'Diplomatik Hazine Kasada!',
+                  message: 'Kapalı zarf ihalesini kazandın! Kusursuz zırhlı araç galerinin vitrininde yerini aldı.',
+                  isSuccess: true,
+                  spawnBargainCar: true,
+                  moneyDelta: 50000.0,
+                  reputationDelta: 18,
+                  xpReward: 250,
+                ),
+                DramaticOutcomeModel(
+                  probability: 0.25,
+                  title: 'Başka Bir Teklif Geçti',
+                  message: 'Teminatın iade edildi ancak araçları alamadın. Sadece dosya harcı kesildi.',
+                  isSuccess: false,
+                  moneyDelta: 28000.0,
+                  reputationDelta: 2,
+                  xpReward: 50,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm270_pass',
+              label: 'İhaleye Girme • Nakiti Koru',
+              shortDescription: 'Sermayeni garantiye al.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Kasayı Korumak',
+                  message: 'İhaleye girmedin, dükkanın nakit akışı bozulmadı.',
+                  isSuccess: true,
+                  reputationDelta: 0,
+                  xpReward: 30,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 300:
+        return const DramaticCardModel(
+          id: 'milestone_day_300',
+          dayNumber: 300,
+          category: DramaticCategory.comedy,
+          severity: DramaticSeverity.high,
+          title: 'Kripto Zengin Çocuğunun Ani Çıkışı',
+          characterName: 'Kripto Fenomeni Batuhan',
+          characterRole: 'Sosyal Medya Yıldızı',
+          characterAvatar: 'sunglasses',
+          icon: Icons.currency_bitcoin_rounded,
+          dialogue:
+              '"Patron sabah coin patladı, cüzdanda para kaynıyor! Şu köşedeki 2 spor arabayı nakit alıp hemen anahtarları teslim almak istiyorum. Üstüne ₺50.000 komisyon veririm ama hemen noter açtıracaksın!"',
+          foreshadowHint: 'Sineğin yağını hesaplamayan bol kepçe müşteri • Hızlı noter mi yoksa temkinli devir mi?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm300_notary',
+              label: 'Özel Nöbetçi Noter Ayarla • Satışı Kapat',
+              shortDescription: 'Büyük komisyonu cebe indir • +₺80.000 Kazanç!',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Yüzyılın Hızlı Satışı!',
+                  message: 'Paralar anında banka hesabına geçti, Batuhan arabalarıyla kornaya basarak ayrıldı!',
+                  isSuccess: true,
+                  moneyDelta: 80000.0,
+                  reputationDelta: 16,
+                  xpReward: 250,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm300_wait',
+              label: 'Pazartesi Günü Yasal Süreçte Gel De',
+              shortDescription: 'Gece acelesine güvenme • Güvenli yol.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Temkinli Tüccar',
+                  message: 'Müşteri aceleyle başka şehre gitti, sen ise sıfır riskle dükkanını korudun.',
+                  isSuccess: true,
+                  reputationDelta: 2,
+                  xpReward: 50,
+                ),
+              ],
+            ),
+          ],
+        );
+
+      case 330:
+        return const DramaticCardModel(
+          id: 'milestone_day_330',
+          dayNumber: 330,
+          category: DramaticCategory.opportunity,
+          severity: DramaticSeverity.high,
+          title: 'Yıl Sonu ÖTV ve Enflasyon Söylentisi',
+          characterName: 'Otomotiv Gazetecisi Sinan',
+          characterRole: 'Sektör Analisti',
+          characterAvatar: 'briefcase',
+          icon: Icons.trending_up_rounded,
+          dialogue:
+              '"Yeni yılda sıfır ve ikinci el araçlara devasa ÖTV zammı ve kur güncellemesi geleceği Ankara kulislerinde konuşuluyor. Elindeki araçları tutarsan değerleri katlanacak!"',
+          foreshadowHint: 'Alırken kazandıran ticaret kuralı • Stokta beklemek mi yoksa hızlı nakit çevirmek mi?',
+          choices: [
+            DramaticChoiceModel(
+              id: 'm330_hold',
+              label: 'Stokları Kapat & Yeni Yılı Bekle',
+              shortDescription: 'Tüm araçların vitrin değerinde genel değer artışı beklentisi.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Vizyoner Stok Yönetimi',
+                  message: 'Piyasa hareketlendi ve galerin şehirdeki en değerli filoya sahip oldu!',
+                  isSuccess: true,
+                  reputationDelta: 15,
+                  xpReward: 200,
+                ),
+              ],
+            ),
+            DramaticChoiceModel(
+              id: 'm330_liquidate',
+              label: 'Fırsatı Kaçırma & Hızlıca Sat • Nakite Geç',
+              shortDescription: 'Yüksek fiyattan hemen müşteri bul • +₺35.000 Hızlı Kazanç.',
+              upfrontCost: 0.0,
+              outcomes: [
+                DramaticOutcomeModel(
+                  probability: 1.0,
+                  title: 'Sıcak Nakit Gücü',
+                  message: 'Panik alıcılarına hızlıca satış yaptın, kasan parayla doldu.',
+                  isSuccess: true,
+                  moneyDelta: 35000.0,
+                  reputationDelta: 8,
+                  xpReward: 120,
                 ),
               ],
             ),
@@ -608,7 +1303,7 @@ class DramaticCardEngine {
   }
 
   // -------------------------------------------------------------
-  // PROCEDURAL CATEGORY GENERATORS
+  // PROCEDURAL CATEGORY GENERATORS • Zengin ve Çeşitli Olay Havuzu
   // -------------------------------------------------------------
 
   static DramaticCardModel _generateComedyCard(int day, Random rng) {
@@ -645,7 +1340,7 @@ class DramaticCardEngine {
         icon: Icons.auto_fix_high_rounded,
         dialogue:
             '"Usta... cilayı arabanın kaputuna sürerken keçeyi ters takmışım, araba parlayacağına mat askeri kamuflaj gibi oldu!"',
-        hint: 'Müşteri görmek üzere, hızlı bir karar vermek gerek.',
+        hint: 'Kaş yaparken göz çıkarmak • Müşteri görmek üzere, hızlı bir karar vermek gerek.',
         c1Label: 'Özel Mat Kaplama Diye Pazarla',
         c1Desc: '%60 müşteri bayılır ekstra kâr bırakır, %40 fark eder • -5 İtibar.',
         c1Cost: 0.0,
@@ -682,6 +1377,102 @@ class DramaticCardEngine {
         c2Cost: 1500.0,
         c2Title: 'Kurumsal Düzen Sağlandı',
         c2Msg: 'Tabela bir saat içinde onarıldı, prestijin korundu.',
+        c2Rep: 2,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Boyasız Göçükçünün Manyetik Şovu',
+        characterName: 'Göçükçü İrfan Usta',
+        characterRole: 'Sanayi Sanatkârı',
+        characterAvatar: 'wrench',
+        icon: Icons.hardware_rounded,
+        dialogue:
+            '"Patron, yeni aldığım vakumlu manyetik kitle arabanın kapısındaki göçüğü sıfır çekiçle çekeceğim diye iddiaya girdim, tüm çıraklar izlemeye toplandı!"',
+        hint: 'Büyük lokma ye büyük söz söyleme • Gösteri başarılı olursa namın yürür.',
+        c1Label: 'Ustayla Bahse Gir & İzin Ver',
+        c1Desc: '%70 ihtimalle kapı kusursuz düzelir • +₺3.000 Değer, %30 vakum boyayı kaldırır.',
+        c1Cost: 0.0,
+        c1Title: 'Sanat Eseri Gibi Düzeltme!',
+        c1Msg: 'İrfan Usta tek hamlede göçüğü jilet gibi yaptı! Çıraklar alkış tuttu.',
+        c1Rep: 5,
+        c1Money: 3000.0,
+        c2Label: 'Macera Arama • Standart Çekiçle Yap',
+        c2Desc: 'Sakin ve garanti usul • +1 İtibar.',
+        c2Cost: 0.0,
+        c2Title: 'Garantili Tamir',
+        c2Msg: 'Klasik yöntemle yapıldı, risk alınmadı.',
+        c2Rep: 1,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Stepne Havuzunda Unutulan Turşu Bidonu',
+        characterName: 'Yıkamacı Memiş',
+        characterRole: 'Oto Yıkama Sorumlusu',
+        characterAvatar: 'cleaning_services_rounded',
+        icon: Icons.water_drop_rounded,
+        dialogue:
+            '"Ustam takastan aldığımız arabanın bagaj stepne havuzuna köyden kalma 3 bidon kornişon turşusu koymuşlar, araba buram buram sirke kokuyor!"',
+        hint: 'Akarı kokarı yok dedikleri araçtan turşu kokusu çıktı!',
+        c1Label: 'Detaylı Ozon Temizliği Yaptır • -₺1.000',
+        c1Desc: 'Koku tamamen çıkar, araç sıfır gibi kokar • +3 İtibar.',
+        c1Cost: 1000.0,
+        c1Title: 'Mis Kokulu Showroom',
+        c1Msg: 'Ozon makinesi tüm kokuyu aldı, araca yeni araba kokusu sıkıldı.',
+        c1Rep: 3,
+        c1Money: 0.0,
+        c2Label: 'Turşuları Esnafa Dağıt & Camları Aç',
+        c2Desc: 'Doğal havalandırma ve komşu ikramı • Masrafsız.',
+        c2Cost: 0.0,
+        c2Title: 'Komşulara Ziyafet',
+        c2Msg: 'Sanayi esnafı öğle yemeğinde turşuyu afiyetle yedi, arabayı da rüzgar temizledi.',
+        c2Rep: 2,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Falcı Teyzenin Plaka Tılsımı',
+        characterName: 'Fahriye Teyze',
+        characterRole: 'Kıdemli Müşteri',
+        characterAvatar: 'grandma',
+        icon: Icons.auto_awesome_rounded,
+        dialogue:
+            '"Oğlum araba çok güzel ama plakasındaki rakamların ebced hesabına baktım, yıldızım uyuşmuyor. Bana plaka değiştirme sözü verirsen hemen alırım!"',
+        hint: 'Müşteri velinimettir • Biraz sabır büyük satış getirebilir.',
+        c1Label: 'Emniyetten Plaka Değişimini Üstlen • -₺1.500',
+        c1Desc: 'Satış anında nakit kapanır • +₺12.000 Kâr.',
+        c1Cost: 1500.0,
+        c1Title: 'Yıldızlar Barıştı!',
+        c1Msg: 'Yeni plaka basıldı, Fahriye Teyze mutluluktan dualar ederek aracı aldı!',
+        c1Rep: 6,
+        c1Money: 12000.0,
+        c2Label: 'Plaka Değişmez De • Fiyatta Israr Et',
+        c2Desc: 'Prensip sahibi tüccar duruşu.',
+        c2Cost: 0.0,
+        c2Title: 'Başka Müşteriye Kısmet',
+        c2Msg: 'Teyze gitti ama araç bir sonraki gün normal müşteriye satıldı.',
+        c2Rep: 0,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Sanayiye Kaçan Kurbanlık Tosun',
+        characterName: 'Kasap Mahir',
+        characterRole: 'Komşu Esnaf',
+        characterAvatar: 'mustache',
+        icon: Icons.pets_rounded,
+        dialogue:
+            '"Komşu kaçın! Kamyonetten atlayan tosun doğrudan galeri vitrinine doğru koşuyor, arabaların arasına girmeden yolu kapatalım!"',
+        hint: 'Can havliyle koşan tosun showroom araçlarını ezebilir!',
+        c1Label: 'Eski Çekiciyle Yolu Barikatla • Kahramanca',
+        c1Desc: 'Showroom araçlarını koru • +10 İtibar, +80 Deneyim.',
+        c1Cost: 0.0,
+        c1Title: 'Sanayinin Kahramanı!',
+        c1Msg: 'Çekiciyle tosunu ustalıkla çevrelediniz! Tek bir arabaya bile zarar gelmedi.',
+        c1Rep: 10,
+        c1Money: 0.0,
+        c2Label: 'Dükkanın Kepenklerini İndir & İçeri Kaç',
+        c2Desc: 'Kendini ve vitrini içeri kapat • Sıfır hasar.',
+        c2Cost: 0.0,
+        c2Title: 'Güvenli Kapanış',
+        c2Msg: 'Tosun yoldan geçti gitti. Kimsenin burnu kanamadı.',
         c2Rep: 2,
         c2Money: 0.0,
       ),
@@ -786,6 +1577,78 @@ class DramaticCardEngine {
         c2Title: 'Tatlıya Bağlandı',
         c2Msg: 'Müşteri bankamatikten çektiğini söyleyip parayı anında değiştirdi.',
         c2Rep: 2,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Eski Kabadayı ve Emanet Çanta',
+        characterName: 'Gültekin Ağa',
+        characterRole: 'Mahallenin Eski Namlısı',
+        characterAvatar: 'sunglasses',
+        icon: Icons.lock_clock_rounded,
+        dialogue:
+            '"Evlat, bu kilitli evrak çantasını bir hafta galerinin kasasında saklayacaksın. Kimse sormayacak, kimse açmayacak. Karşılığında galeriye kefilim."',
+        hint: 'Ateşle oynayan elini yakar • Tehlikeli bir emanet mi yoksa açık kapı mı?',
+        c1Label: 'Emaneti Kabul Et • Güçlü Himaye',
+        c1Desc: '%70 ihtimalle sorunsuz biter ve +₺20.000 koruma primi alırsın, %30 polis denetler.',
+        c1Cost: 0.0,
+        c1Title: 'Emanet Teslim Edildi!',
+        c1Msg: 'Hafta bitince çantayı teslim aldılar ve sana yüklü bir teşekkür zarfı bıraktılar.',
+        c1Rep: 5,
+        c1Money: 20000.0,
+        c2Label: 'Biz Sadece Araba Alıp Satarız De • Reddet',
+        c2Desc: 'Temiz ve yasal esnaflık duruşu • +4 İtibar.',
+        c2Cost: 0.0,
+        c2Title: 'Temiz Defter',
+        c2Msg: 'Ağa anlayışla başını sallayıp gitti. Başın ağrımadı.',
+        c2Rep: 4,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Haciz Memuru ve Kaçırılan SUV',
+        characterName: 'İcra Memuru Haldun',
+        characterRole: 'Adliye Temsilcisi',
+        characterAvatar: 'briefcase',
+        icon: Icons.gavel_rounded,
+        dialogue:
+            '"Kolay gelsin! Dün takasla aldığınız siyah lüks SUV hakkında 2 saat önce ihtiyati haciz kararı çıkmış. Aracı yediemin otoparkına çekeceğiz."',
+        hint: 'Alırken kazandıran dediğin araba dert oldu!',
+        c1Label: 'Avukatı Çağır & Borçluya Rücu Et • -₺2.500',
+        c1Desc: 'Zararı satıcıya ödet • Hukuk kalkanı devrede.',
+        c1Cost: 2500.0,
+        c1Title: 'Hızlı İcra Karşı Hamlesi',
+        c1Msg: 'Avukat satıcının gayrimenkulüne haciz koydurdu ve galerinin parasını kurtardı!',
+        c1Rep: 4,
+        c1Money: 15000.0,
+        c2Label: 'Aracı Yediemine Teslim Et & Sineye Çek',
+        c2Desc: 'Devletin kararına uy, yasal süreci bekle.',
+        c2Cost: 0.0,
+        c2Title: 'Hukuka Saygı',
+        c2Msg: 'Aracı teslim ettin, mahkeme süreci başladı.',
+        c2Rep: 1,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Müteahhit Takasında Heyelanlı Arsa Tuzağı',
+        characterName: 'Müteahhit Ekrem',
+        characterRole: 'Zor Durumdaki İnşaatçı',
+        characterAvatar: 'suit',
+        icon: Icons.landscape_rounded,
+        dialogue:
+            '"Galerici kardeşim, nakit sıkıştı. Vitrindeki 2 ticari minibüs karşılığında sana göl manzaralı 2 dönüm arsa vereyim, hemen takas yapalım!"',
+        hint: 'Görünen köy kılavuz istemez • İmarı ve zemin etüdünü araştırmadan imza atma!',
+        c1Label: 'Kadastro ve Belediyeden Zemin Raporu Al • -₺2.000',
+        c1Desc: 'Heyelan riskini önceden öğrenip tuzağı boz • +10 İtibar.',
+        c1Cost: 2000.0,
+        c1Title: 'Büyük Tuzak Bozuldu!',
+        c1Msg: 'Arsanın heyelan bölgesinde olduğu ortaya çıktı! Tuzağa düşmedin, esnaf seni tebrik etti.',
+        c1Rep: 10,
+        c1Money: 0.0,
+        c2Label: 'Takası Peşin Peşin Reddet',
+        c2Desc: 'Sadece araba takası kabul et • Masrafsız.',
+        c2Cost: 0.0,
+        c2Title: 'Garanti Ticaret',
+        c2Msg: 'Bilinmeyen gayrimenkule girmedin, minibüslerin vitrinde kaldı.',
+        c2Rep: 1,
         c2Money: 0.0,
       ),
     ];
@@ -895,6 +1758,58 @@ class DramaticCardEngine {
         c2Money: 0.0,
         c2Bargain: false,
       ),
+      (
+        title: 'İcradan Düşen Lüks Coupe',
+        characterName: 'Müzayede Müdürü Kenan',
+        characterRole: 'İcra İhale Sorumlusu',
+        characterAvatar: 'suit',
+        icon: Icons.gavel_rounded,
+        dialogue:
+            '"Patron, ikinci oturumda kimsenin teklif vermediği az hasarlı bir spor coupe yarı fiyatına düştü. ₺18.000 teminat verirsen tek teklifle aracı alırsın!"',
+        hint: 'Tereyağından kıl çeker gibi fırsat • Kâr marjı çok yüksek.',
+        c1Label: 'Teminatı Ver & Aracı Al • -₺18.000',
+        c1Desc: 'Spor aracı kelepire kapat • +₺40.000 Kâr.',
+        c1Cost: 18000.0,
+        c1Title: 'Müzayede Zaferi!',
+        c1Msg: 'Çekiç indi ve araba senin oldu! Sanayide pasta cila sonrası anında alıcı buldu.',
+        c1Rep: 7,
+        c1Money: 40000.0,
+        c1Bargain: true,
+        c2Label: 'İhaleye Girme • Beklemede Kal',
+        c2Desc: 'Masrafsız duruş.',
+        c2Cost: 0.0,
+        c2Title: 'Sakin Takip',
+        c2Msg: 'Kasayı açmadın, standart işine odaklandın.',
+        c2Rep: 0,
+        c2Money: 0.0,
+        c2Bargain: false,
+      ),
+      (
+        title: 'Fabrika Çıkışlı Test Araçları Paketi',
+        characterName: 'Distribütör Bölge Sorumlusu',
+        characterRole: 'Otomotiv Satış Müdürü',
+        characterAvatar: 'briefcase',
+        icon: Icons.factory_rounded,
+        dialogue:
+            '"Bayimiz yeni modele geçiyor. Sadece 5.000 km\'de 2 adet test aracını toplu alımda piyasanın %30 altına bırakabiliriz. ₺30.000 peşinat istiyoruz."',
+        hint: 'Sıfır kokusu üzerinde araçlar • Müşteri kuyruğa girer.',
+        c1Label: 'Peşinatı Öde & Paketi Bağla • -₺30.000',
+        c1Desc: 'Neredeyse sıfır araçlarla vitrini süsle • +₺65.000 Değer.',
+        c1Cost: 30000.0,
+        c1Title: 'Vitrine Sıfır Kokulu Araçlar!',
+        c1Msg: 'Araçlar showrooma girdiği gibi iki gün içinde satıldı, muhteşem bir kâr bıraktı!',
+        c1Rep: 12,
+        c1Money: 65000.0,
+        c1Bargain: true,
+        c2Label: 'Bütçeyi Aşma • Pas Geç',
+        c2Desc: 'Sermayeni koru.',
+        c2Cost: 0.0,
+        c2Title: 'Temkinli Tüccar',
+        c2Msg: 'Büyük borçlanmaya girmedin.',
+        c2Rep: 0,
+        c2Money: 0.0,
+        c2Bargain: false,
+      ),
     ];
 
     final pick = variations[rng.nextInt(variations.length)];
@@ -976,7 +1891,7 @@ class DramaticCardEngine {
         c2Money: 0.0,
       ),
       (
-        title: 'Köy Okuluna Tamirhane Desteği',
+        title: 'Köy Okuluna Minibüs Parçası Desteği',
         characterName: 'Köy Muhtarı Bekir',
         characterRole: 'Köy Heyeti Temsilcisi',
         characterAvatar: 'mustache',
@@ -996,6 +1911,54 @@ class DramaticCardEngine {
         c2Cost: 0.0,
         c2Title: 'Masrafsız Tercih',
         c2Msg: 'Muhtar anlayışla karşılayıp ayrıldı.',
+        c2Rep: 0,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Depremzede Ailenin Son Emaneti',
+        characterName: 'Hüseyin Amca',
+        characterRole: 'Afetzede Esnaf',
+        characterAvatar: 'mustache',
+        icon: Icons.volunteer_activism_rounded,
+        dialogue:
+            '"Evlat, memleketten elimizde kalan bu eski arabayla geldik. Çocuklara kiralık ev tutacağız, aracı değerinde alır mısın?"',
+        hint: 'Veren el alan elden üstündür • Vicdan en büyük sermayedir.',
+        c1Label: 'Piyasa Değerinin Üzerine Al • -₺6.000 Destek',
+        c1Desc: 'Aileye barınma can suyu ver • +18 İtibar, +150 Deneyim.',
+        c1Cost: 6000.0,
+        c1Title: 'Merhametli Esnaf',
+        c1Msg: 'Hüseyin Amca gözyaşlarıyla elini sıktı. Tüm sanayi çarşısı senin bu asil hareketini konuştu.',
+        c1Rep: 18,
+        c1Money: 0.0,
+        c2Label: 'Piyasa Fiyatından Normal Satın Al',
+        c2Desc: 'Standart ticaretini yap • +3 İtibar.',
+        c2Cost: 0.0,
+        c2Title: 'Standart Alım',
+        c2Msg: 'Aracı normal fiyattan satın aldın ve nakitlerini teslim ettin.',
+        c2Rep: 3,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Donmak Üzere Olan Sokak Köpekleri',
+        characterName: 'Veteriner Deniz Hanım',
+        characterRole: 'Hayvansever Hekim',
+        characterAvatar: 'support_agent_rounded',
+        icon: Icons.pets_rounded,
+        dialogue:
+            '"Kışın en sert gecesi. Galerinin ısıtmalı arka sundurmasını sokak köpeklerine açar mısınız? Zengin müşteriler biraz çekinebilir ama can kurtarırız."',
+        hint: 'Merhamet etmeyene merhamet olunmaz.',
+        c1Label: 'Sundurmayı Aç & Mama Desteği Ver • -₺1.500',
+        c1Desc: 'Can dostları koru • +12 İtibar, Sosyal medyada büyük övgü.',
+        c1Cost: 1500.0,
+        c1Title: 'Şefkatli Yuva',
+        c1Msg: 'Fotoğraflar paylaşıldı ve hayvansever müşteriler dükkanına akın etti!',
+        c1Rep: 12,
+        c1Money: 0.0,
+        c2Label: 'Müşteri Kaybetmemek İçin İzin Verme',
+        c2Desc: 'Kurumsal showroom düzenini koru.',
+        c2Cost: 0.0,
+        c2Title: 'Ticari Titizlik',
+        c2Msg: 'Showroom düzeni bozulmadı.',
         c2Rep: 0,
         c2Money: 0.0,
       ),
@@ -1065,7 +2028,7 @@ class DramaticCardEngine {
         hint: 'Milyonlarca izleyiciye ulaşarak showroom bilinirliğini artırabilir.',
         c1Label: 'Programa Sponsor Ol • -₺8.000',
         c1Desc: 'Tüm Türkiye galerini tanır • +20 İtibar, +150 Deneyim.',
-        c1Cost: 800.0,
+        c1Cost: 8000.0,
         c1Title: 'Ekranların Yıldız Galerisi!',
         c1Msg: 'Program prime-time kuşağında yayınlandı. Telefonlar kilitlendi, müşteri trafiği patladı!',
         c1Rep: 20,
@@ -1099,6 +2062,54 @@ class DramaticCardEngine {
         c2Cost: 0.0,
         c2Title: 'Kasa Korundu',
         c2Msg: 'Masrafsız bir hafta sonu geçirdin.',
+        c2Rep: 0,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Üniversitede Girişimcilik Konferansı',
+        characterName: 'Dekan Prof. Dr. Metin',
+        characterRole: 'İktisadi Bilimler Dekanı',
+        characterAvatar: 'school_rounded',
+        icon: Icons.co_present_rounded,
+        dialogue:
+            '"Sayın Galerici, sıfırdan kurup büyüttüğünüz ticaret hikayenizi üniversitemizin genç girişimci adaylarına anlatmanız için sizi onur konuğu olarak davet ediyoruz."',
+        hint: 'Söz gümüşse sükut altın ama tecrübe paylaşmak geleceği inşa eder.',
+        c1Label: 'Konferansa Katıl & Gençlere İlham Ol',
+        c1Desc: 'Akademik çevrelerde itibar kazan • +16 İtibar, +180 Deneyim.',
+        c1Cost: 0.0,
+        c1Title: 'Girişimcilik Kürsüsü!',
+        c1Msg: 'Salonda yüzlerce genç seni ayakta alkışladı! Şehrin entelektüel çevrelerinde büyük saygı kazandın.',
+        c1Rep: 16,
+        c1Money: 0.0,
+        c2Label: 'İşler Yoğun De • Kibarca Reddet',
+        c2Desc: 'Dükkandaki müşterilerine odaklan.',
+        c2Cost: 0.0,
+        c2Title: 'Esnaf Pratiği',
+        c2Msg: 'Dükkandaki işlerinin başında kaldın.',
+        c2Rep: 1,
+        c2Money: 0.0,
+      ),
+      (
+        title: 'Şehir Festivali Kortaj Araçları Liderliği',
+        characterName: 'Kültür Dairesi Müdürü',
+        characterRole: 'Belediye Temsilcisi',
+        characterAvatar: 'suit',
+        icon: Icons.festival_rounded,
+        dialogue:
+            '"Şehir Kurtuluş Festivali kortejinin öncü protokol araçlarını galerinizden tahsis etmenizi istiyoruz. Sponsorluk flamalarınız kortejin en önünde yer alacak."',
+        hint: 'Tüm şehir halkı korteji izleyecek • Prestijin zirvesi.',
+        c1Label: 'Korteje Sponsor Ol • -₺5.000 Masraf',
+        c1Desc: 'Şehrin göz bebeği haline gel • +22 İtibar, +200 Deneyim.',
+        c1Cost: 5000.0,
+        c1Title: 'Kortejin En Önünde!',
+        c1Msg: 'Araçlar caddeden geçerken binlerce vatandaş galerinin adını alkışladı!',
+        c1Rep: 22,
+        c1Money: 0.0,
+        c2Label: 'Masrafa Girme • Protokolü Geri Çevir',
+        c2Desc: 'Kendi yağında kavrulmaya devam.',
+        c2Cost: 0.0,
+        c2Title: 'Sessiz Seyir',
+        c2Msg: 'Masrafsız bir festival haftası geçirdin.',
         c2Rep: 0,
         c2Money: 0.0,
       ),

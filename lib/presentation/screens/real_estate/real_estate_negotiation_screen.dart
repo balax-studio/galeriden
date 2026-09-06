@@ -674,14 +674,12 @@ class _RealEstateNegotiationScreenState
         iconData = Icons.apartment_rounded;
         break;
       case RealEstateCategory.commercial:
-      case RealEstateCategory.tourismFacility:
         textKey = 'real_estate_dark_urgency_commercial';
         bgColor = const Color(0xFFFFFBEB);
         borderColor = const Color(0xFFD97706);
         iconData = Icons.storefront_rounded;
         break;
       case RealEstateCategory.building:
-      case RealEstateCategory.timeshare:
         textKey = 'real_estate_dark_urgency_building';
         bgColor = const Color(0xFFFAF5FF);
         borderColor = const Color(0xFF7C3AED);

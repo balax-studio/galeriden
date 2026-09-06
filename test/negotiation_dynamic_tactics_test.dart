@@ -1,35 +1,42 @@
+import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/customer_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
+import 'package:galeriden/data/models/listing_model.dart';
 import 'package:galeriden/domain/usecases/negotiation_engine.dart';
+import 'package:galeriden/domain/usecases/real_estate_tenant_negotiation_expansion.dart';
+import 'package:galeriden/domain/usecases/real_estate_buyer_negotiation_expansion.dart';
+import 'package:galeriden/domain/usecases/real_estate_chat_negotiation_engine.dart';
+import 'package:galeriden/domain/usecases/vasita_negotiation_engine.dart';
 
 void main() {
-  group('Dynamic Esnaf Tactics & Dice Roll System Tests', () {
-    final defaultExpertise = ExpertiseReport(
-      engineCondition: 85,
-      transmissionCondition: 90,
-      tramerAmount: 5000,
-      mileage: 120000,
-      isMileageTampered: false,
-      bodyParts: {
-        'kaput': PartStatus.original,
-        'tavan': PartStatus.original,
-        'sol_on_camurluk': PartStatus.painted,
-      },
-    );
+  final defaultExpertise = ExpertiseReport(
+    engineCondition: 85,
+    transmissionCondition: 90,
+    tramerAmount: 5000,
+    mileage: 120000,
+    isMileageTampered: false,
+    bodyParts: {
+      'kaput': PartStatus.original,
+      'tavan': PartStatus.original,
+      'sol_on_camurluk': PartStatus.painted,
+    },
+  );
 
-    final sampleCar = CarModel(
-      id: 'car_test_1',
-      brand: 'BMW',
-      modelName: '320i',
-      modelYear: 2018,
-      bodyType: 'Sedan',
-      colorHex: '#000000',
-      baseMarketValue: 650000,
-      currentPurchasePrice: 600000,
-      expertise: defaultExpertise,
-    );
+  final sampleCar = CarModel(
+    id: 'car_test_1',
+    brand: 'BMW',
+    modelName: '320i',
+    modelYear: 2018,
+    bodyType: 'Sedan',
+    colorHex: '#000000',
+    baseMarketValue: 650000,
+    currentPurchasePrice: 600000,
+    expertise: defaultExpertise,
+  );
+
+  group('Dynamic Esnaf Tactics & Dice Roll System Tests', () {
 
     test('generateTactics produces exactly 3 contextual tactics for buying and selling', () {
       final buyingTactics = NegotiationEngine.generateTactics(
@@ -158,4 +165,119 @@ void main() {
       }
     });
   });
+
+  group('Expanded Multi-Screen Negotiation & Chatbot Dynamics Tests', () {
+    final emojiPattern = RegExp(
+        r'[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]',
+        unicode: true);
+
+    test('Tenant deck contains 14 distinct tactics and replenishes hand dynamically until exhaustion', () {
+      final allTactics = RealEstateTenantNegotiationExpansion.getAllTactics();
+      expect(allTactics.length, 14);
+
+      final usedCounts = <TenantTacticType, int>{};
+      var hand = RealEstateTenantNegotiationExpansion.getAvailableDeck(usedCounts).take(4).toList();
+      expect(hand.length, 4);
+
+      // Consume the first card in hand
+      final firstCard = hand.first;
+      usedCounts[firstCard.type] = (usedCounts[firstCard.type] ?? 0) + 1;
+
+      // New hand must not contain the consumed card, and must draw the 5th card from deck
+      var nextHand = RealEstateTenantNegotiationExpansion.getAvailableDeck(usedCounts).take(4).toList();
+      expect(nextHand.length, 4);
+      expect(nextHand.any((c) => c.type == firstCard.type), isFalse);
+
+      // Exhaust all 14 cards
+      for (final card in allTactics) {
+        usedCounts[card.type] = card.maxUses;
+      }
+      final exhaustedDeck = RealEstateTenantNegotiationExpansion.getAvailableDeck(usedCounts);
+      expect(exhaustedDeck.isEmpty, isTrue);
+    });
+
+    test('Tenant tactic evaluations produce varied dynamic responses across invocations without emojis or parentheses', () {
+      final archetype = RealEstateTenantNegotiationExpansion.archetypes.values.first;
+      final responses = <String>{};
+
+      for (var i = 0; i < 20; i++) {
+        final outcome = RealEstateTenantNegotiationExpansion.evaluateTactic(
+          tactic: TenantTacticType.offerRentDiscount,
+          currentRent: 25000,
+          currentDeposit: 50000,
+          patience: 80,
+          satisfaction: 50,
+          archetype: archetype,
+          useCount: 1,
+          random: Random(i * 37 + 11),
+        );
+        expect(outcome.replyText.contains('(') || outcome.replyText.contains(')'), isFalse);
+        expect(emojiPattern.hasMatch(outcome.replyText), isFalse);
+        responses.add(outcome.replyText);
+      }
+
+      // Must produce more than 1 distinct response (anti-repetition chatbot dynamic)
+      expect(responses.length, greaterThan(1));
+    });
+
+    test('Buyer tactic evaluations produce varied dynamic responses and track exhaustion', () {
+      // Exhaustion check
+      expect(RealEstateBuyerNegotiationExpansion.isTacticExhausted(ChatTacticType.counterPrice, 0), isFalse);
+      expect(RealEstateBuyerNegotiationExpansion.isTacticExhausted(ChatTacticType.counterPrice, 3), isTrue);
+
+      const state = ChatNegotiationState(
+        targetId: 'target_1',
+        counterpartyName: 'Kerem Bey',
+        counterpartyRole: ChatSenderRole.buyer,
+        currentPrice: 1000000,
+        patience: 80,
+        satisfaction: 50,
+      );
+      final archetype = RealEstateBuyerNegotiationExpansion.archetypes[BuyerArchetypeId.familyBuyer]!;
+
+      final responses = <String>{};
+      for (var i = 0; i < 20; i++) {
+        final outcome = RealEstateBuyerNegotiationExpansion.evaluateBuyerTactic(
+          state: state,
+          tactic: ChatTacticType.counterPrice,
+          archetype: archetype,
+          random: Random(i * 43 + 7),
+        );
+        expect(outcome.replyText.contains('(') || outcome.replyText.contains(')'), isFalse);
+        expect(emojiPattern.hasMatch(outcome.replyText), isFalse);
+        responses.add(outcome.replyText);
+      }
+      expect(responses.length, greaterThan(1));
+    });
+
+    test('Vasita negotiation evaluations produce varied responses without emojis or parentheses', () {
+      final listing = ListingModel(
+        id: 'test-listing-1',
+        car: sampleCar,
+        sellerName: 'Kemal Bey',
+        sellerCity: 'Ankara',
+        sellerTrait: 'Memur',
+        title: 'Satılık BMW',
+        description: 'Temiz araç',
+        askingPrice: 700000,
+        isExpertiseCompleted: true,
+        createdAt: DateTime.now(),
+      );
+
+      final responses = <String>{};
+      for (var i = 0; i < 20; i++) {
+        final result = VasitaNegotiationEngine.evaluateOffer(
+          listing: listing,
+          offeredPrice: 500000,
+          currentPatience: 50,
+          playerLevel: 3,
+        );
+        expect(result.responseMessage.contains('(') || result.responseMessage.contains(')'), isFalse);
+        expect(emojiPattern.hasMatch(result.responseMessage), isFalse);
+        responses.add(result.responseMessage);
+      }
+      expect(responses.length, greaterThan(1));
+    });
+  });
 }
+

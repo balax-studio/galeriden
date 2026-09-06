@@ -9,15 +9,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('RealEstateCategory & DeedType Tests', () {
-    test('Verifies all 7 screenshot categories with authentic catalog counts', () {
-      expect(RealEstateCategory.values.length, 7);
+    test('Verifies all 5 active categories with authentic catalog counts', () {
+      expect(RealEstateCategory.values.length, 5);
       expect(RealEstateCategory.housing.catalogCount, 779231);
       expect(RealEstateCategory.commercial.catalogCount, 152000);
       expect(RealEstateCategory.land.catalogCount, 255603);
       expect(RealEstateCategory.housingProjects.catalogCount, 1376);
       expect(RealEstateCategory.building.catalogCount, 8867);
-      expect(RealEstateCategory.timeshare.catalogCount, 2562);
-      expect(RealEstateCategory.tourismFacility.catalogCount, 1470);
     });
 
     test('Verifies DeedType valuation multipliers', () {

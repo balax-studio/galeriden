@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'real_estate_chat_negotiation_engine.dart';
 
 enum ContractorPersonality {
   traditional, // Hacı Reşat: Geleneksel, %33'ten başlar, inatçı ama güvenilir, çay ve kurban esprileri
@@ -140,4 +141,272 @@ class ContractorNegotiationExpansion {
   static String getRandomJokeKey(Random random) {
     return constructionJokes[random.nextInt(constructionJokes.length)];
   }
+
+  // --- DİNAMİK AŞAMALI KAT KARŞILIĞI PAZARLIK KULVARLARI ---
+  static const List<ContractorTacticTrackDef> tacticTracks = [
+    ContractorTacticTrackDef(
+      id: 'share',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_share_label_0',
+          messageKey: 'contractor_tactic_share_msg_0',
+          tacticType: ChatTacticType.demandHigherShare,
+          icon: Icons.trending_up_rounded,
+          chipColor: Color(0xFFEFF6FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_share_label_1',
+          messageKey: 'contractor_tactic_share_msg_1',
+          tacticType: ChatTacticType.demandHigherShare,
+          icon: Icons.bar_chart_rounded,
+          chipColor: Color(0xFFEFF6FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_share_label_2',
+          messageKey: 'contractor_tactic_share_msg_2',
+          tacticType: ChatTacticType.demandHigherShare,
+          icon: Icons.gavel_rounded,
+          chipColor: Color(0xFFDBEAFE),
+        ),
+      ],
+    ),
+    ContractorTacticTrackDef(
+      id: 'primeFloors',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_floors_label_0',
+          messageKey: 'contractor_tactic_floors_msg_0',
+          tacticType: ChatTacticType.demandPrimeFloors,
+          icon: Icons.view_day_rounded,
+          chipColor: Color(0xFFF3E8FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_floors_label_1',
+          messageKey: 'contractor_tactic_floors_msg_1',
+          tacticType: ChatTacticType.demandPrimeFloors,
+          icon: Icons.wb_sunny_rounded,
+          chipColor: Color(0xFFF3E8FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_floors_label_2',
+          messageKey: 'contractor_tactic_floors_msg_2',
+          tacticType: ChatTacticType.demandPrimeFloors,
+          icon: Icons.deck_rounded,
+          chipColor: Color(0xFFE9D5FF),
+        ),
+      ],
+    ),
+    ContractorTacticTrackDef(
+      id: 'quality',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_quality_label_0',
+          messageKey: 'contractor_tactic_quality_msg_0',
+          tacticType: ChatTacticType.demandQualityUpgrade,
+          icon: Icons.verified_rounded,
+          chipColor: Color(0xFFFEF3C7),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_quality_label_1',
+          messageKey: 'contractor_tactic_quality_msg_1',
+          tacticType: ChatTacticType.demandQualityUpgrade,
+          icon: Icons.home_repair_service_rounded,
+          chipColor: Color(0xFFFEF3C7),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_quality_label_2',
+          messageKey: 'contractor_tactic_quality_msg_2',
+          tacticType: ChatTacticType.demandQualityUpgrade,
+          icon: Icons.elevator_rounded,
+          chipColor: Color(0xFFFDE68A),
+        ),
+      ],
+    ),
+    ContractorTacticTrackDef(
+      id: 'advance',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_advance_label_0',
+          messageKey: 'contractor_tactic_advance_msg_0',
+          tacticType: ChatTacticType.demandAdvanceDeposit,
+          icon: Icons.payments_rounded,
+          chipColor: Color(0xFFFEE2E2),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_advance_label_1',
+          messageKey: 'contractor_tactic_advance_msg_1',
+          tacticType: ChatTacticType.demandAdvanceDeposit,
+          icon: Icons.price_change_rounded,
+          chipColor: Color(0xFFFEE2E2),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_advance_label_2',
+          messageKey: 'contractor_tactic_advance_msg_2',
+          tacticType: ChatTacticType.demandAdvanceDeposit,
+          icon: Icons.local_shipping_rounded,
+          chipColor: Color(0xFFFECACA),
+        ),
+      ],
+    ),
+    ContractorTacticTrackDef(
+      id: 'guarantee',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_guarantee_label_0',
+          messageKey: 'contractor_tactic_guarantee_msg_0',
+          tacticType: ChatTacticType.demandBankGuarantee,
+          icon: Icons.security_rounded,
+          chipColor: Color(0xFFE0E7FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_guarantee_label_1',
+          messageKey: 'contractor_tactic_guarantee_msg_1',
+          tacticType: ChatTacticType.demandPenaltyClause,
+          icon: Icons.history_edu_rounded,
+          chipColor: Color(0xFFE0E7FF),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_guarantee_label_2',
+          messageKey: 'contractor_tactic_guarantee_msg_2',
+          tacticType: ChatTacticType.demandBankGuarantee,
+          icon: Icons.policy_rounded,
+          chipColor: Color(0xFFC7D2FE),
+        ),
+      ],
+    ),
+    ContractorTacticTrackDef(
+      id: 'tea',
+      stages: [
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_tea_label_0',
+          messageKey: 'contractor_tactic_tea_msg_0',
+          tacticType: ChatTacticType.askJokeOrChat,
+          icon: Icons.local_cafe_rounded,
+          chipColor: Color(0xFFD1FAE5),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_tea_label_1',
+          messageKey: 'contractor_tactic_tea_msg_1',
+          tacticType: ChatTacticType.askJokeOrChat,
+          icon: Icons.bakery_dining_rounded,
+          chipColor: Color(0xFFD1FAE5),
+        ),
+        ContractorTacticStageDef(
+          labelKey: 'contractor_tactic_tea_label_2',
+          messageKey: 'contractor_tactic_tea_msg_2',
+          tacticType: ChatTacticType.askJokeOrChat,
+          icon: Icons.handshake_rounded,
+          chipColor: Color(0xFFA7F3D0),
+        ),
+      ],
+    ),
+  ];
+
+  /// Kişiliğe özgü genişletilmiş pay pazarlığı yanıtı üretir
+  static String getShareResponse({
+    required ContractorPersonality personality,
+    required bool isAccepted,
+    required int nextShare,
+    required Random random,
+  }) {
+    if (isAccepted) {
+      switch (personality) {
+        case ContractorPersonality.traditional:
+          final pool = [
+            'Biz dededen beri hak yemeyiz arsa sahibi kardeşim • Gönlünüz hoş olsun, payınızı %$nextShare yapıyoruz • Yalnız temel kurbanını beraber keseriz.',
+            'Sözünüz yerde kalmasın • Bu muhitte arsa payını %$nextShare seviyesine çektik • Yüzümüzün akıyla bitirmek nasip olsun.',
+            'Pazarlığınız çetin ama niyetiniz halis • %$nextShare payı kabul ettik, sözleşmeye yazdırıyorum • Bereketini görelim.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.aggressive:
+          final pool = [
+            'Tamamdır patron • %$nextShare payı bağladık • Yarın sabah kepçeyi arsaya sokuyoruz, 14 ayda anahtar teslim!',
+            'Hızlı karar vereni severiz • %$nextShare kabul, çift vardiya döneceğiz • Gece lambaları yakın, şantiye uyumayacak!',
+            'Pazarlık bitti • %$nextShare pay onaylandı • Mikserleri sıraya diziyoruz, bu projeyi rekor sürede dikeceğiz.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.cooperative:
+          final pool = [
+            'Biz yabancı değiliz, mahallenin çocuğuyuz • Payınızı %$nextShare yaptık • Hep beraber güzel bir bina dikelim komşum.',
+            'Gönüller bir olsun • %$nextShare payı kabul ediyoruz • Malzemeden çalmadan, komşuluk hukukunu çiğnemeden bitireceğiz.',
+            'Ortaklık dediğin böyle olur • %$nextShare olarak anlaştık • Çayımızı içip temel harcını atalım.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.luxury:
+          final pool = [
+            'Mimari vizyonumuza güveniniz için teşekkür ederiz • Prestij projemizde arsa payınızı %$nextShare olarak revize ettik.',
+            'Kabul • %$nextShare pay ve C40 brüt beton tasarımıyla bölgenin en seçkin rezidansını inşa edeceğiz.',
+            'Seçkin lokasyonunuza yakışan budur • Payınızı %$nextShare yaptık, mimari detayları imzalıyoruz.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.corporate:
+          final pool = [
+            'Risk ve fizibilite komitemiz onay verdi • Arsa payınız kurumsal sistemimizde %$nextShare olarak revize edildi.',
+            'BIM simülasyonu güncellendi • %$nextShare pay taahhüdü sözleşme şartnamesine eklenmiştir.',
+            'Kurumsal portföyümüze değer katacak bir parsel • %$nextShare pay oranını onayladık.',
+          ];
+          return pool[random.nextInt(pool.length)];
+      }
+    } else {
+      switch (personality) {
+        case ContractorPersonality.traditional:
+          final pool = [
+            'Aman kardeşim, demirin tonu dolara bağlı, çimento fabrikası peşin para istiyor • %$nextShare payın üstü bizi batırır, kurtarmaz.',
+            'Biz esnafız, boş vaat verip yarım bırakmayız • %$nextShare pay bu arsa için azami sınırımızdır, fazlası haram olur.',
+            'Fizibilite cetvelini önümüze koyduk, kolon demiri maliyeti ortada • Daha fazla pay verirsek işçinin yevmiyesini ödeyemeyiz.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.aggressive:
+          final pool = [
+            'Olmaz patron • Çift vardiya jeneratör yakıtı ve gece işçilik primi bütçeyi zorluyor • %$nextShare son limitimiz!',
+            'Dakikalarla yarışıyoruz, bu payın üstüne çıkarsak hızımız kesilir • %$nextShare teklifimiz nettir.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.cooperative:
+          final pool = [
+            'Komşum aramızda lafı olmaz ama demirciye, kalıpçıya da hakkını vereceğiz • %$nextShare üzerine çıkamayız, anlayış gösterin.',
+            'Kooperatif bütçemiz sınırlı, fazla açılırsak şantiyeyi zora sokarız • %$nextShare mahallemiz için en adil orandır.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.luxury:
+          final pool = [
+            'Projemiz lüks İtalyan seramik ve akıllı bina altyapısı içeriyor • %$nextShare payın üzerinde mimari kaliteden ödün vermek zorunda kalırız.',
+            'Rezidans standartlarımızdaki malzeme maliyeti bellidir • %$nextShare pay fizibilitemizin tavanıdır.',
+          ];
+          return pool[random.nextInt(pool.length)];
+        case ContractorPersonality.corporate:
+          final pool = [
+            'Mali denetim ve risk parametrelerimiz %$nextShare üzerindeki oranlara izin vermemektedir.',
+            'Kurumsal taahhüt politikamız gereği fizibilite sınırını aşan teklifleri onaylayamıyoruz • %$nextShare nihaidir.',
+          ];
+          return pool[random.nextInt(pool.length)];
+      }
+    }
+  }
+}
+
+class ContractorTacticStageDef {
+  final String labelKey;
+  final String messageKey;
+  final ChatTacticType tacticType;
+  final IconData icon;
+  final Color chipColor;
+
+  const ContractorTacticStageDef({
+    required this.labelKey,
+    required this.messageKey,
+    required this.tacticType,
+    required this.icon,
+    required this.chipColor,
+  });
+}
+
+class ContractorTacticTrackDef {
+  final String id;
+  final List<ContractorTacticStageDef> stages;
+
+  const ContractorTacticTrackDef({
+    required this.id,
+    required this.stages,
+  });
 }

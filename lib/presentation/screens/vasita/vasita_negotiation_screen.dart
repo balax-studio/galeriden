@@ -1092,6 +1092,8 @@ class _VasitaNegotiationScreenState
   }
 
   Widget _buildTacticsSection(List<VasitaTactic> tactics, VasitaNegotiationState negState, bool isDark) {
+    final activeTactics = tactics.where((t) => !negState.usedTacticIds.contains(t.id)).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1114,82 +1116,108 @@ class _VasitaNegotiationScreenState
           ],
         ),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 84,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: tactics.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              final tactic = tactics[index];
-              final isUsed = negState.usedTacticIds.contains(tactic.id);
-              final canUse = !isUsed && !negState.isAccepted && !negState.isProcessing && (!negState.isWalkaway || tactic.isRescue);
-
-              return GestureDetector(
-                onTap: canUse ? () => _executeTactic(tactic) : null,
-                child: Container(
-                  width: 140,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isUsed
-                        ? (isDark ? const Color(0xFF0C0E14) : const Color(0xFFE2E8F0))
-                        : (isDark ? const Color(0xFF141721) : Colors.white),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isUsed
-                          ? (isDark ? const Color(0xFF1E293B) : const Color(0xFF94A3B8))
-                          : (canUse ? const Color(0xFF00E575) : const Color(0xFF64748B)),
-                      width: 1.5,
+        if (activeTactics.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF141721) : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFF94A3B8),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF64748B)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.tr('vasita_tactics_exhausted_banner'),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
+                ),
+              ],
+            ),
+          )
+        else
+          SizedBox(
+            height: 84,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: activeTactics.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final tactic = activeTactics[index];
+                final canUse = !negState.isAccepted && !negState.isProcessing && (!negState.isWalkaway || tactic.isRescue);
+
+                return Opacity(
+                  opacity: canUse ? 1.0 : 0.45,
+                  child: GestureDetector(
+                    onTap: canUse ? () => _executeTactic(tactic) : null,
+                    child: Container(
+                      width: 140,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF141721) : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: canUse ? const Color(0xFF00E575) : const Color(0xFF64748B),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
-                            tactic.isRescue ? Icons.local_cafe_rounded : Icons.flash_on_rounded,
-                            size: 16,
-                            color: tactic.isRescue ? const Color(0xFFF59E0B) : const Color(0xFF00E575),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: isUsed
-                                  ? Colors.grey.withValues(alpha: 0.2)
-                                  : const Color(0xFF00E575).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              isUsed ? context.tr('vasita_tactic_used') : tactic.badgeText,
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                color: isUsed ? const Color(0xFF64748B) : const Color(0xFF00E575),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Icon(
+                                tactic.isRescue ? Icons.local_cafe_rounded : Icons.flash_on_rounded,
+                                size: 16,
+                                color: tactic.isRescue ? const Color(0xFFF59E0B) : const Color(0xFF00E575),
                               ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00E575).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  tactic.badgeText,
+                                  style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF00E575),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            tactic.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : Colors.black,
                             ),
                           ),
                         ],
                       ),
-                      Text(
-                        tactic.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w800,
-                          color: isUsed ? const Color(0xFF64748B) : (isDark ? Colors.white : Colors.black),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }

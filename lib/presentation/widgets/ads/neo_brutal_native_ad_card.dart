@@ -16,6 +16,7 @@ enum NativeAdContextType {
   marketplace,
   gossip,
   stockMarket,
+  realEstate,
 }
 
 class InGameSponsorSnippet {
@@ -92,6 +93,24 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       accentColor: AppColors.brutalBlue,
       benefitToast: 'ad_native_towing_toast',
     ),
+    const InGameSponsorSnippet(
+      title: 'ad_native_engine_title',
+      description: 'ad_native_engine_desc',
+      badgeText: 'ad_native_engine_tag',
+      actionText: 'ad_native_engine_cta',
+      icon: Icons.build_circle_rounded,
+      accentColor: Color(0xFFF97316),
+      benefitToast: 'ad_native_engine_toast',
+    ),
+    const InGameSponsorSnippet(
+      title: 'ad_native_parts_title',
+      description: 'ad_native_parts_desc',
+      badgeText: 'ad_native_parts_tag',
+      actionText: 'ad_native_parts_cta',
+      icon: Icons.inventory_rounded,
+      accentColor: Color(0xFF06B6D4),
+      benefitToast: 'ad_native_parts_toast',
+    ),
   ];
 
   static final List<InGameSponsorSnippet> _gossipSnippets = [
@@ -118,6 +137,36 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     ),
   ];
 
+  static final List<InGameSponsorSnippet> _realEstateSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_deed_title',
+      description: 'ad_native_deed_desc',
+      badgeText: 'ad_native_deed_tag',
+      actionText: 'ad_native_deed_cta',
+      icon: Icons.assignment_turned_in_rounded,
+      accentColor: Color(0xFFF59E0B),
+      benefitToast: 'ad_native_deed_toast',
+    ),
+    const InGameSponsorSnippet(
+      title: 'ad_native_inspection_title',
+      description: 'ad_native_inspection_desc',
+      badgeText: 'ad_native_inspection_tag',
+      actionText: 'ad_native_inspection_cta',
+      icon: Icons.foundation_rounded,
+      accentColor: Color(0xFF0EA5E9),
+      benefitToast: 'ad_native_inspection_toast',
+    ),
+    const InGameSponsorSnippet(
+      title: 'ad_native_marble_title',
+      description: 'ad_native_marble_desc',
+      badgeText: 'ad_native_marble_tag',
+      actionText: 'ad_native_marble_cta',
+      icon: Icons.countertops_rounded,
+      accentColor: Color(0xFF10B981),
+      benefitToast: 'ad_native_marble_toast',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -138,6 +187,10 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       case NativeAdContextType.stockMarket:
         _fallbackSnippet =
             _stockSnippets[random.nextInt(_stockSnippets.length)];
+        break;
+      case NativeAdContextType.realEstate:
+        _fallbackSnippet =
+            _realEstateSnippets[random.nextInt(_realEstateSnippets.length)];
         break;
     }
   }

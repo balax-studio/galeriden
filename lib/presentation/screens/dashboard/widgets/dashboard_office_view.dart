@@ -758,6 +758,36 @@ class DashboardOfficeView extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
 
+          // Home Interior Design (İkametgah Evi ve İç Dizayn)
+          Builder(
+            builder: (context) {
+              final personalResidence = game.ownedRealEstates
+                  .where((p) => p.isPersonalResidence)
+                  .firstOrNull;
+              final isUnlocked = personalResidence != null;
+
+              return _buildOfficeItem(
+                context: context,
+                icon: Icons.chair_rounded,
+                color: const Color(0xFFF59E0B),
+                title: context.tr('home_interior_office_title'),
+                subtitle: isUnlocked
+                    ? context.tr('home_interior_office_desc_unlocked')
+                    : context.tr('home_interior_office_desc_locked'),
+                actionLabel: isUnlocked
+                    ? context.tr('office_btn_manage')
+                    : context.tr('office_btn_locked'),
+                route: isUnlocked
+                    ? '/emlak-ev-dizayn/${personalResidence.id}'
+                    : '',
+                isUnlocked: isUnlocked,
+                isDark: isDark,
+                lockedToast: context.tr('home_interior_office_desc_locked'),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+
           // Character Growth
           _buildOfficeItem(
             context: context,
@@ -813,6 +843,7 @@ class DashboardOfficeView extends ConsumerWidget {
     required String route,
     required bool isUnlocked,
     required bool isDark,
+    String? lockedToast,
   }) {
     final activeColor = isUnlocked ? color : const Color(0xFF64748B);
 
@@ -906,9 +937,10 @@ class DashboardOfficeView extends ConsumerWidget {
               } else {
                 NotificationService.showInfo(
                   context,
-                  context.tr('cashflow_locked_feature_toast', {
-                    'branch': DealershipModel.getRequiredBranchName(route, context)
-                  }),
+                  lockedToast ??
+                      context.tr('cashflow_locked_feature_toast', {
+                        'branch': DealershipModel.getRequiredBranchName(route, context)
+                      }),
                 );
               }
             },

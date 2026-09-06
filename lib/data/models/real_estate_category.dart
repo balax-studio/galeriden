@@ -6,8 +6,6 @@ enum RealEstateCategory {
   land, // Arsa (255.603)
   housingProjects, // Konut Projeleri (1.376)
   building, // Bina (8.867)
-  timeshare, // Devre Mülk (2.562)
-  tourismFacility, // Turistik Tesis (1.470)
 }
 
 extension RealEstateCategoryExtension on RealEstateCategory {
@@ -23,10 +21,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return 1376;
       case RealEstateCategory.building:
         return 8867;
-      case RealEstateCategory.timeshare:
-        return 2562;
-      case RealEstateCategory.tourismFacility:
-        return 1470;
     }
   }
 
@@ -42,10 +36,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return 'real_estate_cat_projects';
       case RealEstateCategory.building:
         return 'real_estate_cat_building';
-      case RealEstateCategory.timeshare:
-        return 'real_estate_cat_timeshare';
-      case RealEstateCategory.tourismFacility:
-        return 'real_estate_cat_tourism';
     }
   }
 
@@ -61,10 +51,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return Icons.apartment_rounded;
       case RealEstateCategory.building:
         return Icons.domain_rounded;
-      case RealEstateCategory.timeshare:
-        return Icons.holiday_village_rounded;
-      case RealEstateCategory.tourismFacility:
-        return Icons.hotel_rounded;
     }
   }
 
@@ -80,10 +66,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return const Color(0xFF8B5CF6);
       case RealEstateCategory.building:
         return const Color(0xFFEC4899);
-      case RealEstateCategory.timeshare:
-        return const Color(0xFF06B6D4);
-      case RealEstateCategory.tourismFacility:
-        return const Color(0xFFEF4444);
     }
   }
 
@@ -99,10 +81,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return 'real_estate_renovation_projects';
       case RealEstateCategory.building:
         return 'real_estate_renovation_building';
-      case RealEstateCategory.timeshare:
-        return 'real_estate_renovation_timeshare';
-      case RealEstateCategory.tourismFacility:
-        return 'real_estate_renovation_tourism';
     }
   }
 
@@ -118,10 +96,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return 120000.0;
       case RealEstateCategory.building:
         return 180000.0;
-      case RealEstateCategory.timeshare:
-        return 25000.0;
-      case RealEstateCategory.tourismFacility:
-        return 250000.0;
     }
   }
 
@@ -138,10 +112,6 @@ extension RealEstateCategoryExtension on RealEstateCategory {
         return 0.0010; // ~3.0% monthly
       case RealEstateCategory.building:
         return 0.0014; // ~4.2% monthly
-      case RealEstateCategory.timeshare:
-        return 0.0018; // ~5.4% seasonal high yield
-      case RealEstateCategory.tourismFacility:
-        return 0.0020; // ~6.0% commercial resort yield
     }
   }
 

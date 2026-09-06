@@ -554,13 +554,21 @@ class VasitaNegotiationEngine {
 
     if (isSuccess) {
       // Success
+      final successVariants = [
+        tactic.successDialogue,
+        '${tactic.title} konusunda haklısın • "Bunu hesaba katmamıştım, teklifte biraz esneyeceğim" dedi.',
+        'Satıcı durumu kabullendi • "${tactic.title} tespitin yerinde, fiyatta sana bir kolaylık sağlayacağım."',
+        'Satıcı başını salladı • "Usta gözünden hiçbir şey kaçmıyor, fiyattan fedakarlık yapalım o zaman."',
+      ];
+      final chosenMsg = successVariants[_random.nextInt(successVariants.length)];
+
       return VasitaTacticRollOutcome(
         isSuccess: true,
         isWalkaway: false,
         diceRoll: finalScore.round(),
         threshold: 50,
         bonusChance: tactic.baseBonusPercent,
-        message: tactic.successDialogue,
+        message: chosenMsg,
         tacticTitle: tactic.title,
         patienceChange: tactic.isRescue ? 25 : 5,
       );
@@ -569,13 +577,32 @@ class VasitaNegotiationEngine {
       final walkawayRisk = (100 - currentPatience) > 60;
       final isWalkaway = walkawayRisk && _random.nextDouble() < 0.40;
 
+      String chosenMsg;
+      if (isWalkaway) {
+        final walkawayVariants = [
+          tactic.walkawayDialogue,
+          'Satıcı sertçe ayağa kalktı • "Her şeye bir kulp taktın, benim bu arabayı sana satacak sabrım kalmadı!"',
+          'Satıcı kapıyı işaret etti • "Kusur arayacaksan sıfır araç bayisine git, pazarlık bitti!"',
+          'Satıcı anahtarı aldı • "Sürekli bahanelerle fiyat öldüren adamla işim olmaz!" diyerek çıktı.',
+        ];
+        chosenMsg = walkawayVariants[_random.nextInt(walkawayVariants.length)];
+      } else {
+        final failVariants = [
+          tactic.failureDialogue,
+          'Satıcı oralı bile olmadı • "Bunu bana koz olarak sunma usta, arabanın her şeyi ortada."',
+          'Satıcı başını iki yana salladı • "Bu bahanelerle fiyat kıramazsın, araç kendini anlatıyor zaten."',
+          'Satıcı gülümsedi • "O saydığın kusur bu modelin fıtratında var, fiyattan kuruş inmem."',
+        ];
+        chosenMsg = failVariants[_random.nextInt(failVariants.length)];
+      }
+
       return VasitaTacticRollOutcome(
         isSuccess: false,
         isWalkaway: isWalkaway,
         diceRoll: finalScore.round(),
         threshold: 50,
         bonusChance: 0,
-        message: isWalkaway ? tactic.walkawayDialogue : tactic.failureDialogue,
+        message: chosenMsg,
         tacticTitle: tactic.title,
         patienceChange: isWalkaway ? -currentPatience : -12,
       );
@@ -602,9 +629,15 @@ class VasitaNegotiationEngine {
     final isAccepted = roll <= chance;
 
     if (isAccepted) {
+      final acceptedPool = [
+        'Satıcı elini uzattı • "Hayırlı olsun hemşerim, el sıkıştık! Hemen notere geçip imzaları atalım." dedi.',
+        'Satıcı gülümseyerek anahtarı masaya bıraktı • "Söz ağızdan bir kere çıkar, araba senindir. Notere geçelim!" dedi.',
+        'Satıcı memnuniyetle başını salladı • "Pazarlık sünnettir, tatlıya bağladık. Hayrını gör kardeşim!" dedi.',
+        'Satıcı çayını tazeleyip tokalaştı • "Helal hoş olsun, tam istediğim gibi bir alıcı buldum. Evrakları hazırlayalım." dedi.',
+      ];
       return VasitaNegotiationOutcome(
         currentOfferedPrice: offeredPrice,
-        responseMessage: 'Satıcı elini uzattı • "Hayırlı olsun hemşerim, el sıkıştık! Hemen notere geçip imzaları atalım." dedi.',
+        responseMessage: acceptedPool[_random.nextInt(acceptedPool.length)],
         isAccepted: true,
         isWalkaway: false,
         updatedPatience: currentPatience,
@@ -616,9 +649,15 @@ class VasitaNegotiationEngine {
     final newPatience = (currentPatience - patienceDrop).clamp(0, 100);
 
     if (newPatience <= 0) {
+      final walkawayPool = [
+        'Satıcı anahtarı cebine koyup ayağa kalktı • "Bu fiyata bu aracı vermem, boşuna vaktimi çalma!" diyerek masayı terk etti.',
+        'Satıcı ceketini alıp kapıya yöneldi • "Piyasayı bu kadar öldüren biriyle oturacak vaktim yok benim." dedi.',
+        'Satıcı elini masaya vurdu • "Biz buraya ticaret yapmaya geldik, sadaka vermeye değil! Anlaşma bitti." diyerek ayrıldı.',
+        'Satıcı sert bir bakışla başını iki yana salladı • "Bu rakam arabaya hakarettir. Masayı kapatıyoruz!" dedi.',
+      ];
       return VasitaNegotiationOutcome(
         currentOfferedPrice: offeredPrice,
-        responseMessage: 'Satıcı anahtarı cebine koyup ayağa kalktı • "Bu fiyata bu aracı vermem, boşuna vaktimi çalma!" diyerek masayı terk etti.',
+        responseMessage: walkawayPool[_random.nextInt(walkawayPool.length)],
         isAccepted: false,
         isWalkaway: true,
         updatedPatience: 0,
@@ -628,9 +667,21 @@ class VasitaNegotiationEngine {
     String counterDialogue;
     double? nearMissAmount;
     if (ratio < 0.85) {
-      counterDialogue = 'Satıcı kaşlarını çattı • "Bu teklif benim arabamın değerini çok düşürüyor usta, biraz daha mantıklı bir rakam söyle."';
+      final lowCounterPool = [
+        'Satıcı kaşlarını çattı • "Bu teklif benim arabamın değerini çok düşürüyor usta, biraz daha mantıklı bir rakam söyle." dedi.',
+        'Satıcı derin bir iç çekti • "Sen piyasayı hiç takip etmiyorsun galiba usta, bu fiyata ancak pertini alırsın." dedi.',
+        'Satıcı telefonunu kontrol etti • "Arayanım çok, bu fiyata bırakmam imkansız. Teklifini ciddi bir seviyeye çekmelisin." dedi.',
+        'Satıcı omuz silkti • "Zararına verecek arabam yok benim. Biraz daha yukarı çıkmazsan vakit kaybediyoruz." dedi.',
+      ];
+      counterDialogue = lowCounterPool[_random.nextInt(lowCounterPool.length)];
     } else {
-      counterDialogue = 'Satıcı başını salladı • "Teklifin fena değil ama liste fiyatına biraz daha yaklaşman lazım."';
+      final nearCounterPool = [
+        'Satıcı başını salladı • "Teklifin fena değil ama liste fiyatına biraz daha yaklaşman lazım." dedi.',
+        'Satıcı bıyığını sıvazladı • "Çok yaklaştın ama ufak bir adım daha atarsan noter masraflarını da çözeriz." dedi.',
+        'Satıcı sakince çayını yudumladı • "Esnaf adamsın belli, ama bu rakamın üzerine biraz daha koyman şart." dedi.',
+        'Satıcı hesap makinesine baktı • "Teklifin mantıklı sınıra geldi ancak son bir gayret daha bekliyorum." dedi.',
+      ];
+      counterDialogue = nearCounterPool[_random.nextInt(nearCounterPool.length)];
       // Calculate realistic near-miss shortfall amount safely bounded by distance to asking price
       final distanceToAsking = (listing.askingPrice - offeredPrice).clamp(0.0, double.infinity);
       if (distanceToAsking > 0) {

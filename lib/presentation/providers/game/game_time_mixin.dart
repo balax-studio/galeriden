@@ -908,32 +908,91 @@ mixin GameTimeMixin on GameBaseNotifier {
           } else {
             final daysLeft = currentProp.constructionDaysRemaining - 1;
             if (daysLeft <= 0) {
-              // C1: Stop working so daily loop does not continuously re-trigger!
-              currentProp = currentProp.copyWith(
-                constructionDaysRemaining: 0,
-                isConstructionWorking: false,
-              );
-              final eventId = 'construction_stage_ready_${currentProp.id}_${currentProp.constructionStage}';
-              if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
-                updatedEvents.insert(
-                  0,
-                  GameEventModel(
-                    id: eventId,
-                    title: 'Şantiye Etabı Tamamlandı • Teslim Almaya Hazır',
-                    description:
-                        '${currentProp.district} arsasındaki ${currentProp.constructionStage}. Etap çalışmaları başarıyla tamamlandı • Etabı denetleyip teslim alabilirsiniz.',
-                    amount: 0.0,
-                    type: GameEventType.goodEvent,
-                    date: DateTime.now(),
-                  ),
+              if (currentProp.constructionStage == 1) {
+                final nowStr = DateTime.now().toIso8601String().split('T').first;
+                final updatedLogs = List<String>.from(currentProp.provenanceLog);
+
+                if (!currentProp.isArchitecturalApproved) {
+                  // Step 1 Complete: Architectural Drafting Approved
+                  updatedLogs.add('$nowStr • Mimari proje çizimi ve statik hesaplar onaylandı • Belediye ruhsat başvurusuna hazır');
+                  currentProp = currentProp.copyWith(
+                    constructionDaysRemaining: 0,
+                    isConstructionWorking: false,
+                    isArchitecturalApproved: true,
+                    preConstructionStep: 'draftingCompleted',
+                    clearActiveSubcontractor: true,
+                    provenanceLog: updatedLogs,
+                  );
+                  final eventId = 'architectural_ready_${currentProp.id}';
+                  if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
+                    updatedEvents.insert(
+                      0,
+                      GameEventModel(
+                        id: eventId,
+                        title: 'Mimari Proje Onaylandı • Ruhsat Hazır',
+                        description: '${currentProp.district} arsasındaki mimari proje ve statik hesaplar onaylandı • Belediyeye yapı ruhsatı başvurusu yapabilirsiniz.',
+                        amount: 0.0,
+                        type: GameEventType.goodEvent,
+                        date: DateTime.now(),
+                      ),
+                    );
+                  }
+                } else if (!currentProp.hasBuildingPermit) {
+                  // Step 2 Complete: Building Permit Approved
+                  updatedLogs.add('$nowStr • Belediye imar müdürlüğü yapı ruhsatını onayladı • Şantiye sahası taşeronlara açıldı');
+                  currentProp = currentProp.copyWith(
+                    constructionDaysRemaining: 0,
+                    isConstructionWorking: false,
+                    hasBuildingPermit: true,
+                    constructionStage: 2,
+                    preConstructionStep: 'permitApproved',
+                    clearActiveSubcontractor: true,
+                    provenanceLog: updatedLogs,
+                  );
+                  final eventId = 'building_permit_ready_${currentProp.id}';
+                  if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
+                    updatedEvents.insert(
+                      0,
+                      GameEventModel(
+                        id: eventId,
+                        title: 'Yapı Ruhsatı Alındı • Şantiye Başlıyor',
+                        description: '${currentProp.district} arsanızın resmi yapı ruhsatı onaylandı • Artık hafriyat ve sonraki etaplar için taşeronlarla pazarlık yapabilirsiniz.',
+                        amount: 0.0,
+                        type: GameEventType.goodEvent,
+                        date: DateTime.now(),
+                      ),
+                    );
+                  }
+                }
+              } else {
+                // C1: Stop working so daily loop does not continuously re-trigger!
+                currentProp = currentProp.copyWith(
+                  constructionDaysRemaining: 0,
+                  isConstructionWorking: false,
                 );
+                final eventId = 'construction_stage_ready_${currentProp.id}_${currentProp.constructionStage}';
+                if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
+                  updatedEvents.insert(
+                    0,
+                    GameEventModel(
+                      id: eventId,
+                      title: 'Şantiye Etabı Tamamlandı • Teslim Almaya Hazır',
+                      description:
+                          '${currentProp.district} arsasındaki ${currentProp.constructionStage}. Etap çalışmaları başarıyla tamamlandı • Etabı denetleyip teslim alabilirsiniz.',
+                      amount: 0.0,
+                      type: GameEventType.goodEvent,
+                      date: DateTime.now(),
+                    ),
+                  );
+                }
               }
             } else {
               final updatedLogs = List<String>.from(currentProp.provenanceLog);
               int adjustedDays = daysLeft;
 
-              // F3·1: Bürokrasi ve Ruhsat Engeli (Etap 1)
+              // F3·1: Bürokrasi ve Ruhsat Engeli (Müteahhit Kat Karşılığı Etap 1)
               if (currentProp.constructionStage == 1 &&
+                  currentProp.constructionMode == 'contractor' &&
                   !updatedLogs.any((l) => l.contains('Bürokrasi') || l.contains('Hukuk Müşaviri'))) {
                 final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
                 final nowStr = DateTime.now().toIso8601String().split('T').first;
@@ -1109,23 +1168,6 @@ mixin GameTimeMixin on GameBaseNotifier {
                 'Geniş vitrin cephesi ve baca altyapısı gıda bayiliğimiz için ideal.',
                 'Yatırım amaçlı satın alıp kurumsal kiracıya vermeyi planlıyoruz.',
                 'Özkaynaklarımızla satın alacağız, kredi beklemeden tek seferde devir yapabiliriz.',
-              ];
-              break;
-            case RealEstateCategory.tourismFacility:
-            case RealEstateCategory.timeshare:
-              buyers = [
-                'Sanayici Teoman Karaca',
-                'Dr. Aylin Korkmaz',
-                'Yazılımcı Erdem Demir',
-                'Av. Berke Tan',
-                'İş İnsanı Zeynep Arslan',
-              ];
-              notes = [
-                'Müstakil bahçe ve mahremiyet kriterlerimize uyuyor, ailemiz için hemen taşınabileceğimiz bir mülk.',
-                'Peyzaj ve mimarisini çok beğendik, tapu işlemlerini bu hafta başlatabiliriz.',
-                'Şehrin gürültüsünden uzaklaşmak istiyoruz, banka teminatımız ve nakdimiz hazır.',
-                'Özel havuzlu ve akıllı ev donanımlı olması tercih sebebimiz, rakamda el sıkışabiliriz.',
-                'Ekspertiz değerini kontrol ettik, peşin ödeme şartıyla teklifimizi sunuyoruz.',
               ];
               break;
             case RealEstateCategory.housing:

@@ -54,6 +54,8 @@ class _RealEstateTenantNegotiationChatScreenState
 
   final List<ChatMessageModel> _messages = [];
   final Map<TenantTacticType, int> _tacticUseCounts = {};
+  final List<TenantTacticCard> _activeHand = [];
+  final List<TenantTacticCard> _drawPile = [];
 
   @override
   void initState() {
@@ -119,6 +121,16 @@ class _RealEstateTenantNegotiationChatScreenState
         badgeText: 'KİRA TEKLİFİ • ${CurrencyFormatter.format(_negotiatedRent)}',
       ),
     );
+
+    // Initialize 4-card active hand and 10-card draw pile
+    final allTactics = List<TenantTacticCard>.from(
+      RealEstateTenantNegotiationExpansion.getAllTactics(),
+    )..shuffle(_random);
+    _activeHand.clear();
+    _drawPile.clear();
+    final initialCount = min(4, allTactics.length);
+    _activeHand.addAll(allTactics.take(initialCount));
+    _drawPile.addAll(allTactics.skip(initialCount));
   }
 
   @override
@@ -149,6 +161,20 @@ class _RealEstateTenantNegotiationChatScreenState
 
     final count = _tacticUseCounts[tactic] ?? 0;
     _tacticUseCounts[tactic] = count + 1;
+
+    // Cycling mechanic: used tactic immediately disappears from active hand and draws a fresh one
+    if (tactic != TenantTacticType.acceptLease && tactic != TenantTacticType.walkAway) {
+      final playedCardIndex = _activeHand.indexWhere((c) => c.type == tactic);
+      if (playedCardIndex != -1) {
+        final playedCard = _activeHand.removeAt(playedCardIndex);
+        if (_tacticUseCounts[tactic]! < playedCard.maxUses) {
+          _drawPile.add(playedCard);
+        }
+        if (_drawPile.isNotEmpty) {
+          _activeHand.add(_drawPile.removeAt(0));
+        }
+      }
+    }
 
     // 1. Add player message immediately
     setState(() {
@@ -775,8 +801,7 @@ class _RealEstateTenantNegotiationChatScreenState
     required RealEstateModel prop,
     required bool isDark,
   }) {
-    final availableDeck =
-        RealEstateTenantNegotiationExpansion.getAvailableDeck(_tacticUseCounts);
+    final isBlocked = _isApplying || _isOpponentTyping || _isAgreed || _isWalkedAway;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
@@ -803,28 +828,67 @@ class _RealEstateTenantNegotiationChatScreenState
                   color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
+              const Spacer(),
+              if (_drawPile.isNotEmpty)
+                Text(
+                  '${_drawPile.length} Kart Deste • Aktif ${_activeHand.length}',
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 10),
 
-          // Dynamic Cycling Tactic Cards Strip
-          SizedBox(
-            height: 74,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: availableDeck.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, i) {
-                final card = availableDeck[i];
-                return _buildDynamicTacticCard(
-                  context: context,
-                  card: card,
-                  isDark: isDark,
-                );
-              },
+          // Dynamic Cycling Tactic Cards Strip or Exhaustion Notice
+          if (_activeHand.isNotEmpty)
+            SizedBox(
+              height: 74,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: _activeHand.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  final card = _activeHand[i];
+                  return _buildDynamicTacticCard(
+                    context: context,
+                    card: card,
+                    isBlocked: isBlocked,
+                    isDark: isDark,
+                  );
+                },
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black, width: 2),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFEAB308)),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      context.tr('tenant_tactics_exhausted_banner'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 12),
 
           // Direct Accept / Reject Action Bar
@@ -884,6 +948,7 @@ class _RealEstateTenantNegotiationChatScreenState
   Widget _buildDynamicTacticCard({
     required BuildContext context,
     required TenantTacticCard card,
+    required bool isBlocked,
     required bool isDark,
   }) {
     final count = _tacticUseCounts[card.type] ?? 0;
@@ -902,14 +967,16 @@ class _RealEstateTenantNegotiationChatScreenState
         ? '+%22'
         : '-%${card.patienceCost}';
 
-    return InkWell(
-      onTap: _isApplying
-          ? null
-          : () => _applyTactic(
-                tactic: card.type,
-                playerMessage: message,
-              ),
-      borderRadius: BorderRadius.circular(8),
+    return Opacity(
+      opacity: isBlocked ? 0.5 : 1.0,
+      child: InkWell(
+        onTap: isBlocked
+            ? null
+            : () => _applyTactic(
+                  tactic: card.type,
+                  playerMessage: message,
+                ),
+        borderRadius: BorderRadius.circular(8),
       child: Container(
         width: 175,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -979,6 +1046,7 @@ class _RealEstateTenantNegotiationChatScreenState
             ),
           ],
         ),
+      ),
       ),
     );
   }

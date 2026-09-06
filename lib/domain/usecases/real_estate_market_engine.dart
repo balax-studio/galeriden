@@ -226,38 +226,6 @@ class RealEstateMarketEngine {
         'Kentsel dönüşüme hazır, taban oturumu geniş, parsel değeri yüksek komple yapı.',
       ],
     ),
-
-    // 6. Devre Mülk (2.562)
-    RealEstateTemplate(
-      category: RealEstateCategory.timeshare,
-      titlePrefix: 'Termal & Spa Tatil Köyü Devre Mülk',
-      roomCount: '1+1 Süit',
-      minM2: 55,
-      maxM2: 85,
-      minBaseValue: 350000,
-      maxBaseValue: 850000,
-      typicalCities: ['Yalova', 'Afyon', 'Bolu', 'Bursa'],
-      descriptions: [
-        'Kırmızı dönem • Yılın 15 günü şifalı termal su havuzlu süitte tatil hakkı ve tapulu mülkiyet.',
-        'Otel konseptinde işletilen, kullanılmadığında kiralama havuzuna devredilen termal mülk.',
-      ],
-    ),
-
-    // 7. Turistik Tesis (1.470)
-    RealEstateTemplate(
-      category: RealEstateCategory.tourismFacility,
-      titlePrefix: 'Bodrum Koyu Butik Otel & Beach Club',
-      roomCount: '18 Oda • Havuzlu',
-      minM2: 900,
-      maxM2: 2400,
-      minBaseValue: 26000000,
-      maxBaseValue: 78000000,
-      typicalCities: ['Muğla', 'Antalya', 'İzmir'],
-      descriptions: [
-        'Denize sıfır, özel iskeleli, taş mimarili ve yüksek sezon doluluk oranına sahip butik otel.',
-        'Turizm işletme belgeli, restoran ve spa alanı tam teşekküllü resort mülk.',
-      ],
-    ),
   ];
 
   static List<RealEstateListingModel> generateListings({

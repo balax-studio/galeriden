@@ -22,7 +22,7 @@ void main() {
 
       final ind = RealEstateBuyerNegotiationExpansion.detectBuyerArchetype(
         'Teoman Bey • Sanayici',
-        RealEstateCategory.tourismFacility,
+        RealEstateCategory.commercial,
       );
       expect(ind.id, BuyerArchetypeId.industrialist);
 
@@ -40,7 +40,7 @@ void main() {
 
       final expat = RealEstateBuyerNegotiationExpansion.detectBuyerArchetype(
         'Kerem Bey • Gurbetçi Yatırımcı',
-        RealEstateCategory.timeshare,
+        RealEstateCategory.housing,
       );
       expect(expat.id, BuyerArchetypeId.expatInvestor);
 

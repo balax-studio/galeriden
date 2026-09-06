@@ -33,6 +33,7 @@ void main() {
 
       // In a normal batch of 40 vehicles, the vast majority must have clean/intact chassis, not 100% damaged
       expect(alignedCount, greaterThan(20));
+      expect(damagedChassisCount, lessThan(alignedCount));
       // Variations must exist across categories
       final cleanCars = listings.where((l) => l.car.expertise.tramerAmount == 0).toList();
       for (final cleanCar in cleanCars) {

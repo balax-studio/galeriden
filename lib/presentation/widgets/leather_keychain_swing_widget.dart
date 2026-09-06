@@ -57,52 +57,54 @@ class _LeatherKeychainSwingWidgetState extends State<LeatherKeychainSwingWidget>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _swingAnimation,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _swingAnimation.value,
-          alignment: Alignment.topCenter,
-          child: child,
-        );
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Metal Ring
-          Container(
-            width: widget.size * 0.45,
-            height: widget.size * 0.45,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 2.2),
-              color: const Color(0xFFE2E8F0),
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _swingAnimation,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: _swingAnimation.value,
+            alignment: Alignment.topCenter,
+            child: child,
+          );
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Metal Ring
+            Container(
+              width: widget.size * 0.45,
+              height: widget.size * 0.45,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black, width: 2.2),
+                color: const Color(0xFFE2E8F0),
+              ),
             ),
-          ),
-          // Leather Strap
-          Container(
-            width: widget.size * 0.35,
-            height: widget.size * 0.75,
-            decoration: BoxDecoration(
-              color: const Color(0xFF78350F), // Brown leather
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.black, width: 1.8),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(1.5, 1.5),
-                  blurRadius: 0,
-                ),
-              ],
+            // Leather Strap
+            Container(
+              width: widget.size * 0.35,
+              height: widget.size * 0.75,
+              decoration: BoxDecoration(
+                color: const Color(0xFF78350F), // Brown leather
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.black, width: 1.8),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(1.5, 1.5),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                Icons.vpn_key_rounded,
+                color: const Color(0xFFFFDE59),
+                size: widget.size * 0.35,
+              ),
             ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.vpn_key_rounded,
-              color: const Color(0xFFFFDE59),
-              size: widget.size * 0.35,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

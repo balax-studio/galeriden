@@ -185,10 +185,24 @@ void main() {
         balance: initialBalance,
       );
 
-      // 1. Start Self-Build (deducts 10% upfront = 400,000 for Stage 1 Ruhsat & Proje)
+      // 1. Start Self-Build Pre-Construction (Step 1: Architectural Plan, Step 2: Municipal Permit)
+      final balanceBefore = notifier.state.balance;
       final startSuccess = notifier.startSelfBuildConstruction('land_selfbuild_test');
       expect(startSuccess, isTrue);
-      expect(notifier.state.balance, equals(initialBalance - 400000));
+      final cost1 = balanceBefore - notifier.state.balance;
+
+      notifier.advanceGameDay();
+      notifier.state = notifier.state.copyWith(constructionCostIndex: 1.0);
+
+      final balanceBeforePermit = notifier.state.balance;
+      final permitSuccess = notifier.submitSelfBuildMunicipalPermit('land_selfbuild_test');
+      expect(permitSuccess, isTrue);
+      final cost2 = balanceBeforePermit - notifier.state.balance;
+
+      notifier.advanceGameDay();
+      notifier.state = notifier.state.copyWith(constructionCostIndex: 1.0);
+
+      expect(cost1 + cost2, equals(400000));
 
       var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
       expect(currentLand.constructionMode, equals('selfBuild'));
@@ -197,7 +211,7 @@ void main() {
 
       // 2. Start Stage 2 with subcontractor (B1 & B9: startSelfBuildStage replaces legacy advance)
       final balanceBeforeStage2 = notifier.state.balance;
-      final stage2Cost = ConstructionPricing.stageCost(currentLand, 2);
+      final stage2Cost = ConstructionPricing.stageCost(currentLand, 2, costIndex: notifier.state.constructionCostIndex);
       final stage2Success = notifier.startSelfBuildStage('land_selfbuild_test', triggerIncidents: false);
       expect(stage2Success, isTrue);
       expect(notifier.state.balance, equals(balanceBeforeStage2 - stage2Cost));
@@ -384,7 +398,7 @@ void main() {
       expect(find.text('KAT KARŞILIĞI MÜTEAHHİT ANLAŞMASI'), findsOneWidget);
       expect(find.text('ÖZ SERMAYE İLE KENDİN İNŞA ET'), findsOneWidget);
       expect(find.text('MÜTEAHHİTLE ANLAŞ'), findsOneWidget);
-      expect(find.textContaining('ŞANTİYEYİ KENDİN BAŞLAT'), findsOneWidget);
+      expect(find.textContaining('Mimari Planı Başlat'), findsOneWidget);
 
       // Tap Contractor Agreement button
       await tester.tap(find.text('MÜTEAHHİTLE ANLAŞ'));

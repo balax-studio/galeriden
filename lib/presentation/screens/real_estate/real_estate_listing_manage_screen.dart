@@ -983,14 +983,6 @@ class _RealEstateListingManageScreenState
         catIcon = Icons.domain_rounded;
         catAccent = const Color(0xFFEC4899);
         break;
-      case RealEstateCategory.tourismFacility:
-        catIcon = Icons.hotel_rounded;
-        catAccent = const Color(0xFFEF4444);
-        break;
-      case RealEstateCategory.timeshare:
-        catIcon = Icons.beach_access_rounded;
-        catAccent = const Color(0xFF06B6D4);
-        break;
       case RealEstateCategory.housingProjects:
         catIcon = Icons.location_city_rounded;
         catAccent = const Color(0xFF8B5CF6);

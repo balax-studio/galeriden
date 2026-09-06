@@ -39,9 +39,6 @@ class RealEstateListingNarrativeEngine {
       case RealEstateCategory.commercial:
       case RealEstateCategory.building:
         return _commercialFeatureGroups;
-      case RealEstateCategory.tourismFacility:
-      case RealEstateCategory.timeshare:
-        return _villaFeatureGroups;
       case RealEstateCategory.housing:
       case RealEstateCategory.housingProjects:
         return _residentialFeatureGroups;
@@ -67,15 +64,6 @@ class RealEstateListingNarrativeEngine {
           'Yatırımlık Amortismanı Hızlı • Prestijli Ticari Mülk',
           'Sanayi Bacalı & Yüksek Tavanlı • Her Sektöre Uygun',
           'Kurumsal Market & Banka Ruhsatına Uygun • Düz Ayak',
-        ];
-      case RealEstateCategory.tourismFacility:
-      case RealEstateCategory.timeshare:
-        return const [
-          'Müstakil Havuzlu & Bahçeli • Emsalsiz Lüks Malikane',
-          'Panoramik Manzaralı • Akıllı Ev Konseptli Özel Yaşam',
-          'Şehrin Gürültüsünden Uzak • Prestijli Müstakil Villa',
-          'Kişiye Özel Tasarım • Geniş Peyzaj ve Müştemilatlı',
-          'Doğayla İç İçe • Yüksek Güvenlikli Prestijli Konsept',
         ];
       case RealEstateCategory.housing:
       case RealEstateCategory.housingProjects:
@@ -408,47 +396,7 @@ class RealEstateListingNarrativeEngine {
     ),
   ];
 
-  // --- VİLLA & LÜKS ÖZELLİK GRUPLARI ---
-  static const List<ListingFeatureGroup> _villaFeatureGroups = [
-    ListingFeatureGroup(
-      groupId: 'villa_luxury',
-      groupTitle: 'Lüks & Müstakil Yaşam',
-      features: [
-        ListingFeatureItem(
-          id: 'villa_pool',
-          label: 'Müstakil Yüzme Havuzu',
-          icon: Icons.pool_rounded,
-          narrativeSnippet: 'özel peyzajlı müstakil yüzme havuzu',
-        ),
-        ListingFeatureItem(
-          id: 'villa_garden',
-          label: 'Geniş Müstakil Bahçe',
-          icon: Icons.yard_rounded,
-          narrativeSnippet: 'otomatik sulamalı 400 m² müstakil yeşil bahçe',
-        ),
-        ListingFeatureItem(
-          id: 'villa_smart_home',
-          label: 'Akıllı Ev Otomasyonu',
-          icon: Icons.touch_app_rounded,
-          narrativeSnippet: 'uzaktan kontrollü akıllı ev ve kamera sistemi',
-        ),
-        ListingFeatureItem(
-          id: 'villa_fireplace',
-          label: 'Doğal Taş Şömine',
-          icon: Icons.fireplace_rounded,
-          narrativeSnippet: 'salonda keyifli doğal taş şömine',
-        ),
-        ListingFeatureItem(
-          id: 'villa_annex',
-          label: 'Müştemilat & Görevli Evi',
-          icon: Icons.house_siding_rounded,
-          narrativeSnippet: 'bağımsız girişli müştemilat konutu',
-        ),
-      ],
-    ),
-  ];
-
-  /// Süper vitrin paketi seçildiğinde anında yüksek niyetli alıcı teklifi oluşturur
+  // --- Süper vitrin paketi seçildiğinde anında yüksek niyetli alıcı teklifi oluşturur
   static RealEstateOfferModel generateInitialSuperOffer({
     required RealEstateModel property,
     required double askingPrice,
@@ -471,12 +419,6 @@ class RealEstateListingNarrativeEngine {
         buyerName = 'Yatırım Fonu Direktörü Bora Ekşi';
         buyerNote =
             'Kurumsal portföyümüz için tabela değeri ve konumu çok elverişli. Süper vitrin teklifimizle pazarlığa oturmak istiyoruz.';
-        break;
-      case RealEstateCategory.tourismFacility:
-      case RealEstateCategory.timeshare:
-        buyerName = 'Sanayici Teoman Karaca';
-        buyerNote =
-            'Prestijli mülk kriterlerimize tam uyuyor. Süper vitrin üzerinden gördüm, noterde peşin devir yapabiliriz.';
         break;
       case RealEstateCategory.housing:
       case RealEstateCategory.housingProjects:

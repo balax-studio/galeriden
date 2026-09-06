@@ -387,48 +387,88 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
             }
 
             return listings.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                ? RefreshIndicator(
+                    color: Colors.black,
+                    backgroundColor: const Color(0xFFF59E0B),
+                    onRefresh: () async {
+                      HapticFeedback.lightImpact();
+                      ref
+                          .read(gameProvider.notifier)
+                          .refreshRealEstateMarketListings();
+                      NotificationService.showInfo(
+                        context,
+                        context.tr('real_estate_market_refreshed'),
+                      );
+                    },
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
                       children: [
-                        const Icon(Icons.home_work_outlined,
-                            size: 48, color: Colors.grey),
-                        const SizedBox(height: 12),
-                        Text(
-                          context.tr('real_estate_empty_listings'),
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w700),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.4,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.home_work_outlined,
+                                    size: 48, color: Colors.grey),
+                                const SizedBox(height: 12),
+                                Text(
+                                  context.tr('real_estate_empty_listings'),
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: listings.length,
-                    itemBuilder: (context, index) {
-                      final listing = listings[index];
-                      final showNativeAd = adIndices.contains(index);
-
-                      final card = _buildListingCard(theme, listing, game);
-
-                    if (showNativeAd) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const NeoBrutalNativeAdCard(
-                            contextType: NativeAdContextType.marketplace,
-                            margin: EdgeInsets.only(bottom: 14),
-                          ),
-                          card,
-                        ],
-                      );
-                    }
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
-                        child: card,
+                : RefreshIndicator(
+                    color: Colors.black,
+                    backgroundColor: const Color(0xFFF59E0B),
+                    onRefresh: () async {
+                      HapticFeedback.lightImpact();
+                      ref
+                          .read(gameProvider.notifier)
+                          .refreshRealEstateMarketListings();
+                      NotificationService.showInfo(
+                        context,
+                        context.tr('real_estate_market_refreshed'),
                       );
                     },
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: listings.length,
+                      itemBuilder: (context, index) {
+                        final listing = listings[index];
+                        final showNativeAd = adIndices.contains(index);
+
+                        final card = _buildListingCard(theme, listing, game);
+
+                        if (showNativeAd) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const NeoBrutalNativeAdCard(
+                                contextType: NativeAdContextType.realEstate,
+                                margin: EdgeInsets.only(bottom: 14),
+                              ),
+                              card,
+                            ],
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: card,
+                        );
+                      },
+                    ),
                   );
           }(),
         ),
@@ -1189,6 +1229,34 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                         style: const TextStyle(
                             fontWeight: FontWeight.w800, fontSize: 10),
                       ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+
+                  // Home Interior Design Button (strictly personal residence only)
+                  if (property.isPersonalResidence) ...[
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.chair_rounded, size: 14),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF59E0B),
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_btn_interior_design'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w900, fontSize: 10),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/emlak-ev-dizayn/${property.id}');
+                      },
                     ),
                     const SizedBox(width: 4),
                   ],

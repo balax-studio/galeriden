@@ -31,6 +31,26 @@ class ChatMessageModel {
     required this.isFromPlayer,
     this.badgeText,
   });
+
+  ChatMessageModel copyWith({
+    String? id,
+    String? senderName,
+    ChatSenderRole? role,
+    String? message,
+    DateTime? timestamp,
+    bool? isFromPlayer,
+    String? badgeText,
+  }) {
+    return ChatMessageModel(
+      id: id ?? this.id,
+      senderName: senderName ?? this.senderName,
+      role: role ?? this.role,
+      message: message ?? this.message,
+      timestamp: timestamp ?? this.timestamp,
+      isFromPlayer: isFromPlayer ?? this.isFromPlayer,
+      badgeText: badgeText ?? this.badgeText,
+    );
+  }
 }
 
 enum ChatTacticType {
@@ -408,25 +428,46 @@ class RealEstateChatNegotiationEngine {
       case ChatTacticType.demandHigherShare:
         nextPatience -= 20;
         final cap = state.maxSharePercent > 0 ? state.maxSharePercent : 58;
+        final profile = state.contractorId != null
+            ? ContractorNegotiationExpansion.getContractor(state.contractorId!)
+            : null;
         if (random.nextDouble() < 0.60 && nextShare < cap) {
           nextShare += 3;
           nextSatisfaction += 10;
-          final successPool = [
-            'Pekala, arsanızın konumu ve potansiyeli değerli. Payınızı %$nextShare seviyesine çıkarıyoruz ancak teslim süresine 30 gün ekleriz.',
-            'Arsanızın bereketi hürmetine %3 daha ekleyelim, payınız %$nextShare oldu. Yalnız ruhsat harçlarını ortak hesaptan öderiz.',
-            'Pazarlığınız çetin çıktı! Sizi kırmayalım, arsa payınızı %$nextShare olarak güncelliyoruz. Hayırlı olsun.',
-            'Maliyetleri son damlasına kadar sıktık. Projeye başlama hatrına daire payınızı %$nextShare yapıyoruz.',
-          ];
-          replyText = successPool[random.nextInt(successPool.length)];
+          if (profile != null) {
+            replyText = ContractorNegotiationExpansion.getShareResponse(
+              personality: profile.personality,
+              isAccepted: true,
+              nextShare: nextShare,
+              random: random,
+            );
+          } else {
+            final successPool = [
+              'Pekala, arsanızın konumu ve potansiyeli değerli. Payınızı %$nextShare seviyesine çıkarıyoruz ancak teslim süresine 30 gün ekleriz.',
+              'Arsanızın bereketi hürmetine %3 daha ekleyelim, payınız %$nextShare oldu. Yalnız ruhsat harçlarını ortak hesaptan öderiz.',
+              'Pazarlığınız çetin çıktı! Sizi kırmayalım, arsa payınızı %$nextShare olarak güncelliyoruz. Hayırlı olsun.',
+              'Maliyetleri son damlasına kadar sıktık. Projeye başlama hatrına daire payınızı %$nextShare yapıyoruz.',
+            ];
+            replyText = successPool[random.nextInt(successPool.length)];
+          }
           replyBadge = '%$nextShare PAY GÜNCELLENDİ';
         } else {
-          final rejectPool = [
-            'Demirin tonu ve C35 beton birim fiyatı ortada! %$nextShare payın üzerine çıkarsak cepten yeriz, kurtarmaz.',
-            'İmar çekme mesafeleri ve otopark yönetmeliği yüzünden zaten metrekare kaybettik, daha fazla pay veremeyiz.',
-            'Banka faizleri ve malzeme enflasyonu belimizi büküyor, %$nextShare pay bu projenin kırmızı çizgisidir.',
-            'Fizibilite tablomuz kırmızı alarm veriyor patron, bu arsa için maksimum sınırımız budur.',
-          ];
-          replyText = rejectPool[random.nextInt(rejectPool.length)];
+          if (profile != null) {
+            replyText = ContractorNegotiationExpansion.getShareResponse(
+              personality: profile.personality,
+              isAccepted: false,
+              nextShare: nextShare,
+              random: random,
+            );
+          } else {
+            final rejectPool = [
+              'Demirin tonu ve C35 beton birim fiyatı ortada! %$nextShare payın üzerine çıkarsak cepten yeriz, kurtarmaz.',
+              'İmar çekme mesafeleri ve otopark yönetmeliği yüzünden zaten metrekare kaybettik, daha fazla pay veremeyiz.',
+              'Banka faizleri ve malzeme enflasyonu belimizi büküyor, %$nextShare pay bu projenin kırmızı çizgisidir.',
+              'Fizibilite tablomuz kırmızı alarm veriyor patron, bu arsa için maksimum sınırımız budur.',
+            ];
+            replyText = rejectPool[random.nextInt(rejectPool.length)];
+          }
         }
         break;
 
@@ -549,12 +590,21 @@ class RealEstateChatNegotiationEngine {
         if (random.nextDouble() < 0.65 && (state.counterpartyRole == ChatSenderRole.buyer || nextPrice + delta >= effectiveFloor)) {
           nextPrice = max(effectiveFloor, nextPrice + delta);
           nextSatisfaction += 10;
-          replyText =
-              'Önerdiğiniz rakamı değerlendirdik. Yeni fiyat ₺${nextPrice.round()} olarak el sıkışabiliriz.';
+          final counterSuccessPool = [
+            'Önerdiğiniz rakamı değerlendirdik • Yeni fiyat ₺${nextPrice.round()} olarak el sıkışabiliriz.',
+            'Maliyetlerimizi tekrar hesapladık • Fiyatı ₺${nextPrice.round()} seviyesine revize ediyoruz.',
+            'Sizi kırmamak adına orta yolu bulduk • Yeni teklifimiz ₺${nextPrice.round()} olmuştur.',
+            'Şartları zorladık ve teklifimizi ₺${nextPrice.round()} olarak güncelledik • Hayırlı olsun.',
+          ];
+          replyText = counterSuccessPool[random.nextInt(counterSuccessPool.length)];
           replyBadge = 'YENİ TEKLİF: ₺${nextPrice.round()}';
         } else {
-          replyText =
-              'Bu rakam bizim fizibilitenin çok üzerinde kalıyor, fiyatı esnetemeyiz.';
+          final counterRejectPool = [
+            'Bu rakam bizim fizibilitenin çok üzerinde kalıyor • Fiyatı esnetemeyiz.',
+            'Maliyet kalemlerimiz çok net • Bu rakamın üzerine çıkmamız veya altına inmemiz imkansız.',
+            'Bütçe limitlerimizin sonundayız • Rakamı daha fazla revize edemeyiz.',
+          ];
+          replyText = counterRejectPool[random.nextInt(counterRejectPool.length)];
         }
         break;
 
@@ -609,52 +659,86 @@ class RealEstateChatNegotiationEngine {
           final discount = (nextPrice * 0.07).roundToDouble();
           nextPrice = max(effectiveFloor, nextPrice - discount);
           nextSatisfaction += 15;
-          replyText =
-              'Peşin ödeme yapacağınızı göz önünde bulundurarak ₺${discount.round()} nakit indirimi uyguladık.';
+          final cashDiscountSuccessPool = [
+            'Peşin ödeme yapacağınızı göz önünde bulundurarak ₺${discount.round()} nakit indirimi uyguladık.',
+            'Sıcak para gücünüz makbule geçti • ₺${discount.round()} nakit iskontosuyla el sıkışıyoruz.',
+            'Peşin likidite desteğinize istinaden ₺${discount.round()} iskonto sağladık.',
+          ];
+          replyText = cashDiscountSuccessPool[random.nextInt(cashDiscountSuccessPool.length)];
           replyBadge = 'NAKİT İNDİRİM: -₺${discount.round()}';
         } else {
-          replyText =
-              'Bu fiyatın altına inmemiz mümkün değil, nakit akışımız kurtarmıyor.';
+          final cashDiscountRejectPool = [
+            'Bu fiyatın altına inmemiz mümkün değil • Nakit akışımız kurtarmıyor.',
+            'Zaten en dip maliyetten fiyat verdik • Nakit indirimi uygulayamayız.',
+            'Kasa dengemiz bu indirimi kaldırmıyor • Fiyatımız sabittir.',
+          ];
+          replyText = cashDiscountRejectPool[random.nextInt(cashDiscountRejectPool.length)];
         }
         break;
 
       case ChatTacticType.acceptAgreement:
         if (state.satisfaction >= 40) {
           nextAgreed = true;
-          replyText =
-              'Harika! Şartlarda mutabık kaldık. Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!';
+          final agreementSuccessPool = [
+            'Harika! Şartlarda mutabık kaldık • Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!',
+            'El sıkıştık patron! Şartlar tescillendi • İki tarafa da bol bereket ve kazanç getirsin.',
+            'Anlaşma sağlandı • Noter ve sözleşme evraklarını hemen hazırlatıyoruz.',
+            'Hayırlı uğurlu olsun • Şartlarda uzlaştık, imzaları atalım.',
+          ];
+          replyText = agreementSuccessPool[random.nextInt(agreementSuccessPool.length)];
           replyBadge = 'MUTABAKAT SAĞLANDI';
         } else {
           nextPatience -= 25;
-          replyText =
-              'Bu şartlarda henüz el sıkışamayız patron • Talepleriniz dengeleri çok zorladı, ortak bir noktada buluşmamız gerek.';
+          final agreementRejectPool = [
+            'Bu şartlarda henüz el sıkışamayız patron • Talepleriniz dengeleri çok zorladı, ortak bir noktada buluşmamız gerek.',
+            'Henüz mutabık değiliz • Çözülmesi gereken maddeler var, biraz daha orta yolu bulmalıyız.',
+            'Bu şartlarla imzaya oturamayız • Lütfen teklifinizi gözden geçirin.',
+          ];
+          replyText = agreementRejectPool[random.nextInt(agreementRejectPool.length)];
         }
         break;
 
       case ChatTacticType.transferDeedCosts:
         nextPatience -= 15;
         if (random.nextDouble() < 0.60) {
-          replyText =
-              'Tamamdır, tapu harcı ve döner sermaye masraflarının tamamını biz üstleniyoruz.';
+          final deedCostsSuccessPool = [
+            'Tamamdır • Tapu harcı ve döner sermaye masraflarının tamamını biz üstleniyoruz.',
+            'Sözleşmeye ekledik • Resmi tapu masraflarının tamamı bizim tarafımızdan ödenecektir.',
+            'Anlaştık • Tapu dairesindeki tüm harç ve masraflar bize aittir.',
+          ];
+          replyText = deedCostsSuccessPool[random.nextInt(deedCostsSuccessPool.length)];
           replyBadge = 'TAPU HARCI KARŞI TARAFTA';
         } else {
-          replyText =
-              'Teamül gereği tapu masrafı yarı yarıya ödenmelidir, tamamını alamayız.';
+          final deedCostsRejectPool = [
+            'Teamül gereği tapu masrafı yarı yarıya ödenmelidir • Tamamını alamayız.',
+            'Yasal teamül alıcı ve satıcının eşit paylaşmasıdır • Tek taraflı üstlenemeyiz.',
+            'Bütçemizde tapu masrafı karşılığı yok • Harçları eşit bölüşmemiz gerekir.',
+          ];
+          replyText = deedCostsRejectPool[random.nextInt(deedCostsRejectPool.length)];
         }
         break;
 
       case ChatTacticType.walkAway:
         nextWalkedAway = true;
-        replyText =
-            'Görüşmelerde ortak bir noktada buluşamadık. Teklifimiz iptal edilmiştir.';
+        final walkAwayPool = [
+          'Görüşmelerde ortak bir noktada buluşamadık • Teklifimiz iptal edilmiştir.',
+          'Beklentilerimiz uyuşmadı • Görüşmeyi sonlandırıyoruz, iyi günler dileriz.',
+          'Pazarlık sonuçsuz kaldı • Masadan kalkıyoruz, teklif hükümsüzdür.',
+          'Şartlarda uzlaşamadık • Vaktiniz için teşekkür ederiz, görüşme sona erdi.',
+        ];
+        replyText = walkAwayPool[random.nextInt(walkAwayPool.length)];
         replyBadge = 'PAZARLIK BİTTİ';
         break;
     }
 
     if (nextPatience <= 0 && !nextAgreed) {
       nextWalkedAway = true;
-      replyText =
-          'Israrlarınız ve şartlarınız sınırımızı aştı • Masadan kalkıyoruz, teklif geçerliliğini yitirdi.';
+      final patienceExhaustedPool = [
+        'Israrlarınız ve şartlarınız sınırımızı aştı • Masadan kalkıyoruz, teklif geçerliliğini yitirdi.',
+        'Sabrımız tükendi • Bu şartlarla daha fazla devam edemeyiz, masayı terk ediyoruz.',
+        'Pazarlık sınırlarını çok zorladınız • Anlaşma sağlanamadı, görüşme kapanmıştır.',
+      ];
+      replyText = patienceExhaustedPool[random.nextInt(patienceExhaustedPool.length)];
       replyBadge = 'MASADAN KALKTI';
     }
 

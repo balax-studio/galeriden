@@ -112,9 +112,10 @@ class _ChatTypingIndicatorBubbleState extends State<ChatTypingIndicatorBubble>
         isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
     final text = widget.statusText ?? context.tr('chat_status_typing');
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
+    return RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -189,6 +190,7 @@ class _ChatTypingIndicatorBubbleState extends State<ChatTypingIndicatorBubble>
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -276,9 +276,16 @@ void main() {
       final balanceBefore = notifier.state.balance;
       final ok = notifier.startSelfBuildConstruction(land.id);
       expect(ok, isTrue);
+      final spentStep1 = balanceBefore - notifier.state.balance;
 
-      final balanceAfter = notifier.state.balance;
-      final spent = balanceBefore - balanceAfter;
+      notifier.advanceGameDay();
+      notifier.state = notifier.state.copyWith(constructionCostIndex: 1.0);
+      final balanceBeforePermit = notifier.state.balance;
+      final permitOk = notifier.submitSelfBuildMunicipalPermit(land.id);
+      expect(permitOk, isTrue);
+      final spentStep2 = balanceBeforePermit - notifier.state.balance;
+
+      final spent = spentStep1 + spentStep2;
       expect(spent, closeTo(350000.0, 1.0));
       expect(notifier.state.ownedRealEstates.first.provenanceLog.last, contains('Hukuk Müşaviri %30 İndirimi'));
 

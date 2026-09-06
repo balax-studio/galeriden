@@ -98,31 +98,33 @@ class _AnimatedRollingCounterState extends State<AnimatedRollingCounter>
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
-    return AnimatedBuilder(
-      animation: _flashController,
-      builder: (context, child) {
-        Color? effectiveColor = targetStyle.color;
-        if (widget.enableDeltaFlash &&
-            _flashColor != null &&
-            _flashController.isAnimating) {
-          final t = _flashController.value;
-          effectiveColor =
-              Color.lerp(_flashColor, targetStyle.color ?? Colors.black, t);
-        }
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _flashController,
+        builder: (context, child) {
+          Color? effectiveColor = targetStyle.color;
+          if (widget.enableDeltaFlash &&
+              _flashColor != null &&
+              _flashController.isAnimating) {
+            final t = _flashController.value;
+            effectiveColor =
+                Color.lerp(_flashColor, targetStyle.color ?? Colors.black, t);
+          }
 
-        return TweenAnimationBuilder<double>(
-          tween: Tween<double>(begin: _previousValue, end: widget.value),
-          duration: widget.duration,
-          curve: widget.curve,
-          builder: (context, animatedVal, _) {
-            return Text(
-              _formatValue(animatedVal),
-              textAlign: widget.textAlign,
-              style: targetStyle.copyWith(color: effectiveColor),
-            );
-          },
-        );
-      },
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: _previousValue, end: widget.value),
+            duration: widget.duration,
+            curve: widget.curve,
+            builder: (context, animatedVal, _) {
+              return Text(
+                _formatValue(animatedVal),
+                textAlign: widget.textAlign,
+                style: targetStyle.copyWith(color: effectiveColor),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

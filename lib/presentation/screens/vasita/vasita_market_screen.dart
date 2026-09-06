@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
+import '../../../core/utils/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -257,42 +258,55 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                         },
                       ),
                     )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(14, 4, 14, 20),
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: filteredListings.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (ctx, index) {
-                        final listing = filteredListings[index];
-                        final showAdBefore = AdService.shouldShowNativeAdForDay(
-                                game.currentDay,
-                                NativeAdContextType.marketplace) &&
-                            adIndices.contains(index);
-
-                        final listingWidget = _buildListingCard(
-                          context: context,
-                          listing: listing,
-                          gameBalance: game.balance,
-                          maxSlotsReached: game.ownedCars.length >= game.maxGarageSlots,
-                          isDark: isDark,
+                  : RefreshIndicator(
+                      color: Colors.black,
+                      backgroundColor: AppColors.brutalYellow,
+                      onRefresh: () async {
+                        HapticFeedback.lightImpact();
+                        ref.read(vasitaMarketProvider.notifier).refreshMarket();
+                        NotificationService.showInfo(
+                          context,
+                          context.tr('vasita_market_refreshed'),
                         );
-
-                        if (showAdBefore) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const NeoBrutalNativeAdCard(
-                                contextType: NativeAdContextType.marketplace,
-                                margin: EdgeInsets.only(bottom: 12),
-                              ),
-                              listingWidget,
-                            ],
-                          );
-                        }
-
-                        return listingWidget;
                       },
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 20),
+                        physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics()),
+                        itemCount: filteredListings.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (ctx, index) {
+                          final listing = filteredListings[index];
+                          final showAdBefore = AdService.shouldShowNativeAdForDay(
+                                  game.currentDay,
+                                  NativeAdContextType.marketplace) &&
+                              adIndices.contains(index);
+
+                          final listingWidget = _buildListingCard(
+                            context: context,
+                            listing: listing,
+                            gameBalance: game.balance,
+                            maxSlotsReached: game.ownedCars.length >= game.maxGarageSlots,
+                            isDark: isDark,
+                          );
+
+                          if (showAdBefore) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const NeoBrutalNativeAdCard(
+                                  contextType: NativeAdContextType.marketplace,
+                                  margin: EdgeInsets.only(bottom: 12),
+                                ),
+                                listingWidget,
+                              ],
+                            );
+                          }
+
+                          return listingWidget;
+                        },
+                      ),
                     ),
             ),
           ],

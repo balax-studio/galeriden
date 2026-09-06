@@ -175,15 +175,37 @@ void main() {
         maxRealEstateSlots: 10,
       );
 
-      // --- STATE 1: UNSTARTED ---
-      // Start self build mode (deducts 15% upfront, initializes unstarted stage 1 with 0 days)
+      // --- STATE 1: PRE-CONSTRUCTION (STEP 1: Architectural Plan) ---
       final startSuccess = notifier.startSelfBuildConstruction('land_sim_test');
       expect(startSuccess, isTrue);
 
       var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
       expect(currentLand.isConstructionActive, isTrue);
       expect(currentLand.constructionMode, equals('selfBuild'));
-      expect(currentLand.constructionStage, equals(2)); // B1: Ruhsat tamamlandı, 2. etaptan başlar
+      expect(currentLand.constructionStage, equals(1));
+      expect(currentLand.constructionDaysRemaining, equals(1));
+      expect(currentLand.isConstructionWorking, isTrue);
+      expect(currentLand.isArchitecturalApproved, isFalse);
+
+      // Advance 1 day for architectural plan completion
+      notifier.advanceGameDay();
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isArchitecturalApproved, isTrue);
+      expect(currentLand.hasBuildingPermit, isFalse);
+      expect(currentLand.isConstructionWorking, isFalse);
+
+      // STEP 2: Municipal Permit Submission
+      final permitSuccess = notifier.submitSelfBuildMunicipalPermit('land_sim_test');
+      expect(permitSuccess, isTrue);
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isConstructionWorking, isTrue);
+      expect(currentLand.constructionDaysRemaining, equals(1));
+
+      // Advance 1 day for municipal building permit approval
+      notifier.advanceGameDay();
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.hasBuildingPermit, isTrue);
+      expect(currentLand.constructionStage, equals(2));
       expect(currentLand.constructionDaysRemaining, equals(0));
       expect(currentLand.isConstructionWorking, isFalse);
       expect(currentLand.activeSubcontractorName, isNull);

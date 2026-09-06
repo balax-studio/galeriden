@@ -45,6 +45,7 @@ class _ContractorNegotiationChatScreenState
   bool _isApplying = false;
   bool _isOpponentTyping = false;
   bool _isTypingPaused = false;
+  final Map<String, int> _tacticUseCounts = {};
 
   @override
   void didChangeDependencies() {
@@ -104,6 +105,7 @@ class _ContractorNegotiationChatScreenState
     HapticFeedback.selectionClick();
     final rep = ref.read(gameProvider).reputationScore;
     setState(() {
+      _tacticUseCounts.clear();
       _currentContractor = contractor;
       _chatState = RealEstateChatNegotiationEngine.createContractorSession(
         landId: _land.id,
@@ -672,74 +674,75 @@ class _ContractorNegotiationChatScreenState
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: [
-              _buildTacticChip(
-                icon: Icons.trending_up_rounded,
-                label: context.tr('contractor_tactic_higher_share_label', {
+          Builder(
+            builder: (context) {
+              final availableChips = <Widget>[];
+
+              for (final track in ContractorNegotiationExpansion.tacticTracks) {
+                final count = _tacticUseCounts[track.id] ?? 0;
+                if (count >= track.stages.length) continue;
+
+                if (track.id == 'share' &&
+                    _chatState.currentSharePercent >= _chatState.maxSharePercent) {
+                  continue;
+                }
+
+                final stage = track.stages[count];
+                final labelParams = <String, dynamic>{
                   'percent': _chatState.currentSharePercent + 3,
-                }),
-                onTap: () => _applyTactic(
-                  ChatTacticType.demandHigherShare,
-                  context.tr('contractor_tactic_higher_share_msg', {
-                    'cur': _chatState.currentSharePercent,
-                    'req': _chatState.currentSharePercent + 3,
-                  }),
-                ),
-                color: const Color(0xFFEFF6FF),
-              ),
-              _buildTacticChip(
-                icon: Icons.view_day_rounded,
-                label: context.tr('contractor_tactic_prime_floors_label'),
-                onTap: () => _applyTactic(
-                  ChatTacticType.demandPrimeFloors,
-                  context.tr('contractor_tactic_prime_floors_msg'),
-                ),
-                color: const Color(0xFFF3E8FF),
-              ),
-              _buildTacticChip(
-                icon: Icons.verified_rounded,
-                label: context.tr('contractor_tactic_quality_upgrade_label'),
-                onTap: () => _applyTactic(
-                  ChatTacticType.demandQualityUpgrade,
-                  context.tr('contractor_tactic_quality_upgrade_msg'),
-                ),
-                color: const Color(0xFFFEF3C7),
-              ),
-              _buildTacticChip(
-                icon: Icons.payments_rounded,
-                label: context.tr('contractor_tactic_advance_deposit_label', {
                   'amount': CurrencyFormatter.format(350000),
-                }),
-                onTap: () => _applyTactic(
-                  ChatTacticType.demandAdvanceDeposit,
-                  context.tr('contractor_tactic_advance_deposit_msg', {
-                    'amount': CurrencyFormatter.format(350000),
-                  }),
+                };
+                final msgParams = <String, dynamic>{
+                  'cur': _chatState.currentSharePercent,
+                  'req': _chatState.currentSharePercent + 3,
+                  'amount': CurrencyFormatter.format(350000),
+                };
+
+                availableChips.add(
+                  _buildTacticChip(
+                    icon: stage.icon,
+                    label: context.tr(stage.labelKey, labelParams),
+                    onTap: () {
+                      setState(() {
+                        _tacticUseCounts[track.id] = count + 1;
+                      });
+                      _applyTactic(
+                        stage.tacticType,
+                        context.tr(stage.messageKey, msgParams),
+                      );
+                    },
+                    color: stage.chipColor,
+                  ),
+                );
+              }
+
+              if (availableChips.isNotEmpty) {
+                return Wrap(
+                  spacing: 7,
+                  runSpacing: 7,
+                  children: availableChips,
+                );
+              }
+
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.black26, width: 1.5),
                 ),
-                color: const Color(0xFFFEE2E2),
-              ),
-              _buildTacticChip(
-                icon: Icons.security_rounded,
-                label: context.tr('contractor_tactic_bank_guarantee_label'),
-                onTap: () => _applyTactic(
-                  ChatTacticType.demandBankGuarantee,
-                  context.tr('contractor_tactic_bank_guarantee_msg'),
+                child: Text(
+                  context.tr('contractor_tactics_exhausted_notice'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
                 ),
-                color: const Color(0xFFE0E7FF),
-              ),
-              _buildTacticChip(
-                icon: Icons.local_cafe_rounded,
-                label: context.tr('contractor_tactic_tea_joke_label'),
-                onTap: () => _applyTactic(
-                  ChatTacticType.askJokeOrChat,
-                  context.tr('contractor_tactic_tea_joke_msg'),
-                ),
-                color: const Color(0xFFD1FAE5),
-              ),
-            ],
+              );
+            },
           ),
           const SizedBox(height: 10),
           Row(

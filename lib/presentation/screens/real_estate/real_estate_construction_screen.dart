@@ -9,6 +9,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../../data/models/loan_model.dart';
+import '../../../data/models/staff_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
@@ -1268,7 +1269,13 @@ class _RealEstateConstructionScreenState
   ) {
     final totalUnits = zoning.unitMix.totalUnits;
     final contractorUnits = (totalUnits * 0.5).round();
-    final selfBuildInitialCost = (land.baseMarketValue * 0.10).roundToDouble();
+    final costIndex = ref.watch(gameProvider.select((s) => s.constructionCostIndex));
+    final hasArchitectStaff = ref.watch(gameProvider.select((s) => s.hiredStaff.any((st) => st.role == StaffRole.appraiser || st.role == StaffRole.legalAdvisor)));
+    final selfBuildInitialCost = ConstructionPricing.architecturalPlanCost(
+      land,
+      costIndex: costIndex,
+      hasArchitectStaff: hasArchitectStaff,
+    );
     final canAffordSelfBuild = balance >= selfBuildInitialCost;
 
     return Column(
@@ -1475,7 +1482,7 @@ class _RealEstateConstructionScreenState
                   Expanded(
                     child: NeoBrutalButton(
                       label: (canAffordSelfBuild && !zoning.isEmsalExceeded)
-                          ? '${context.tr('real_estate_self_build_btn')} • ${CurrencyFormatter.format(selfBuildInitialCost)}'
+                          ? '${context.tr('real_estate_self_build_plan_btn')} • ${CurrencyFormatter.format(selfBuildInitialCost)}'
                           : (zoning.isEmsalExceeded
                               ? context.tr('real_estate_kaks_warning_exceeded')
                               : context.tr('real_estate_expand_slots_error_funds')),
@@ -1484,7 +1491,7 @@ class _RealEstateConstructionScreenState
                               HapticFeedback.mediumImpact();
                               final success = ref
                                   .read(gameProvider.notifier)
-                                  .startSelfBuildConstruction(
+                                  .startSelfBuildArchitecturalPlan(
                                     land.id,
                                     customUnitMix: _workingMix,
                                   );
@@ -1492,7 +1499,7 @@ class _RealEstateConstructionScreenState
                                 NotificationService.showSuccess(
                                   context,
                                   context.tr(
-                                      'real_estate_self_build_success_toast'),
+                                      'real_estate_self_build_plan_started_toast'),
                                 );
                               }
                             }
@@ -2010,13 +2017,172 @@ class _RealEstateConstructionScreenState
   Widget _buildSelfBuildAdvanceCard(BuildContext context, ThemeData theme,
       RealEstateModel land, double balance, bool isDark) {
     final currentStage = land.constructionStage.clamp(1, 8);
-    final nextCost = ConstructionPricing.stageCost(land, currentStage);
-    final canAfford = balance >= nextCost;
+    final costIndex = ref.watch(gameProvider.select((s) => s.constructionCostIndex));
+    final hasLegalAdvisor = ref.watch(gameProvider.select((s) => s.hiredStaff.any((st) => st.role == StaffRole.legalAdvisor)));
+    final hasArchitectStaff = ref.watch(gameProvider.select((s) => s.hiredStaff.any((st) => st.role == StaffRole.appraiser || st.role == StaffRole.legalAdvisor)));
 
     final isWorking =
         land.isConstructionWorking && land.constructionDaysRemaining > 0;
     final isReadyForHandover =
         land.isConstructionWorking && land.constructionDaysRemaining == 0;
+
+    // Özel Aşama 1: Mimari Planlama & Belediye Ruhsatı
+    if (land.constructionStage == 1) {
+      if (!land.isArchitecturalApproved) {
+        final planCost = ConstructionPricing.architecturalPlanCost(land, costIndex: costIndex, hasArchitectStaff: hasArchitectStaff);
+        final canAffordPlan = balance >= planCost;
+
+        return NeoBrutalCard(
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    context.tr('real_estate_precon_plan_title'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                  ),
+                  if (isWorking)
+                    NeoBrutalBadge(
+                      text: '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}',
+                      backgroundColor: const Color(0xFFFEF3C7),
+                      textColor: const Color(0xFF92400E),
+                    )
+                  else
+                    NeoBrutalBadge(
+                      text: context.tr('real_estate_stage_badge_unstarted'),
+                      backgroundColor: const Color(0xFFE0E7FF),
+                      textColor: const Color(0xFF3730A3),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isWorking
+                    ? context.tr('real_estate_precon_plan_working_desc')
+                    : context.tr('real_estate_precon_plan_idle_desc'),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (isWorking)
+                NeoBrutalButton(
+                  label: context.tr('real_estate_precon_plan_btn_working'),
+                  icon: Icons.hourglass_top_rounded,
+                  onPressed: null,
+                  backgroundColor: const Color(0xFFE2E8F0),
+                  textColor: const Color(0xFF64748B),
+                )
+              else
+                NeoBrutalButton(
+                  label: canAffordPlan
+                      ? '${context.tr('real_estate_self_build_plan_btn')} • ${CurrencyFormatter.format(planCost)}'
+                      : context.tr('real_estate_expand_slots_error_funds'),
+                  icon: Icons.architecture_rounded,
+                  onPressed: canAffordPlan
+                      ? () {
+                          HapticFeedback.mediumImpact();
+                          final success = ref.read(gameProvider.notifier).startSelfBuildArchitecturalPlan(land.id);
+                          if (success) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('real_estate_self_build_plan_started_toast'),
+                            );
+                          }
+                        }
+                      : null,
+                  backgroundColor: canAffordPlan ? const Color(0xFFF59E0B) : const Color(0xFF94A3B8),
+                  textColor: Colors.black,
+                ),
+            ],
+          ),
+        );
+      } else if (!land.hasBuildingPermit) {
+        final permitCost = ConstructionPricing.municipalPermitCost(land, costIndex: costIndex, hasLegalAdvisor: hasLegalAdvisor);
+        final canAffordPermit = balance >= permitCost;
+
+        return NeoBrutalCard(
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    context.tr('real_estate_precon_permit_title'),
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+                  ),
+                  if (isWorking)
+                    NeoBrutalBadge(
+                      text: '${land.constructionDaysRemaining} ${context.tr('subcontractor_days_suffix')}',
+                      backgroundColor: const Color(0xFFFEF3C7),
+                      textColor: const Color(0xFF92400E),
+                    )
+                  else
+                    NeoBrutalBadge(
+                      text: context.tr('municipal_status_approved'),
+                      backgroundColor: const Color(0xFFD1FAE5),
+                      textColor: const Color(0xFF065F46),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isWorking
+                    ? context.tr('real_estate_precon_permit_working_desc')
+                    : context.tr('real_estate_precon_permit_idle_desc'),
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (isWorking)
+                NeoBrutalButton(
+                  label: context.tr('real_estate_precon_permit_btn_working'),
+                  icon: Icons.hourglass_top_rounded,
+                  onPressed: null,
+                  backgroundColor: const Color(0xFFE2E8F0),
+                  textColor: const Color(0xFF64748B),
+                )
+              else
+                NeoBrutalButton(
+                  label: canAffordPermit
+                      ? '${context.tr('real_estate_precon_permit_btn')} • ${CurrencyFormatter.format(permitCost)}'
+                      : context.tr('real_estate_expand_slots_error_funds'),
+                  icon: Icons.account_balance_rounded,
+                  onPressed: canAffordPermit
+                      ? () {
+                          HapticFeedback.mediumImpact();
+                          final success = ref.read(gameProvider.notifier).submitSelfBuildMunicipalPermit(land.id);
+                          if (success) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('real_estate_precon_permit_submitted_toast'),
+                            );
+                          }
+                        }
+                      : null,
+                  backgroundColor: canAffordPermit ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                  textColor: Colors.white,
+                ),
+            ],
+          ),
+        );
+      }
+    }
+
+    final nextCost = ConstructionPricing.stageCost(land, currentStage);
+    final canAfford = balance >= nextCost;
 
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,

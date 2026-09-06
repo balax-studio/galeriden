@@ -740,6 +740,16 @@ class _RealEstateBuyerNegotiationChatScreenState
       ),
     ];
 
+    final activeTactics = availableTactics.where((item) {
+      final count = _tacticUseCounts[item.tactic] ?? 0;
+      return !RealEstateBuyerNegotiationExpansion.isTacticExhausted(
+        item.tactic,
+        count,
+      );
+    }).toList();
+
+    final isBlocked = _isApplying || _isOpponentTyping;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
       decoration: BoxDecoration(
@@ -788,27 +798,61 @@ class _RealEstateBuyerNegotiationChatScreenState
           ),
           const SizedBox(height: 10),
 
-          // Dynamic Cycling Tactic Cards Strip
-          SizedBox(
-            height: 74,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: availableTactics.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, i) {
-                final item = availableTactics[i];
-                return _buildDynamicTacticCard(
-                  context: context,
-                  tactic: item.tactic,
-                  icon: item.icon,
-                  accentColor: item.accentColor,
-                  category: prop.category,
-                  isDark: isDark,
-                );
-              },
+          // Dynamic Cycling Tactic Cards Strip or Exhaustion Notice
+          if (activeTactics.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(2.5, 2.5),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 18, color: Colors.black),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.tr('buyer_tactics_exhausted_banner'),
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            SizedBox(
+              height: 74,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: activeTactics.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, i) {
+                  final item = activeTactics[i];
+                  return _buildDynamicTacticCard(
+                    context: context,
+                    tactic: item.tactic,
+                    icon: item.icon,
+                    accentColor: item.accentColor,
+                    category: prop.category,
+                    isDark: isDark,
+                  );
+                },
+              ),
             ),
-          ),
           const SizedBox(height: 12),
 
           // Primary Accept / Reject Action Bar
@@ -827,7 +871,7 @@ class _RealEstateBuyerNegotiationChatScreenState
                   shadowOffset: const Offset(3.5, 3.5),
                   fontSize: 12.5,
                   minHeight: 50,
-                  onPressed: _isApplying
+                  onPressed: isBlocked
                       ? null
                       : () => _applyTactic(
                             tactic: ChatTacticType.acceptAgreement,
@@ -849,7 +893,7 @@ class _RealEstateBuyerNegotiationChatScreenState
                   shadowOffset: const Offset(3.5, 3.5),
                   fontSize: 12.5,
                   minHeight: 50,
-                  onPressed: _isApplying
+                  onPressed: isBlocked
                       ? null
                       : () => _applyTactic(
                             tactic: ChatTacticType.walkAway,
@@ -900,83 +944,88 @@ class _RealEstateBuyerNegotiationChatScreenState
         ? '+%22'
         : '-%$patienceImpact';
 
-    return InkWell(
-      onTap: _isApplying
-          ? null
-          : () => _applyTactic(
-                tactic: tactic,
-                playerMessage: message,
-                category: category,
-              ),
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: 172,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.black, width: 2.2),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black,
-              offset: Offset(2.5, 2.5),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(3.5),
-                  decoration: BoxDecoration(
-                    color: accentColor,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.black, width: 1.5),
-                  ),
-                  child: Icon(icon, size: 13, color: Colors.black),
+    final isBlocked = _isApplying || _isOpponentTyping;
+
+    return Opacity(
+      opacity: isBlocked ? 0.5 : 1.0,
+      child: InkWell(
+        onTap: isBlocked
+            ? null
+            : () => _applyTactic(
+                  tactic: tactic,
+                  playerMessage: message,
+                  category: category,
                 ),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.black54, width: 1),
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: 172,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.black, width: 2.2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black,
+                offset: Offset(2.5, 2.5),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3.5),
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                    ),
+                    child: Icon(icon, size: 13, color: Colors.black),
                   ),
-                  child: Text(
-                    tactic == ChatTacticType.askJokeOrChat
-                        ? patienceBadgeText
-                        : '#${count + 1} • $patienceBadgeText',
-                    style: TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w900,
-                      color: tactic == ChatTacticType.askJokeOrChat
-                          ? const Color(0xFF10B981)
-                          : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                  const Spacer(),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF334155)
+                          : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.black54, width: 1),
+                    ),
+                    child: Text(
+                      tactic == ChatTacticType.askJokeOrChat
+                          ? patienceBadgeText
+                          : '#${count + 1} • $patienceBadgeText',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w900,
+                        color: tactic == ChatTacticType.askJokeOrChat
+                            ? const Color(0xFF10B981)
+                            : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                color: isDark ? Colors.white : Colors.black87,
-                height: 1.2,
+                ],
               ),
-            ),
-          ],
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : Colors.black87,
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

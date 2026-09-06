@@ -1,6 +1,7 @@
 import 'real_estate_category.dart';
 import 'real_estate_offer_model.dart';
 import 'tenant_model.dart';
+import 'home_interior_design_model.dart';
 
 enum DeedType {
   ownershipDeed, // Kat Mülkiyetli (Sorunsuz, temiz tapu)
@@ -132,6 +133,11 @@ class RealEstateModel {
   final String listingPackage; // 'standard', 'featured', 'super'
   final double qualityScore; // 0.0 - 100.0, default 75.0 (F3·3)
   final bool isMortgaged; // İpotekli mi (İnşaat kredisi teminatı • F2·6, F5)
+  final bool isArchitecturalApproved; // Mimari proje ve statik hesaplar onaylandı mı
+  final bool hasBuildingPermit; // Belediye yapı ruhsatı onaylandı mı
+  final String? preConstructionStep; // 'drafting', 'municipalReview' ya da null
+  final String? renovationPackageId; // Atölye tadilat genişleme paketi kimliği
+  final List<String> interiorDesignItemIds; // Kişisel ikametgah iç mimari eşya kimlikleri
 
   const RealEstateModel({
     required this.id,
@@ -187,6 +193,11 @@ class RealEstateModel {
     this.listingPackage = 'standard',
     this.qualityScore = 75.0,
     this.isMortgaged = false,
+    this.isArchitecturalApproved = false,
+    this.hasBuildingPermit = false,
+    this.preConstructionStep,
+    this.renovationPackageId,
+    this.interiorDesignItemIds = const [],
   })  : _totalProjectUnits = totalProjectUnits,
         playerSharePercent = playerSharePercent ??
             (contractorSharePercent != null
@@ -206,6 +217,10 @@ class RealEstateModel {
       // F3·3: Kalite skoru ±%15 değerleme etkisi (75 taban)
       final qualityDelta = ((qualityScore - 75.0) / 25.0).clamp(-1.0, 1.0);
       value *= (1.0 + (qualityDelta * 0.15));
+    }
+    // Controlled interior design appraisal boost (Anti-inflation Diminishing Returns)
+    if (interiorDesignItemIds.isNotEmpty) {
+      value += HomeInteriorItem.calculateAppraisedInteriorBonus(this);
     }
     return value.roundToDouble();
   }
@@ -400,10 +415,6 @@ class RealEstateModel {
         return 25;
       case RealEstateCategory.housingProjects:
         return 20;
-      case RealEstateCategory.timeshare:
-        return 5;
-      case RealEstateCategory.tourismFacility:
-        return 40;
       case RealEstateCategory.land:
         return 5;
     }
@@ -464,6 +475,11 @@ class RealEstateModel {
       'listingPackage': listingPackage,
       'qualityScore': qualityScore,
       'isMortgaged': isMortgaged,
+      'isArchitecturalApproved': isArchitecturalApproved,
+      'hasBuildingPermit': hasBuildingPermit,
+      'preConstructionStep': preConstructionStep,
+      'renovationPackageId': renovationPackageId,
+      'interiorDesignItemIds': interiorDesignItemIds,
     };
   }
 
@@ -508,6 +524,10 @@ class RealEstateModel {
       pendingRentIncome: (json['pendingRentIncome'] as num?)?.toDouble() ?? 0.0,
       uncollectedRentDays: json['uncollectedRentDays'] as int? ?? 0,
       isPersonalResidence: json['isPersonalResidence'] as bool? ?? false,
+      interiorDesignItemIds: (json['interiorDesignItemIds'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
       constructionStage: json['constructionStage'] as int? ?? 0,
       constructionMode: json['constructionMode'] as String?,
       playerSharePercent: json['playerSharePercent'] as int? ??
@@ -544,6 +564,10 @@ class RealEstateModel {
       listingPackage: json['listingPackage'] as String? ?? 'standard',
       qualityScore: (json['qualityScore'] as num?)?.toDouble() ?? 75.0,
       isMortgaged: json['isMortgaged'] as bool? ?? false,
+      isArchitecturalApproved: json['isArchitecturalApproved'] as bool? ?? false,
+      hasBuildingPermit: json['hasBuildingPermit'] as bool? ?? false,
+      preConstructionStep: json['preConstructionStep'] as String?,
+      renovationPackageId: json['renovationPackageId'] as String?,
     );
   }
 
@@ -606,6 +630,12 @@ class RealEstateModel {
     String? listingPackage,
     double? qualityScore,
     bool? isMortgaged,
+    bool? isArchitecturalApproved,
+    bool? hasBuildingPermit,
+    String? preConstructionStep,
+    bool clearPreConstructionStep = false,
+    String? renovationPackageId,
+    List<String>? interiorDesignItemIds,
   }) {
     final nextRenovationStage = renovationStage ?? this.renovationStage;
     final nextIsRenovated = isRenovated ?? (nextRenovationStage >= 3 || this.isRenovated);
@@ -668,6 +698,11 @@ class RealEstateModel {
       listingPackage: listingPackage ?? this.listingPackage,
       qualityScore: qualityScore ?? this.qualityScore,
       isMortgaged: isMortgaged ?? this.isMortgaged,
+      isArchitecturalApproved: isArchitecturalApproved ?? this.isArchitecturalApproved,
+      hasBuildingPermit: hasBuildingPermit ?? this.hasBuildingPermit,
+      preConstructionStep: clearPreConstructionStep ? null : (preConstructionStep ?? this.preConstructionStep),
+      renovationPackageId: renovationPackageId ?? this.renovationPackageId,
+      interiorDesignItemIds: interiorDesignItemIds ?? this.interiorDesignItemIds,
     );
   }
 }

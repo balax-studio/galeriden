@@ -175,7 +175,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final game = ref.watch(gameProvider);
     final selectedIndex = ref.watch(dashboardTabProvider);
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
@@ -234,7 +233,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ref.read(dashboardTabProvider.notifier).state = 0;
           return;
         }
-        DashboardRetentionModals.showExitHookDialog(context, game);
+        DashboardRetentionModals.showExitHookDialog(
+            context, ref.read(gameProvider));
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: isDark
@@ -264,7 +264,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       children: [
                         // Top Fixed Neo-Brutal HUD Bar
                         AppHeroHeader(
-                          game: game,
                           onSettingsTap: () => context.push('/settings'),
                           onProfileTap: () => context.push('/character-growth'),
                         ),
@@ -275,7 +274,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             index: selectedIndex,
                             children: [
                               // Tab 0: Sahibinden Style Neo-Brutal Monolithic Dashboard
-                              _buildHomeDashboard(context, game, p, bottomPadding),
+                              _DashboardHomeTab(
+                                palette: p,
+                                bottomPadding: bottomPadding,
+                              ),
 
                               // Tab 1: Showroom & Galerim
                               const ShowroomScreen(
@@ -290,10 +292,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               ),
 
                               // Tab 3: Ofis & İstatistikler
-                              DashboardOfficeView(
-                                game: game,
-                                palette: p,
-                                padding: EdgeInsets.fromLTRB(14, 10, 14, bottomPadding),
+                              Consumer(
+                                builder: (context, ref, _) {
+                                  final officeGame = ref.watch(gameProvider);
+                                  return DashboardOfficeView(
+                                    game: officeGame,
+                                    palette: p,
+                                    padding: EdgeInsets.fromLTRB(
+                                        14, 10, 14, bottomPadding),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -338,10 +346,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ),
     );
   }
+}
 
-  /// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard
-  Widget _buildHomeDashboard(
-      BuildContext context, DealershipModel game, ThemePaletteModel p, double bottomPadding) {
+/// Sahibinden.com Inspired Neo-Brutalist & Monolithic Dashboard Tab
+class _DashboardHomeTab extends ConsumerWidget {
+  final ThemePaletteModel palette;
+  final double bottomPadding;
+
+  const _DashboardHomeTab({
+    required this.palette,
+    required this.bottomPadding,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final game = ref.watch(gameProvider);
+    final p = palette;
     final isDark = p.isDark;
 
     // Distraction-free, action-focused view for the first core loop
@@ -352,7 +372,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         children: [
           DashboardProfileBanner(game: game, palette: p),
           const SizedBox(height: 12),
-          _buildTutorialHeroCard(context, game, p),
+          _buildTutorialHeroCard(context, ref, game, p),
           if (game.pendingDramaticCard != null) ...[
             const SizedBox(height: 12),
             DashboardDramaticCardBanner(
@@ -610,7 +630,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildTutorialHeroCard(
-      BuildContext context, DealershipModel game, ThemePaletteModel p) {
+      BuildContext context, WidgetRef ref, DealershipModel game, ThemePaletteModel p) {
     final tutorial = ref.watch(tutorialProvider);
     final isDark = p.isDark;
 

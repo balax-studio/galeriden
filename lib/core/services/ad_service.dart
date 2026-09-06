@@ -305,7 +305,12 @@ class AdService {
     AdRewardOutcome? outcome,
   }) {
     if (kIsWeb) {
-      onRewardEarned();
+      NeoBrutalFallbackAdDialog.show(
+        context: context,
+        onRewardClaimed: onRewardEarned,
+        rewardTitle: customRewardTitle,
+        outcome: outcome,
+      );
       return;
     }
 

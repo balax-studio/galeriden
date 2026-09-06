@@ -112,32 +112,36 @@ class RealEstateBuyerNegotiationExpansion {
     final lower = buyerName.toLowerCase();
     if (lower.contains('yatırım fonu') ||
         lower.contains('direktör') ||
-        lower.contains('bora') ||
-        category == RealEstateCategory.building) {
+        lower.contains('bora')) {
       return archetypes[BuyerArchetypeId.fundDirector]!;
     }
     if (lower.contains('sanayici') ||
         lower.contains('holding') ||
-        lower.contains('teoman') ||
-        category == RealEstateCategory.tourismFacility) {
+        lower.contains('teoman')) {
       return archetypes[BuyerArchetypeId.industrialist]!;
-    }
-    if (lower.contains('doktor') ||
-        lower.contains('öğretmen') ||
-        lower.contains('aile') ||
-        category == RealEstateCategory.housing) {
-      return archetypes[BuyerArchetypeId.familyBuyer]!;
-    }
-    if (lower.contains('esnaf') ||
-        lower.contains('ticaret') ||
-        category == RealEstateCategory.commercial) {
-      return archetypes[BuyerArchetypeId.merchantTrader]!;
     }
     if (lower.contains('gurbet') ||
         lower.contains('kerem') ||
-        lower.contains('döviz') ||
-        category == RealEstateCategory.timeshare) {
+        lower.contains('döviz')) {
       return archetypes[BuyerArchetypeId.expatInvestor]!;
+    }
+    if (lower.contains('esnaf') ||
+        lower.contains('ticaret')) {
+      return archetypes[BuyerArchetypeId.merchantTrader]!;
+    }
+    if (lower.contains('doktor') ||
+        lower.contains('öğretmen') ||
+        lower.contains('aile')) {
+      return archetypes[BuyerArchetypeId.familyBuyer]!;
+    }
+    if (category == RealEstateCategory.building) {
+      return archetypes[BuyerArchetypeId.fundDirector]!;
+    }
+    if (category == RealEstateCategory.commercial) {
+      return archetypes[BuyerArchetypeId.merchantTrader]!;
+    }
+    if (category == RealEstateCategory.housing) {
+      return archetypes[BuyerArchetypeId.familyBuyer]!;
     }
     return archetypes[BuyerArchetypeId.opportunist]!;
   }
@@ -244,6 +248,16 @@ class RealEstateBuyerNegotiationExpansion {
     return steps[useCount % steps.length];
   }
 
+  /// Taktiğin tükenip tükenmediğini kontrol eder
+  static bool isTacticExhausted(ChatTacticType tactic, int useCount) {
+    if (tactic == ChatTacticType.askJokeOrChat) {
+      return useCount >= 2;
+    }
+    final steps = tacticSteps[tactic];
+    if (steps == null) return false;
+    return useCount >= steps.length;
+  }
+
   /// Alıcı yanıtını ve rozetini oluşturur
   static ({String replyText, String? replyBadge, double nextPrice, int satisfactionDelta, int patienceDelta, bool isAgreed, bool isWalkedAway})
       evaluateBuyerTactic({
@@ -270,47 +284,77 @@ class RealEstateBuyerNegotiationExpansion {
           final formatted = CurrencyFormatter.format(nextPrice);
           replyBadge = 'YENİ TEKLİF • $formatted';
 
-          switch (archetype.id) {
-            case BuyerArchetypeId.fundDirector:
-              replyText =
-                  'Yatırım komitemizle görüştük • Tabela değeri ve lokasyon primini dikkate alarak teklifimizi $formatted olarak güncelliyoruz.';
-              break;
-            case BuyerArchetypeId.familyBuyer:
-              replyText =
-                  'Ailece düşündük, çocuklar okulu ve muhiti çok sevdi • Bütçemizi zorlayıp $formatted vermeyi kabul ediyoruz.';
-              break;
-            case BuyerArchetypeId.merchantTrader:
-              replyText =
-                  'Pazarlığın hakkını verdin • Mülkün ciro potansiyeline güvenip teklifimizi $formatted seviyesine çıkardık.';
-              break;
-            case BuyerArchetypeId.industrialist:
-              replyText =
-                  'Rakamı yönetimde revize ettik • Prestijli mülkünüz için yeni teklifimiz $formatted olmuştur.';
-              break;
-            default:
-              replyText =
-                  'Önerdiğiniz rakamı değerlendirdik • Yeni fiyat $formatted olarak el sıkışabiliriz.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> successPools = {
+            BuyerArchetypeId.fundDirector: [
+              'Yatırım komitemizle görüştük • Tabela değeri ve lokasyon primini dikkate alarak teklifimizi $formatted olarak güncelliyoruz.',
+              'SPK lisanslı değerleme raporumuzu revize ettik • Fonumuzun tavan limiti dahilinde teklifimizi $formatted seviyesine çıkardık.',
+              'Yönetim kurulu onayımızı aldık • Kurumsal portföy büyüme stratejimize uygun olarak $formatted rakamını onayladık.',
+            ],
+            BuyerArchetypeId.industrialist: [
+              'Rakamı yönetimde revize ettik • Prestijli mülkünüz için yeni teklifimiz $formatted olmuştur.',
+              'Holding finansman direktörlüğüyle görüştük • Fabrika ve lojistik hedeflerimiz için $formatted teklifini sunduk.',
+              'Şirket büyüme hedeflerimiz doğrultusunda bütçemizi esnettik • Noterde devir için $formatted olarak el sıkışabiliriz.',
+            ],
+            BuyerArchetypeId.familyBuyer: [
+              'Ailece düşündük, çocuklar okulu ve muhiti çok sevdi • Bütçemizi zorlayıp $formatted vermeyi kabul ediyoruz.',
+              'Eşimin ve ailemizin ortak kararıyla birikimlerimizi bir araya getirdik • Teklifimizi $formatted seviyesine yükseltiyoruz.',
+              'Ev sahibiyle uzlaşmak için konut kredi limitimizi artırdık • Son teklifimiz $formatted olmuştur.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Pazarlığın hakkını verdin • Mülkün ciro potansiyeline güvenip teklifimizi $formatted seviyesine çıkardık.',
+              'Bölge esnafıyla istişare ettik • Mülkün yaya trafiğine güvenerek teklifimizi $formatted yaptık.',
+              'Sıcak para gücümüzü masaya koyuyoruz • Bu ticarethane için $formatted seviyesinde el sıkışmaya varız.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Döviz birikimimizi TL ye çevirip bütçeyi artırdık • Yeni teklifimiz $formatted olarak güncellendi.',
+              'Yıllık kira getiri projeksiyonunu beğendik • Gurbet birikimimizle $formatted vermeye hazırız.',
+              'Yurt dışındaki finans danışmanımla teyitleştik • Bu değerli mülk için $formatted teklif ediyoruz.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Önerdiğiniz rakamı değerlendirdik • Yeni fiyat $formatted olarak el sıkışabiliriz.',
+              'Piyasa koşullarını tekrar analiz ettik • Teklifimizi $formatted seviyesine revize ediyoruz.',
+              'Bütçe marjlarımızı sonuna kadar kullandık • $formatted üzerinden anlaşmaya varız.',
+            ],
+          };
+
+          final pool = successPools[archetype.id] ?? successPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         } else {
-          switch (archetype.id) {
-            case BuyerArchetypeId.fundDirector:
-              replyText =
-                  'Bu rakam fonumuzun iç verim oranı ve bütçe tavanını aşıyor • Fiyatı daha fazla esnetemeyiz.';
-              break;
-            case BuyerArchetypeId.familyBuyer:
-              replyText =
-                  'Kredi limitimiz ve birikimimiz maalesef bu rakama yetmiyor • Mevcut teklifimizin üzerine çıkamayız.';
-              break;
-            case BuyerArchetypeId.merchantTrader:
-              replyText =
-                  'Bu fiyata girersek dükkanın amortismanı 20 yılı bulur • Ticaretimizi kilitleyemeyiz.';
-              break;
-            default:
-              replyText =
-                  'Bu rakam bizim fizibilitenin çok üzerinde kalıyor • Fiyatı esnetemeyiz.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> rejectPools = {
+            BuyerArchetypeId.fundDirector: [
+              'Bu rakam fonumuzun iç verim oranı ve bütçe tavanını aşıyor • Fiyatı daha fazla esnetemeyiz.',
+              'Komite kararı kesindir • Hedef kârlılık oranımız bu fiyat seviyesinde karşılanmıyor.',
+              'Değerleme uzmanımızın biçtiği tavan aşıldı • Bu fiyatla kurumsal alım yapamayız.',
+            ],
+            BuyerArchetypeId.industrialist: [
+              'Yatırım bütçemizin tavanına ulaştık • Holding ilkeleri gereği bu rakamı kabul edemeyiz.',
+              'Mali işler direktörümüz bu fiyata onay vermedi • Teklifimizi daha fazla artıramayız.',
+              'Tesis fizibilitesi bu maliyetle kurtarmıyor • Fiyatı daha fazla esnetmemiz imkansız.',
+            ],
+            BuyerArchetypeId.familyBuyer: [
+              'Kredi limitimiz ve birikimimiz maalesef bu rakama yetmiyor • Mevcut teklifimizin üzerine çıkamayız.',
+              'Banka eksperi mülke bu kadar kredi çıkartmıyor • Bütçemizi daha fazla zorlayamayız.',
+              'Aylık kredi taksit ödemelerimiz sınırda • Maalesef bu fiyatın üzerine çıkmamız imkansız.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Bu fiyata girersek dükkanın amortismanı 20 yılı bulur • Ticaretimizi kilitleyemeyiz.',
+              'Esnaf hesabına uymaz • Bu maliyetle işletme açıp kâr etmek hayal olur.',
+              'Sermayemizi tek bir mülke bağlayamayız • Bu rakam bizim ticaret mantığımıza ters.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Döviz kuru ve kira çarpanı bu seviyede cazibesini yitiriyor • Daha fazla çıkamayız.',
+              'Avrupa daki emlak getirileriyle kıyasladığımızda bu fiyat mantıklı gelmiyor.',
+              'Bütçemin son sınırına kadar söyledim • Üzerine bir kuruş daha koyamam.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Bu rakam bizim fizibilitenin çok üzerinde kalıyor • Fiyatı esnetemeyiz.',
+              'Piyasa rayicinin çok üzerine çıkamam • Teklifim son fiyattır.',
+              'Mevcut teklifim geçerlidir • Üzerine çıkmamız mümkün görünmüyor.',
+            ],
+          };
+
+          final pool = rejectPools[archetype.id] ?? rejectPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         }
         break;
 
@@ -319,23 +363,42 @@ class RealEstateBuyerNegotiationExpansion {
         if (random.nextDouble() < 0.65) {
           nextSatisfactionDelta = 10;
           replyBadge = 'TAPU HARCI KARŞI TARAFTA';
-          switch (archetype.id) {
-            case BuyerArchetypeId.fundDirector:
-              replyText =
-                  'Kurumsal bütçemizde tapu masrafı karşılığı mevcut • Tapu harcı ve döner sermayeyi tamamen üstleniyoruz.';
-              break;
-            case BuyerArchetypeId.merchantTrader:
-              replyText =
-                  'Tamamdır • Yeter ki tapuyu yarın alalım, resmi harçların tamamı bizim kasamızdan çıksın.';
-              break;
-            default:
-              replyText =
-                  'Tamamdır • Tapu harcı ve döner sermaye masraflarının tamamını biz üstleniyoruz.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> deedSuccessPools = {
+            BuyerArchetypeId.fundDirector: [
+              'Kurumsal bütçemizde tapu masrafı karşılığı mevcut • Tapu harcı ve döner sermayeyi tamamen üstleniyoruz.',
+              'Yatırım fonumuz alım harçlarını gider yazabiliyor • Masrafların tamamını karşılamayı kabul ettik.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Tamamdır • Yeter ki tapuyu yarın alalım, resmi harçların tamamı bizim kasamızdan çıksın.',
+              'Sözümüz senettir • Tapu dairesindeki döner sermaye dahil tüm harçları biz ödüyoruz.',
+            ],
+            BuyerArchetypeId.industrialist: [
+              'Holding muhasebemiz tapu harçlarını üstlenmeye onay verdi • Masraflar tamamen bize aittir.',
+              'Hızlı devir şartıyla tüm tapu ve döner sermaye giderlerini şirketimiz karşılıyor.',
+            ],
+            BuyerArchetypeId.familyBuyer: [
+              'Kredi dosyamızda tapu masrafı kredisini de onaylattık • Harçların tamamını üstleniyoruz.',
+              'Mülkü çok beğendik • Tapu masraflarının tamamını karşılayarak devir işlemlerini hızlandıralım.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Euro likiditemizden tapu harçlarını karşılayabiliriz • Masrafların tümünü üstlenmeyi kabul ediyoruz.',
+              'Gurbetçi bütçemizden tapu ve belediye harçlarını eksiksiz karşılayacağız.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Tamamdır • Tapu harcı ve döner sermaye masraflarının tamamını biz üstleniyoruz.',
+              'Pazarlığı tatlıya bağlamak adına resmi harçların hepsini faturamıza yazdıracağız.',
+            ],
+          };
+
+          final pool = deedSuccessPools[archetype.id] ?? deedSuccessPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         } else {
-          replyText =
-              'Teamül gereği tapu masrafı yarı yarıya ödenmelidir • Tamamını üstlenemeyiz.';
+          final deedRejectPool = [
+            'Teamül gereği tapu masrafı yarı yarıya ödenmelidir • Tamamını üstlenemeyiz.',
+            'Yasal olarak alıcı ve satıcı eşit paydaş olmalıdır • Resmi harçları tek taraflı ödemeyiz.',
+            'Bütçemizde ekstra tapu kalemi açılmamış • Masrafların yarısını sizin karşılamanız gerekir.',
+          ];
+          replyText = deedRejectPool[random.nextInt(deedRejectPool.length)];
         }
         break;
 
@@ -344,23 +407,42 @@ class RealEstateBuyerNegotiationExpansion {
         if (random.nextDouble() < 0.70) {
           nextSatisfactionDelta = 15;
           replyBadge = 'HIZLI DEVİR & BLOKAJ KABUL';
-          switch (archetype.id) {
-            case BuyerArchetypeId.industrialist:
-              replyText =
-                  'Nakit gücümüz tamdır • Yarın sabah 10:00 da Tapu Takas bloke dekontuyla hazır olacağız.';
-              break;
-            case BuyerArchetypeId.expatInvestor:
-              replyText =
-                  'Euro mevduatımız hazır • Bankadan bloke çeki anında çıkarıp yarın tapuda buluşuyoruz.';
-              break;
-            default:
-              replyText =
-                  'Likiditemiz hazır • Banka bloke çekiyle yarın sabah tapu devrini tamamlamayı kabul ediyoruz.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> cashSuccessPools = {
+            BuyerArchetypeId.industrialist: [
+              'Nakit gücümüz tamdır • Yarın sabah 10:00 da Tapu Takas bloke dekontuyla hazır olacağız.',
+              'Holding kasasından nakit transferi hazırlandı • Yarın sabah ilk randevuda blokajı koyuyoruz.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Euro mevduatımız hazır • Bankadan bloke çeki anında çıkarıp yarın tapuda buluşuyoruz.',
+              'Döviz hesabımızdan nakdi çektik • Yarın noterde veya tapuda hazır bloke hesapla bekliyoruz.',
+            ],
+            BuyerArchetypeId.fundDirector: [
+              'Fon likiditemiz anlık takasa uygundur • Takasbank aracılığıyla nakit transferi hemen teyit edilir.',
+              'Kurumsal hesabımızdan blokeli devir işlemi için talimat verildi • Yarın devir tamamlanabilir.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Esnafın parası kasada beklemez • Yarın sabah banka blokajıyla tapu dairesindeyiz.',
+              'Çantada sıcak nakit ve bloke çekiyle hazırız • İşi yarın bitirelim.',
+            ],
+            BuyerArchetypeId.familyBuyer: [
+              'Birikimimizi hazır tuttuk • Yarın sabah banka garantili blokajla tapu devrine geliyoruz.',
+              'Konut kredisini onaylattık • Nakit peşinat kısmını bloke ettirip yarın imzaya hazırız.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Likiditemiz hazır • Banka bloke çekiyle yarın sabah tapu devrini tamamlamayı kabul ediyoruz.',
+              'Anında nakit garantisi veriyoruz • Yarın sabah tapu müdürlüğünde buluşabiliriz.',
+            ],
+          };
+
+          final pool = cashSuccessPools[archetype.id] ?? cashSuccessPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         } else {
-          replyText =
-              'Finansman paketimiz banka konut kredisine bağlı • Hemen yarın nakit blokaj garantisi veremeyiz.';
+          final cashRejectPool = [
+            'Finansman paketimiz banka konut kredisine bağlı • Hemen yarın nakit blokaj garantisi veremeyiz.',
+            'Mevduatımızın vadesi haftaya doluyor • Yarın sabah anında nakit blokaj sağlayamayız.',
+            'Para transferi için fon komitesinden ek gün talep etmemiz gerekiyor • Hemen devir yapamayız.',
+          ];
+          replyText = cashRejectPool[random.nextInt(cashRejectPool.length)];
         }
         break;
 
@@ -369,23 +451,42 @@ class RealEstateBuyerNegotiationExpansion {
         if (random.nextDouble() < 0.70) {
           nextSatisfactionDelta = 15;
           replyBadge = 'ŞEREFİYE DEĞERİ TEYİT EDİLDİ';
-          switch (archetype.id) {
-            case BuyerArchetypeId.fundDirector:
-              replyText =
-                  'Lokasyon analiz raporumuz tabela değerini ve yaya aksını doğruluyor • Bu şerefiyenin bedelini ödemeye değer.';
-              break;
-            case BuyerArchetypeId.familyBuyer:
-              replyText =
-                  'Haklısınız, sokak çok ferah ve okulun hemen yanı başında • Bu konum ailemiz için paha biçilemez.';
-              break;
-            default:
-              replyText =
-                  'Haklısınız • Lokasyon ve cephe avantajı gayrimenkulün değerini koruyor • Teklifimize sadık kalacağız.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> primeSuccessPools = {
+            BuyerArchetypeId.fundDirector: [
+              'Lokasyon analiz raporumuz tabela değerini ve yaya aksını doğruluyor • Bu şerefiyenin bedelini ödemeye değer.',
+              'Kurumsal değerleme uzmanımız cephe primini teyit etti • Lokasyon avantajı teklifimizi güçlendiriyor.',
+            ],
+            BuyerArchetypeId.familyBuyer: [
+              'Haklısınız, sokak çok ferah ve okulun hemen yanı başında • Bu konum ailemiz için paha biçilemez.',
+              'Balkonun önünün açık olması ve güneş alması harika • Ailemiz için aradığımız tam buydu.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Köşe başı olması ve tabela değeri tartışılmaz • Bu cephe için fiyatı kabul ediyoruz.',
+              'Müşteri giriş aksı çok kuvvetli • Bu şerefiye farkını memnuniyetle karşılıyoruz.',
+            ],
+            BuyerArchetypeId.industrialist: [
+              'Lojistik ve anayol bağlantısı kusursuz • Prestijli mülkünüzün şerefiye payını onaylıyoruz.',
+              'Geniş otopark ve ön cephe avantajı şirketimiz için tam aranan niteliktedir.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Deniz ve şehir manzarası gerçekten birinci sınıf • Bu manzara için yatırım yapmaya değer.',
+              'Bölgenin prim potansiyeli yüksek • Konum avantajını takdir ediyoruz.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Haklısınız • Lokasyon ve cephe avantajı gayrimenkulün değerini koruyor • Teklifimize sadık kalacağız.',
+              'Şerefiye primini göz ardı etmiyoruz • Sunduğunuz konum avantajını onaylıyoruz.',
+            ],
+          };
+
+          final pool = primeSuccessPools[archetype.id] ?? primeSuccessPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         } else {
-          replyText =
-              'Lokasyon güçlü olsa da binanın yaşı ve otopark kısıtı şerefiye avantajını dengeliyor.';
+          final primeRejectPool = [
+            'Lokasyon güçlü olsa da binanın yaşı ve otopark kısıtı şerefiye avantajını dengeliyor.',
+            'Ön cephe açık ama sokaktaki trafik gürültüsü şerefiye primini düşürüyor.',
+            'Bölgede benzer konumda birçok alternatif var • Ekstra şerefiye farkı ödeyemeyiz.',
+          ];
+          replyText = primeRejectPool[random.nextInt(primeRejectPool.length)];
         }
         break;
 
@@ -394,45 +495,79 @@ class RealEstateBuyerNegotiationExpansion {
         if (random.nextDouble() < 0.65) {
           nextSatisfactionDelta = 15;
           replyBadge = 'BOŞ & MASRAFSIZ TESLİM';
-          switch (archetype.id) {
-            case BuyerArchetypeId.familyBuyer:
-              replyText =
-                  'Tadilat ustasıyla ve kiracı tahliyesiyle uğraşmayacak olmak bizim için harika • Mülkü olduğu gibi devralıyoruz.';
-              break;
-            case BuyerArchetypeId.merchantTrader:
-              replyText =
-                  'Dükkanın hazır kurulu olması bizi 2 ay masraftan ve zaman kaybından kurtarır • Bu şartı sözleşmeye yazıyoruz.';
-              break;
-            default:
-              replyText =
-                  'Tadilat ve tahliye stresi yaşamamak bizim için büyük avantaj • Şartlarınızı kabul ediyoruz.';
-              break;
-          }
+          final Map<BuyerArchetypeId, List<String>> fixtureSuccessPools = {
+            BuyerArchetypeId.familyBuyer: [
+              'Tadilat ustasıyla ve kiracı tahliyesiyle uğraşmayacak olmak bizim için harika • Mülkü olduğu gibi devralıyoruz.',
+              'Mutfak ve banyonun yapılı olması bize aylar kazandırır • Boş teslim şartını kabul ediyoruz.',
+            ],
+            BuyerArchetypeId.merchantTrader: [
+              'Dükkanın hazır kurulu olması bizi 2 ay masraftan ve zaman kaybından kurtarır • Bu şartı sözleşmeye yazıyoruz.',
+              'Tesisatın yenilenmiş olması büyük artı • Masrafsız teslim şartınızı kabul ediyoruz.',
+            ],
+            BuyerArchetypeId.fundDirector: [
+              'Taşınmazın hemen kiraya verilebilir durumda olması portföy getirimiz için idealdir • Kabul ediyoruz.',
+              'Ekspertiz raporunda masrafsız teslim tescillendi • Bu koşulu sözleşmeye ekliyoruz.',
+            ],
+            BuyerArchetypeId.industrialist: [
+              'Anahtar teslim ve boş vaziyette mülk devralmak şirketimiz için avantajdır • Şartı onayladık.',
+              'Ekstra tadilat bütçesi ayırmak istemiyorduk • Masrafsız teslim garantisini kabul ediyoruz.',
+            ],
+            BuyerArchetypeId.expatInvestor: [
+              'Yurt dışından tadilat yönetmek imkansız olurdu • Hazır ve masrafsız teslim edilmesi harika bir artı.',
+              'Eşyalı ve temiz vaziyette teslimat şartınızı memnuniyetle kabul ediyoruz.',
+            ],
+            BuyerArchetypeId.opportunist: [
+              'Tadilat ve tahliye stresi yaşamamak bizim için büyük avantaj • Şartlarınızı kabul ediyoruz.',
+              'Masrafsız anahtar teslim koşulunu olumlu karşılıyoruz • Sözleşmeye yazalım.',
+            ],
+          };
+
+          final pool = fixtureSuccessPools[archetype.id] ?? fixtureSuccessPools[BuyerArchetypeId.opportunist]!;
+          replyText = pool[random.nextInt(pool.length)];
         } else {
-          replyText =
-              'Biz zaten mülkü kendi konseptimize göre yenileyeceğiz • Mevcut donanım bizim için katma değer taşımıyor.';
+          final fixtureRejectPool = [
+            'Biz zaten mülkü kendi konseptimize göre yenileyeceğiz • Mevcut donanım bizim için katma değer taşımıyor.',
+            'Kendi mimarımızla sıfırdan tadilata gireceğiz • Mevcut eklentiler teklifimizi etkilemez.',
+            'Eski tadilatın bizim projelerimizde bir karşılığı yok • Ekstra prim ödemeyiz.',
+          ];
+          replyText = fixtureRejectPool[random.nextInt(fixtureRejectPool.length)];
         }
         break;
 
       case ChatTacticType.askJokeOrChat:
         nextPatienceDelta = 22;
         nextSatisfactionDelta = 15;
-        replyText =
-            'Gönüller bir olsun patron • Bir acı kahvenin kırk yıl hatrı var, pazarlığı tatlıya bağlayalım!';
+        final coffeePool = [
+          'Gönüller bir olsun patron • Bir acı kahvenin kırk yıl hatrı var, pazarlığı tatlıya bağlayalım!',
+          'Şeref verdiniz • Çaylar şirketten, sohbet sizden. Masada halledilmeyecek iş yoktur!',
+          'Ağzınızın tadı bozulmasın • Esnafın sohbeti berekettir, biraz nefes alıp şartları yumuşatalım.',
+          'Yüzünüz güldü ya gerisi kolay • Kahvemizi yudumlayıp orta yolu buluruz.',
+        ];
+        replyText = coffeePool[random.nextInt(coffeePool.length)];
         replyBadge = 'KAHVE VE SOHBET • SABIR +22';
         break;
 
       case ChatTacticType.acceptAgreement:
         nextAgreed = true;
-        replyText =
-            'Harika! Şartlarda mutabık kaldık • Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!';
+        final acceptPool = [
+          'Harika! Şartlarda mutabık kaldık • Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!',
+          'El sıkıştık patron! Noter randevusunu hemen alıyoruz • İki tarafa da bol kazanç getirsin.',
+          'Anlaşma sağlandı • Her iki taraf için de çok bereketli bir ticaret oldu, tebrik ederim!',
+          'Hayırlı ve mübarek olsun • Şartlar kesinleşti, tapu devir işlemlerini başlatıyoruz.',
+        ];
+        replyText = acceptPool[random.nextInt(acceptPool.length)];
         replyBadge = 'MUTABAKAT SAĞLANDI';
         break;
 
       case ChatTacticType.walkAway:
         nextWalkedAway = true;
-        replyText =
-            'Görüşmelerde ortak bir noktada buluşamadık • Teklifimiz iptal edilmiştir.';
+        final walkawayPool = [
+          'Görüşmelerde ortak bir noktada buluşamadık • Teklifimiz iptal edilmiştir.',
+          'Şartlarımız maalesef uyuşmadı • Vaktiniz için teşekkür ederiz, masadan kalkıyoruz.',
+          'Ticarette nasip buraya kadarmış • Başka portföylerde görüşmek üzere, iyi günler dileriz.',
+          'Beklentilerimiz arasında çok uçurum var • Görüşmeyi sonlandırıyoruz.',
+        ];
+        replyText = walkawayPool[random.nextInt(walkawayPool.length)];
         replyBadge = 'PAZARLIK BİTTİ';
         break;
 

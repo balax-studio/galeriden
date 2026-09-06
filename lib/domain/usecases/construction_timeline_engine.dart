@@ -381,4 +381,24 @@ class ConstructionPricing {
     }
     return base;
   }
+
+  /// Dinamik Mimari Plan & Statik Proje ücreti (1 gün sürer)
+  static double architecturalPlanCost(
+    RealEstateModel land, {
+    double costIndex = 1.0,
+    bool hasArchitectStaff = false,
+  }) {
+    final discount = hasArchitectStaff ? 0.70 : 1.0;
+    return (land.baseMarketValue * 0.04 * costIndex * discount).roundToDouble();
+  }
+
+  /// Dinamik Belediye Yapı Ruhsatı & Resmi Harçlar ücreti (1 gün sürer)
+  static double municipalPermitCost(
+    RealEstateModel land, {
+    double costIndex = 1.0,
+    bool hasLegalAdvisor = false,
+  }) {
+    final discount = hasLegalAdvisor ? 0.70 : 1.0;
+    return (land.baseMarketValue * 0.06 * costIndex * discount).roundToDouble();
+  }
 }
