@@ -185,5 +185,28 @@ void main() {
         }
       }
     });
+
+    test('Authentic Turkish esnaf dilemma cards are accessible in procedural cycles', () {
+      final generatedTitles = <String>{};
+      for (int day = 1; day <= 1500; day++) {
+        final card = DramaticCardEngine.generateDailyDilemma(day, baseState);
+        generatedTitles.add(card.title);
+      }
+
+      expect(generatedTitles.contains('Motor Kaputunda Uyuyan Kedi'), isTrue);
+      expect(generatedTitles.contains('Habersiz Çaya Gelen Akrabalar'), isTrue);
+      expect(generatedTitles.contains('Sanayi Çaycısının Kabarık Çetelesi'), isTrue);
+      expect(generatedTitles.contains('Cuma Namazı Çıkışı Kalabalığı'), isTrue);
+      expect(generatedTitles.contains('Ani Elektrik Kesintisi ve Sıkışan Kepenk'), isTrue);
+      expect(generatedTitles.contains('Sanayide Düğün Konvoyu Baskını'), isTrue);
+      expect(generatedTitles.contains('Noterde Elektrik ve Sistem Çökmesi'), isTrue);
+      expect(generatedTitles.contains('Çırağın Ehliyet Sevinci'), isTrue);
+      expect(generatedTitles.contains('Kapı Önünde Lastik Yakan Mahalle Gençleri'), isTrue);
+      expect(generatedTitles.contains('Emekli Sandığı İkramiyesiyle Gelen Eski Dost'), isTrue);
+      expect(generatedTitles.contains('Yağmurlu Havada Galeriye Sığınan Seyyar Satıcı'), isTrue);
+      expect(generatedTitles.contains('İflas Eden Komşu Esnafın Vedası'), isTrue);
+      expect(generatedTitles.contains('Sanayi Sitesi Futbol Turnuvası'), isTrue);
+      expect(generatedTitles.contains('Nostaljik Radyo Programı Röportajı'), isTrue);
+    });
   });
 }

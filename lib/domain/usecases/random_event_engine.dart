@@ -432,7 +432,7 @@ class RandomEventEngine {
         // --- YAN İŞLETMELER: OTO ÇEKİCİ RİSKLERİ ---
         GameEventModel(
           id: 'event_tow_truck_cable_snap',
-          title: 'Çekici Çelik Halatı Koptu • Taşınan SUV Kaydı',
+          title: 'Çekici Çelik Halatı Koptu • Taşınan Araç Kaydı',
           description: 'Oto kurtarma aracının tambur halatı aşırı yükten koptu, platformdaki araç tampon hasarı aldı!',
           iconEmoji: 'tow',
           amount: -24000.0,
@@ -496,7 +496,7 @@ class RandomEventEngine {
           date: DateTime.now(),
           choices: [
             GameEventChoice(label: 'Sıfır İtalyan Keçe Takımı Al & Montaj Yap • -15.000 ₺', resultText: 'Lift pürüzsüz çalışıyor, servis kapasitesi ve güvenlik en üst düzeye çıktı.', balanceChange: -15000.0, reputationChange: 10, xpGain: 75),
-            GameEventChoice(label: 'Geçici Yamayla Çalıştır • -4.000 ₺', resultText: 'Lift indirildi ama ağır SUV araçları kaldırmaktan kaçınmak gerekecek.', balanceChange: -4000.0, reputationChange: -15, xpGain: 30),
+            GameEventChoice(label: 'Geçici Yamayla Çalıştır • -4.000 ₺', resultText: 'Lift indirildi ama ağır tonajlı araçları kaldırmaktan kaçınmak gerekecek.', balanceChange: -4000.0, reputationChange: -15, xpGain: 30),
           ],
         ),
         GameEventModel(
@@ -808,7 +808,7 @@ class RandomEventEngine {
         GameEventModel(
           id: 'event_rental_cinema_movie_production',
           title: 'Dizi & Sinema Filmi Çekim Filosu Kiralama',
-          description: 'Bölgede çekilen aksiyon dizisi yapımcısı 5 adet siyah lüks SUV ve sedanı 2 hafta boyunca kapatmak istiyor!',
+          description: 'Bölgede çekilen aksiyon dizisi yapımcısı filodan 5 adet siyah lüks aracı 2 hafta boyunca kapatmak istiyor!',
           iconEmoji: 'car',
           amount: 65000.0,
           type: GameEventType.goodEvent,
@@ -991,7 +991,7 @@ class RandomEventEngine {
         GameEventModel(
           id: 'event_rental_movie_gala_premiere',
           title: 'Aksiyon Filmi Gala Gecesi & Kırmızı Halı Sponsorluğu',
-          description: 'Galerinin kiralık SUV filosunu kullanan aksiyon dizisi sinema filmine uyarlandı ve galaya ana sponsorluk teklif etti!',
+          description: 'Galerinin kiralık araç filosunu kullanan aksiyon dizisi sinema filmine uyarlandı ve galaya ana sponsorluk teklif etti!',
           iconEmoji: 'star',
           amount: 45000.0,
           type: GameEventType.goodEvent,
@@ -1178,7 +1178,7 @@ class RandomEventEngine {
         GameEventModel(
           id: 'event_unlu_musteri',
           title: 'Süper Lig Futbolcusu Ziyareti',
-          description: 'Milli futbolcu lüks SUV bakmak için menajeriyle birlikte galerine uğradı!',
+          description: 'Milli futbolcu vitrindeki lüks araçlara göz atmak için menajeriyle birlikte galerine uğradı!',
           iconEmoji: 'star',
           amount: 25000.0,
           type: GameEventType.goodEvent,
@@ -1410,8 +1410,8 @@ class RandomEventEngine {
         // --- MEVSİMSEL & EKONOMİK DALGALANMALAR ---
         GameEventModel(
           id: 'event_winter_blizzard_demand',
-          title: 'Bölgesel Kar Fırtınası & 4x4 SUV Patlaması',
-          description: 'Şehirde başlayan yoğun kar yağışı ve don olayları nedeniyle 4x4 SUV araçlara ve oto çekici kurtarma hizmetlerine talep patladı!',
+          title: 'Bölgesel Kar Fırtınası & Çekici Talebi Patlaması',
+          description: 'Şehirde başlayan yoğun kar yağışı ve don olayları nedeniyle oto çekici kurtarma hizmetlerine ve zincirli araçlara talep patladı!',
           iconEmoji: 'flash',
           amount: 32000.0,
           type: GameEventType.goodEvent,
@@ -1531,7 +1531,7 @@ class RandomEventEngine {
         GameEventModel(
           id: 'event_wrap_ppf_heat_peel',
           title: 'YÜKSEK SICAKLIK ETKİSİ • PPF KAPLAMA KABARMASI',
-          description: 'Yaz sıcağında kaplanan lüks bir SUV aracın kaput kenarlarındaki koruma filmi hava kabarcığı yaptı!',
+          description: 'Yaz sıcağında kaplanan lüks bir vitrin aracının kaput kenarlarındaki koruma filmi hava kabarcığı yaptı!',
           iconEmoji: 'paint',
           amount: -12000.0,
           type: GameEventType.badEvent,

@@ -78,6 +78,7 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
       car: widget.listing.car,
       customer: _customer,
       price: widget.listing.askingPrice,
+      offerId: widget.listing.id,
     );
   }
 

@@ -213,7 +213,7 @@ class RepairEngine {
   }
 
   /// Resolves matching key in bodyParts map handling various naming conventions (e.g. 'Ön Kaput' -> 'Kaput')
-  static String? _resolveBodyPartKey(Map<String, PartStatus> bodyParts, String partName) {
+  static String? resolveBodyPartKey(Map<String, PartStatus> bodyParts, String partName) {
     if (bodyParts.containsKey(partName)) return partName;
 
     final targetLower = partName.toLowerCase().trim();
@@ -263,12 +263,67 @@ class RepairEngine {
     return null;
   }
 
+  /// Extracts the list of parts that actually require replacement or repair for a specific car
+  static List<String> getNeededPartsForCar(CarModel car) {
+    final needed = <String>[];
+    car.expertise.bodyParts.forEach((part, status) {
+      if (status == PartStatus.changed ||
+          status == PartStatus.damaged ||
+          status == PartStatus.painted ||
+          status == PartStatus.localPainted) {
+        needed.add(part);
+      }
+    });
+
+    if (car.expertise.engineCondition < 95.0) {
+      needed.add('Motor Bloğu & Piston');
+    }
+
+    if (car.expertise.transmissionCondition < 95.0) {
+      needed.add('Şanzıman & Debriyaj');
+    }
+
+    return needed;
+  }
+
+  /// Returns a clean, localized description of the part condition on the car (strictly zero parentheses)
+  static String getPartConditionDescription(CarModel car, String partName) {
+    final lower = partName.toLowerCase().trim();
+    if (lower.contains('motor') || lower.contains('piston') || lower.contains('blok')) {
+      return 'Aşınmış Motor • %${car.expertise.engineCondition.round()} Sağlık';
+    }
+    if (lower.contains('şanzıman') || lower.contains('debriyaj') || lower.contains('gearbox')) {
+      return 'Aşınmış Şanzıman • %${car.expertise.transmissionCondition.round()} Sağlık';
+    }
+
+    final resolved = resolveBodyPartKey(car.expertise.bodyParts, partName);
+    if (resolved != null) {
+      final status = car.expertise.bodyParts[resolved];
+      final cond = car.expertise.partConditions[resolved] ?? 100.0;
+      switch (status) {
+        case PartStatus.damaged:
+          return 'Hasarlı • %${cond.round()} Kondisyon';
+        case PartStatus.changed:
+          return 'Değişen • %${cond.round()} Kondisyon';
+        case PartStatus.painted:
+          return 'Boyalı • %${cond.round()} Kondisyon';
+        case PartStatus.localPainted:
+          return 'Lokal Boyalı • %${cond.round()} Kondisyon';
+        case PartStatus.original:
+        default:
+          return 'Orijinal • %${cond.round()} Kondisyon';
+      }
+    }
+
+    return 'Gerekli Parça';
+  }
+
   /// Applies an installed part order to restore vehicle part condition
   static CarModel applyInstalledPart(CarModel car, String partName, OrderType type) {
     final updatedParts = Map<String, PartStatus>.from(car.expertise.bodyParts);
     final updatedConditions = Map<String, double>.from(car.expertise.partConditions);
 
-    final resolvedKey = _resolveBodyPartKey(updatedParts, partName);
+    final resolvedKey = resolveBodyPartKey(updatedParts, partName);
     if (resolvedKey != null) {
       switch (type) {
         case OrderType.quickPatch:

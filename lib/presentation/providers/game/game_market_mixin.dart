@@ -1223,11 +1223,27 @@ mixin GameMarketMixin on GameBaseNotifier {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
-    // Prevent duplicate in-transit orders for the same car & part
-    final isAlreadyPending = state.pendingOrders.any((o) =>
-        o.carId == carId &&
-        o.partName.toLowerCase().trim() == partName.toLowerCase().trim());
+    final car = state.ownedCars[carIndex];
+
+    // Prevent duplicate in-transit orders for the same car & part (including aliases)
+    final isAlreadyPending = state.pendingOrders.any((o) {
+      if (o.carId != carId) return false;
+      if (o.partName.toLowerCase().trim() == partName.toLowerCase().trim()) return true;
+      final resolvedO = RepairEngine.resolveBodyPartKey(car.expertise.bodyParts, o.partName);
+      final resolvedTarget = RepairEngine.resolveBodyPartKey(car.expertise.bodyParts, partName);
+      return resolvedO != null && resolvedTarget != null && resolvedO == resolvedTarget;
+    });
     if (isAlreadyPending) return false;
+
+    // Validate target car actually needs this part
+    final neededParts = RepairEngine.getNeededPartsForCar(car);
+    final isNeeded = neededParts.any((p) {
+      if (p.toLowerCase().trim() == partName.toLowerCase().trim()) return true;
+      final resolvedP = RepairEngine.resolveBodyPartKey(car.expertise.bodyParts, p);
+      final resolvedTarget = RepairEngine.resolveBodyPartKey(car.expertise.bodyParts, partName);
+      return resolvedP != null && resolvedTarget != null && resolvedP == resolvedTarget;
+    });
+    if (!isNeeded) return false;
 
     final weeklyEvent = WeeklyEventEngine.getEventForDay(state.currentDay);
     final isPartsDay = weeklyEvent.id == 'wednesday_parts_supply';

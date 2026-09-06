@@ -851,57 +851,128 @@ class _WorkshopGarageRepairsTabState
                   const SizedBox(height: 8),
                 ],
 
-                NeoBrutalButton(
-                  label: context.tr('workshop_btn_order_parts'),
-                  icon: Icons.local_shipping_rounded,
-                  backgroundColor: isDark
-                      ? const Color(0xFF1E2330)
-                      : const Color(0xFFE2E8F0),
-                  textColor: isDark ? Colors.white : Colors.black,
-                  fontSize: 10.5,
-                  fullWidth: true,
-                  onPressed: () => OrderPartsSheet.show(
-                    context: context,
-                    car: _selectedCar!,
-                    game: game,
-                    onOrderConfirmed:
-                        (partName, type, cost, durationSeconds) {
-                      if (game.pendingOrders.any((o) =>
-                          o.carId == _selectedCar!.id &&
-                          o.partName.toLowerCase().trim() ==
-                              partName.toLowerCase().trim())) {
-                        NotificationService.showWarning(
-                          context,
-                          context.tr('toast_part_order_duplicate'),
-                        );
-                        return;
-                      }
-                      if (game.balance < cost &&
-                          type != OrderType.salvagedScrap) {
-                        NotificationService.showError(
-                          context,
-                          context.tr('toast_insufficient_balance_needed',
-                              {'cost': CurrencyFormatter.format(cost)}),
-                        );
-                        return;
-                      }
-                      final success =
-                          ref.read(gameProvider.notifier).orderPart(
-                                carId: _selectedCar!.id,
-                                partName: partName,
-                                orderType: type,
-                                cost: cost,
-                                deliveryDurationSeconds: durationSeconds,
-                              );
-                      if (success) {
-                        NotificationService.showSuccess(
-                          context,
-                          context.tr('workshop_toast_order_dispatched'),
-                        );
-                        setState(() {});
-                      }
-                    },
-                  ),
+                Builder(
+                  builder: (context) {
+                    final carOrders = game.pendingOrders
+                        .where((o) => o.carId == _selectedCar!.id)
+                        .toList();
+                    final neededParts =
+                        RepairEngine.getNeededPartsForCar(_selectedCar!);
+                    final hasNoNeededParts = neededParts.isEmpty;
+                    final allNeededPartsInCargo = !hasNoNeededParts &&
+                        neededParts.every((p) => carOrders.any((o) =>
+                            o.partName.toLowerCase().trim() ==
+                                p.toLowerCase().trim() ||
+                            RepairEngine.resolveBodyPartKey(
+                                    _selectedCar!.expertise.bodyParts,
+                                    o.partName) ==
+                                RepairEngine.resolveBodyPartKey(
+                                    _selectedCar!.expertise.bodyParts, p)));
+                    final unassignedCount = neededParts
+                        .where((p) => !carOrders.any((o) =>
+                            o.partName.toLowerCase().trim() ==
+                                p.toLowerCase().trim() ||
+                            RepairEngine.resolveBodyPartKey(
+                                    _selectedCar!.expertise.bodyParts,
+                                    o.partName) ==
+                                RepairEngine.resolveBodyPartKey(
+                                    _selectedCar!.expertise.bodyParts, p)))
+                        .length;
+
+                    if (hasNoNeededParts) {
+                      return NeoBrutalButton(
+                        label: context.tr('workshop_btn_parts_not_needed'),
+                        icon: Icons.check_circle_outline_rounded,
+                        backgroundColor: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
+                        textColor: isDark ? Colors.white54 : Colors.black45,
+                        fontSize: 10,
+                        fullWidth: true,
+                        onPressed: () {
+                          NotificationService.showInfo(
+                            context,
+                            context.tr('workshop_toast_part_not_needed'),
+                          );
+                        },
+                      );
+                    }
+
+                    if (allNeededPartsInCargo) {
+                      return NeoBrutalButton(
+                        label: context.tr('workshop_btn_parts_in_cargo', {
+                          'count': carOrders.length.toString(),
+                        }),
+                        icon: Icons.hourglass_top_rounded,
+                        backgroundColor: isDark
+                            ? const Color(0xFF2A1B4E)
+                            : const Color(0xFFEDE9FE),
+                        textColor: const Color(0xFFA855F7),
+                        fontSize: 10,
+                        fullWidth: true,
+                        onPressed: () {
+                          NotificationService.showInfo(
+                            context,
+                            context.tr('order_parts_all_pending_desc'),
+                          );
+                        },
+                      );
+                    }
+
+                    return NeoBrutalButton(
+                      label:
+                          '${context.tr('workshop_btn_order_parts')} • $unassignedCount PARÇA',
+                      icon: Icons.local_shipping_rounded,
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E2330)
+                          : const Color(0xFFE2E8F0),
+                      textColor: isDark ? Colors.white : Colors.black,
+                      fontSize: 10.5,
+                      fullWidth: true,
+                      onPressed: () => OrderPartsSheet.show(
+                        context: context,
+                        car: _selectedCar!,
+                        game: game,
+                        onOrderConfirmed:
+                            (partName, type, cost, durationSeconds) {
+                          if (game.pendingOrders.any((o) =>
+                              o.carId == _selectedCar!.id &&
+                              o.partName.toLowerCase().trim() ==
+                                  partName.toLowerCase().trim())) {
+                            NotificationService.showWarning(
+                              context,
+                              context.tr('toast_part_order_duplicate'),
+                            );
+                            return;
+                          }
+                          if (game.balance < cost &&
+                              type != OrderType.salvagedScrap) {
+                            NotificationService.showError(
+                              context,
+                              context.tr('toast_insufficient_balance_needed',
+                                  {'cost': CurrencyFormatter.format(cost)}),
+                            );
+                            return;
+                          }
+                          final success =
+                              ref.read(gameProvider.notifier).orderPart(
+                                    carId: _selectedCar!.id,
+                                    partName: partName,
+                                    orderType: type,
+                                    cost: cost,
+                                    deliveryDurationSeconds: durationSeconds,
+                                  );
+                          if (success) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('workshop_toast_order_dispatched'),
+                            );
+                            setState(() {});
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

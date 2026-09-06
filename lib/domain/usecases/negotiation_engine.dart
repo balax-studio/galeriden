@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 import '../../core/utils/anti_repetition_queue.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/slot_text_composer.dart';
@@ -28,6 +29,8 @@ class EsnafTactic {
   final List<String> successDialogues;
   final List<String> failureDialogues;
   final List<String> walkawayDialogues;
+  final Color accentColor;
+  final String category;
 
   const EsnafTactic({
     required this.id,
@@ -44,6 +47,8 @@ class EsnafTactic {
     this.successDialogues = const [],
     this.failureDialogues = const [],
     this.walkawayDialogues = const [],
+    this.accentColor = const Color(0xFFFFB703),
+    this.category = 'prestige',
   });
 
   String getDynamicSuccessDialogue([Random? rng]) {
@@ -157,27 +162,36 @@ class NegotiationEngine {
     final exp = car.expertise;
     final hasBodyFlaws = exp.bodyParts.values.any((status) =>
         status == PartStatus.painted ||
+        status == PartStatus.localPainted ||
         status == PartStatus.changed ||
         status == PartStatus.damaged);
     final hasTramer = exp.tramerAmount > 0;
     final isTampered = exp.isMileageTampered;
     final hasSevereMechanical = exp.engineCondition < 60.0 || exp.transmissionCondition < 60.0;
-    final bool isActuallyFlawless = !hasBodyFlaws && !hasTramer && !isTampered && !hasSevereMechanical;
+    final bool isActuallyFlawless =
+        (!hasBodyFlaws && !hasTramer && !isTampered && !hasSevereMechanical) ||
+        car.isPristineOriginal;
+
+    final rng = random ?? _random;
 
     if (car.declarationType == ListingDeclarationType.honest ||
-        (car.declarationType == ListingDeclarationType.flawlessClaim && isActuallyFlawless) ||
-        (car.declarationType == ListingDeclarationType.minorFlawHidden && isActuallyFlawless)) {
+        ((car.declarationType == ListingDeclarationType.flawlessClaim ||
+                car.declarationType == ListingDeclarationType.minorFlawHidden) &&
+            isActuallyFlawless)) {
+      final bool customerInspected =
+          forceInspect ?? (rng.nextDouble() < customer.inspectionProbability);
       return FraudInspectionResult(
-        didInspect: false,
+        didInspect: customerInspected,
         caughtFraud: false,
-        title: 'Dürüst İlan',
-        description: 'İlanda beyan edilen bilgiler ekspertiz ile %100 uyuşuyor.',
+        title: customerInspected ? 'Ekspertiz Kusursuz Çıktı!' : 'Dürüst İlan',
+        description: customerInspected
+            ? '${customer.name} aracı kurumsal ekspertize soktu. İddia ettiğiniz gibi tek bir hata bile çıkmadı! Müşteri güvenle satın alıyor.'
+            : 'İlanda beyan edilen bilgiler ekspertiz ile %100 uyuşuyor.',
         fineAmount: 0.0,
         reputationPenalty: 0,
       );
     }
 
-    final rng = random ?? _random;
     final bool didInspect = forceInspect ?? (rng.nextDouble() < customer.inspectionProbability);
 
     if (!didInspect) {
@@ -186,6 +200,36 @@ class NegotiationEngine {
         caughtFraud: false,
         title: 'Ekspertiz Yapılmadı',
         description: 'Müşteri ilana güvendi ve aracı kontrolden geçirmeden kabul etti!',
+        fineAmount: 0.0,
+        reputationPenalty: 0,
+      );
+    }
+
+    // Ekspertizde kusurun gözden kaçma veya alıcının önemsememe ihtimali
+    final double detectionRate;
+    switch (car.declarationType) {
+      case ListingDeclarationType.minorFlawHidden:
+        detectionRate = 0.50;
+        break;
+      case ListingDeclarationType.flawlessClaim:
+        detectionRate = 0.65;
+        break;
+      case ListingDeclarationType.tamperedMileageClaim:
+        detectionRate = 0.80;
+        break;
+      default:
+        detectionRate = 0.60;
+    }
+
+    final bool caught = forceInspect ?? (rng.nextDouble() < detectionRate);
+
+    if (!caught) {
+      return FraudInspectionResult(
+        didInspect: true,
+        caughtFraud: false,
+        title: 'Kusur Gözden Kaçtı!',
+        description:
+            '${customer.name} ekspertiz yaptırdı ancak usta ilandaki kusurları gözden kaçırdı! Şans eseri yakalanmadın.',
         fineAmount: 0.0,
         reputationPenalty: 0,
       );
@@ -681,6 +725,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
       baseBonusPercent: 18,
+      accentColor: Color(0xFF00E575),
+      category: 'defect',
       successDialogue: 'Ekspertiz raporundaki kusurlar tek tek sayıldı • Satıcı terledi ve boyun eğdi!',
       failureDialogue: 'Satıcı • Usta araba sıfır değil, bu yaşta normal • diyerek kusurlara kulak tıkadı.',
       walkawayDialogue: 'Satıcı sinirlendi • Kusur arıyorsan bayiye git sıfır al usta, pazarlık bitti! • Masayı terk etti.',
@@ -694,6 +740,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
       baseBonusPercent: 20,
+      accentColor: Color(0xFFFFDE59),
+      category: 'cash',
       successDialogue: 'Masanın üstündeki nakit desteyi gören satıcının gözleri parladı • Hemen el sıkışmaya hazır!',
       failureDialogue: 'Satıcı • Paranın yüzü sıcak ama bu rakama kurtarmaz usta • diyerek tok durdu.',
       walkawayDialogue: 'Satıcı • Parayla beni ezemezsin usta, araba satılık değil artık! • Masadan kalktı.',
@@ -707,6 +755,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
       baseBonusPercent: 16,
+      accentColor: Color(0xFFFF54B0),
+      category: 'market',
       successDialogue: 'Piyasa analizlerin satıcıyı ikna etti • "Haklısın usta, uzun süredir soran yoktu" diyerek yumuşadı!',
       failureDialogue: 'Satıcı • Piyasayı bana öğretme usta, dün 3 kişi aradı bu araba için • diyerek rest çekti.',
       walkawayDialogue: 'Satıcı • Madem piyasa ölü, araba garajımda yatar yine de sana vermem! • Masadan ayrıldı.',
@@ -720,6 +770,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial, CustomerArchetype.greedyFlipper],
       baseBonusPercent: 16,
+      accentColor: Color(0xFF38BDF8),
+      category: 'budget',
       successDialogue: 'Ortağa danışıldı • "Usta ortak onay vermiyor, bütçemiz ancak bu fiyata yetiyor" denildi. Satıcının direnci kırıldı!',
       failureDialogue: 'Karşı taraf • Ortağın da piyasayı bilmiyor herhalde usta • diyerek taviz vermedi.',
       walkawayDialogue: 'Satıcı • Ortağınla aranda anlaş öyle gel, vaktimi harcama! • Masayı terk etti.',
@@ -733,6 +785,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan, CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
       baseBonusPercent: 14,
+      accentColor: Color(0xFFFFB703),
+      category: 'diplomacy',
       successDialogue: 'Tavşankanı sıcak çay yudumlandı • Tatlı muhabbetle masadaki buzlar tamamen eridi!',
       failureDialogue: 'Satıcı • Sağ ol usta çaya vaktim yok, fiyata gelelim • diyerek kestirip attı.',
       walkawayDialogue: 'Satıcı • Çayla kahveyle aklımı çelemezsin, satmıyorum! • Masadan kalktı.',
@@ -746,6 +800,8 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
       baseBonusPercent: 15,
+      accentColor: Color(0xFF94A3B8),
+      category: 'firmness',
       successDialogue: 'Ağır esnaf tavrın ve kendinden emin duruşun karşı tarafın direncini kırdı!',
       failureDialogue: 'Karşı taraf ağır duruşundan etkilenmedi • "Fiyatım net usta" dedi.',
       walkawayDialogue: 'Karşı taraf tavrından rahatsız oldu • "Böyle esnaflık olmaz" diyerek masayı terk etti.',
@@ -759,90 +815,383 @@ class NegotiationEngine {
       context: TacticContext.buying,
       preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.impatientYouth],
       baseBonusPercent: 19,
+      accentColor: Color(0xFFF97316),
+      category: 'mechanic',
       successDialogue: 'Usta kaputu açıp iki noktayı gösterdi • Satıcı afalladı ve fiyatta büyük geri adım attı!',
       failureDialogue: 'Satıcı • Kendi ustanı getirmişsin tabii kusur bulur • diyerek itiraz etti.',
       walkawayDialogue: 'Satıcı • Arabamı kurcalatmam kimseye, araba satılık değil! • Masadan ayrıldı.',
     ),
+    EsnafTactic(
+      id: 'cebindeki_son_nakit',
+      title: 'Cebimdeki Son Kuruş',
+      badgeText: 'Son Bütçe',
+      description: 'Hesaptaki ve cepteki tüm parayı denkleştirdiğini, tek kuruş fazlasının olmadığını söyle.',
+      iconKey: 'cash',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 17,
+      accentColor: Color(0xFFFFDE59),
+      category: 'cash',
+      successDialogue: 'Tüm birikimini dürüstçe masaya koyman satıcıyı etkiledi • "Sana helal olsun" diyerek kabul etti!',
+      failureDialogue: 'Satıcı • Herkesin bir bütçesi var usta, benim de masrafım var • diyerek inmedi.',
+      walkawayDialogue: 'Satıcı • Cebinde paran yoksa araba bakma usta! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'kaporayi_vereyim_hemen',
+      title: 'Kapora Masada Resti',
+      badgeText: 'Anında Kapora',
+      description: 'Cebinden kaporayı çıkarıp masaya vur, bu fiyata el sıkışılırsa ilanı hemen kapattır.',
+      iconKey: 'speed',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 19,
+      accentColor: Color(0xFFA855F7),
+      category: 'speed',
+      successDialogue: 'Masanın üstündeki kaporayı gören satıcının gözleri parladı • İlanı yayından kaldırdı!',
+      failureDialogue: 'Satıcı • Kaporanın cazibesi güzel ama rakam kurtarmaz usta • dedi.',
+      walkawayDialogue: 'Satıcı • Parayla beni aceleye getiremezsin! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'agir_hasar_riski',
+      title: 'Tramer Kaydı Baskısı',
+      badgeText: 'Tramer Riski',
+      description: 'Araçtaki tramer kayıtlarını masaya koyup ileride satarken değer kaybedeceğini vurgula.',
+      iconKey: 'defect',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFFFF3366),
+      category: 'defect',
+      successDialogue: 'Tramer kayıtlarını tek tek sayınca satıcı tedirgin oldu • Fiyatı hemen aşağı çekti!',
+      failureDialogue: 'Satıcı • Bu yaştaki arabada tramer normal usta • diyerek oralı olmadı.',
+      walkawayDialogue: 'Satıcı • Trameri bahane edip malımı öldürme usta! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'noter_kapanacak_acelesi',
+      title: 'Noter Kapanıyor Telaşı',
+      badgeText: 'Noter Telaşı',
+      description: 'Mesai bitimine az kaldığını, anlaşılırsa hemen notere yetişileceğini söyleyip acele ettir.',
+      iconKey: 'urgent',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFFA855F7),
+      category: 'speed',
+      successDialogue: 'Noter kapanmadan devri bitirme telaşı satıcının inadını kırdı • Hemen evrakları topladı!',
+      failureDialogue: 'Satıcı • Noter yarın da açık usta, aceleye gelmem • dedi.',
+      walkawayDialogue: 'Satıcı • Beni yangından mal kaçırır gibi sıkıştırma! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'kronik_ariza_bilgisi',
+      title: 'Kronik Sorun Kartı',
+      badgeText: 'Kronik Kusur',
+      description: 'Bu kasanın şanzıman ve motor kronik arızalarını ezberden sayıp masraf riskini göster.',
+      iconKey: 'mechanic',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 20,
+      accentColor: Color(0xFFF97316),
+      category: 'mechanic',
+      successDialogue: 'Kronik dertleri teknik dille anlatınca satıcı terledi • Fiyatta büyük taviz verdi!',
+      failureDialogue: 'Satıcı • İnternet hurafelerini bana anlatma usta, saat gibi çalışıyor • dedi.',
+      walkawayDialogue: 'Satıcı • Arabamı kötüleyeceksen git başka yerden al! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'hemsehri_muhabbeti',
+      title: 'Hemşehri Muhabbeti',
+      badgeText: 'Toprak Bağı',
+      description: 'Memleket muhabbeti açıp aynı toprağın insanı olduğunuzu hatırlatarak ortamı ısıt.',
+      iconKey: 'handshake',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 15,
+      accentColor: Color(0xFF38BDF8),
+      category: 'diplomacy',
+      successDialogue: 'Memleket bağı satıcının kalbini yumuşattı • "Hemşehriyiz, kırmayalım birbirimizi" dedi!',
+      failureDialogue: 'Satıcı • Ticarette hemşehrilik sökmez usta, rakam net • diyerek taviz vermedi.',
+      walkawayDialogue: 'Satıcı • Muhabbetle fiyat kırılmaz usta! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'diger_ilana_gidiyorum',
+      title: 'Rakip Galeri Blöfü',
+      badgeText: 'Rakip İlan',
+      description: 'Yan caddedeki galeride aynı modelin daha temizi için randevun olduğunu söyleyip blöf yap.',
+      iconKey: 'market',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFFFF3366),
+      category: 'market',
+      successDialogue: 'Müşteriyi rakibe kaptırmak istemeyen satıcı hemen yumuşadı • İndirimi kabul etti!',
+      failureDialogue: 'Satıcı • Git oradan al o zaman usta, beni bağlamaz • dedi.',
+      walkawayDialogue: 'Satıcı • Blöfün sökmez bana, kapı orada usta! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'masraflari_boluselim',
+      title: 'Bakım Masrafı Paylaşımı',
+      badgeText: 'Masraf Payı',
+      description: 'Gereken lastik ve periyodik bakım masraflarını listeleyip fiyattan yarı yarıya düşmeyi öner.',
+      iconKey: 'notary',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 17,
+      accentColor: Color(0xFF00E575),
+      category: 'diplomacy',
+      successDialogue: 'Masraf paylaşımı satıcıya mantıklı geldi • "Haklısın usta, yarı yarıya kıralım" dedi!',
+      failureDialogue: 'Satıcı • Masrafını da düşünerek bu fiyatı yazdım zaten • diyerek geri adım atmadı.',
+      walkawayDialogue: 'Satıcı • Sıfır araba almıyorsun usta, masrafını bana yükleme! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'galerici_gozuyle_bak',
+      title: 'Esnaf Dayanışması',
+      badgeText: 'Esnaf Duruşu',
+      description: 'Biz de esnafız usta, sen de kazan biz de kazanalım, tezgâh dönsün diyerek esnaf payı iste.',
+      iconKey: 'tok_seller',
+      context: TacticContext.buying,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 16,
+      accentColor: Color(0xFFFFB703),
+      category: 'firmness',
+      successDialogue: 'Esnaf lisanından samimi yaklaşımın satıcının hoşuna gitti • Anlaşma sağlandı!',
+      failureDialogue: 'Satıcı • Esnafsan sen de hakkını ver usta, bedavaya mal yok • dedi.',
+      walkawayDialogue: 'Satıcı • Esnaflığı bana öğretme usta! • Masadan ayrıldı.',
+    ),
 
     // --- SATIM TAKTİKLERİ (SELLING) ---
+    // 1. ACİLİYET & BLÖF GRUBU (Vibrant Rose Red - 0xFFFF3366)
     EsnafTactic(
       id: 'baska_alici_var',
       title: 'Başka Alıcı Var Acelesi',
-      badgeText: 'Aciliyet Yarat',
+      badgeText: 'Aciliyet Blöfü',
       description: 'Öğleden sonra başka bir müşterinin kapora göndereceğini söyleyip elini çabuk tuttur.',
       iconKey: 'urgent',
       context: TacticContext.selling,
       preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
       baseBonusPercent: 19,
+      accentColor: Color(0xFFFF3366),
+      category: 'bluff',
       successDialogue: 'Alıcı panikledi • "Kapora vermesin usta, ben hemen alıyorum" diyerek teklifini yukarı çekti!',
       failureDialogue: 'Alıcı • Nasipse o alsın usta, ben aceleye gelmem • diyerek blöfü yemedi.',
       walkawayDialogue: 'Alıcı • Madem başka alıcı var ona sat usta, ben çekiliyorum! • Masayı terk etti.',
     ),
     EsnafTactic(
-      id: 'emsalsiz_kondisyon',
-      title: 'Emsalsiz Makine Övgüsü',
-      badgeText: 'Değer Vurgusu',
-      description: 'Aracın motor performansını, duruşunu ve temizliğini öne çıkar.',
-      iconKey: 'pristine',
+      id: 'pazar_hareketli_blof',
+      title: 'Hafta Sonu Pazarı Blöfü',
+      badgeText: 'Piyasa Baskısı',
+      description: 'Hafta sonu oto pazarına çekildiğinde bu fiyattan çok fazlasına gideceğini fısılda.',
+      iconKey: 'market',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFFFF3366),
+      category: 'bluff',
+      successDialogue: 'Piyasa fırsatını kaçırmak istemeyen alıcı acele etti • Teklifi hemen onayladı!',
+      failureDialogue: 'Alıcı • Pazarda da bu paralara araba gitmiyor usta • diyerek blöfü boşa çıkardı.',
+      walkawayDialogue: 'Alıcı • Götür pazarda sat o zaman usta, benden bu kadar! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'son_fiyat_resti',
+      title: 'Kırmızı Çizgi Resti',
+      badgeText: 'Son Rakam',
+      description: 'Fiyatın taban olduğunu, bu seviyenin altına tek kuruş inmeyeceğini hissettir.',
+      iconKey: 'strike',
       context: TacticContext.selling,
       preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
-      baseBonusPercent: 18,
-      successDialogue: 'Aracın detaylarını dinleyen alıcının gözleri parladı • Fiyat farkını seve seve kabul etti!',
-      failureDialogue: 'Alıcı • Herkes kendi malını över usta, piyasa ortada • diyerek fiyatında diretti.',
-      walkawayDialogue: 'Alıcı • Altın kaplama değil ya bu araba, abarttın iyice! • Masadan kalktı.',
+      baseBonusPercent: 20,
+      accentColor: Color(0xFFFF3366),
+      category: 'bluff',
+      successDialogue: 'Net ve tavizsiz duruşun karşısında alıcı fırsatı kaçırmadı • "Tamam anlaştık" dedi!',
+      failureDialogue: 'Alıcı • Sen inmezsen ben de çıkmam usta • diyerek direndi.',
+      walkawayDialogue: 'Alıcı • Bu fiyatta diretirsen sana iyi satışlar usta! • Masayı terk etti.',
     ),
-    EsnafTactic(
-      id: 'dost_isi_ikram',
-      title: 'Dost İşi Noter İkramı',
-      badgeText: 'Esnaf Jest',
-      description: 'Noter masrafını ve ilk depo yakıtı üstlenerek karşı teklifini tatlandır.',
-      iconKey: 'notary',
-      context: TacticContext.selling,
-      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
-      baseBonusPercent: 16,
-      successDialogue: 'Yaptığın samimi jest alıcının gönlünü fethetti • "Helali hoş olsun usta" diyerek anlaştı!',
-      failureDialogue: 'Alıcı • Bir depo benzinle göz boyama usta, fiyattan düş • dedi.',
-      walkawayDialogue: 'Alıcı • Küçük hesaplarla beni oyalama usta! • Masayı terk etti.',
-    ),
-    EsnafTactic(
-      id: 'cay_soyle_satis',
-      title: 'Tavşankanı Çay & İkram',
-      badgeText: 'Güven İnşası',
-      description: 'Müşteriye sıcacık çay ikram edip galericilik güveni aşıla.',
-      iconKey: 'tea',
-      context: TacticContext.selling,
-      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan, CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
-      baseBonusPercent: 14,
-      successDialogue: 'Sıcak çay eşliğinde kurulan esnaf diyaloğu müşterinin güvenini tazeledi!',
-      failureDialogue: 'Müşteri • Çay için teşekkürler ama rakam hala yüksek usta • dedi.',
-      walkawayDialogue: 'Müşteri • Laf kalabalığına karnım tok, satmıyorsan gidiyorum! • Masadan ayrıldı.',
-    ),
+
+    // 2. PRESTİJ & TOK DURUŞ GRUBU (VIP Amber Altın - 0xFFFFB703)
     EsnafTactic(
       id: 'fiyat_sabit_tok',
       title: 'Tok Satıcı Duruşu',
-      badgeText: 'Net Tavır',
+      badgeText: 'Tok Duruş',
       description: 'Aracın arkasında durup kalitesine güvendiğini, aşağı inmeyeceğini hissettir.',
       iconKey: 'tok_seller',
       context: TacticContext.selling,
       preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
       baseBonusPercent: 17,
+      accentColor: Color(0xFFFFB703),
+      category: 'prestige',
       successDialogue: 'Tok duruşun müşteriye aracın gerçekten temiz olduğunu hissettirdi • Fiyatı kabul etti!',
       failureDialogue: 'Müşteri • Sen tok satıcıysan ben de aceleci alıcı değilim usta • dedi.',
       walkawayDialogue: 'Müşteri • İnadınla bol kazançlar usta, başka galeriden bakarım! • Masadan ayrıldı.',
     ),
     EsnafTactic(
+      id: 'emsalsiz_kondisyon',
+      title: 'Emsalsiz Makine Övgüsü',
+      badgeText: 'Kondisyon Övgüsü',
+      description: 'Aracın motor performansını, duruşunu ve temizliğini öne çıkar.',
+      iconKey: 'pristine',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFFFFB703),
+      category: 'prestige',
+      successDialogue: 'Aracın detaylarını dinleyen alıcının gözleri parladı • Fiyat farkını seve seve kabul etti!',
+      failureDialogue: 'Alıcı • Herkes kendi malını över usta, piyasa ortada • diyerek fiyatında diretti.',
+      walkawayDialogue: 'Alıcı • Altın kaplama değil ya bu araba, abarttın iyice! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'garaj_arabasi',
+      title: 'Kapalı Garaj Hikayesi',
+      badgeText: 'Garaj Aracı',
+      description: 'Aracın kapalı garajda muhafaza edildiğini, yağmur kar görmediğini anlat.',
+      iconKey: 'garage',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 19,
+      accentColor: Color(0xFFFFB703),
+      category: 'prestige',
+      successDialogue: 'Garaj hikayesi alıcının aklına yattı • "Böyle bakımlısını bulmak zor" diyerek teklifini yükseltti!',
+      failureDialogue: 'Alıcı • Garajda yatan arabanın da contası kurur usta • diyerek oralı olmadı.',
+      walkawayDialogue: 'Alıcı • Garaj hikayeleriyle beni kandıramazsın usta! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'koleksiyonluk_temizlik',
+      title: 'Fabrika Kondisyonu',
+      badgeText: 'Koleksiyon Değeri',
+      description: 'Koltuk döşemelerinin, konsolun ve motor sesinin ilk günkü diriliğini gözler önüne ser.',
+      iconKey: 'diamond',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.impatientYouth, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 20,
+      accentColor: Color(0xFFFFB703),
+      category: 'prestige',
+      successDialogue: 'Aracın fabrika temizliği alıcıyı büyüledi • "Böylesi piyasada yok" diyerek kabul etti!',
+      failureDialogue: 'Alıcı • Temiz ama nihayetinde kullanılmış araç usta • dedi.',
+      walkawayDialogue: 'Alıcı • Sıfır araba muamelesi yapma usta, vazgeçtim! • Masadan kalktı.',
+    ),
+
+    // 3. ŞEFFAFLIK & GÜVEN GRUBU (Neon Zümrüt Yeşili - 0xFF00E575)
+    EsnafTactic(
       id: 'expertiz_guvencesi',
       title: 'Şeffaf Kurumsal Ekspertiz',
-      badgeText: 'Tam Güven',
+      badgeText: 'Ekspertiz Raporu',
       description: 'Tüm mekanik ve kaporta raporunu açıkça sunup sıfır şüphe bırak.',
       iconKey: 'expert',
       context: TacticContext.selling,
       preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
       baseBonusPercent: 20,
+      accentColor: Color(0xFF00E575),
+      category: 'trust',
       successDialogue: 'Şeffaf ekspertiz raporu alıcının tüm korkularını sildi • Hemen el sıkışıldı!',
       failureDialogue: 'Alıcı • Rapor iyi güzel ama bütçem bu kadar usta • diyerek teklifini korudu.',
       walkawayDialogue: 'Alıcı • Raporla göz boyama usta, bu fiyat mantıksız! • Masayı terk etti.',
     ),
+    EsnafTactic(
+      id: 'ustani_al_gel_resti',
+      title: 'Ustanı Al Gel Resti',
+      badgeText: 'Hodri Meydan',
+      description: 'İstediğin ustaya servise göster, en ufak masrafta bedelini üstlenirim de.',
+      iconKey: 'mechanic',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 21,
+      accentColor: Color(0xFF00E575),
+      category: 'trust',
+      successDialogue: 'Özgüvenli restin alıcının kafasındaki tüm soru işaretlerini sildi • Hemen el sıkıştı!',
+      failureDialogue: 'Alıcı • Ustaya götürsek kim bilir neler çıkar usta • diyerek temkinli yaklaştı.',
+      walkawayDialogue: 'Alıcı • Rest çekerek araba satamazsın usta! • Masadan kalktı.',
+    ),
+    EsnafTactic(
+      id: 'dosta_gider_kefalet',
+      title: 'Dosta Gider Kefaleti',
+      badgeText: 'Esnaf Namusu',
+      description: 'Kendi bindiğim araç gibi kefilim, en ufak sıkıntıda anahtarı bana getir güvencesi ver.',
+      iconKey: 'shield',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 19,
+      accentColor: Color(0xFF00E575),
+      category: 'trust',
+      successDialogue: 'Esnaf namusuna verilen kefalet alıcının gönlünü fethetti • Fiyatı memnuniyetle onayladı!',
+      failureDialogue: 'Alıcı • Söz uçar yazı kalır usta, garanti belgesi vermiyorsun sonuçta • dedi.',
+      walkawayDialogue: 'Alıcı • Tanımadığım adamın kefaletine güvenmem! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'yedek_anahtar_kitapcik',
+      title: 'Eksiksiz Çeyiz & Kitapçık',
+      badgeText: 'Orijinal Evrak',
+      description: 'Yedek anahtarı, servis faturaları ve orijinal kitapçıklarını masaya koy.',
+      iconKey: 'key',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan],
+      baseBonusPercent: 18,
+      accentColor: Color(0xFF00E575),
+      category: 'trust',
+      successDialogue: 'Kusursuz dosya ve yedek anahtarlar alıcıya güven verdi • Masada anlaşma sağlandı!',
+      failureDialogue: 'Alıcı • Kitapçık değil araba alıyoruz usta, fiyatta indirim yap • dedi.',
+      walkawayDialogue: 'Alıcı • Masadaki kağıt kürekle göz boyama usta! • Masadan kalktı.',
+    ),
+
+    // 4. ESNAF DİPLOMASİSİ & JEST GRUBU (Canlı Gök Mavisi - 0xFF38BDF8)
+    EsnafTactic(
+      id: 'cay_soyle_satis',
+      title: 'Tavşankanı Çay & İkram',
+      badgeText: 'Esnaf Sohbeti',
+      description: 'Müşteriye sıcacık çay ikram edip galericilik muhabbetiyle güven aşıla.',
+      iconKey: 'tea',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.skepticalOfficial, CustomerArchetype.familyMan, CustomerArchetype.impatientYouth, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 14,
+      accentColor: Color(0xFF38BDF8),
+      category: 'diplomacy',
+      successDialogue: 'Sıcak çay eşliğinde kurulan esnaf diyaloğu müşterinin güvenini tazeledi!',
+      failureDialogue: 'Müşteri • Çay için teşekkürler ama rakam hala yüksek usta • dedi.',
+      walkawayDialogue: 'Müşteri • Laf kalabalığına karnım tok, satmıyorsan gidiyorum! • Masadan ayrıldı.',
+    ),
+    EsnafTactic(
+      id: 'dost_isi_ikram',
+      title: 'Dost İşi Noter İkramı',
+      badgeText: 'Esnaf Jesti',
+      description: 'Noter masrafını ve ilk depo yakıtı üstlenerek karşı teklifini tatlandır.',
+      iconKey: 'notary',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.skepticalOfficial],
+      baseBonusPercent: 16,
+      accentColor: Color(0xFF38BDF8),
+      category: 'diplomacy',
+      successDialogue: 'Yaptığın samimi jest alıcının gönlünü fethetti • "Helali hoş olsun usta" diyerek anlaştı!',
+      failureDialogue: 'Alıcı • Bir depo benzinle göz boyama usta, fiyattan düş • dedi.',
+      walkawayDialogue: 'Alıcı • Küçük hesaplarla beni oyalama usta! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'maliyetine_birakiyorum',
+      title: 'Maliyetine Esnaf Devri',
+      badgeText: 'Zararına Satış',
+      description: 'Bize de bu fiyata mal olduğunu, kâr gözetmeden tezgâh dönsün diye verdiğini belirt.',
+      iconKey: 'handshake',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 17,
+      accentColor: Color(0xFF38BDF8),
+      category: 'diplomacy',
+      successDialogue: 'Esnaf fedakarlığın alıcıyı etkiledi • "Helal olsun usta, tezgâhın dönsün" diyerek kabul etti!',
+      failureDialogue: 'Alıcı • Her esnaf aynı şeyi söyler usta, fiyata odaklanalım • dedi.',
+      walkawayDialogue: 'Alıcı • Esnaf edebiyatı dinlemeye gelmedim usta! • Masayı terk etti.',
+    ),
+    EsnafTactic(
+      id: 'pesin_noter_harci',
+      title: 'Noter Harcı & Çorba İkramı',
+      badgeText: 'Tatlı Uzlaşma',
+      description: 'Rakamı kırmadan noter masrafını ve esnaf lokantasında öğle yemeğini üstlen.',
+      iconKey: 'gift',
+      context: TacticContext.selling,
+      preferredArchetypes: [CustomerArchetype.familyMan, CustomerArchetype.greedyFlipper],
+      baseBonusPercent: 16,
+      accentColor: Color(0xFF38BDF8),
+      category: 'diplomacy',
+      successDialogue: 'Güler yüzlü esnaf ikramı masadaki gerginliği bitirdi • Tatlıya bağlandı!',
+      failureDialogue: 'Alıcı • Çorbayla noterle olmuyor usta, fiyattan biraz daha kır • dedi.',
+      walkawayDialogue: 'Alıcı • Çorba parasıyla pazarlık mı kapatılır usta! • Masadan ayrıldı.',
+    ),
+
+    // 5. HIZ & DEVİR GRUBU (Hızlı Devir Moru - 0xFFA855F7)
     EsnafTactic(
       id: 'hizli_teslimat',
       title: 'Hemen Noter & Teslimat',
@@ -852,29 +1201,37 @@ class NegotiationEngine {
       context: TacticContext.selling,
       preferredArchetypes: [CustomerArchetype.greedyFlipper, CustomerArchetype.impatientYouth],
       baseBonusPercent: 18,
+      accentColor: Color(0xFFA855F7),
+      category: 'speed',
       successDialogue: 'Hızlı teslimat teklifin acelesi olan alıcının tam aradığı fırsat oldu!',
       failureDialogue: 'Alıcı • Hız önemli ama para daha önemli usta, indirim yap • dedi.',
       walkawayDialogue: 'Alıcı • Beni aceleye getirip sıkıştırma usta! • Masadan ayrıldı.',
     ),
   ];
 
-  /// Generates 3 contextual esnaf tactics dynamically based on role, car condition, and customer archetype
+  /// Generates 3 contextual esnaf tactics dynamically based on role, car condition, customer archetype, and offer seed
   static List<EsnafTactic> generateTactics({
     required bool isBuying,
     required CarModel car,
     CustomerModel? customer,
     required double price,
+    String? offerId,
   }) {
     final targetContext = isBuying ? TacticContext.buying : TacticContext.selling;
     final candidates = allTactics.where((t) => t.context == targetContext || t.context == TacticContext.both).toList();
 
-    // Score candidates based on customer archetype, car condition, and price
-    final scored = candidates.map((tactic) {
-      int score = 10;
+    // Deterministic seed for variance across different offers on the same vehicle
+    final int seed = offerId != null
+        ? (offerId.hashCode.abs() + (customer?.name.hashCode.abs() ?? 0) * 31)
+        : (car.id.hashCode.abs() + (customer?.name.hashCode.abs() ?? 0) * 31);
 
-      // 1. Archetype Match (+15)
+    // Score candidates based on customer archetype, car condition, price, and dynamic seed
+    final scored = candidates.map((tactic) {
+      int score = 15;
+
+      // 1. Archetype Match (+20)
       if (customer != null && tactic.preferredArchetypes.contains(customer.archetype)) {
-        score += 15;
+        score += 20;
       }
 
       // 2. Car Condition Alignment
@@ -883,35 +1240,84 @@ class NegotiationEngine {
       );
       if (isBuying) {
         if (tactic.id == 'ekspertiz_kusuru' && (hasDamagedParts || car.expertise.mileage > 150000)) {
-          score += 25;
+          score += 35;
+        }
+        if (tactic.id == 'agir_hasar_riski' && (car.expertise.tramerAmount > 10000 || hasDamagedParts)) {
+          score += 32;
+        }
+        if (tactic.id == 'kronik_ariza_bilgisi' && (car.expertise.engineCondition < 80 || car.modelYear < 2014)) {
+          score += 28;
         }
         if (tactic.id == 'usta_cagir' && (car.expertise.engineCondition < 75 || car.modelYear < 2012)) {
-          score += 20;
+          score += 26;
         }
-        if (tactic.id == 'nakit_goster' && price < 400000) {
-          score += 15;
+        if ((tactic.id == 'nakit_goster' || tactic.id == 'cebindeki_son_nakit') && price < 450000) {
+          score += 22;
+        }
+        if ((tactic.id == 'kaporayi_vereyim_hemen' || tactic.id == 'noter_kapanacak_acelesi') &&
+            (customer?.archetype == CustomerArchetype.impatientYouth || customer?.archetype == CustomerArchetype.greedyFlipper)) {
+          score += 24;
+        }
+        if ((tactic.id == 'hemsehri_muhabbeti' || tactic.id == 'masraflari_boluselim') &&
+            (customer?.archetype == CustomerArchetype.familyMan || customer?.archetype == CustomerArchetype.skepticalOfficial)) {
+          score += 22;
+        }
+        if ((tactic.id == 'diger_ilana_gidiyorum' || tactic.id == 'galerici_gozuyle_bak') &&
+            (customer?.archetype == CustomerArchetype.greedyFlipper || customer?.archetype == CustomerArchetype.impatientYouth)) {
+          score += 24;
         }
       } else {
-        if (tactic.id == 'emsalsiz_kondisyon' && (car.isPristineOriginal || car.isPolished || car.isRare)) {
-          score += 25;
+        if ((tactic.id == 'emsalsiz_kondisyon' || tactic.id == 'garaj_arabasi' || tactic.id == 'koleksiyonluk_temizlik') &&
+            (car.isPristineOriginal || car.isPolished || car.isRare || car.expertise.mileage < 70000)) {
+          score += 28;
         }
-        if (tactic.id == 'expertiz_guvencesi' && car.isPristineOriginal) {
+        if ((tactic.id == 'expertiz_guvencesi' || tactic.id == 'ustani_al_gel_resti' || tactic.id == 'dosta_gider_kefalet') &&
+            (car.isPristineOriginal || car.expertise.engineCondition >= 80)) {
+          score += 24;
+        }
+        if ((tactic.id == 'baska_alici_var' || tactic.id == 'pazar_hareketli_blof' || tactic.id == 'son_fiyat_resti') &&
+            (car.estimatedRealValue > 400000 || customer?.archetype == CustomerArchetype.impatientYouth)) {
           score += 20;
         }
-        if (tactic.id == 'baska_alici_var' && car.estimatedRealValue > 500000) {
-          score += 15;
+        if ((tactic.id == 'maliyetine_birakiyorum' || tactic.id == 'dost_isi_ikram' || tactic.id == 'pesin_noter_harci') &&
+            (customer?.archetype == CustomerArchetype.familyMan || customer?.archetype == CustomerArchetype.greedyFlipper)) {
+          score += 22;
         }
       }
 
-      // Add a slight deterministic pseudo-random variance based on car id
-      final hash = (car.id.hashCode.abs() + tactic.id.hashCode.abs()) % 10;
-      score += hash;
+      // 3. Dynamic offer-specific variance to prevent repetitive identical sets across offers
+      final dynamicSalt = (seed * 17 + tactic.id.hashCode.abs()) % 23;
+      score += dynamicSalt;
 
       return MapEntry(tactic, score);
     }).toList();
 
+    // Sort all scored candidates by score descending
     scored.sort((a, b) => b.value.compareTo(a.value));
-    return scored.take(3).map((e) => e.key).toList();
+
+    final selectedTactics = <EsnafTactic>[];
+    final selectedCategories = <String>{};
+
+    // 1. Pick top-scoring tactics from distinct categories (ensuring 3 diverse roles and vibrant colors)
+    for (final entry in scored) {
+      if (selectedTactics.length >= 3) break;
+      if (!selectedCategories.contains(entry.key.category)) {
+        selectedTactics.add(entry.key);
+        selectedCategories.add(entry.key.category);
+      }
+    }
+
+    // 2. Fallback: fill up to 3 tactics if fewer than 3 categories exist
+    if (selectedTactics.length < 3) {
+      for (final entry in scored) {
+        if (selectedTactics.length >= 3) break;
+        if (!selectedTactics.contains(entry.key)) {
+          selectedTactics.add(entry.key);
+        }
+      }
+    }
+
+    return selectedTactics.take(3).toList();
   }
 
   /// Evaluates a dice-rolled tactic attempt with diminishing returns and walkaway risks
@@ -1120,11 +1526,35 @@ class NegotiationEngine {
         strategyBonus += 0.06;
         walkawayModifier += 0.12;
       }
+    } else if (strategy == 'pazar_hareketli_blof') {
+      if (activeCustomer?.archetype == CustomerArchetype.greedyFlipper || activeCustomer?.archetype == CustomerArchetype.impatientYouth) {
+        strategyBonus += 0.19;
+      } else {
+        walkawayModifier += 0.12;
+      }
+    } else if (strategy == 'son_fiyat_resti') {
+      if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
+        strategyBonus += 0.20;
+      } else {
+        walkawayModifier += 0.15;
+      }
     } else if (strategy == 'emsalsiz_kondisyon') {
       if (activeCustomer?.archetype == CustomerArchetype.impatientYouth || car.isPristineOriginal) {
         strategyBonus += 0.20;
       } else {
         strategyBonus += 0.10;
+      }
+    } else if (strategy == 'garaj_arabasi') {
+      if (car.expertise.mileage < 80000 || car.isPristineOriginal || car.isRare) {
+        strategyBonus += 0.22;
+      } else {
+        strategyBonus += 0.10;
+      }
+    } else if (strategy == 'koleksiyonluk_temizlik') {
+      if (car.isPristineOriginal || car.isRare || activeCustomer?.archetype == CustomerArchetype.impatientYouth) {
+        strategyBonus += 0.22;
+      } else {
+        strategyBonus += 0.12;
       }
     } else if (strategy == 'dost_isi_ikram') {
       if (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) {
@@ -1133,6 +1563,16 @@ class NegotiationEngine {
       } else {
         strategyBonus += 0.10;
       }
+    } else if (strategy == 'maliyetine_birakiyorum') {
+      if (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.greedyFlipper) {
+        strategyBonus += 0.18;
+        walkawayModifier -= 0.08;
+      } else {
+        strategyBonus += 0.11;
+      }
+    } else if (strategy == 'pesin_noter_harci') {
+      strategyBonus += 0.16;
+      walkawayModifier -= 0.10;
     } else if (strategy == 'cay_soyle_satis' || strategy == 'cay_soyle') {
       strategyBonus += 0.14;
       walkawayModifier -= 0.14;
@@ -1148,6 +1588,29 @@ class NegotiationEngine {
       } else {
         strategyBonus -= 0.12;
         walkawayModifier += 0.18;
+      }
+    } else if (strategy == 'ustani_al_gel_resti') {
+      if (isHonestOrTruthful) {
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.24 : 0.17;
+        walkawayModifier -= 0.12;
+      } else {
+        strategyBonus -= 0.15;
+        walkawayModifier += 0.20;
+      }
+    } else if (strategy == 'dosta_gider_kefalet') {
+      if (isHonestOrTruthful) {
+        strategyBonus += (activeCustomer?.archetype == CustomerArchetype.familyMan || activeCustomer?.archetype == CustomerArchetype.skepticalOfficial) ? 0.21 : 0.14;
+        walkawayModifier -= 0.10;
+      } else {
+        strategyBonus -= 0.10;
+        walkawayModifier += 0.16;
+      }
+    } else if (strategy == 'yedek_anahtar_kitapcik') {
+      if (activeCustomer?.archetype == CustomerArchetype.skepticalOfficial || activeCustomer?.archetype == CustomerArchetype.familyMan) {
+        strategyBonus += 0.19;
+        walkawayModifier -= 0.08;
+      } else {
+        strategyBonus += 0.12;
       }
     } else if (strategy == 'hizli_teslimat' || strategy == 'hizli_kapat') {
       strategyBonus += 0.16;

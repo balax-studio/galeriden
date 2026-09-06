@@ -79,6 +79,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
       car: car,
       customer: offer.buyerCustomer,
       price: _counterTargetPrice,
+      offerId: offer.id,
     );
     _selectedStrategyId = _dynamicTactics.isNotEmpty ? _dynamicTactics.first.id : 'standard';
   }
@@ -906,8 +907,11 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
             const SizedBox(height: 8),
             ..._dynamicTactics.map((tactic) {
               final isSelected = _selectedStrategyId == tactic.id;
+              final accent = tactic.accentColor;
+              final tacticIcon = _getTacticIcon(tactic.iconKey);
+
               return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.only(bottom: 9),
                 child: GestureDetector(
                   onTap: isDeskLocked
                       ? null
@@ -915,40 +919,55 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                           HapticFeedback.selectionClick();
                           setState(() => _selectedStrategyId = tactic.id);
                         },
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 160),
+                    padding: const EdgeInsets.all(11),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFFFFDE59).withValues(alpha: isDark ? 0.25 : 0.20)
-                          : (isDark ? const Color(0xFF1B202D) : const Color(0xFFF8FAFC)),
-                      borderRadius: BorderRadius.circular(8),
+                          ? (isDark
+                              ? Color.alphaBlend(accent.withValues(alpha: 0.18), const Color(0xFF1E2330))
+                              : Color.alphaBlend(accent.withValues(alpha: 0.12), Colors.white))
+                          : (isDark ? const Color(0xFF161922) : const Color(0xFFF8FAFC)),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: isSelected ? Colors.black : (isDark ? const Color(0xFF333B4F) : Colors.black.withValues(alpha: 0.4)),
-                        width: isSelected ? 2.2 : 1.5,
+                        color: isSelected
+                            ? accent
+                            : (isDark ? const Color(0xFF333B4F) : Colors.black.withValues(alpha: 0.35)),
+                        width: isSelected ? 2.5 : 1.6,
                       ),
-                      boxShadow: isSelected
-                          ? const [
-                              BoxShadow(
-                                color: Colors.black,
-                                offset: Offset(2.5, 2.5),
-                                blurRadius: 0,
-                              ),
-                            ]
-                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                          color: isSelected
+                              ? (isDark ? accent.withValues(alpha: 0.45) : Colors.black)
+                              : (isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.12)),
+                          offset: isSelected ? const Offset(3, 3) : const Offset(1.5, 1.5),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(4),
+                          width: 32,
+                          height: 32,
+                          margin: const EdgeInsets.only(top: 2),
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFFFDE59) : Colors.transparent,
+                            color: isSelected
+                                ? accent
+                                : (isDark ? const Color(0xFF222838) : const Color(0xFFE2E8F0)),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black, width: 1.8),
+                            border: Border.all(
+                              color: isSelected ? Colors.black : (isDark ? const Color(0xFF475569) : Colors.black45),
+                              width: 1.8,
+                            ),
                           ),
                           child: Icon(
-                            isSelected ? Icons.check_rounded : null,
-                            size: 14,
-                            color: Colors.black,
+                            isSelected ? Icons.check_rounded : tacticIcon,
+                            size: isSelected ? 18 : 16,
+                            color: isSelected
+                                ? Colors.black
+                                : (isDark ? Colors.white70 : const Color(0xFF334155)),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -956,21 +975,55 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                tactic.title,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                ),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    margin: const EdgeInsets.only(right: 7),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? accent
+                                          : accent.withValues(alpha: isDark ? 0.22 : 0.16),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: isSelected ? Colors.black : accent,
+                                        width: 1.2,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      tactic.badgeText,
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.2,
+                                        color: isSelected
+                                            ? Colors.black
+                                            : (isDark ? accent : const Color(0xFF0F172A)),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      tactic.title,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
                                 tactic.description,
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w700,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                  height: 1.3,
+                                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
                                 ),
                               ),
                             ],
@@ -986,6 +1039,51 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
         ],
       ),
     );
+  }
+
+  IconData _getTacticIcon(String iconKey) {
+    switch (iconKey) {
+      case 'urgent':
+        return Icons.local_fire_department_rounded;
+      case 'market':
+        return Icons.trending_up_rounded;
+      case 'strike':
+        return Icons.front_hand_rounded;
+      case 'tok_seller':
+        return Icons.shield_rounded;
+      case 'pristine':
+        return Icons.auto_awesome_rounded;
+      case 'garage':
+        return Icons.garage_rounded;
+      case 'diamond':
+        return Icons.diamond_rounded;
+      case 'expert':
+        return Icons.verified_user_rounded;
+      case 'mechanic':
+        return Icons.build_rounded;
+      case 'shield':
+        return Icons.security_rounded;
+      case 'key':
+        return Icons.key_rounded;
+      case 'tea':
+        return Icons.local_cafe_rounded;
+      case 'notary':
+        return Icons.assignment_turned_in_rounded;
+      case 'handshake':
+        return Icons.handshake_rounded;
+      case 'gift':
+        return Icons.card_giftcard_rounded;
+      case 'speed':
+        return Icons.bolt_rounded;
+      case 'cash':
+        return Icons.payments_rounded;
+      case 'partner':
+        return Icons.phone_in_talk_rounded;
+      case 'smoke':
+        return Icons.smoking_rooms_rounded;
+      default:
+        return Icons.stars_rounded;
+    }
   }
 
   Widget _buildGapPresetChip({
@@ -1425,6 +1523,13 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
         );
       }
       return;
+    }
+
+    if (fraudResult.didInspect && mounted) {
+      NotificationService.showSuccess(
+        context,
+        '${fraudResult.title} • ${fraudResult.description}',
+      );
     }
 
     final wasTutorial = !ref.read(gameProvider).tutorialCompleted;

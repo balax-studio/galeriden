@@ -17,7 +17,6 @@ import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
-import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
@@ -70,21 +69,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return;
     }
 
-    if (game.pendingDramaticCard != null) {
-      _isModalShowing = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) {
-          _isModalShowing = false;
-          return;
-        }
-        await NeoBrutalDramaticDialog.show(context, game.pendingDramaticCard!);
-        _isModalShowing = false;
-        if (mounted) {
-          _checkAndShowPendingDialogs(ref.read(gameProvider));
-        }
-      });
-      return;
-    }
+    // pendingDramaticCard is displayed directly on the dashboard via DashboardDramaticCardBanner.
+    // The user opens it manually by tapping the banner, preventing intrusive popups on launch or after onboarding.
 
     if (game.pendingRandomEvent != null) {
       _isModalShowing = true;

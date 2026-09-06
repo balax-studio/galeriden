@@ -1697,6 +1697,13 @@ class ShowroomOffersTab extends ConsumerWidget {
       return;
     }
 
+    if (fraudResult.didInspect && context.mounted) {
+      NotificationService.showSuccess(
+        context,
+        '${fraudResult.title} • ${fraudResult.description}',
+      );
+    }
+
     final notaryResult =
         ref.read(gameProvider.notifier).processNotarySale(offer, customer);
 

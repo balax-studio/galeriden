@@ -80,6 +80,86 @@ void main() {
       }
     });
 
+    test('generateTactics produces distinct categories and varies across different offer IDs', () {
+      final customer = CustomerModel(
+        id: 'c2',
+        name: 'Emre',
+        archetype: CustomerArchetype.impatientYouth,
+        archetypeTitle: 'Sabırsız Genç',
+        avatarType: 'youth',
+        personalityDescription: 'Aceleci',
+        preferredDialogueTrait: 'Samimi',
+      );
+
+      final tacticsOffer1 = NegotiationEngine.generateTactics(
+        isBuying: false,
+        car: sampleCar,
+        customer: customer,
+        price: 650000,
+        offerId: 'offer_1001_aaa',
+      );
+
+      final tacticsOffer2 = NegotiationEngine.generateTactics(
+        isBuying: false,
+        car: sampleCar,
+        customer: customer,
+        price: 650000,
+        offerId: 'offer_1002_bbb',
+      );
+
+      expect(tacticsOffer1.length, 3);
+      expect(tacticsOffer2.length, 3);
+
+      // Verify distinct categories within the 3 tactics (distinct colors)
+      final categories1 = tacticsOffer1.map((t) => t.category).toSet();
+      expect(categories1.length, 3);
+
+      final categories2 = tacticsOffer2.map((t) => t.category).toSet();
+      expect(categories2.length, 3);
+
+      // Verify each tactic has an accentColor
+      for (final t in [...tacticsOffer1, ...tacticsOffer2]) {
+        expect(t.accentColor, isNotNull);
+      }
+    });
+
+    test('generateTactics produces distinct categories and varies across different listing IDs for buying', () {
+      final customer = CustomerModel(
+        id: 'seller_1',
+        name: 'Ahmet Y.',
+        archetype: CustomerArchetype.skepticalOfficial,
+        archetypeTitle: 'Şüpheci Memur',
+        avatarType: 'official',
+        personalityDescription: 'Piyasa değerini bilir',
+        preferredDialogueTrait: 'Resmi',
+      );
+
+      final tacticsListing1 = NegotiationEngine.generateTactics(
+        isBuying: true,
+        car: sampleCar,
+        customer: customer,
+        price: 689000,
+        offerId: 'listing_101_crv',
+      );
+
+      final tacticsListing2 = NegotiationEngine.generateTactics(
+        isBuying: true,
+        car: sampleCar,
+        customer: customer,
+        price: 689000,
+        offerId: 'listing_202_sedan',
+      );
+
+      expect(tacticsListing1.length, 3);
+      expect(tacticsListing2.length, 3);
+
+      final categories1 = tacticsListing1.map((t) => t.category).toSet();
+      expect(categories1.length, 3);
+
+      final categories2 = tacticsListing2.map((t) => t.category).toSet();
+      expect(categories2.length, 3);
+    });
+
     test('generateTactics prioritizes damaged parts/high mileage tactics for buyers', () {
       final damagedCar = sampleCar.copyWith(
         expertise: sampleCar.expertise.copyWith(

@@ -134,7 +134,6 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
             ),
           ),
         ],
-
         Row(
           children: dynamicTactics.map((tactic) {
             final isUsed = usedTacticIds.contains(tactic.id);
@@ -148,7 +147,8 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
                       : tactic.title,
                   badgeText: tactic.badgeText,
                   icon: _getTacticIcon(tactic.iconKey),
-                  activeBgColor: _getTacticColor(tactic.iconKey),
+                  activeBgColor: tactic.accentColor,
+                  accentColor: tactic.accentColor,
                   isUsed: isUsed,
                   onTap: () => onExecuteTactic(tactic),
                 ),
@@ -166,6 +166,7 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
     required String badgeText,
     required IconData icon,
     required Color activeBgColor,
+    required Color accentColor,
     required bool isUsed,
     required VoidCallback onTap,
   }) {
@@ -238,25 +239,29 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               decoration: BoxDecoration(
                 color: isUsed
                     ? (isDark
                         ? const Color(0xFF2A3142)
                         : const Color(0xFFCBD5E1))
                     : (isDark
-                        ? const Color(0xFF0F1118)
-                        : const Color(0xFFF1F5F9)),
+                        ? accentColor.withValues(alpha: 0.20)
+                        : accentColor.withValues(alpha: 0.15)),
                 borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: isUsed ? Colors.transparent : accentColor,
+                  width: 1.0,
+                ),
               ),
               child: Text(
                 badgeText,
                 style: TextStyle(
                   fontSize: 8.5,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w900,
                   color: isUsed
                       ? (isDark ? Colors.white30 : Colors.black38)
-                      : (isDark ? Colors.white70 : const Color(0xFF475569)),
+                      : (isDark ? accentColor : const Color(0xFF0F172A)),
                 ),
               ),
             ),
@@ -270,6 +275,8 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
     switch (iconKey) {
       case 'expert':
         return Icons.search_rounded;
+      case 'defect':
+        return Icons.car_crash_rounded;
       case 'cash':
         return Icons.payments_rounded;
       case 'market':
@@ -290,37 +297,24 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
         return Icons.drive_file_rename_outline_rounded;
       case 'tok_seller':
         return Icons.work_rounded;
+      case 'speed':
+        return Icons.bolt_rounded;
+      case 'handshake':
+        return Icons.handshake_rounded;
+      case 'shield':
+        return Icons.security_rounded;
+      case 'key':
+        return Icons.key_rounded;
+      case 'diamond':
+        return Icons.diamond_rounded;
+      case 'garage':
+        return Icons.garage_rounded;
+      case 'strike':
+        return Icons.front_hand_rounded;
+      case 'gift':
+        return Icons.card_giftcard_rounded;
       default:
         return Icons.handshake_rounded;
-    }
-  }
-
-  Color _getTacticColor(String iconKey) {
-    switch (iconKey) {
-      case 'expert':
-        return const Color(0xFF00E575);
-      case 'cash':
-        return const Color(0xFFFFDE59);
-      case 'market':
-        return const Color(0xFFFF54B0);
-      case 'partner':
-        return const Color(0xFF38BDF8);
-      case 'tea':
-        return const Color(0xFFFFDE59);
-      case 'smoke':
-        return const Color(0xFFCBD5E1);
-      case 'mechanic':
-        return const Color(0xFFF97316);
-      case 'urgent':
-        return const Color(0xFFEF4444);
-      case 'pristine':
-        return const Color(0xFFA855F7);
-      case 'notary':
-        return const Color(0xFF10B981);
-      case 'tok_seller':
-        return const Color(0xFFF59E0B);
-      default:
-        return const Color(0xFFFFDE59);
     }
   }
 }

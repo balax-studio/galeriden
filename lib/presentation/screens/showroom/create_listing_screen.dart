@@ -8,6 +8,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/expertise_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/industrial_rocker_switch.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -1062,19 +1063,53 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 label: 'Dürüst & Şeffaf',
                 isSelected: _declaration == ListingDeclarationType.honest,
                 isDark: isDark,
-                onTap: () => setState(() => _declaration = ListingDeclarationType.honest),
+                selectedColor: const Color(0xFF00E575),
+                selectedTextColor: Colors.black,
+                icon: Icons.verified_user_rounded,
+                onTap: () {
+                  setState(() => _declaration = ListingDeclarationType.honest);
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('toast_declaration_honest'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Ufak Kusurları Gizle',
                 isSelected: _declaration == ListingDeclarationType.minorFlawHidden,
                 isDark: isDark,
-                onTap: () => setState(() => _declaration = ListingDeclarationType.minorFlawHidden),
+                selectedColor: const Color(0xFFFF9F1A),
+                selectedTextColor: Colors.black,
+                icon: Icons.visibility_off_rounded,
+                onTap: () {
+                  setState(() => _declaration = ListingDeclarationType.minorFlawHidden);
+                  NotificationService.showWarning(
+                    context,
+                    context.tr('toast_declaration_minor_flaw'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Hatasız İddiası',
                 isSelected: _declaration == ListingDeclarationType.flawlessClaim,
                 isDark: isDark,
-                onTap: () => setState(() => _declaration = ListingDeclarationType.flawlessClaim),
+                selectedColor: const Color(0xFFFF3366),
+                selectedTextColor: Colors.white,
+                icon: Icons.warning_amber_rounded,
+                onTap: () {
+                  setState(() => _declaration = ListingDeclarationType.flawlessClaim);
+                  if (_isCarActuallyFlawless(activeCar)) {
+                    NotificationService.showSuccess(
+                      context,
+                      context.tr('toast_declaration_flawless_success'),
+                    );
+                  } else {
+                    NotificationService.showWarning(
+                      context,
+                      context.tr('toast_declaration_flawless_risk'),
+                    );
+                  }
+                },
               ),
             ],
           ),
@@ -1098,19 +1133,46 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 label: 'Standart İlan',
                 isSelected: _listingTone == 'standard',
                 isDark: isDark,
-                onTap: () => setState(() => _listingTone = 'standard'),
+                selectedColor: const Color(0xFF38BDF8),
+                selectedTextColor: Colors.black,
+                icon: Icons.description_rounded,
+                onTap: () {
+                  setState(() => _listingTone = 'standard');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_tone_standard'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Samimi Esnaf Ağzı',
                 isSelected: _listingTone == 'friendly',
                 isDark: isDark,
-                onTap: () => setState(() => _listingTone = 'friendly'),
+                selectedColor: const Color(0xFFFFDE59),
+                selectedTextColor: Colors.black,
+                icon: Icons.record_voice_over_rounded,
+                onTap: () {
+                  setState(() => _listingTone = 'friendly');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_tone_friendly'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Kurumsal VIP Plaza',
                 isSelected: _listingTone == 'vip',
                 isDark: isDark,
-                onTap: () => setState(() => _listingTone = 'vip'),
+                selectedColor: const Color(0xFFA855F7),
+                selectedTextColor: Colors.white,
+                icon: Icons.workspace_premium_rounded,
+                onTap: () {
+                  setState(() => _listingTone = 'vip');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_tone_vip'),
+                  );
+                },
               ),
             ],
           ),
@@ -1134,19 +1196,46 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                 label: 'Galeri Önü • Ücretsiz',
                 isSelected: _photoLocation == 'lot',
                 isDark: isDark,
-                onTap: () => setState(() => _photoLocation = 'lot'),
+                selectedColor: const Color(0xFF2DD4BF),
+                selectedTextColor: Colors.black,
+                icon: Icons.storefront_rounded,
+                onTap: () {
+                  setState(() => _photoLocation = 'lot');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_photo_lot'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Profesyonel Stüdyo • ₺1.500',
                 isSelected: _photoLocation == 'studio',
                 isDark: isDark,
-                onTap: () => setState(() => _photoLocation = 'studio'),
+                selectedColor: const Color(0xFFFFB703),
+                selectedTextColor: Colors.black,
+                icon: Icons.camera_rounded,
+                onTap: () {
+                  setState(() => _photoLocation = 'studio');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_photo_studio'),
+                  );
+                },
               ),
               _buildChoiceChip(
                 label: 'Manzaralı Çekim • ₺800',
                 isSelected: _photoLocation == 'scenic',
                 isDark: isDark,
-                onTap: () => setState(() => _photoLocation = 'scenic'),
+                selectedColor: const Color(0xFF0EA5E9),
+                selectedTextColor: Colors.black,
+                icon: Icons.landscape_rounded,
+                onTap: () {
+                  setState(() => _photoLocation = 'scenic');
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_photo_scenic'),
+                  );
+                },
               ),
             ],
           ),
@@ -1158,7 +1247,21 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             subtitle: 'Kusurlu kaporta parçalarını ilk bakışta gösterme',
             value: _hideDamagedPhotos,
             isDark: isDark,
-            onChanged: (val) => setState(() => _hideDamagedPhotos = val),
+            activeColor: const Color(0xFFFF9F1A),
+            onChanged: (val) {
+              setState(() => _hideDamagedPhotos = val);
+              if (val) {
+                NotificationService.showWarning(
+                  context,
+                  context.tr('toast_hide_photos_on'),
+                );
+              } else {
+                NotificationService.showInfo(
+                  context,
+                  context.tr('toast_hide_photos_off'),
+                );
+              }
+            },
           ),
 
           if (isFinanceUnlocked) ...[
@@ -1168,7 +1271,21 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
               subtitle: 'Finansman faizi kazanarak taksitle sat',
               value: _allowsInstallments,
               isDark: isDark,
-              onChanged: (val) => setState(() => _allowsInstallments = val),
+              activeColor: const Color(0xFF00E575),
+              onChanged: (val) {
+                setState(() => _allowsInstallments = val);
+                if (val) {
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('toast_installments_on'),
+                  );
+                } else {
+                  NotificationService.showInfo(
+                    context,
+                    context.tr('toast_installments_off'),
+                  );
+                }
+              },
             ),
           ],
         ],
@@ -1176,23 +1293,44 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     );
   }
 
+  bool _isCarActuallyFlawless(CarModel car) {
+    final exp = car.expertise;
+    final hasBodyFlaws = exp.bodyParts.values.any((s) =>
+        s == PartStatus.painted ||
+        s == PartStatus.localPainted ||
+        s == PartStatus.changed ||
+        s == PartStatus.damaged);
+    final hasTramer = exp.tramerAmount > 0;
+    final isTampered = exp.isMileageTampered;
+    final hasSevereMechanical =
+        exp.engineCondition < 60.0 || exp.transmissionCondition < 60.0;
+    return (!hasBodyFlaws && !hasTramer && !isTampered && !hasSevereMechanical) ||
+        car.isPristineOriginal;
+  }
+
   Widget _buildChoiceChip({
     required String label,
     required bool isSelected,
     required bool isDark,
     required VoidCallback onTap,
+    Color? selectedColor,
+    Color? selectedTextColor,
+    IconData? icon,
   }) {
+    final activeBg = selectedColor ?? const Color(0xFF00E575);
+    final activeFg = selectedTextColor ?? Colors.black;
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 120),
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7.5),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00E575)
+              ? activeBg
               : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
@@ -1215,13 +1353,30 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   ),
                 ],
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w900,
-            color: isSelected ? Colors.black : (isDark ? Colors.white : const Color(0xFF0F172A)),
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 14,
+                color: isSelected
+                    ? activeFg
+                    : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+              ),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w900,
+                color: isSelected
+                    ? activeFg
+                    : (isDark ? Colors.white : const Color(0xFF0F172A)),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1233,6 +1388,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
     required bool value,
     required bool isDark,
     required ValueChanged<bool> onChanged,
+    Color activeColor = const Color(0xFF00E575),
   }) {
     return GestureDetector(
       onTap: () {
@@ -1243,7 +1399,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: value
-              ? const Color(0xFF00E575).withValues(alpha: isDark ? 0.15 : 0.10)
+              ? activeColor.withValues(alpha: isDark ? 0.20 : 0.12)
               : (isDark ? const Color(0xFF1B202D) : const Color(0xFFF8FAFC)),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
