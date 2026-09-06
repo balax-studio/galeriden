@@ -457,7 +457,7 @@ class MissionFactory {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
     final clients = [
-      {'name': 'Doktor Selim Bey', 'archetype': 'Pretij & Konfor', 'brand': 'Merso', 'type': 'Sedan'},
+      {'name': 'Doktor Selim Bey', 'archetype': 'Prestij & Konfor', 'brand': 'Merso', 'type': 'Sedan'},
       {'name': 'Mimar Aylin Hanım', 'archetype': 'Şehirli SUV', 'brand': 'Vosgen', 'type': 'SUV'},
       {'name': 'Yazılımcı Berk', 'archetype': 'Hızlı & Dinamik', 'brand': 'Bemeve', 'type': 'Sedan'},
       {'name': 'Usta Balatacı Hasan', 'archetype': 'Klasik & Nostalji', 'brand': 'Tofaşk', 'type': 'Klasik'},

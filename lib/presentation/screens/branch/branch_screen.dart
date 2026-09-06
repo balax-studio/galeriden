@@ -183,7 +183,8 @@ class BranchScreen extends ConsumerWidget {
 
           // 3. Branches List
           ...branches.map((b) {
-            final isCurrent = game.maxGarageSlots == b.maxGarageSlots;
+            final isCurrent = game.currentBranchTier == b.targetLevel;
+            final isSequential = b.targetLevel == game.currentBranchTier + 1;
             final isLevelUnlocked = game.level >= b.targetLevel;
             final canAfford = game.balance >= b.requiredBalance;
 
@@ -461,19 +462,21 @@ class BranchScreen extends ConsumerWidget {
                     if (!isCurrent && !b.isUnlocked) ...[
                       const SizedBox(height: 12),
                       NeoBrutalButton(
-                        label: !isLevelUnlocked
-                            ? context.tr('branch_btn_level_req',
-                                {'lvl': '${b.targetLevel}'})
-                            : (canAfford
-                                ? context.tr('branch_btn_buy_branch', {
-                                    'cost': CurrencyFormatter.formatShort(
-                                        b.requiredBalance)
-                                  })
-                                : context.tr('branch_btn_insufficient_branch', {
-                                    'cost': CurrencyFormatter.formatShort(
-                                        b.requiredBalance)
-                                  })),
-                        backgroundColor: !isLevelUnlocked
+                        label: !isSequential
+                            ? context.tr('branch_btn_prev_req')
+                            : (!isLevelUnlocked
+                                ? context.tr('branch_btn_level_req',
+                                    {'lvl': '${b.targetLevel}'})
+                                : (canAfford
+                                    ? context.tr('branch_btn_buy_branch', {
+                                        'cost': CurrencyFormatter.formatShort(
+                                            b.requiredBalance)
+                                      })
+                                    : context.tr('branch_btn_insufficient_branch', {
+                                        'cost': CurrencyFormatter.formatShort(
+                                            b.requiredBalance)
+                                      }))),
+                        backgroundColor: (!isSequential || !isLevelUnlocked)
                             ? (isDark
                                 ? const Color(0xFF1A1F2C)
                                 : const Color(0xFFCBD5E1))
@@ -482,12 +485,12 @@ class BranchScreen extends ConsumerWidget {
                                 : (isDark
                                     ? const Color(0xFF1E2330)
                                     : const Color(0xFFE2E8F0))),
-                        textColor: isLevelUnlocked && canAfford
+                        textColor: isSequential && isLevelUnlocked && canAfford
                             ? Colors.black
                             : const Color(0xFF64748B),
                         fontSize: 11.5,
                         fullWidth: true,
-                        onPressed: (isLevelUnlocked && canAfford)
+                        onPressed: (isSequential && isLevelUnlocked && canAfford)
                             ? () {
                                 final durationSec = b.targetLevel <= 3
                                     ? 3

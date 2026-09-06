@@ -88,6 +88,10 @@ class DailyCashflowScreen extends ConsumerWidget {
             sideBusinessIncome: summary.sideBusinessIncome,
             rentalsCount: game.activeRentals.length,
             rentalIncome: summary.rentalDailyIncome,
+            realEstateRentIncome: summary.realEstateRentIncome,
+            realEstatesCount: game.ownedRealEstates.where((p) => p.isRented).length,
+            consignmentParkingIncome: summary.consignmentParkingIncome,
+            consignmentsCount: game.ownedCars.where((c) => c.isConsignment).length,
             depositInterest: summary.depositDailyInterest,
             depositBalance: game.bankDepositBalance,
             stockDividend: summary.stockDailyDividend,
@@ -112,6 +116,7 @@ class DailyCashflowScreen extends ConsumerWidget {
             hasBossPerk: game.specializationPath == SpecializationPath.boss,
             propertyTierName: summary.propertyTierName,
             propertyDailyBurn: summary.propertyDailyBurn,
+            deedDues: summary.deedDues,
             activeLoans: game.activeLoans,
             loanDailyPayment: summary.loanDailyPayment,
             dailyTaxEstimate: summary.dailyTaxEstimate,
@@ -557,6 +562,10 @@ class DailyCashflowScreen extends ConsumerWidget {
     required double sideBusinessIncome,
     required int rentalsCount,
     required double rentalIncome,
+    required double realEstateRentIncome,
+    required int realEstatesCount,
+    required double consignmentParkingIncome,
+    required int consignmentsCount,
     required double depositInterest,
     required double depositBalance,
     required double stockDividend,
@@ -596,13 +605,45 @@ class DailyCashflowScreen extends ConsumerWidget {
               ? context.tr('cashflow_income_no_rentals')
               : context
                   .tr('cashflow_income_rentals_desc', {'count': rentalsCount}),
-          amount: rentalIncome,
+          amount: rentalIncome - realEstateRentIncome,
           isIncome: true,
           onTap: () => _handleShortcut(context, game, '/rent-a-car'),
         ),
         const SizedBox(height: 8),
 
-        // 3. Banka Vadeli Mevduat Faizi
+        // 3. Gayrimenkul Kira Gelirleri
+        if (realEstatesCount > 0 || realEstateRentIncome > 0) ...[
+          _buildItemCard(
+            isDark: isDark,
+            icon: Icons.real_estate_agent_rounded,
+            iconColor: const Color(0xFF10B981),
+            title: context.tr('cashflow_income_real_estate_title',
+                {'count': realEstatesCount}),
+            subtitle: context.tr('cashflow_income_real_estate_desc'),
+            amount: realEstateRentIncome,
+            isIncome: true,
+            onTap: () => _handleShortcut(context, game, '/emlak'),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // 4. Konsinye Otopark & Vitrin Geliri
+        if (consignmentsCount > 0 || consignmentParkingIncome > 0) ...[
+          _buildItemCard(
+            isDark: isDark,
+            icon: Icons.local_parking_rounded,
+            iconColor: const Color(0xFF6366F1),
+            title: context.tr('cashflow_income_consignment_title',
+                {'count': consignmentsCount}),
+            subtitle: context.tr('cashflow_income_consignment_desc'),
+            amount: consignmentParkingIncome,
+            isIncome: true,
+            onTap: () => _handleShortcut(context, game, '/consignment'),
+          ),
+          const SizedBox(height: 8),
+        ],
+
+        // 5. Banka Vadeli Mevduat Faizi
         _buildItemCard(
           isDark: isDark,
           icon: Icons.account_balance_rounded,
@@ -618,7 +659,7 @@ class DailyCashflowScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
 
-        // 4. Borsa Hisse Senedi Getirileri
+        // 6. Borsa Hisse Senedi Getirileri
         if (stockPortfolioValue > 0)
           _buildItemCard(
             isDark: isDark,
@@ -644,6 +685,7 @@ class DailyCashflowScreen extends ConsumerWidget {
     required bool hasBossPerk,
     required String propertyTierName,
     required double propertyDailyBurn,
+    required double deedDues,
     required List<dynamic> activeLoans,
     required double loanDailyPayment,
     required double dailyTaxEstimate,
@@ -682,6 +724,22 @@ class DailyCashflowScreen extends ConsumerWidget {
           onTap: () => _handleShortcut(context, game, '/branches'),
         ),
         const SizedBox(height: 8),
+
+        // 2b. Tapu Aidat Giderleri
+        if (game.ownedBranchDeeds.isNotEmpty) ...[
+          _buildItemCard(
+            isDark: isDark,
+            icon: Icons.shield_rounded,
+            iconColor: const Color(0xFFF59E0B),
+            title: context.tr('cashflow_expense_deed_dues_title',
+                {'count': game.ownedBranchDeeds.length}),
+            subtitle: context.tr('cashflow_expense_deed_dues_desc'),
+            amount: deedDues,
+            isIncome: false,
+            onTap: () => _handleShortcut(context, game, '/branches'),
+          ),
+          const SizedBox(height: 8),
+        ],
 
         // 3. Banka Kredileri Günlük Ödeme Yükü
         if (activeLoans.isNotEmpty) ...[

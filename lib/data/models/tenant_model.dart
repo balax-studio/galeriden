@@ -21,6 +21,7 @@ class TenantModel {
   final String evaluationThought;
   final int inspectionRemainingSeconds;
   final int desiredLeaseYears;
+  final int lastRentIncreaseDay;
 
   const TenantModel({
     required this.id,
@@ -36,6 +37,7 @@ class TenantModel {
     this.evaluationThought = '',
     this.inspectionRemainingSeconds = 0,
     this.desiredLeaseYears = 1,
+    this.lastRentIncreaseDay = 0,
   });
 
   double get dailyRent => (monthlyRent / 30).roundToDouble();
@@ -62,6 +64,7 @@ class TenantModel {
       'evaluationThought': evaluationThought,
       'inspectionRemainingSeconds': inspectionRemainingSeconds,
       'desiredLeaseYears': desiredLeaseYears,
+      'lastRentIncreaseDay': lastRentIncreaseDay,
     };
   }
 
@@ -88,6 +91,7 @@ class TenantModel {
       evaluationThought: json['evaluationThought'] as String? ?? '',
       inspectionRemainingSeconds: json['inspectionRemainingSeconds'] as int? ?? 0,
       desiredLeaseYears: json['desiredLeaseYears'] as int? ?? 1,
+      lastRentIncreaseDay: json['lastRentIncreaseDay'] as int? ?? 0,
     );
   }
 
@@ -105,6 +109,7 @@ class TenantModel {
     String? evaluationThought,
     int? inspectionRemainingSeconds,
     int? desiredLeaseYears,
+    int? lastRentIncreaseDay,
   }) {
     return TenantModel(
       id: id ?? this.id,
@@ -121,6 +126,7 @@ class TenantModel {
       inspectionRemainingSeconds:
           inspectionRemainingSeconds ?? this.inspectionRemainingSeconds,
       desiredLeaseYears: desiredLeaseYears ?? this.desiredLeaseYears,
+      lastRentIncreaseDay: lastRentIncreaseDay ?? this.lastRentIncreaseDay,
     );
   }
 

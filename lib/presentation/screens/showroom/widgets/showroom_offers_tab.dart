@@ -1207,7 +1207,7 @@ class ShowroomOffersTab extends ConsumerWidget {
         confirmDismiss: (direction) async {
           HapticFeedback.mediumImpact();
           final isExpired =
-              offer.isExpired || offer.status == OfferStatus.expired;
+              offer.isExpiredForDay(game.currentDay) || offer.status == OfferStatus.expired;
           if (isExpired) {
             ref.read(gameProvider.notifier).dismissOffer(offer.id);
             return true;
@@ -1229,7 +1229,7 @@ class ShowroomOffersTab extends ConsumerWidget {
         child: Builder(
           builder: (context) {
             final isExpired =
-                offer.isExpired || offer.status == OfferStatus.expired;
+                offer.isExpiredForDay(game.currentDay) || offer.status == OfferStatus.expired;
 
             return NeoBrutalCard(
               padding: const EdgeInsets.all(14),
@@ -1273,6 +1273,19 @@ class ShowroomOffersTab extends ConsumerWidget {
                               NeoBrutalBadge(
                                 text: context.tr('badge_buyer_left_timeout'),
                                 backgroundColor: const Color(0xFFDC2626),
+                                textColor: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ] else if (offer.expiresOnDay > 0) ...[
+                              const SizedBox(width: 8),
+                              NeoBrutalBadge(
+                                text: context.tr('badge_offer_days_left', {
+                                  'days': (offer.expiresOnDay - game.currentDay + 1).clamp(1, 999),
+                                }),
+                                backgroundColor: (offer.expiresOnDay - game.currentDay <= 0)
+                                    ? const Color(0xFFEA580C)
+                                    : const Color(0xFF0284C7),
                                 textColor: Colors.white,
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,

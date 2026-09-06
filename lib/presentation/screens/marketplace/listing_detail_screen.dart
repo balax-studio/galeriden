@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/color_parser.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../domain/usecases/psychology_engine.dart';
@@ -34,12 +35,7 @@ class ListingDetailScreen extends ConsumerWidget {
     final exp = car.expertise;
     final viewerCount = PsychologyEngine.getLiveViewerCount();
 
-    Color carColor;
-    try {
-      carColor = Color(int.parse(car.colorHex.replaceFirst('#', '0xFF')));
-    } catch (e) {
-      carColor = p.primaryColor;
-    }
+    final carColor = ColorParser.parseCarColor(car.colorHex, p.primaryColor);
 
     return Scaffold(
       appBar: NeoBrutalAppBar(

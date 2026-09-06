@@ -790,6 +790,10 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
     final monthlyRent = tenant?.monthlyRent ?? 0.0;
     final deposit = tenant?.depositAmount ?? 0.0;
     final pendingRent = prop.pendingRentIncome;
+    final gameState = ref.watch(gameProvider);
+    final daysSinceIncrease = tenant != null ? (gameState.currentDay - tenant.lastRentIncreaseDay) : 0;
+    final canApplyTufe = tenant != null && daysSinceIncrease >= 365;
+    final remainingDays = (365 - daysSinceIncrease).clamp(0, 365);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -803,7 +807,7 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFBBF7D0),
+                      color: const Color(0xFFE2E8F0),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.black, width: 2),
                     ),
@@ -851,7 +855,7 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black26, width: 1),
+                  border: Border.all(color: Colors.black12, width: 1.5),
                 ),
                 child: Column(
                   children: [
@@ -895,11 +899,13 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
         ),
         const SizedBox(height: 8),
         NeoBrutalButton(
-          label: context.tr('rental_btn_apply_tufe'),
+          label: canApplyTufe
+              ? context.tr('rental_btn_apply_tufe')
+              : context.tr('rental_btn_tufe_locked', {'days': '$remainingDays'}),
           icon: Icons.trending_up_rounded,
           backgroundColor: const Color(0xFF60A5FA),
           fullWidth: true,
-          onPressed: () => _applyTufeIncrease(prop),
+          onPressed: canApplyTufe ? () => _applyTufeIncrease(prop) : null,
         ),
         const SizedBox(height: 8),
         NeoBrutalButton(

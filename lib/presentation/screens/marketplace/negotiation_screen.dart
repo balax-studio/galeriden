@@ -391,6 +391,11 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
         _isThinking ||
         _isProcessing;
 
+    final agreedPrice = _agreedFinalPrice ?? _offeredPrice;
+    final effectivePrice = game.applyBuyerPerks(agreedPrice);
+    final perkDiscount = (agreedPrice - effectivePrice).clamp(0.0, double.infinity);
+    final canAfford = game.balance >= effectivePrice;
+
     return Scaffold(
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
@@ -528,8 +533,10 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
                 isProcessing: _isProcessing,
                 offeredPrice: _offeredPrice,
                 agreedFinalPrice: _agreedFinalPrice,
+                effectivePrice: effectivePrice,
+                perkDiscount: perkDiscount,
                 counterOfferCount: _counterOfferCount,
-                canAfford: game.balance >= (_agreedFinalPrice ?? _offeredPrice),
+                canAfford: canAfford,
                 isDark: isDark,
                 onSendOffer: () => _handleSendOffer(chancePercent),
                 onPayAndBuy: () => _handlePayAndBuy(currentListing, game),

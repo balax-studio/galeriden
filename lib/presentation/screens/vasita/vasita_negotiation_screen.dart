@@ -156,6 +156,7 @@ class _VasitaNegotiationScreenState
   void _showNoterTransferDialog() {
     final game = ref.read(gameProvider);
     final offeredPrice = ref.read(vasitaNegotiationProvider(widget.listing)).offeredPrice;
+    final effectivePrice = game.applyBuyerPerks(offeredPrice);
     final noterFee = VasitaNegotiationEngine.calculateNoterFee(offeredPrice);
     const regFee = VasitaNegotiationEngine.registrationFee;
     final isGarageFull = game.ownedCars.length >= game.maxGarageSlots;
@@ -166,6 +167,7 @@ class _VasitaNegotiationScreenState
       buyerName: game.playerName,
       sellerName: widget.listing.sellerName,
       agreedPrice: offeredPrice,
+      effectivePrice: effectivePrice,
       noterFee: noterFee,
       registrationFee: regFee,
       playerBalance: game.balance,
@@ -1412,13 +1414,78 @@ class _VasitaNegotiationScreenState
     }
 
     if (negState.isAccepted) {
-      return NeoBrutalButton(
-        label: context.tr('vasita_btn_complete_noter'),
-        icon: Icons.verified_user_rounded,
-        fullWidth: true,
-        backgroundColor: const Color(0xFF10B981),
-        textColor: Colors.white,
-        onPressed: _showNoterTransferDialog,
+      final effectivePrice = ref.read(gameProvider).applyBuyerPerks(negState.offeredPrice);
+      final perkDiscount = (negState.offeredPrice - effectivePrice).clamp(0.0, double.infinity);
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF141721) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: const Color(0xFF00E575),
+                width: 1.5,
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('neg_agreed_price'),
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(negState.offeredPrice),
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('neg_perk_discount'),
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                    ),
+                    Text(
+                      perkDiscount > 0 ? '-${CurrencyFormatter.format(perkDiscount)}' : '₺0',
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900, color: Color(0xFF10B981)),
+                    ),
+                  ],
+                ),
+                const Divider(height: 12, thickness: 1),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      context.tr('neg_final_price'),
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(effectivePrice),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF00E575)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          NeoBrutalButton(
+            label: context.tr('vasita_btn_complete_noter'),
+            icon: Icons.verified_user_rounded,
+            fullWidth: true,
+            backgroundColor: const Color(0xFF10B981),
+            textColor: Colors.white,
+            onPressed: _showNoterTransferDialog,
+          ),
+        ],
       );
     }
 
@@ -1453,7 +1520,8 @@ class _VasitaNegotiationScreenState
       );
     }
 
-    final canAfford = playerBalance >= negState.offeredPrice;
+    final effectiveOffer = ref.read(gameProvider).applyBuyerPerks(negState.offeredPrice);
+    final canAfford = playerBalance >= effectiveOffer;
 
     final String buttonLabel;
     final Color buttonColor;

@@ -1,9 +1,13 @@
 import 'dart:math';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/offer_model.dart';
-import '../../data/models/staff_model.dart';
 import '../../data/models/car_model.dart';
 import '../../data/models/dramatic_card_model.dart';
+import '../../data/models/loan_model.dart';
+import '../../data/models/installment_contract_model.dart';
+import '../../data/models/cheque_model.dart';
+import '../services/daily_staff_processor.dart';
+import 'loan_settlement_engine.dart';
 import 'negotiation_engine.dart';
 
 class OfflineProgression {
@@ -62,23 +66,8 @@ class OfflineProgression {
     // 1. Calculate simulated days (30 offline minutes = 1 in-game day, capped at max 3 days / §3.6)
     final simulatedDays = (elapsedMinutes / 30).floor().clamp(0, 3);
 
-    // 2. Property Daily Burn calculation
-    double propertyDailyBurn = 300.0;
-    if (dealership.unlockedBuildings.contains('property_tier_8')) {
-      propertyDailyBurn = 75000.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_7')) {
-      propertyDailyBurn = 40000.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_6')) {
-      propertyDailyBurn = 20000.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_5')) {
-      propertyDailyBurn = 9500.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_4')) {
-      propertyDailyBurn = 4200.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_3')) {
-      propertyDailyBurn = 1800.0;
-    } else if (dealership.unlockedBuildings.contains('property_tier_2')) {
-      propertyDailyBurn = 750.0;
-    }
+    // 2. Property Daily Burn calculation (honors deed ownership)
+    final double propertyDailyBurn = dealership.dailyPropertyRentBurn;
 
     // 3. Staff Salaries
     double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.dailySalary);
@@ -98,14 +87,30 @@ class OfflineProgression {
           activeRentalsCount: dealership.activeRentals.length,
         )) * passiveEfficiency;
 
+    var updatedLoans = List<LoanModel>.from(dealership.activeLoans);
+    var updatedInstallments = List<InstallmentContract>.from(dealership.activeInstallments);
+    var updatedCheques = List<Cheque>.from(dealership.activeCheques);
+    var updatedCars = List<CarModel>.from(dealership.ownedCars);
+    final hasCarWash = dealership.sideBusinesses.any((b) => b.id == 'sb_1' && b.isOwned);
+
     for (int day = 0; day < simulatedDays; day++) {
       nextDay++;
       // Passive earnings
       newBalance += totalDailyPassive;
       totalPassiveEarned += totalDailyPassive;
 
-      // Expenses
-      final dayExpense = propertyDailyBurn + totalDailySalaries;
+      // Active rentals daily yield
+      for (final rental in dealership.activeRentals) {
+        newBalance += rental.dailyRate;
+        totalPassiveEarned += rental.dailyRate;
+      }
+
+      // Expenses: property burn + salaries + daily tax
+      final dailyTax = LoanSettlementEngine.calculateDailyTax(
+        dealership.level,
+        totalLiquidWealth: newBalance + dealership.bankDepositBalance,
+      );
+      final dayExpense = propertyDailyBurn + totalDailySalaries + dailyTax;
       if (newBalance >= dayExpense) {
         newBalance -= dayExpense;
         totalExpenses += dayExpense;
@@ -113,6 +118,45 @@ class OfflineProgression {
         totalExpenses += newBalance > 0 ? newBalance : 0.0;
         newBalance = max(0.0, newBalance - dayExpense);
       }
+
+      // Weekly loans settlement (if nextDay % 7 == 0)
+      if (updatedLoans.isNotEmpty) {
+        final loanResult = LoanSettlementEngine.processWeeklyLoans(
+          nextDay: nextDay,
+          balance: newBalance,
+          loans: updatedLoans,
+        );
+        newBalance = loanResult.$1;
+        updatedLoans = loanResult.$2;
+      }
+
+      // Installments & Cheques
+      if (updatedInstallments.isNotEmpty) {
+        final instResult = LoanSettlementEngine.processInstallments(
+          balance: newBalance,
+          installments: updatedInstallments,
+        );
+        newBalance = instResult.$1;
+        updatedInstallments = instResult.$2;
+      }
+
+      if (updatedCheques.isNotEmpty) {
+        final chequeResult = LoanSettlementEngine.processCheques(
+          balance: newBalance,
+          cheques: updatedCheques,
+          chequeRiskReduction: dealership.skills.chequeRiskReduction,
+          random: Random(),
+        );
+        newBalance = chequeResult.$1;
+        updatedCheques = chequeResult.$2;
+      }
+
+      // Staff auto-actions during offline time, per simulated day using active logic & limits (§3.6)
+      updatedCars = DailyStaffProcessor.processStaffAutomation(
+        staff: dealership.hiredStaff,
+        cars: updatedCars,
+        hasCarWashBusiness: hasCarWash,
+      );
     }
 
     if (newBalance < 0) newBalance = 0;
@@ -137,39 +181,16 @@ class OfflineProgression {
     var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
     int newOffersGenerated = 0;
 
-    // 5. Staff Auto-Actions during offline time
-    List<CarModel> updatedCars = List.from(dealership.ownedCars);
-    final hasWasher = dealership.hiredStaff.any((s) => s.role == StaffRole.washer);
-    final hasMechanic = dealership.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
-
-    if (hasWasher) {
-      updatedCars = updatedCars.map((c) {
-        if (!c.isRented && !c.isConsignment) {
-          return c.copyWith(isWashed: true, isPolished: true);
-        }
-        return c;
-      }).toList();
-    }
-    if (hasMechanic) {
-      updatedCars = updatedCars.map((c) {
-        if (!c.isRented && !c.isConsignment && (c.expertise.engineCondition < 70 || c.expertise.transmissionCondition < 70)) {
-          return c.copyWith(
-            expertise: c.expertise.copyWith(
-              engineCondition: max(c.expertise.engineCondition, 85.0),
-              transmissionCondition: max(c.expertise.transmissionCondition, 85.0),
-            ),
-          );
-        }
-        return c;
-      }).toList();
-    }
-
     final eligibleOfferCars = updatedCars.where((c) => c.isListed && !c.isRented && !c.isLockedInShowcase).toList();
 
     for (int i = 0; i < potentialOffers; i++) {
       if (eligibleOfferCars.isNotEmpty && updatedOffers.length < maxOffersLimit) {
         final car = eligibleOfferCars[i % eligibleOfferCars.length];
-        final offer = NegotiationEngine.generateBuyerOffer(car, car.listingPrice);
+        final offer = NegotiationEngine.generateBuyerOffer(
+          car,
+          car.listingPrice,
+          currentDay: dealership.currentDay,
+        );
         updatedOffers.add(offer);
         newOffersGenerated++;
       }
@@ -192,6 +213,9 @@ class OfflineProgression {
     final updatedDealership = dealership.copyWith(
       balance: newBalance,
       currentDay: nextDay,
+      activeLoans: updatedLoans,
+      activeInstallments: updatedInstallments,
+      activeCheques: updatedCheques,
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
       pendingDramaticCard: updatedCard,

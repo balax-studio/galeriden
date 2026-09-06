@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/localization/language_model.dart';
+import '../../core/utils/currency_formatter.dart';
 
 final settingsProvider =
     StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
@@ -65,6 +66,8 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
     final audio = prefs.getBool('audio_enabled') ?? true;
 
+    CurrencyFormatter.currentLanguageCode = lang;
+
     state = SettingsState(
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       languageCode: lang,
@@ -82,6 +85,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
   }
 
   Future<void> setLanguage(String code) async {
+    CurrencyFormatter.currentLanguageCode = code;
     state = state.copyWith(languageCode: code);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('language_code', code);

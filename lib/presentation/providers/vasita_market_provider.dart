@@ -66,22 +66,6 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
     refreshMarket();
   }
 
-  bool buyVasita(ListingModel listing) {
-    final gameNotifier = _ref.read(gameProvider.notifier);
-    final outcome = gameNotifier.buyCar(
-      listing.car,
-      listing.askingPrice,
-      isExpertiseCompleted: listing.isExpertiseCompleted,
-    );
-
-    if (outcome != null) {
-      // Successfully bought: remove from active listings
-      state = state.where((l) => l.id != listing.id).toList();
-      return true;
-    }
-    return false;
-  }
-
   bool buyVasitaNegotiated({
     required ListingModel listing,
     required double agreedPrice,

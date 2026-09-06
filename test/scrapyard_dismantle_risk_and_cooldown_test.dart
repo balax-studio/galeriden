@@ -43,9 +43,12 @@ void main() {
       expect(secondSuccess, isFalse);
       expect(notifier.state.balance, equals(initialBalance + 5000.0));
 
-      // After 21 hours, gig should be available again
+      // After in-game day advances and 21 hours pass, gig should be available again (B6)
       final pastDate = DateTime.now().subtract(const Duration(hours: 21));
-      notifier.state = notifier.state.copyWith(lastScrapyardGigDate: pastDate);
+      notifier.state = notifier.state.copyWith(
+        currentDay: notifier.state.currentDay + 1,
+        lastScrapyardGigDate: pastDate,
+      );
 
       final thirdSuccess = notifier.workScrapyardSideGig();
       expect(thirdSuccess, isTrue);

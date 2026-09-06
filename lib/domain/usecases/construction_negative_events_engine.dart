@@ -21,15 +21,37 @@ class ConstructionSiteEvent {
 class ConstructionNegativeEventsEngine {
   static final Random _random = Random();
 
-  /// Rolls for a random construction site incident during stage progression
+  /// Rolls for a random construction site incident during stage progression (F1·8, F2·5)
   static ConstructionSiteEvent? rollStageIncident({
     required int stageNumber,
     required double baseStageCost,
     double riskMultiplier = 1.0,
+    bool hasMasterMechanic = false,
+    bool isBadWeather = false,
   }) {
     final roll = _random.nextDouble();
-    // Base risk chance ~ 22%, scaled by subcontractor risk multiplier
-    final triggerThreshold = 0.22 * riskMultiplier;
+
+    // F1·8: Etaba göre taban risk: Hafriyat ve Kaba (%28), İnce işler (%12), Standart (%18)
+    double baseRate;
+    if (stageNumber == 2 || stageNumber == 3) {
+      baseRate = 0.28;
+    } else if (stageNumber >= 6) {
+      baseRate = 0.12;
+    } else {
+      baseRate = 0.18;
+    }
+
+    // F2·5: Usta mekanik personeli varsa kaza ve arıza riski %40 azalır
+    if (hasMasterMechanic) {
+      baseRate *= 0.60;
+    }
+
+    // Yağışlı veya karlı havada şantiye riski artar
+    if (isBadWeather) {
+      baseRate *= 1.30;
+    }
+
+    final triggerThreshold = (baseRate * riskMultiplier).clamp(0.03, 0.60);
 
     if (roll > triggerThreshold) {
       return null;

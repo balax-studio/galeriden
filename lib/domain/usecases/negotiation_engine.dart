@@ -481,8 +481,15 @@ class NegotiationEngine {
     bool isFinanceUnlocked = true,
     double districtMultiplier = 1.0,
     double gossipMultiplier = 1.0,
+    double branchMultiplier = 1.0,
+    double weatherMultiplier = 1.0,
+    int? currentDay,
   }) {
-    final totalMultiplier = seasonMultiplier * districtMultiplier * gossipMultiplier;
+    final totalMultiplier = seasonMultiplier *
+        districtMultiplier *
+        gossipMultiplier *
+        branchMultiplier *
+        weatherMultiplier;
     final realVal = car.estimatedRealValue * totalMultiplier;
     final askingPrice = car.isListed ? car.listingPrice : (listingPrice > 0 ? listingPrice : realVal);
     final distRoll = _random.nextDouble();
@@ -642,6 +649,7 @@ class NegotiationEngine {
       status: OfferStatus.pending,
       createdAt: now,
       expiresAt: now.add(Duration(minutes: 3 + _random.nextInt(6))),
+      expiresOnDay: (currentDay ?? 1) + 2 + _random.nextInt(3),
       offerType: chosenOfferType,
       customerCreditScore: creditScore,
       installmentMonths: installments,
@@ -1410,6 +1418,7 @@ class NegotiationEngine {
   static OfferModel generateLoyalCustomerOffer({
     required CarModel car,
     required String customerName,
+    int? currentDay,
   }) {
     final realVal = car.estimatedRealValue;
     final askingPrice = car.listingPrice > 0 ? car.listingPrice : realVal;
@@ -1423,6 +1432,7 @@ class NegotiationEngine {
       offeredAmount: offerAmount,
       buyerMessage: 'Tekrar merhaba! Senden daha önce aldığım araçtan çok memnun kaldım. Bu aracı da ₺${offerAmount.round()} nakit fiyata almak isterim.',
       createdAt: DateTime.now(),
+      expiresOnDay: (currentDay ?? 1) + 2 + _random.nextInt(2),
       customerCreditScore: 95,
       offerType: OfferType.cash,
       buyerCustomer: CustomerModel(

@@ -432,17 +432,15 @@ mixin GameScrapyardMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Daily Scrapyard Side Gig: Hurdalıkta Günlük Çıraklık (₺5.000) - Günde 1 kez yapılabilir
+  /// Daily Scrapyard Side Gig: Hurdalıkta Günlük Çıraklık (₺5.000) - Oyun günü başına 1 kez yapılabilir
   bool doDailyScrapyardSideGig() {
-    final now = DateTime.now();
-    if (state.lastScrapyardGigDate != null) {
-      final diff = now.difference(state.lastScrapyardGigDate!);
-      if (diff.inHours < 20) {
-        return false;
-      }
+    if (state.lastScrapyardGigDay >= state.currentDay) {
+      return false;
     }
+    final now = DateTime.now();
     state = state.copyWith(
       balance: state.balance + 5000.0,
+      lastScrapyardGigDay: state.currentDay,
       lastScrapyardGigDate: now,
     );
     adjustNpcRelationship('cikmaci_ibo', 2);

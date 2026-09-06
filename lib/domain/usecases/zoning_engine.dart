@@ -216,9 +216,34 @@ class ZoningEngine {
     ),
   ];
 
+  /// Returns district-based zoning benchmarks (F1·2, F1·3)
+  static ({double taks, double kaks, int maxFloors}) getDistrictZoningDefaults(String? district, double safeArea) {
+    if (district != null && district.trim().isNotEmpty) {
+      final d = district.toLowerCase();
+      // High-density business/skyscraper hubs (Maslak, Şişli, Levent, Ataşehir)
+      if (d.contains('maslak') || d.contains('şişli') || d.contains('sisli') || d.contains('levent') || d.contains('ataşehir') || d.contains('atasehir')) {
+        return (taks: 0.38, kaks: 2.40, maxFloors: 12);
+      }
+      // Low-density villa / suburban / coastal / green districts (Sarıyer, Beylikdüzü, Gölbaşı, Urla, Çeşme, Bodrum)
+      if (d.contains('sarıyer') || d.contains('sariyer') || d.contains('beylikdüzü') || d.contains('beylikduzu') || d.contains('gölbaşı') || d.contains('golbasi') || d.contains('urla') || d.contains('çeşme') || d.contains('cesme') || d.contains('bodrum') || d.contains('şile') || d.contains('sile')) {
+        return (taks: 0.28, kaks: 1.35, maxFloors: 4);
+      }
+      // Standard urban core districts (Kadıköy, Beşiktaş, Üsküdar, Çankaya, Karşıyaka)
+      if (d.contains('kadıköy') || d.contains('kadikoy') || d.contains('beşiktaş') || d.contains('besiktas') || d.contains('üsküdar') || d.contains('uskudar') || d.contains('çankaya') || d.contains('cankaya') || d.contains('karşıyaka') || d.contains('karsiyaka')) {
+        return (taks: 0.32, kaks: 1.85, maxFloors: 7);
+      }
+    }
+    // Fallback based on parcel size
+    final defTaks = safeArea >= 1500 ? 0.35 : 0.30;
+    final defKaks = safeArea >= 1500 ? 2.10 : (safeArea >= 800 ? 1.80 : 1.50);
+    final defFloors = safeArea >= 1500 ? 7 : 5;
+    return (taks: defTaks, kaks: defKaks, maxFloors: defFloors);
+  }
+
   /// Calculates zoning and architectural yield metrics for a given land parcel
   static ZoningProfile calculateZoning({
     required double parcelSquareMeters,
+    String? district,
     double? customTaks,
     double? customKaks,
     int? customMaxFloors,
@@ -226,11 +251,12 @@ class ZoningEngine {
     ZoningUnitMix? customUnitMix,
   }) {
     final safeArea = parcelSquareMeters <= 0 ? 100.0 : parcelSquareMeters;
+    final defaults = getDistrictZoningDefaults(district, safeArea);
 
-    // Determine realistic zoning coefficients based on parcel area
-    final taks = customTaks ?? (safeArea >= 1500 ? 0.35 : 0.30);
-    final kaks = customKaks ?? (safeArea >= 1500 ? 2.10 : (safeArea >= 800 ? 1.80 : 1.50));
-    final maxFloors = customMaxFloors ?? (safeArea >= 1500 ? 7 : 5);
+    // Determine realistic zoning coefficients based on district and parcel area
+    final taks = customTaks ?? defaults.taks;
+    final kaks = customKaks ?? defaults.kaks;
+    final maxFloors = customMaxFloors ?? defaults.maxFloors;
 
     final baseGroundArea = (safeArea * taks).roundToDouble();
     final totalConstructionArea = (safeArea * kaks).roundToDouble();
@@ -250,8 +276,10 @@ class ZoningEngine {
     final inGameDays = (estimatedDurationDays / 25).ceil().clamp(4, 12);
 
     final marketValue = baseMarketValue ?? (safeArea * 5000.0);
+    // F1·4: Emsal ve imar kalitesi primi (yüksek emsalli projede birim değer artar)
+    final emsalPremium = 1.0 + ((kaks - 1.5) * 0.10).clamp(-0.15, 0.25);
     final turnkeyUnitPrice = totalUnits > 0
-        ? ((marketValue * 2.6) / totalUnits).roundToDouble()
+        ? (((marketValue * 2.6) / totalUnits) * emsalPremium).roundToDouble()
         : 3500000.0;
     final totalProjectGrossValue = (turnkeyUnitPrice * totalUnits).roundToDouble();
 

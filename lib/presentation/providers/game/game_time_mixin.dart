@@ -18,6 +18,7 @@ import '../../../data/models/story_card_model.dart';
 import '../../../data/models/dramatic_card_model.dart';
 import '../../../data/models/contract_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../../data/models/weather_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../data/models/trade_in_offer_model.dart';
@@ -41,6 +42,7 @@ import '../../../domain/usecases/loan_settlement_engine.dart';
 import '../../../domain/usecases/stock_market_engine.dart';
 import '../../../domain/usecases/side_business_engine.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
+import '../../../domain/usecases/construction_negative_events_engine.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/gossip_item_model.dart';
 import '../../../domain/services/daily_loan_processor.dart';
@@ -167,6 +169,25 @@ mixin GameTimeMixin on GameBaseNotifier {
     newEvents = _createDailySummaryEvent(nextDay, newBalance, newEvents);
     final currentNews = _processMarketNews(nextDay, state.activeNews);
 
+    // F3·2: Malzeme Fiyat Endeksi günlük hafif dalgalanma (±0.015) ve haber sıçraması
+    double nextCostIndex = state.constructionCostIndex;
+    final dailyCostDrift = (random.nextDouble() - 0.5) * 0.03;
+    nextCostIndex = (nextCostIndex + dailyCostDrift).clamp(0.85, 1.35);
+
+    if (currentNews != null) {
+      final newsStr = '${currentNews.title} ${currentNews.description}'.toLowerCase();
+      if (newsStr.contains('demir') ||
+          newsStr.contains('çimento') ||
+          newsStr.contains('cimento') ||
+          newsStr.contains('inşaat') ||
+          newsStr.contains('insaat') ||
+          newsStr.contains('harç') ||
+          newsStr.contains('döviz') ||
+          newsStr.contains('enflasyon')) {
+        nextCostIndex = (nextCostIndex + 0.05).clamp(0.85, 1.35);
+      }
+    }
+
     final scrapAndBlack = _processScrapyardAndBlackMarket(nextDay,
         List.from(state.scrapyardCars), List.from(state.blackMarketCars));
     final currentScrapCars = scrapAndBlack.$1;
@@ -211,7 +232,7 @@ mixin GameTimeMixin on GameBaseNotifier {
     newEvents = dispute.$3;
 
     final validOffers = offersAfterRentals
-        .where((o) => currentCars.any((c) => c.id == o.carId) && !o.isExpired)
+        .where((o) => currentCars.any((c) => c.id == o.carId) && !o.isExpiredForDay(nextDay))
         .toList();
     final updatedIncomingOffers =
         _processLoyalCustomerOffers(currentCars, validOffers);
@@ -322,6 +343,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       currentDay: nextDay,
       balance: newBalance,
       reputationScore: currentReputation,
+      constructionCostIndex: nextCostIndex,
       ownedCars: currentCars,
       ownedRealEstates: updatedOwnedRealEstates,
       hiredStaff: currentStaff,
@@ -375,30 +397,7 @@ mixin GameTimeMixin on GameBaseNotifier {
   // --- Helper Methods ---
 
   double _processDailyPropertyBurn(double balance) {
-    double burn = 300.0;
-    if (state.unlockedBuildings.contains('property_tier_8')) {
-      burn = 75000.0;
-    } else if (state.unlockedBuildings.contains('property_tier_7')) {
-      burn = 40000.0;
-    } else if (state.unlockedBuildings.contains('property_tier_6')) {
-      burn = 20000.0;
-    } else if (state.unlockedBuildings.contains('property_tier_5')) {
-      burn = 9500.0;
-    } else if (state.unlockedBuildings.contains('property_tier_4')) {
-      burn = 4200.0;
-    } else if (state.unlockedBuildings.contains('property_tier_3')) {
-      burn = 1800.0;
-    } else if (state.unlockedBuildings.contains('property_tier_2')) {
-      burn = 750.0;
-    }
-
-    // Ek Gayrimenkul Tapu Bakım & Çevre Aidatları
-    final deedCount = state.ownedBranchDeeds.length;
-    if (deedCount > 0) {
-      burn += deedCount * 1250.0;
-    }
-
-    return balance - burn;
+    return balance - state.dailyPropertyRentBurn;
   }
 
   (double, List<StaffModel>, List<GameEventModel>) _processSalaries(
@@ -578,36 +577,178 @@ mixin GameTimeMixin on GameBaseNotifier {
       List<GameEventModel> events) {
     if (properties.isEmpty) return (balance, properties, events);
 
+    var currentBalance = balance;
     double totalDailyRent = 0.0;
     int rentedCount = 0;
     int atRiskCount = 0;
     final updatedEvents = List<GameEventModel>.from(events);
 
-    final updatedProperties = properties.map((prop) {
+    final updatedProperties = <RealEstateModel>[];
+    for (final prop in properties) {
       var currentProp = prop;
+
+      // F2·6, F5: İpotekli Arsa İcra ve Haciz Kontrolü (Temerrüt Durumu)
+      if (currentProp.isMortgaged && currentBalance < -50000.0) {
+        final eventId = 'foreclosure_${currentProp.id}_${state.currentDay}';
+        updatedEvents.insert(
+          0,
+          GameEventModel(
+            id: eventId,
+            title: 'İpotekli Arsa Haczedildi • İcra Takibi',
+            description:
+                'Ödenemeyen inşaat kredisi borçları sebebiyle ${currentProp.district} arsanıza banka tarafından el konuldu.',
+            amount: 0.0,
+            type: GameEventType.badEvent,
+            date: DateTime.now(),
+          ),
+        );
+        continue;
+      }
       if (currentProp.isRented) {
         final tenant = currentProp.currentTenant;
-        final isDelinquent = tenant != null && random.nextInt(100) < tenant.evictionRiskScore;
-        if (isDelinquent) {
-          final nextUnpaid = tenant.unpaidRentDays + 1;
-          currentProp = currentProp.copyWith(
-            currentTenant: tenant.copyWith(unpaidRentDays: nextUnpaid),
-          );
-          if (nextUnpaid % 7 == 0) {
-            updatedEvents.insert(
-              0,
-              GameEventModel(
-                id: 'rent_delayed_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
-                title: 'Kira Ödemesi Gecikti',
-                description:
-                    '${currentProp.title} mülkünüzdeki kiracı ${tenant.name} ödemeyi $nextUnpaid gündür geciktirdi.',
-                amount: 0.0,
-                type: GameEventType.badEvent,
-                date: DateTime.now(),
-              ),
-            );
+        if (tenant != null) {
+          // C4: Blend reliabilityScore and evictionRiskScore, plus progressive risk for consecutive unpaid days
+          final baseDelinquencyRisk = ((100 - tenant.reliabilityScore) * 0.5 + tenant.evictionRiskScore * 0.5).clamp(5.0, 85.0);
+          final totalDelinquencyChance = (baseDelinquencyRisk + (tenant.unpaidRentDays * 2.0)).clamp(5.0, 95.0);
+          final isDelinquent = random.nextInt(100) < totalDelinquencyChance;
+
+          if (isDelinquent) {
+            final nextUnpaid = tenant.unpaidRentDays + 1;
+
+            // C4: Automatic eviction threshold at 30 days of consecutive unpaid rent
+            if (nextUnpaid >= 30) {
+              totalDailyRent += tenant.depositAmount;
+              atRiskCount += 2;
+              currentProp = currentProp.copyWith(
+                isRented: false,
+                currentTenant: null,
+                clearCurrentTenant: true,
+                pendingRentIncome: currentProp.pendingRentIncome + tenant.depositAmount,
+                provenanceLog: [
+                  ...currentProp.provenanceLog,
+                  '${state.currentDay}. Gün • 30 gün kira ödenmedi • Kiracı tahliye edildi, depozito gelir kaydedildi',
+                ],
+              );
+              updatedEvents.insert(
+                0,
+                GameEventModel(
+                  id: 'tenant_evicted_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  title: 'Kiracı Tahliye Edildi • Kira Borcu',
+                  description:
+                      '${currentProp.title} mülkündeki kiracı ${tenant.name} 30 gün boyunca kira ödemediği için tahliye edildi. ₺${tenant.depositAmount.round()} depozitosu kasanıza aktarıldı.',
+                  amount: tenant.depositAmount,
+                  type: GameEventType.badEvent,
+                  date: DateTime.now(),
+                ),
+              );
+            } else {
+              currentProp = currentProp.copyWith(
+                currentTenant: tenant.copyWith(unpaidRentDays: nextUnpaid),
+              );
+
+              // Warning and legal notice at 15 days
+              if (nextUnpaid == 15) {
+                updatedEvents.insert(
+                  0,
+                  GameEventModel(
+                    id: 'rent_warning_15_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                    title: 'Kira İhtarnamesi Gönderildi',
+                    description:
+                        '${currentProp.title} mülkünüzdeki kiracı ${tenant.name} 15 gündür kira ödemiyor. Hukuki tahliye süreci başlatıldı.',
+                    amount: 0.0,
+                    type: GameEventType.badEvent,
+                    date: DateTime.now(),
+                  ),
+                );
+              } else if (nextUnpaid % 7 == 0) {
+                updatedEvents.insert(
+                  0,
+                  GameEventModel(
+                    id: 'rent_delayed_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                    title: 'Kira Ödemesi Gecikti',
+                    description:
+                        '${currentProp.title} mülkünüzdeki kiracı ${tenant.name} ödemeyi $nextUnpaid gündür geciktirdi.',
+                    amount: 0.0,
+                    type: GameEventType.badEvent,
+                    date: DateTime.now(),
+                  ),
+                );
+              }
+            }
+          } else {
+            final dailyRent = currentProp.dailyRentIncome;
+            totalDailyRent += dailyRent;
+            rentedCount++;
+            final nextDays = currentProp.uncollectedRentDays + 1;
+            if (nextDays >= 5) {
+              atRiskCount++;
+            }
+            final resolvedUnpaid = max(0, tenant.unpaidRentDays - 1);
+            var updatedTenant = tenant.copyWith(unpaidRentDays: resolvedUnpaid);
+
+            // C4: Lease duration check (desiredLeaseYears)
+            final leaseDurationDays = (tenant.desiredLeaseYears * 365);
+            if (state.currentDay - tenant.leaseStartDay >= leaseDurationDays) {
+              // Lease term completed: 70% renews with 10% rent bump, 30% vacates peacefully
+              final bool renews = random.nextInt(100) < 70;
+              if (renews) {
+                final renewedRent = (tenant.monthlyRent * 1.10).roundToDouble();
+                updatedTenant = updatedTenant.copyWith(
+                  monthlyRent: renewedRent,
+                  leaseStartDay: state.currentDay,
+                );
+                updatedEvents.insert(
+                  0,
+                  GameEventModel(
+                    id: 'lease_renewed_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                    title: 'Kira Sözleşmesi Yenilendi',
+                    description:
+                        '${currentProp.title} mülkündeki kiracı ${tenant.name} sözleşmesini %10 artışla yeniledi.',
+                    amount: 0.0,
+                    type: GameEventType.income,
+                    date: DateTime.now(),
+                  ),
+                );
+                currentProp = currentProp.copyWith(
+                  currentTenant: updatedTenant,
+                  pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
+                  uncollectedRentDays: nextDays,
+                );
+              } else {
+                currentProp = currentProp.copyWith(
+                  isRented: false,
+                  currentTenant: null,
+                  clearCurrentTenant: true,
+                  pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
+                  uncollectedRentDays: nextDays,
+                  provenanceLog: [
+                    ...currentProp.provenanceLog,
+                    '${state.currentDay}. Gün • Sözleşme süresi doldu • Kiracı memnun şekilde ayrıldı',
+                  ],
+                );
+                updatedEvents.insert(
+                  0,
+                  GameEventModel(
+                    id: 'lease_ended_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
+                    title: 'Sözleşme Süresi Doldu',
+                    description:
+                        '${currentProp.title} mülkündeki kiracı ${tenant.name} sözleşme süresini tamamlayarak daireyi boşalttı.',
+                    amount: 0.0,
+                    type: GameEventType.neutral,
+                    date: DateTime.now(),
+                  ),
+                );
+              }
+            } else {
+              currentProp = currentProp.copyWith(
+                currentTenant: updatedTenant,
+                pendingRentIncome: currentProp.pendingRentIncome + dailyRent,
+                uncollectedRentDays: nextDays,
+              );
+            }
           }
         } else {
+          // Fallback if property is marked rented without explicit tenant object
           final dailyRent = currentProp.dailyRentIncome;
           totalDailyRent += dailyRent;
           rentedCount++;
@@ -650,60 +791,237 @@ mixin GameTimeMixin on GameBaseNotifier {
 
       if (currentProp.isConstructionActive) {
         if (currentProp.constructionMode == 'contractor') {
-          final daysLeft = currentProp.constructionDaysRemaining - 1;
-          if (daysLeft <= 0) {
-            final nextStage = currentProp.constructionStage + 1;
-            currentProp = currentProp.copyWith(
-              constructionStage: nextStage,
-              constructionDaysRemaining: nextStage < 8 ? 15 : 0,
-            );
-            if (nextStage >= 8) {
-              updatedEvents.insert(
-                0,
-                GameEventModel(
-                  id: 'construction_ready_${currentProp.id}_${DateTime.now().millisecondsSinceEpoch}',
-                  title: 'Şantiye Tamamlandı • Anahtar Teslim Hazır',
-                  description:
-                      '${currentProp.district} arsanızdaki kat karşılığı inşaat tamamlandı ve iskan ruhsatı alındı • Daireleri portföyünüze aktarabilirsiniz.',
-                  amount: 0.0,
-                  type: GameEventType.goodEvent,
-                  date: DateTime.now(),
-                ),
-              );
-            }
+          // C1: If already complete (stage >= 8), skip! Do not decrement, do not spam notifications
+          if (currentProp.constructionStage >= 8) {
+            // Already complete, waiting for player to finalize turnkey
           } else {
-            currentProp = currentProp.copyWith(
-              constructionDaysRemaining: daysLeft,
-            );
+            // F2: Weather check for contractor: rainy/snowy during concrete or excavation
+            final isWeatherFrozen = (state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy) &&
+                (currentProp.constructionStage == 2 || currentProp.constructionStage == 3);
+            if (isWeatherFrozen) {
+              final updatedLogs = List<String>.from(currentProp.provenanceLog);
+              if (updatedLogs.isEmpty || !updatedLogs.last.contains('Hava Muhalefeti')) {
+                final nowStr = DateTime.now().toIso8601String().split('T').first;
+                updatedLogs.add('$nowStr • Şantiye Telsizi: Hava Muhalefeti • Yağış nedeniyle beton dökümü bekletiliyor');
+                currentProp = currentProp.copyWith(provenanceLog: updatedLogs);
+              }
+            } else {
+              final daysLeft = currentProp.constructionDaysRemaining - 1;
+              final updatedLogs = List<String>.from(currentProp.provenanceLog);
+              int adjustedDays = daysLeft;
+
+              // F3·1: Bürokrasi ve Ruhsat Engeli (Etap 1)
+              if (currentProp.constructionStage == 1 &&
+                  !updatedLogs.any((l) => l.contains('Bürokrasi') || l.contains('Hukuk Müşaviri'))) {
+                final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
+                final nowStr = DateTime.now().toIso8601String().split('T').first;
+                if (hasLegalAdvisor) {
+                  updatedLogs.add('$nowStr • Ruhsat Onayı: Hukuk Müşaviri sayesinde bürokrasi pürüzsüz aşıldı');
+                } else if (random.nextDouble() < 0.25) {
+                  adjustedDays += 4;
+                  updatedLogs.add('$nowStr • İmar Bürokrasi Engeli: Komisyon itirazı ve evrak revizyonu • +4 gün gecikme');
+                  final bEventId = 'bureaucracy_delay_${currentProp.id}';
+                  if (!events.any((e) => e.id == bEventId) && !updatedEvents.any((e) => e.id == bEventId)) {
+                    updatedEvents.insert(
+                      0,
+                      GameEventModel(
+                        id: bEventId,
+                        title: 'İmar Bürokrasi Engeli • Şantiye Gecikti',
+                        description: '${currentProp.district} arsasındaki ruhsat sürecinde komisyon itirazı çıktı • 4 gün ek süre gerekti.',
+                        amount: 0.0,
+                        type: GameEventType.badEvent,
+                        date: DateTime.now(),
+                      ),
+                    );
+                  }
+                }
+              }
+
+              if (adjustedDays <= 0) {
+                final nextStage = currentProp.constructionStage + 1;
+                final stageDays = currentProp.contractorStageDays > 0 ? currentProp.contractorStageDays : 15;
+                currentProp = currentProp.copyWith(
+                  constructionStage: nextStage,
+                  constructionDaysRemaining: nextStage < 8 ? stageDays : 0,
+                  provenanceLog: updatedLogs,
+                );
+                if (nextStage >= 8) {
+                  final eventId = 'construction_ready_${currentProp.id}_stage8';
+                  if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
+                    updatedEvents.insert(
+                      0,
+                      GameEventModel(
+                        id: eventId,
+                        title: 'Şantiye Tamamlandı • Anahtar Teslim Hazır',
+                        description:
+                            '${currentProp.district} arsanızdaki kat karşılığı inşaat tamamlandı ve iskan ruhsatı alındı • Daireleri portföyünüze aktarabilirsiniz.',
+                        amount: 0.0,
+                        type: GameEventType.goodEvent,
+                        date: DateTime.now(),
+                      ),
+                    );
+                  }
+                } else if (nextStage == 3 || nextStage == 5) {
+                  // A9: Decision/Risk points in contractor mode
+                  // If contractor has no bank guarantee, 8% chance contractor abandons site
+                  if (!currentProp.hasBankGuarantee && random.nextDouble() < 0.08) {
+                    final abandonEventId = 'contractor_abandon_${currentProp.id}_$nextStage';
+                    if (!events.any((e) => e.id == abandonEventId) && !updatedEvents.any((e) => e.id == abandonEventId)) {
+                      updatedEvents.insert(
+                        0,
+                        GameEventModel(
+                          id: abandonEventId,
+                          title: 'Müteahhit Şantiyeyi Terk Etti',
+                          description:
+                              '${currentProp.district} arsasındaki müteahhit mali krize girerek şantiyeyi bıraktı • Teminat mektubu olmadığı için proje durdu • Yeni müteahhit bulmanız gerekiyor.',
+                          amount: 0.0,
+                          type: GameEventType.badEvent,
+                          date: DateTime.now(),
+                        ),
+                      );
+                    }
+                    currentProp = currentProp.copyWith(
+                      constructionStage: 3,
+                      constructionDaysRemaining: 0,
+                      clearConstructionMode: true,
+                    );
+                  }
+                }
+              } else {
+                currentProp = currentProp.copyWith(
+                  constructionDaysRemaining: adjustedDays,
+                  provenanceLog: updatedLogs,
+                );
+              }
+            }
           }
         } else if (currentProp.constructionMode == 'selfBuild' && currentProp.isConstructionWorking) {
-          final daysLeft = currentProp.constructionDaysRemaining - 1;
-          if (daysLeft <= 0) {
-            currentProp = currentProp.copyWith(
-              constructionDaysRemaining: 0,
-            );
+          final isWeatherFrozen = (state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy) &&
+              (currentProp.constructionStage == 2 || currentProp.constructionStage == 3);
+          if (isWeatherFrozen) {
+            final updatedLogs = List<String>.from(currentProp.provenanceLog);
+            if (updatedLogs.isEmpty || !updatedLogs.last.contains('Hava Muhalefeti')) {
+              final nowStr = DateTime.now().toIso8601String().split('T').first;
+              updatedLogs.add('$nowStr • Şantiye Telsizi: Hava Muhalefeti • Beton dökümü ve hafriyat beklemeye alındı');
+              currentProp = currentProp.copyWith(provenanceLog: updatedLogs);
+            }
+          } else {
+            final daysLeft = currentProp.constructionDaysRemaining - 1;
+            if (daysLeft <= 0) {
+              // C1: Stop working so daily loop does not continuously re-trigger!
+              currentProp = currentProp.copyWith(
+                constructionDaysRemaining: 0,
+                isConstructionWorking: false,
+              );
+              final eventId = 'construction_stage_ready_${currentProp.id}_${currentProp.constructionStage}';
+              if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
+                updatedEvents.insert(
+                  0,
+                  GameEventModel(
+                    id: eventId,
+                    title: 'Şantiye Etabı Tamamlandı • Teslim Almaya Hazır',
+                    description:
+                        '${currentProp.district} arsasındaki ${currentProp.constructionStage}. Etap çalışmaları başarıyla tamamlandı • Etabı denetleyip teslim alabilirsiniz.',
+                    amount: 0.0,
+                    type: GameEventType.goodEvent,
+                    date: DateTime.now(),
+                  ),
+                );
+              }
+            } else {
+              final updatedLogs = List<String>.from(currentProp.provenanceLog);
+              int adjustedDays = daysLeft;
+
+              // F3·1: Bürokrasi ve Ruhsat Engeli (Etap 1)
+              if (currentProp.constructionStage == 1 &&
+                  !updatedLogs.any((l) => l.contains('Bürokrasi') || l.contains('Hukuk Müşaviri'))) {
+                final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
+                final nowStr = DateTime.now().toIso8601String().split('T').first;
+                if (hasLegalAdvisor) {
+                  updatedLogs.add('$nowStr • Ruhsat Onayı: Hukuk Müşaviri sayesinde bürokrasi pürüzsüz aşıldı');
+                } else if (random.nextDouble() < 0.25) {
+                  adjustedDays += 4;
+                  updatedLogs.add('$nowStr • İmar Bürokrasi Engeli: Komisyon itirazı ve evrak revizyonu • +4 gün gecikme');
+                  final bEventId = 'bureaucracy_delay_${currentProp.id}';
+                  if (!events.any((e) => e.id == bEventId) && !updatedEvents.any((e) => e.id == bEventId)) {
+                    updatedEvents.insert(
+                      0,
+                      GameEventModel(
+                        id: bEventId,
+                        title: 'İmar Bürokrasi Engeli • Şantiye Gecikti',
+                        description: '${currentProp.district} arsasındaki ruhsat sürecinde komisyon itirazı çıktı • 4 gün ek süre gerekti.',
+                        amount: 0.0,
+                        type: GameEventType.badEvent,
+                        date: DateTime.now(),
+                      ),
+                    );
+                  }
+                }
+              }
+
+              // B6, F1·8, F2·5: Dinamik şantiye olayı (etap, usta mekanik, hava durumu)
+              final hasMasterMechanic = state.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+              final isBadWeather = state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy;
+              final incidentDailyChance = (0.04 * (hasMasterMechanic ? 0.6 : 1.0) * (isBadWeather ? 1.3 : 1.0)).clamp(0.01, 0.10);
+              if (random.nextDouble() < incidentDailyChance) {
+                final stageDetails = ConstructionTimelineEngine.getStageDetails(currentProp.constructionStage);
+                final baseCost = (currentProp.baseMarketValue * stageDetails.costPercentage).roundToDouble();
+                final incident = ConstructionNegativeEventsEngine.rollStageIncident(
+                  stageNumber: currentProp.constructionStage,
+                  baseStageCost: baseCost,
+                  riskMultiplier: 1.0,
+                  hasMasterMechanic: hasMasterMechanic,
+                  isBadWeather: isBadWeather,
+                );
+                if (incident != null) {
+                  adjustedDays += incident.dayDelayImpact;
+                  final nowStr = DateTime.now().toIso8601String().split('T').first;
+                  updatedLogs.add('$nowStr • Olay: ${incident.title} • +${incident.dayDelayImpact} gün gecikme');
+                  if (currentBalance >= incident.costImpact) {
+                    currentBalance -= incident.costImpact;
+                    updatedLogs.add('$nowStr • Maliyet: ${CurrencyFormatter.format(incident.costImpact)} ek harcama yapıldı');
+                  } else {
+                    adjustedDays += incident.dayDelayImpact;
+                  }
+                }
+              }
+
+              if (adjustedDays % 3 == 0 && random.nextDouble() < 0.50) {
+                final nowStr = DateTime.now().toIso8601String().split('T').first;
+                final anecdote = ConstructionTimelineEngine.getRandomAnecdoteText(random);
+                updatedLogs.add('$nowStr • Şantiye Telsizi: $anecdote');
+              }
+              currentProp = currentProp.copyWith(
+                constructionDaysRemaining: adjustedDays,
+                provenanceLog: updatedLogs,
+              );
+            }
+          }
+        }
+      }
+
+      // F3·4: Rakip Proje Tamamlanma Uyarısı (Süre Baskısı & Bölge Rayici Baskısı)
+      if (currentProp.isConstructionActive &&
+          !currentProp.provenanceLog.any((l) => l.contains('Rakip Müteahhit') || l.contains('Öz-Gözde'))) {
+        final delayCount = currentProp.provenanceLog.where((l) => l.contains('gecikme')).length;
+        if (delayCount >= 2) {
+          final rivalEventId = 'rival_project_completed_${currentProp.id}';
+          if (!events.any((e) => e.id == rivalEventId) && !updatedEvents.any((e) => e.id == rivalEventId)) {
+            final nowStr = DateTime.now().toIso8601String().split('T').first;
+            final updatedLogs = List<String>.from(currentProp.provenanceLog);
+            updatedLogs.add('$nowStr • Rakip Müteahhit: Öz-Gözde İnşaat karşı parseli tamamladı • Bölge rayici %8 baskılandı');
+            currentProp = currentProp.copyWith(provenanceLog: updatedLogs);
             updatedEvents.insert(
               0,
               GameEventModel(
-                id: 'construction_stage_ready_${currentProp.id}_${currentProp.constructionStage}_${DateTime.now().millisecondsSinceEpoch}',
-                title: 'Şantiye Etabı Tamamlandı • Teslim Almaya Hazır',
+                id: rivalEventId,
+                title: 'Rakip Proje Teslim Edildi • Bölgesel Fiyat Baskısı',
                 description:
-                    '${currentProp.district} arsasındaki ${currentProp.constructionStage}. Etap çalışmaları başarıyla tamamlandı • Etabı denetleyip teslim alabilirsiniz.',
+                    '${currentProp.district} bölgesindeki gecikmeler sebebiyle rakip firma projeyi sizden önce teslim etti • Bölge rayici %8 baskılandı.',
                 amount: 0.0,
-                type: GameEventType.goodEvent,
+                type: GameEventType.badEvent,
                 date: DateTime.now(),
               ),
-            );
-          } else {
-            final updatedLogs = List<String>.from(currentProp.provenanceLog);
-            if (daysLeft % 3 == 0 && random.nextDouble() < 0.50) {
-              final nowStr = DateTime.now().toIso8601String().split('T').first;
-              final anecdote = ConstructionTimelineEngine.getRandomAnecdoteText(random);
-              updatedLogs.add('$nowStr • Şantiye Telsizi: $anecdote');
-            }
-            currentProp = currentProp.copyWith(
-              constructionDaysRemaining: daysLeft,
-              provenanceLog: updatedLogs,
             );
           }
         }
@@ -922,8 +1240,8 @@ mixin GameTimeMixin on GameBaseNotifier {
         );
       }
 
-      return currentProp;
-    }).toList();
+      updatedProperties.add(currentProp);
+    }
 
     if (totalDailyRent > 0) {
       if (atRiskCount > 0) {
@@ -955,7 +1273,7 @@ mixin GameTimeMixin on GameBaseNotifier {
       addXP(10 * rentedCount);
     }
 
-    return (balance, updatedProperties, updatedEvents);
+    return (currentBalance, updatedProperties, updatedEvents);
   }
 
   (List<CarModel>, double, List<GameEventModel>) _processConsignmentDays(
@@ -1315,7 +1633,10 @@ mixin GameTimeMixin on GameBaseNotifier {
       final randomCustomer = state
           .loyalCustomerNames[random.nextInt(state.loyalCustomerNames.length)];
       final loyalOffer = NegotiationEngine.generateLoyalCustomerOffer(
-          car: randomCar, customerName: randomCustomer);
+        car: randomCar,
+        customerName: randomCustomer,
+        currentDay: state.currentDay,
+      );
       offers.add(loyalOffer);
     }
     return offers;
@@ -1523,13 +1844,140 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   /// Resolves the contextual random event choice outcome and mutates state
+  /// Resolves the contextual random event choice outcome and mutates state
   void resolveRandomEvent(GameEventChoice choice) {
+    // Insufficient funds guard: Player cannot select choices they cannot afford (A6)
+    if (choice.balanceChange < 0 && state.balance < choice.balanceChange.abs()) {
+      return;
+    }
+
     final newBalance = state.balance + choice.balanceChange;
     final newReputation =
         (state.reputationScore + choice.reputationChange).clamp(0, 1000);
+
+    List<CarModel> updatedCars = List.from(state.ownedCars);
+    List<SideBusinessModel> updatedSideBusinesses =
+        List.from(state.sideBusinesses);
+    List<StaffModel> updatedStaff = List.from(state.hiredStaff);
+
+    // Mechanical consequences on owned cars (C3)
+    if (choice.targetCarEffect != null && updatedCars.isNotEmpty) {
+      switch (choice.targetCarEffect) {
+        case 'impound':
+          final bmIndex = updatedCars.indexWhere((c) => c.isBlackMarket);
+          final targetIndex = bmIndex != -1 ? bmIndex : 0;
+          updatedCars.removeAt(targetIndex);
+          break;
+        case 'dirty':
+          updatedCars = updatedCars
+              .map((c) => c.copyWith(
+                    isWashed: false,
+                    isDetailedCleaned: false,
+                    isPolished: false,
+                  ))
+              .toList();
+          break;
+        case 'wash_all':
+          updatedCars = updatedCars
+              .map((c) => c.copyWith(
+                    isWashed: true,
+                    isDetailedCleaned: true,
+                  ))
+              .toList();
+          break;
+        case 'damage':
+          final car = updatedCars.first;
+          final updatedBodyParts =
+              Map<String, PartStatus>.from(car.expertise.bodyParts);
+          final updatedPartConditions =
+              Map<String, double>.from(car.expertise.partConditions);
+
+          final partToDamage = updatedBodyParts.keys.firstWhere(
+            (k) => updatedBodyParts[k] == PartStatus.original,
+            orElse: () => updatedBodyParts.keys.isNotEmpty
+                ? updatedBodyParts.keys.first
+                : 'Kaput',
+          );
+          updatedBodyParts[partToDamage] = PartStatus.damaged;
+          updatedPartConditions[partToDamage] = 20.0;
+
+          final newExpertise = car.expertise.copyWith(
+            bodyParts: updatedBodyParts,
+            partConditions: updatedPartConditions,
+            tramerAmount: car.expertise.tramerAmount + 15000,
+          );
+          updatedCars[0] = car.copyWith(expertise: newExpertise);
+          break;
+        case 'repaint':
+          final car = updatedCars.first;
+          final updatedBodyParts =
+              Map<String, PartStatus>.from(car.expertise.bodyParts);
+          final updatedPartConditions =
+              Map<String, double>.from(car.expertise.partConditions);
+
+          final partToPaint = updatedBodyParts.keys.firstWhere(
+            (k) =>
+                updatedBodyParts[k] == PartStatus.damaged ||
+                updatedBodyParts[k] == PartStatus.changed,
+            orElse: () => updatedBodyParts.keys.isNotEmpty
+                ? updatedBodyParts.keys.first
+                : 'Kaput',
+          );
+          updatedBodyParts[partToPaint] = PartStatus.painted;
+          updatedPartConditions[partToPaint] = 85.0;
+
+          final newExpertise = car.expertise.copyWith(
+            bodyParts: updatedBodyParts,
+            partConditions: updatedPartConditions,
+            tramerAmount: car.expertise.tramerAmount + 4000,
+          );
+          updatedCars[0] = car.copyWith(expertise: newExpertise);
+          break;
+      }
+    }
+
+    // Mechanical consequences on side businesses (C3)
+    if (choice.sideBusinessId != null && updatedSideBusinesses.isNotEmpty) {
+      final sbIndex = updatedSideBusinesses.indexWhere((b) =>
+          b.id == choice.sideBusinessId ||
+          b.type.name == choice.sideBusinessId ||
+          (choice.sideBusinessId == 'car_wash' &&
+              b.type == SideBusinessType.carWash));
+      if (sbIndex != -1) {
+        final targetBiz = updatedSideBusinesses[sbIndex];
+        if (choice.sideBusinessDowntimeDays != null) {
+          if (choice.sideBusinessDowntimeDays! > 0) {
+            updatedSideBusinesses[sbIndex] = targetBiz.copyWith(
+              isUnderConstruction: true,
+              constructionDaysRemaining: choice.sideBusinessDowntimeDays!,
+              totalConstructionDays: choice.sideBusinessDowntimeDays!,
+            );
+          } else {
+            updatedSideBusinesses[sbIndex] = targetBiz.copyWith(
+              isUnderConstruction: false,
+              constructionDaysRemaining: 0,
+            );
+          }
+        }
+      }
+    }
+
+    // Mechanical consequences on staff morale (C3)
+    if (choice.staffMoraleChange != null &&
+        choice.staffMoraleChange != 0 &&
+        updatedStaff.isNotEmpty) {
+      updatedStaff = updatedStaff.map((s) {
+        final newMorale = (s.morale + choice.staffMoraleChange!).clamp(0, 100);
+        return s.copyWith(morale: newMorale);
+      }).toList();
+    }
+
     state = state.copyWith(
       balance: newBalance,
       reputationScore: newReputation,
+      ownedCars: updatedCars,
+      sideBusinesses: updatedSideBusinesses,
+      hiredStaff: updatedStaff,
       clearPendingRandomEvent: true,
     );
     if (choice.xpGain > 0) {
@@ -1642,7 +2090,6 @@ mixin GameTimeMixin on GameBaseNotifier {
                 isWashed: true,
                 isPolished: true,
                 isDetailedCleaned: true,
-                baseMarketValue: (c.baseMarketValue * 1.15).roundToDouble(),
               );
             }
           } else {
@@ -1671,6 +2118,7 @@ mixin GameTimeMixin on GameBaseNotifier {
               offerType: OfferType.cash,
               createdAt: DateTime.now(),
               expiresAt: DateTime.now().add(const Duration(minutes: 15)),
+              expiresOnDay: state.currentDay + 2,
             );
             updatedOffers.add(husnuOffer);
           } else {
@@ -1705,6 +2153,7 @@ mixin GameTimeMixin on GameBaseNotifier {
                   offerType: OfferType.cash,
                   createdAt: DateTime.now(),
                   expiresAt: DateTime.now().add(Duration(minutes: 10 + i * 5)),
+                  expiresOnDay: state.currentDay + 2 + i,
                 ),
               );
             }

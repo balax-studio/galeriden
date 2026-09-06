@@ -6,6 +6,11 @@ class GameEventChoice {
   final double balanceChange;
   final int reputationChange;
   final int xpGain;
+  final String? targetCarEffect;
+  final String? sideBusinessId;
+  final int? sideBusinessDowntimeDays;
+  final int? staffMoraleChange;
+  final String? unlockFlag;
 
   const GameEventChoice({
     required this.label,
@@ -13,6 +18,11 @@ class GameEventChoice {
     this.balanceChange = 0.0,
     this.reputationChange = 0,
     this.xpGain = 0,
+    this.targetCarEffect,
+    this.sideBusinessId,
+    this.sideBusinessDowntimeDays,
+    this.staffMoraleChange,
+    this.unlockFlag,
   });
 
   Map<String, dynamic> toJson() => {
@@ -21,6 +31,12 @@ class GameEventChoice {
         'balanceChange': balanceChange,
         'reputationChange': reputationChange,
         'xpGain': xpGain,
+        if (targetCarEffect != null) 'targetCarEffect': targetCarEffect,
+        if (sideBusinessId != null) 'sideBusinessId': sideBusinessId,
+        if (sideBusinessDowntimeDays != null)
+          'sideBusinessDowntimeDays': sideBusinessDowntimeDays,
+        if (staffMoraleChange != null) 'staffMoraleChange': staffMoraleChange,
+        if (unlockFlag != null) 'unlockFlag': unlockFlag,
       };
 
   factory GameEventChoice.fromJson(Map<String, dynamic> json) => GameEventChoice(
@@ -29,6 +45,11 @@ class GameEventChoice {
         balanceChange: (json['balanceChange'] as num?)?.toDouble() ?? 0.0,
         reputationChange: json['reputationChange'] as int? ?? 0,
         xpGain: json['xpGain'] as int? ?? 0,
+        targetCarEffect: json['targetCarEffect'] as String?,
+        sideBusinessId: json['sideBusinessId'] as String?,
+        sideBusinessDowntimeDays: json['sideBusinessDowntimeDays'] as int?,
+        staffMoraleChange: json['staffMoraleChange'] as int?,
+        unlockFlag: json['unlockFlag'] as String?,
       );
 }
 

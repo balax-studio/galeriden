@@ -80,9 +80,11 @@ void main() {
       );
       expect(notifier.state.level, equals(3));
 
+      final branch2 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_2');
       final branch3 = BranchModel.getAllBranches().firstWhere((b) => b.id == 'branch_3');
-      notifier.state = notifier.state.copyWith(balance: 500000.0);
+      notifier.state = notifier.state.copyWith(balance: 1000000.0);
 
+      expect(notifier.upgradeBranch(branch2), isTrue);
       final successBuy = notifier.upgradeBranch(branch3);
       expect(successBuy, isTrue);
 

@@ -43,8 +43,8 @@ class ShowroomCarCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = palette.isDark;
-    final hasOffer =
-        game.incomingOffers.any((o) => o.carId == car.id && !o.isExpired);
+    final hasOffer = game.incomingOffers
+        .any((o) => o.carId == car.id && !o.isExpiredForDay(game.currentDay));
     final hasActiveGossipIntel = game.activeGossips.any((g) =>
             g.isPurchased &&
             (game.currentDay - g.inGameDay <= 2) &&
@@ -1070,7 +1070,7 @@ class ShowroomCarCard extends ConsumerWidget {
                                 }
                                 final activeOffersCount = game.incomingOffers
                                     .where((o) =>
-                                        o.carId == car.id && !o.isExpired)
+                                        o.carId == car.id && !o.isExpiredForDay(game.currentDay))
                                     .length;
                                 if (activeOffersCount >= 3) {
                                   NotificationService.showError(

@@ -10,6 +10,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/color_parser.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/marketplace_extensions_model.dart';
 import '../../../data/models/mission_model.dart';
@@ -416,8 +417,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                     item.askingPrice <
                                         car.estimatedRealValue * 0.88;
                             final viewerCount = (item.id.hashCode % 12) + 3;
-                            final carColor = Color(int.parse(
-                                car.colorHex.replaceFirst('#', '0xFF')));
+                            final carColor = ColorParser.parseCarColor(car.colorHex);
                             final persona =
                                 SellerPersona.fromListing(item);
 

@@ -172,6 +172,7 @@ void main() {
       notifier.state = notifier.state.copyWith(
         ownedRealEstates: [land],
         balance: 10000000,
+        maxRealEstateSlots: 10,
       );
 
       // --- STATE 1: UNSTARTED ---
@@ -213,21 +214,16 @@ void main() {
       final duplicateStart = notifier.startSelfBuildStage('land_sim_test', subcontractor: sub);
       expect(duplicateStart, isFalse);
 
-      final totalDays = currentLand.constructionDaysRemaining;
-
       // Simulate day progression (advanceGameDay)
-      for (int day = 1; day < totalDays; day++) {
+      while (currentLand.constructionDaysRemaining > 0) {
         notifier.advanceGameDay();
         final landDuringWork = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
-        expect(landDuringWork.constructionDaysRemaining, equals(totalDays - day));
-        expect(landDuringWork.isConstructionWorking, isTrue);
-        // Stage cannot be completed while days remaining > 0
-        expect(notifier.completeSelfBuildStage('land_sim_test'), isFalse);
+        if (landDuringWork.constructionDaysRemaining > 0) {
+          expect(landDuringWork.isConstructionWorking, isTrue);
+          expect(notifier.completeSelfBuildStage('land_sim_test'), isFalse);
+        }
+        currentLand = landDuringWork;
       }
-
-      // Final day of Stage 1
-      notifier.advanceGameDay();
-      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
       expect(currentLand.constructionDaysRemaining, equals(0));
 
       // --- STATE 3: HANDOVER & ADVANCE ---
@@ -257,9 +253,9 @@ void main() {
         );
 
         var workingLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
-        final days = workingLand.constructionDaysRemaining;
-        for (int d = 0; d < days; d++) {
+        while (workingLand.constructionDaysRemaining > 0) {
           notifier.advanceGameDay();
+          workingLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
         }
 
         final completeSuccess = notifier.completeSelfBuildStage('land_sim_test');

@@ -1,9 +1,13 @@
 import '../../core/utils/iterable_extensions.dart';
 import '../../data/models/dealership_model.dart';
+import 'consignment_engine.dart';
+import 'side_business_engine.dart';
 
 class CashflowSummary {
   final double sideBusinessIncome;
   final double rentalDailyIncome;
+  final double realEstateRentIncome;
+  final double consignmentParkingIncome;
   final double depositDailyInterest;
   final double stockPortfolioValue;
   final double stockDailyDividend;
@@ -11,6 +15,7 @@ class CashflowSummary {
 
   final double staffSalaries;
   final double propertyDailyBurn;
+  final double deedDues;
   final String propertyTierName;
   final double loanDailyPayment;
   final double dailyTaxEstimate;
@@ -23,12 +28,15 @@ class CashflowSummary {
   const CashflowSummary({
     required this.sideBusinessIncome,
     required this.rentalDailyIncome,
+    required this.realEstateRentIncome,
+    required this.consignmentParkingIncome,
     required this.depositDailyInterest,
     required this.stockPortfolioValue,
     required this.stockDailyDividend,
     required this.totalDailyIncome,
     required this.staffSalaries,
     required this.propertyDailyBurn,
+    required this.deedDues,
     required this.propertyTierName,
     required this.loanDailyPayment,
     required this.dailyTaxEstimate,
@@ -43,19 +51,27 @@ class CashflowEngine {
   CashflowEngine._();
 
   static CashflowSummary calculate(DealershipModel game) {
-    final double businessMultiplier = game.specializationPath == SpecializationPath.boss ? 1.30 : 1.0;
-
     // 1. Incomes
-    final ownedBusinesses = game.sideBusinesses.where((b) => b.isOwned).toList();
-    final double sideBusinessIncome = ownedBusinesses.fold<double>(
-      0.0,
-      (sum, b) => sum + (b.effectiveDailyIncome * businessMultiplier),
-    );
+    // Side businesses use single source of truth from SideBusinessEngine
+    final double sideBusinessIncome = SideBusinessEngine.calculateDailyIncome(game);
 
-    final double rentalDailyIncome = game.activeRentals.fold<double>(
+    final double vehicleRentalDailyIncome = game.activeRentals.fold<double>(
       0.0,
       (sum, r) => sum + r.dailyRate,
     );
+
+    final double realEstateRentIncome = game.ownedRealEstates
+        .where((p) => p.isRented && p.currentTenant != null)
+        .fold<double>(0.0, (sum, p) => sum + p.dailyRentIncome);
+
+    final double rentalDailyIncome = vehicleRentalDailyIncome + realEstateRentIncome;
+
+    final double consignmentParkingIncome = game.ownedCars
+        .where((c) => c.isConsignment)
+        .fold<double>(
+          0.0,
+          (sum, c) => sum + ConsignmentEngine.calculateDailyParkingFee(game.currentBranchTier),
+        );
 
     final double depositDailyInterest = game.bankDepositBalance >= 100.0
         ? (game.bankDepositBalance * 0.0012).roundToDouble()
@@ -70,7 +86,11 @@ class CashflowEngine {
       },
     );
     final double stockDailyDividend = (stockPortfolioValue * 0.05) / 365.0;
-    final double totalDailyIncome = sideBusinessIncome + rentalDailyIncome + depositDailyInterest + stockDailyDividend;
+    final double totalDailyIncome = sideBusinessIncome +
+        rentalDailyIncome +
+        consignmentParkingIncome +
+        depositDailyInterest +
+        stockDailyDividend;
 
     // 2. Expenses
     double staffSalaries = game.hiredStaff.fold<double>(
@@ -81,37 +101,27 @@ class CashflowEngine {
       staffSalaries *= 0.80; // 20% staff salary discount for Boss specialization
     }
 
-    double propertyDailyBurn = 300.0;
-    String propertyTierName = 'Kaldırım Başı Ayakçı Galerisi • Tier 1';
-    if (game.unlockedBuildings.contains('property_tier_8')) {
-      propertyDailyBurn = 75000.0;
-      propertyTierName = 'Mega Otomotiv Holding Plazası • Tier 8';
-    } else if (game.unlockedBuildings.contains('property_tier_7')) {
-      propertyDailyBurn = 40000.0;
-      propertyTierName = 'Lüks Koleksiyoner VIP Galeri • Tier 7';
-    } else if (game.unlockedBuildings.contains('property_tier_6')) {
-      propertyDailyBurn = 20000.0;
-      propertyTierName = 'Premium Cam Showroom Plaza • Tier 6';
-    } else if (game.unlockedBuildings.contains('property_tier_5')) {
-      propertyDailyBurn = 9500.0;
-      propertyTierName = 'Oto Center Kurumsal Galeri • Tier 5';
-    } else if (game.unlockedBuildings.contains('property_tier_4')) {
-      propertyDailyBurn = 4200.0;
-      propertyTierName = 'Cadde Üstü Butik Oto Galeri • Tier 4';
-    } else if (game.unlockedBuildings.contains('property_tier_3')) {
-      propertyDailyBurn = 1800.0;
-      propertyTierName = 'Sanayi Sitesi Esnaf Galerisi • Tier 3';
-    } else if (game.unlockedBuildings.contains('property_tier_2')) {
-      propertyDailyBurn = 750.0;
-      propertyTierName = 'Mahalle Tipi Açık Oto Galeri • Tier 2';
-    }
+    final double propertyDailyBurn = game.dailyPropertyRentBurn;
+    final double deedDues = game.ownedBranchDeeds.length * 1250.0;
+    final String propertyTierName = switch (game.currentBranchTier) {
+      8 => 'Mega Otomotiv Holding Plazası • Tier 8',
+      7 => 'Lüks Koleksiyoner VIP Galeri • Tier 7',
+      6 => 'Premium Cam Showroom Plaza • Tier 6',
+      5 => 'Oto Center Kurumsal Galeri • Tier 5',
+      4 => 'Cadde Üstü Butik Oto Galeri • Tier 4',
+      3 => 'Sanayi Sitesi Esnaf Galerisi • Tier 3',
+      2 => 'Mahalle Tipi Açık Oto Galeri • Tier 2',
+      _ => 'Kaldırım Başı Ayakçı Galerisi • Tier 1',
+    };
 
+    // Bank loan installments are deducted weekly (every 7 days)
+    // Show daily equivalent for truthful cashflow representation (B3)
     final double loanDailyPayment = game.activeLoans.fold<double>(
       0.0,
-      (sum, l) => sum + l.monthlyPayment,
+      (sum, l) => sum + (l.monthlyPayment / 7.0),
     );
 
-    final double dailyTaxEstimate = game.dailyTaxRate;
+    final double dailyTaxEstimate = game.effectiveDailyTax;
     final double totalDailyExpense = staffSalaries + propertyDailyBurn + loanDailyPayment + dailyTaxEstimate;
 
     final double netDailyCashflow = totalDailyIncome - totalDailyExpense;
@@ -119,12 +129,15 @@ class CashflowEngine {
     return CashflowSummary(
       sideBusinessIncome: sideBusinessIncome,
       rentalDailyIncome: rentalDailyIncome,
+      realEstateRentIncome: realEstateRentIncome,
+      consignmentParkingIncome: consignmentParkingIncome,
       depositDailyInterest: depositDailyInterest,
       stockPortfolioValue: stockPortfolioValue,
       stockDailyDividend: stockDailyDividend,
       totalDailyIncome: totalDailyIncome,
       staffSalaries: staffSalaries,
       propertyDailyBurn: propertyDailyBurn,
+      deedDues: deedDues,
       propertyTierName: propertyTierName,
       loanDailyPayment: loanDailyPayment,
       dailyTaxEstimate: dailyTaxEstimate,

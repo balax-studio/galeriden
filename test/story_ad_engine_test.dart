@@ -146,7 +146,8 @@ void main() {
       expect(updatedCar.isWashed, isTrue);
       expect(updatedCar.isPolished, isTrue);
       expect(updatedCar.isDetailedCleaned, isTrue);
-      expect(updatedCar.baseMarketValue, greaterThan(500000.0));
+      expect(updatedCar.estimatedRealValue, greaterThan(testCar.estimatedRealValue));
+      expect(updatedCar.baseMarketValue, equals(500000.0));
     });
 
     test('Resolving Cikmaci Ibo card grants auto parts subsidy credit to balance', () {

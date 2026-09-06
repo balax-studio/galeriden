@@ -51,7 +51,7 @@ class _ShowroomScreenState extends ConsumerState<ShowroomScreen> {
 
     // Fast O(1) set lookup for active offers
     final Set<String> carsWithActiveOffers = game.incomingOffers
-        .where((o) => !o.isExpired)
+        .where((o) => !o.isExpiredForDay(game.currentDay))
         .map((o) => o.carId)
         .toSet();
 

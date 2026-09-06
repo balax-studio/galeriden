@@ -8,6 +8,7 @@ import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_model.dart';
+import '../../../data/models/loan_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
@@ -83,9 +84,7 @@ class _RealEstateConstructionScreenState
       customUnitMix: _workingMix,
     );
 
-    final isFinished = land.constructionMode == 'selfBuild'
-        ? land.constructionStage >= 9
-        : (land.constructionStage >= 8 && land.constructionDaysRemaining == 0);
+    final isFinished = land.isConstructionComplete;
     final isActive = land.isConstructionActive;
 
     String statusBadgeText;
@@ -331,6 +330,7 @@ class _RealEstateConstructionScreenState
               ),
               Wrap(
                 spacing: 6,
+                runSpacing: 6,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   NeoBrutalBadge(
@@ -343,6 +343,42 @@ class _RealEstateConstructionScreenState
                     text: context.tr(land.deedType.localizationKey),
                     backgroundColor: const Color(0xFFE2E8F0),
                   ),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final costIndex = ref.watch(gameProvider.select((s) => s.constructionCostIndex));
+                      final isHigh = costIndex > 1.05;
+                      final isLow = costIndex < 0.95;
+                      return NeoBrutalBadge(
+                        text: 'Endeks ${costIndex.toStringAsFixed(2)}x',
+                        backgroundColor: isHigh
+                            ? const Color(0xFFFEE2E2)
+                            : (isLow ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9)),
+                        textColor: isHigh
+                            ? const Color(0xFFDC2626)
+                            : (isLow ? const Color(0xFF16A34A) : const Color(0xFF475569)),
+                      );
+                    },
+                  ),
+                  if (land.isConstructionActive || land.constructionStage > 1)
+                    NeoBrutalBadge(
+                      text: 'Kalite ${land.qualityScore.round()}/100',
+                      backgroundColor: land.qualityScore >= 80
+                          ? const Color(0xFFDCFCE7)
+                          : (land.qualityScore < 60
+                              ? const Color(0xFFFEE2E2)
+                              : const Color(0xFFFEF3C7)),
+                      textColor: land.qualityScore >= 80
+                          ? const Color(0xFF16A34A)
+                          : (land.qualityScore < 60
+                              ? const Color(0xFFDC2626)
+                              : const Color(0xFFD97706)),
+                    ),
+                  if (land.isMortgaged)
+                    NeoBrutalBadge(
+                      text: context.tr('real_estate_mortgaged_badge'),
+                      backgroundColor: const Color(0xFFFEE2E2),
+                      textColor: const Color(0xFFDC2626),
+                    ),
                 ],
               ),
             ],
@@ -392,10 +428,73 @@ class _RealEstateConstructionScreenState
         ] else if (land.constructionMode == 'selfBuild') ...[
           _buildSelfBuildAdvanceCard(
               context, theme, land, balance, isDark),
+          const SizedBox(height: 14),
+          _buildConstructionLoanCard(context, theme, land, balance, isDark),
         ] else ...[
           _buildContractorWaitCard(context, theme, land, isDark),
         ],
+        if (isActive && !isFinished) ...[
+          const SizedBox(height: 14),
+          _buildCancelProjectButton(context, land, isDark),
+        ],
       ],
+    );
+  }
+
+  Widget _buildCancelProjectButton(
+      BuildContext context, RealEstateModel land, bool isDark) {
+    return Center(
+      child: TextButton.icon(
+        onPressed: () => _showCancelProjectDialog(context, land),
+        icon: const Icon(Icons.cancel_outlined, size: 16, color: Color(0xFFEF4444)),
+        label: Text(
+          context.tr('real_estate_btn_cancel_project'),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFFEF4444),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCancelProjectDialog(BuildContext context, RealEstateModel land) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: Text(
+          context.tr('real_estate_dialog_cancel_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+        content: Text(
+          context.tr('real_estate_dialog_cancel_desc'),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(context.tr('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              final ok = ref.read(gameProvider.notifier).cancelConstruction(land.id);
+              if (ok) {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_cancel_success_toast'),
+                );
+              }
+            },
+            child: Text(
+              context.tr('real_estate_btn_confirm_cancel'),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -668,6 +767,9 @@ class _RealEstateConstructionScreenState
               ? null
               : () {
                   HapticFeedback.mediumImpact();
+                  if (_workingMix != null) {
+                    ref.read(gameProvider.notifier).saveUnitMix(land.id, _workingMix!.toMap());
+                  }
                   NotificationService.showSuccess(
                     context,
                     context.tr('real_estate_kaks_confirmed_toast'),
@@ -971,7 +1073,7 @@ class _RealEstateConstructionScreenState
             ),
             const SizedBox(height: 6),
             Text(
-              'Topraktan ön satış hakkı sadece öz-inşaat şantiyesi aktifken ve en az 2 daire payınız varken açılır.',
+              context.tr('real_estate_presale_locked_desc'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11.5,
@@ -1241,8 +1343,9 @@ class _RealEstateConstructionScreenState
                   children: [
                     _buildFeatureItem(
                         Icons.handshake_rounded,
-                        context.tr('real_estate_contractor_share',
-                            {'share': '50'}),
+                        context.tr('real_estate_contractor_share', {
+                          'share': '${100 - (land.isConstructionActive ? land.playerSharePercent : 50)}',
+                        }),
                         const Color(0xFF10B981)),
                     _buildFeatureItem(
                         Icons.apartment_rounded,
@@ -1262,21 +1365,23 @@ class _RealEstateConstructionScreenState
                   Expanded(
                     child: NeoBrutalButton(
                       label: context.tr('real_estate_contractor_btn'),
-                      onPressed: () {
-                        HapticFeedback.mediumImpact();
-                        final success = ref
-                            .read(gameProvider.notifier)
-                            .startContractorConstruction(
-                              land.id,
-                              customUnitMix: _workingMix,
-                            );
-                        if (success) {
-                          NotificationService.showSuccess(
-                            context,
-                            context.tr('real_estate_contractor_started_toast'),
-                          );
-                        }
-                      },
+                      onPressed: zoning.isEmsalExceeded
+                          ? null
+                          : () {
+                              HapticFeedback.mediumImpact();
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .startContractorConstruction(
+                                    land.id,
+                                    customUnitMix: _workingMix,
+                                  );
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('real_estate_contractor_started_toast'),
+                                );
+                              }
+                            },
                       backgroundColor: const Color(0xFF3B82F6),
                       textColor: Colors.white,
                     ),
@@ -1365,10 +1470,12 @@ class _RealEstateConstructionScreenState
                 children: [
                   Expanded(
                     child: NeoBrutalButton(
-                      label: canAffordSelfBuild
+                      label: (canAffordSelfBuild && !zoning.isEmsalExceeded)
                           ? '${context.tr('real_estate_self_build_btn')} • ${CurrencyFormatter.format(selfBuildInitialCost)}'
-                          : context.tr('real_estate_expand_slots_error_funds'),
-                      onPressed: canAffordSelfBuild
+                          : (zoning.isEmsalExceeded
+                              ? context.tr('real_estate_kaks_warning_exceeded')
+                              : context.tr('real_estate_expand_slots_error_funds')),
+                      onPressed: (canAffordSelfBuild && !zoning.isEmsalExceeded)
                           ? () {
                               HapticFeedback.mediumImpact();
                               final success = ref
@@ -1386,22 +1493,11 @@ class _RealEstateConstructionScreenState
                               }
                             }
                           : null,
-                      backgroundColor: canAffordSelfBuild
+                      backgroundColor: (canAffordSelfBuild && !zoning.isEmsalExceeded)
                           ? const Color(0xFFF59E0B)
                           : const Color(0xFF94A3B8),
                       textColor: Colors.black,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  NeoBrutalButton(
-                    label: context.tr('subcontractor_screen_title'),
-                    icon: Icons.engineering_rounded,
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
-                      context.push('/emlak-insaat/${land.id}/taseron');
-                    },
-                    backgroundColor: const Color(0xFFFEF3C7),
-                    textColor: const Color(0xFF92400E),
                   ),
                 ],
               ),
@@ -1438,95 +1534,366 @@ class _RealEstateConstructionScreenState
         ? context.tr('real_estate_construction_mode_contractor')
         : context.tr('real_estate_construction_mode_self_build');
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: NeoBrutalCard(
-            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('real_estate_stat_mode'),
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+        Row(
+          children: [
+            Expanded(
+              child: NeoBrutalCard(
+                backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('real_estate_stat_mode'),
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      modeTitle,
+                      style:
+                          const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  modeTitle,
-                  style:
-                      const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: NeoBrutalCard(
+                backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('real_estate_stat_player_units'),
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${land.playerShareUnits} / ${land.totalProjectUnits} ${context.tr('real_estate_stat_units_suffix')}',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF10B981)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: NeoBrutalCard(
+                backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('real_estate_stat_days_remaining'),
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color:
+                              theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      land.constructionDaysRemaining > 0
+                          ? '${land.constructionDaysRemaining} ${context.tr('day')}'
+                          : context.tr('real_estate_stat_stage_ready'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: land.constructionDaysRemaining > 0
+                            ? const Color(0xFF3B82F6)
+                            : const Color(0xFF10B981),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: NeoBrutalCard(
-            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('real_estate_stat_player_units'),
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${land.playerShareUnits} / ${land.totalProjectUnits} ${context.tr('real_estate_stat_units_suffix')}',
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF10B981)),
-                ),
-              ],
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final costIndex = ref.watch(gameProvider.select((s) => s.constructionCostIndex));
+                  return NeoBrutalCard(
+                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('real_estate_construction_cost_index_title'),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${costIndex.toStringAsFixed(2)}x',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: costIndex > 1.05
+                                ? const Color(0xFFDC2626)
+                                : (costIndex < 0.95 ? const Color(0xFF16A34A) : const Color(0xFF2563EB)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: NeoBrutalCard(
-            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('real_estate_stat_days_remaining'),
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: NeoBrutalCard(
+                backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('real_estate_quality_score_label'),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${land.qualityScore.round()} / 100',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: land.qualityScore >= 80
+                            ? const Color(0xFF16A34A)
+                            : (land.qualityScore < 60 ? const Color(0xFFDC2626) : const Color(0xFFD97706)),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  land.constructionDaysRemaining > 0
-                      ? '${land.constructionDaysRemaining} ${context.tr('day')}'
-                      : context.tr('real_estate_stat_stage_ready'),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: land.constructionDaysRemaining > 0
-                        ? const Color(0xFF3B82F6)
-                        : const Color(0xFF10B981),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ],
+    );
+  }
+
+  // --- CONSTRUCTION LOAN CARD ---
+  Widget _buildConstructionLoanCard(
+    BuildContext context,
+    ThemeData theme,
+    RealEstateModel land,
+    double balance,
+    bool isDark,
+  ) {
+    final maxLoan = (land.baseMarketValue * 0.50).roundToDouble();
+
+    if (!land.isMortgaged) {
+      return NeoBrutalCard(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        padding: const EdgeInsets.all(16),
+        borderColor: const Color(0xFF10B981),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.account_balance_rounded, size: 18, color: Color(0xFF10B981)),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr('real_estate_construction_loan_dialog_title'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+                NeoBrutalBadge(
+                  text: 'Azami ${CurrencyFormatter.format(maxLoan)}',
+                  backgroundColor: const Color(0xFFD1FAE5),
+                  textColor: const Color(0xFF065F46),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.tr('real_estate_construction_loan_dialog_desc'),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 12),
+            NeoBrutalButton(
+              label: '${context.tr('real_estate_construction_loan_btn')} • ${CurrencyFormatter.format(maxLoan)}',
+              backgroundColor: const Color(0xFF10B981),
+              textColor: Colors.white,
+              onPressed: () {
+                _showTakeLoanDialog(context, land, maxLoan);
+              },
+            ),
+          ],
+        ),
+      );
+    } else {
+      final loanId = 'loan_construction_${land.id}';
+      final loans = ref.read(gameProvider).activeLoans;
+      final loan = loans.cast<LoanModel?>().firstWhere((l) => l?.id == loanId, orElse: () => null);
+      final remaining = loan?.remainingAmount ?? (maxLoan * 1.25);
+
+      return NeoBrutalCard(
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        padding: const EdgeInsets.all(16),
+        borderColor: const Color(0xFFEF4444),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, size: 18, color: Color(0xFFEF4444)),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr('real_estate_mortgaged_badge'),
+                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+                NeoBrutalBadge(
+                  text: 'Borç: ${CurrencyFormatter.format(remaining)}',
+                  backgroundColor: const Color(0xFFFEE2E2),
+                  textColor: const Color(0xFFDC2626),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.tr('real_estate_construction_loan_repay_dialog_desc'),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 12),
+            NeoBrutalButton(
+              label: '${context.tr('real_estate_construction_loan_repay_btn')} • ${CurrencyFormatter.format(remaining)}',
+              backgroundColor: balance >= remaining ? const Color(0xFFDC2626) : const Color(0xFF94A3B8),
+              textColor: Colors.white,
+              onPressed: balance >= remaining
+                  ? () {
+                      _showRepayLoanDialog(context, land, remaining);
+                    }
+                  : null,
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void _showTakeLoanDialog(BuildContext context, RealEstateModel land, double maxLoan) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          context.tr('real_estate_construction_loan_dialog_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+        content: Text(
+          context.tr('real_estate_construction_loan_dialog_desc'),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(context.tr('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              final ok = ref.read(gameProvider.notifier).takeConstructionLoan(land.id, maxLoan);
+              if (ok) {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_loan_taken_toast'),
+                );
+              }
+            },
+            child: Text(
+              context.tr('real_estate_construction_loan_btn'),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRepayLoanDialog(BuildContext context, RealEstateModel land, double remaining) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          context.tr('real_estate_construction_loan_repay_btn'),
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+        content: Text(
+          context.tr('real_estate_construction_loan_repay_dialog_desc'),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(context.tr('cancel')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              final ok = ref.read(gameProvider.notifier).repayConstructionLoan(land.id);
+              if (ok) {
+                NotificationService.showSuccess(
+                  context,
+                  context.tr('real_estate_loan_repaid_toast'),
+                );
+              }
+            },
+            child: Text(
+              context.tr('real_estate_construction_loan_repay_btn'),
+              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1639,10 +2006,7 @@ class _RealEstateConstructionScreenState
   Widget _buildSelfBuildAdvanceCard(BuildContext context, ThemeData theme,
       RealEstateModel land, double balance, bool isDark) {
     final currentStage = land.constructionStage.clamp(1, 8);
-    final stageDetails =
-        ConstructionTimelineEngine.getStageDetails(currentStage);
-    final stageRate = stageDetails.costPercentage;
-    final nextCost = (land.baseMarketValue * stageRate).roundToDouble();
+    final nextCost = ConstructionPricing.stageCost(land, currentStage);
     final canAfford = balance >= nextCost;
 
     final isWorking =
@@ -1949,14 +2313,13 @@ class _RealEstateConstructionScreenState
                   context.tr('real_estate_finalize_success_toast',
                       {'count': created.length.toString()}),
                 );
+                context.pop();
               } else {
-                NotificationService.showSuccess(
+                NotificationService.showError(
                   context,
-                  context.tr('real_estate_finalize_success_toast',
-                      {'count': '0'}),
+                  context.tr('real_estate_finalize_failed'),
                 );
               }
-              context.pop();
             },
             backgroundColor: const Color(0xFF10B981),
             textColor: Colors.white,

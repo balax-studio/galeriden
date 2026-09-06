@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import '../../data/models/real_estate_model.dart';
+
 enum SubcontractorTier {
   speed, // Hızlı Ekip • %20 daha hızlı, %25 daha pahalı
   standard, // Dengeli Usta • Standart süre ve maliyet
@@ -156,11 +158,14 @@ class ConstructionTimelineEngine {
     );
   }
 
+
+
   /// Arsa büyüklüğüne ve taşeron ekibine göre hesaplanan gün sayısı
   static int calculateStageDays({
     required int stageNumber,
     required double parcelSquareMeters,
     SubcontractorTier tier = SubcontractorTier.standard,
+    double? durationMultiplier,
   }) {
     final stage = getStageDetails(stageNumber);
 
@@ -171,20 +176,12 @@ class ConstructionTimelineEngine {
       scale = 1.18;
     }
 
-    double tierMultiplier = 1.0;
-    switch (tier) {
-      case SubcontractorTier.speed:
-        tierMultiplier = 0.75; // %25 daha hızlı
-        break;
-      case SubcontractorTier.standard:
-        tierMultiplier = 1.0;
-        break;
-      case SubcontractorTier.budget:
-        tierMultiplier = 1.25; // %25 daha yavaş
-        break;
-    }
+    final mult = durationMultiplier ??
+        (tier == SubcontractorTier.speed
+            ? 0.75
+            : (tier == SubcontractorTier.budget ? 1.25 : 1.0));
 
-    return max(4, (stage.baseDays * scale * tierMultiplier).round());
+    return max(4, (stage.baseDays * scale * mult).round());
   }
 
   /// Her evre için mevcut 3 alternatif taşeron profili
@@ -354,5 +351,22 @@ class ConstructionTimelineEngine {
   static String getRandomAnecdoteText(Random random) {
     final key = getRandomAnecdoteKey(random);
     return anecdoteTurkishTexts[key] ?? key;
+  }
+}
+
+class ConstructionPricing {
+  /// Tek doğruluk kaynağı etap maliyet hesabı (B4, F1·9, F3·2)
+  static double stageCost(
+    RealEstateModel land,
+    int stageNumber, {
+    SubcontractorProfile? subcontractor,
+    double costIndex = 1.0,
+  }) {
+    final stage = ConstructionTimelineEngine.getStageDetails(stageNumber);
+    final base = (land.baseMarketValue * stage.costPercentage * costIndex).roundToDouble();
+    if (subcontractor != null) {
+      return (base * subcontractor.costMultiplier).roundToDouble();
+    }
+    return base;
   }
 }

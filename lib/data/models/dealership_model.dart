@@ -39,6 +39,7 @@ import 'substates/company_substate.dart';
 import 'substates/finance_substate.dart';
 import 'substates/inventory_substate.dart';
 import 'substates/real_estate_substate.dart';
+import '../../domain/usecases/loan_settlement_engine.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -197,7 +198,6 @@ class DealershipModel {
   final List<IpoOfferModel> activeIpos;
   final List<PlayerIpoRequestModel> playerIpoRequests;
   final List<GameEventModel> recentEvents;
-  final double dailyTaxRate;
 
   // Yeni Haber, Hurdalık ve Karaborsa Alanları
   final MarketNewsModel? activeNews;
@@ -237,6 +237,7 @@ class DealershipModel {
   final List<String> purchasedAcademyCourses;
   final List<String> unlockedDecorIds;
   final DateTime? lastScrapyardGigDate;
+  final int lastScrapyardGigDay;
   final List<Map<String, dynamic>> pendingDopedOffers;
   final List<WantedCarContract> activeContracts;
 
@@ -330,6 +331,7 @@ class DealershipModel {
   final List<String> unlockedShowroomThemeIds;
   final List<String> unlockedCustomPaintIds;
   final CasinoStatsModel casinoStats;
+  final double constructionCostIndex; // F3·2: Malzeme ve inşaat maliyet endeksi (0.85 - 1.35)
 
   int get mysteryContainerDaysRemaining => (lastMysteryContainerPurchaseDay == 0) ? 0 : (7 - (currentDay - lastMysteryContainerPurchaseDay)).clamp(0, 7);
   bool get isMysteryContainerAvailable => mysteryContainerDaysRemaining <= 0;
@@ -495,6 +497,93 @@ class DealershipModel {
   }
 
   DateTime get inGameTime => DateTime.now();
+
+  /// Branch profit multiplier scaling with physical branch prestige (B2)
+  double get branchProfitMultiplier {
+    switch (currentBranchTier) {
+      case 8:
+        return 2.50;
+      case 7:
+        return 2.10;
+      case 6:
+        return 1.85;
+      case 5:
+        return 1.60;
+      case 4:
+        return 1.40;
+      case 3:
+        return 1.25;
+      case 2:
+        return 1.10;
+      case 1:
+      default:
+        return 1.00;
+    }
+  }
+
+  /// Daily property burn accounting for deed ownership immunity (B1)
+  double get dailyPropertyRentBurn {
+    final currentTier = currentBranchTier;
+    final ownsCurrentDeed = ownedBranchDeeds.contains('branch_$currentTier');
+    double baseRent = 300.0;
+    switch (currentTier) {
+      case 8:
+        baseRent = 75000.0;
+        break;
+      case 7:
+        baseRent = 40000.0;
+        break;
+      case 6:
+        baseRent = 20000.0;
+        break;
+      case 5:
+        baseRent = 9500.0;
+        break;
+      case 4:
+        baseRent = 4200.0;
+        break;
+      case 3:
+        baseRent = 1800.0;
+        break;
+      case 2:
+        baseRent = 750.0;
+        break;
+      case 1:
+      default:
+        baseRent = 300.0;
+        break;
+    }
+
+    // Deed ownership grants 100% base rent exemption for that branch tier
+    final rentPortion = ownsCurrentDeed ? 0.0 : baseRent;
+    // Dues and environmental maintenance per owned property deed
+    final duesPortion = ownedBranchDeeds.length * 1250.0;
+    return rentPortion + duesPortion;
+  }
+
+  /// Progressive daily corporate tax calculated directly from LoanSettlementEngine (B3 single source of truth)
+  double get effectiveDailyTax => LoanSettlementEngine.calculateDailyTax(
+        level,
+        totalLiquidWealth: balance + bankDepositBalance,
+      );
+
+  /// Backwards-compatible alias for effectiveDailyTax
+  double get dailyTaxRate => effectiveDailyTax;
+
+  /// Unified buyer perk calculation for car acquisition (C2)
+  double applyBuyerPerks(double price) {
+    double finalPrice = price;
+    if (skills.negotiationMultiplier > 0) {
+      finalPrice *= (1.0 - skills.negotiationMultiplier);
+    }
+    if (characterOrigin == CharacterOrigin.tuccarTorunu) {
+      finalPrice *= 0.92;
+    }
+    if (specializationPath == SpecializationPath.trader) {
+      finalPrice *= 0.90;
+    }
+    return finalPrice.roundToDouble();
+  }
 
   /// Dynamic 28-day seasonal cycle
   GameSeason get currentSeason {
@@ -897,10 +986,66 @@ class DealershipModel {
     }
   }
 
+  /// Explicit required branch property tier for route access (C6)
+  static int getRequiredBranchTier(String route) {
+    switch (route) {
+      case '/marketplace':
+      case '/showroom':
+      case '/expertise':
+      case '/branches':
+      case '/character-growth':
+      case '/settings':
+      case '/dealership-identity':
+      case '/theme-store':
+        return 1;
+      case '/car-wash':
+      case '/history':
+        return 2;
+      case '/workshop':
+      case '/staff':
+      case '/staff-academy':
+      case '/vasita':
+      case '/vasita-market':
+        return 3;
+      case '/tuning-studio':
+      case '/showroom-decor':
+      case '/emlak':
+      case '/emlak-market':
+        return 4;
+      case '/auction':
+      case '/finance':
+      case '/reviews':
+        return 5;
+      case '/bank-investments':
+      case '/stock-market':
+        return 6;
+      case '/rent-a-car':
+      case '/black-market':
+      case '/district-market':
+      case '/districts':
+      case '/gossip-hotline':
+      case '/gossip':
+        return 7;
+      case '/scrapyard':
+      case '/side-businesses':
+      case '/consignment-market':
+      case '/consignment':
+      case '/second-branch':
+      case '/vip-appointments':
+      case '/customs-import':
+      case '/guild-chamber':
+      case '/franchise':
+      case '/prestige-dynasty':
+        return 8;
+      default:
+        return 1;
+    }
+  }
+
   static String getRequiredBranchName(String route,
       [BuildContext? context, String? langCode]) {
-    final reqLvl = getRequiredLevel(route);
-    return getBranchNameForTier(reqLvl, context, langCode);
+    final reqTier = getRequiredBranchTier(route);
+    return getBranchNameForTier(reqTier, context, langCode);
   }
 
   static String getBranchNameForTier(int tier,
@@ -1136,7 +1281,7 @@ class DealershipModel {
     this.activeIpos = const [],
     this.playerIpoRequests = const [],
     this.recentEvents = const [],
-    this.dailyTaxRate = 150.0,
+    double? dailyTaxRate,
     this.activeNews,
     this.salvagedParts = const [],
     this.scrapyardCars = const [],
@@ -1161,6 +1306,7 @@ class DealershipModel {
     this.purchasedAcademyCourses = const [],
     this.unlockedDecorIds = const [],
     this.lastScrapyardGigDate,
+    this.lastScrapyardGigDay = 0,
     this.pendingDopedOffers = const [],
     this.activeContracts = const [],
     this.hasStreakFreeze = false,
@@ -1240,6 +1386,7 @@ class DealershipModel {
     this.unlockedShowroomThemeIds = const ['theme_standard'],
     this.unlockedCustomPaintIds = const [],
     this.casinoStats = const CasinoStatsModel(),
+    this.constructionCostIndex = 1.0,
   });
 
   factory DealershipModel.initial() {
@@ -1656,7 +1803,7 @@ class DealershipModel {
       'activeIpos': activeIpos.map((i) => i.toJson()).toList(),
       'playerIpoRequests': playerIpoRequests.map((r) => r.toJson()).toList(),
       'recentEvents': recentEvents.map((e) => e.toJson()).toList(),
-      'dailyTaxRate': dailyTaxRate,
+      'dailyTaxRate': effectiveDailyTax,
       'activeNews': activeNews?.toJson(),
       'salvagedParts': salvagedParts.map((p) => p.toJson()).toList(),
       'scrapyardCars': scrapyardCars.map((c) => c.toJson()).toList(),
@@ -1681,6 +1828,7 @@ class DealershipModel {
       'purchasedAcademyCourses': purchasedAcademyCourses,
       'unlockedDecorIds': unlockedDecorIds,
       'lastScrapyardGigDate': lastScrapyardGigDate?.toIso8601String(),
+      'lastScrapyardGigDay': lastScrapyardGigDay,
       'nextAuctionAvailableDate': nextAuctionAvailableDate?.toIso8601String(),
       'pendingDopedOffers': pendingDopedOffers,
       'activeContracts': activeContracts.map((c) => c.toJson()).toList(),
@@ -1745,6 +1893,7 @@ class DealershipModel {
       'casinoStats': casinoStats.toJson(),
       'ownedRealEstates': ownedRealEstates.map((e) => e.toJson()).toList(),
       'maxRealEstateSlots': maxRealEstateSlots,
+      'constructionCostIndex': constructionCostIndex,
     };
   }
 
@@ -1765,12 +1914,23 @@ class DealershipModel {
       return list;
     }
 
+    final currentDayVal = (json['currentDay'] as num?)?.toInt() ?? 1;
+
     return DealershipModel(
       balance: (json['balance'] as num?)?.toDouble() ?? 50000.0,
       level: json['level'] as int? ?? 1,
       maxGarageSlots: json['maxGarageSlots'] as int? ?? 4,
       ownedCars: parseList(json['ownedCars'] as List<dynamic>?, CarModel.fromJson),
-      incomingOffers: parseList(json['incomingOffers'] as List<dynamic>?, OfferModel.fromJson),
+      incomingOffers: parseList(
+        json['incomingOffers'] as List<dynamic>?,
+        (rawMap) {
+          final map = Map<String, dynamic>.from(rawMap);
+          if ((map['expiresOnDay'] as int? ?? 0) == 0) {
+            map['expiresOnDay'] = currentDayVal + 2;
+          }
+          return OfferModel.fromJson(map);
+        },
+      ),
       totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
       carsSold: json['carsSold'] as int? ?? 0,
       lastActiveTime: DateTime.tryParse(json['lastActiveTime'] as String? ?? '') ?? now,
@@ -1853,6 +2013,7 @@ class DealershipModel {
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       unlockedDecorIds: (json['unlockedDecorIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       lastScrapyardGigDate: json['lastScrapyardGigDate'] != null ? DateTime.tryParse(json['lastScrapyardGigDate'] as String) : null,
+      lastScrapyardGigDay: (json['lastScrapyardGigDay'] as num?)?.toInt() ?? 0,
       nextAuctionAvailableDate: json['nextAuctionAvailableDate'] != null ? DateTime.tryParse(json['nextAuctionAvailableDate'] as String) : null,
       pendingDopedOffers: (json['pendingDopedOffers'] as List<dynamic>?)?.map((e) => Map<String, dynamic>.from(e as Map)).toList() ?? const [],
       activeContracts: parseList(json['activeContracts'] as List<dynamic>?, WantedCarContract.fromJson),
@@ -1953,6 +2114,7 @@ class DealershipModel {
           : const CasinoStatsModel(),
       ownedRealEstates: parseList(json['ownedRealEstates'] as List<dynamic>?, RealEstateModel.fromJson),
       maxRealEstateSlots: json['maxRealEstateSlots'] as int? ?? 5,
+      constructionCostIndex: (json['constructionCostIndex'] as num?)?.toDouble() ?? 1.0,
     );
   }
 
@@ -2055,6 +2217,7 @@ class DealershipModel {
     List<String>? purchasedAcademyCourses,
     List<String>? unlockedDecorIds,
     DateTime? lastScrapyardGigDate,
+    int? lastScrapyardGigDay,
     DateTime? nextAuctionAvailableDate,
     List<Map<String, dynamic>>? pendingDopedOffers,
     List<WantedCarContract>? activeContracts,
@@ -2124,6 +2287,7 @@ class DealershipModel {
     CasinoStatsModel? casinoStats,
     List<RealEstateModel>? ownedRealEstates,
     int? maxRealEstateSlots,
+    double? constructionCostIndex,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -2192,6 +2356,7 @@ class DealershipModel {
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,
       unlockedDecorIds: unlockedDecorIds ?? this.unlockedDecorIds,
       lastScrapyardGigDate: lastScrapyardGigDate ?? this.lastScrapyardGigDate,
+      lastScrapyardGigDay: lastScrapyardGigDay ?? this.lastScrapyardGigDay,
       nextAuctionAvailableDate: nextAuctionAvailableDate ?? this.nextAuctionAvailableDate,
       pendingDopedOffers: pendingDopedOffers ?? this.pendingDopedOffers,
       activeContracts: activeContracts ?? this.activeContracts,
@@ -2258,6 +2423,7 @@ class DealershipModel {
       casinoStats: casinoStats ?? this.casinoStats,
       ownedRealEstates: ownedRealEstates ?? this.ownedRealEstates,
       maxRealEstateSlots: maxRealEstateSlots ?? this.maxRealEstateSlots,
+      constructionCostIndex: constructionCostIndex ?? this.constructionCostIndex,
     );
   }
 

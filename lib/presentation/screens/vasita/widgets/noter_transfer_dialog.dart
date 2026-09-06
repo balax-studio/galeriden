@@ -10,6 +10,7 @@ class NoterTransferDialog extends StatefulWidget {
   final String buyerName;
   final String sellerName;
   final double agreedPrice;
+  final double effectivePrice;
   final double noterFee;
   final double registrationFee;
   final double playerBalance;
@@ -22,12 +23,13 @@ class NoterTransferDialog extends StatefulWidget {
     required this.buyerName,
     required this.sellerName,
     required this.agreedPrice,
+    double? effectivePrice,
     required this.noterFee,
     this.registrationFee = 850.0,
     this.playerBalance = 0.0,
     this.isGarageFull = false,
     this.onComplete,
-  });
+  }) : effectivePrice = effectivePrice ?? agreedPrice;
 
   static Future<void> show({
     required BuildContext context,
@@ -35,6 +37,7 @@ class NoterTransferDialog extends StatefulWidget {
     required String buyerName,
     required String sellerName,
     required double agreedPrice,
+    double? effectivePrice,
     required double noterFee,
     double registrationFee = 850.0,
     double playerBalance = 0.0,
@@ -49,6 +52,7 @@ class NoterTransferDialog extends StatefulWidget {
         buyerName: buyerName,
         sellerName: sellerName,
         agreedPrice: agreedPrice,
+        effectivePrice: effectivePrice ?? agreedPrice,
         noterFee: noterFee,
         registrationFee: registrationFee,
         playerBalance: playerBalance,
@@ -105,7 +109,8 @@ class _NoterTransferDialogState extends State<NoterTransferDialog>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final totalCost = widget.agreedPrice + widget.noterFee + widget.registrationFee;
+    final perkDiscount = (widget.agreedPrice - widget.effectivePrice).clamp(0.0, double.infinity);
+    final totalCost = widget.effectivePrice + widget.noterFee + widget.registrationFee;
     final hasEnoughFunds = widget.playerBalance >= totalCost;
     final canComplete = hasEnoughFunds && !widget.isGarageFull;
 
@@ -261,11 +266,25 @@ class _NoterTransferDialogState extends State<NoterTransferDialog>
                             ),
                             const Divider(color: Color(0xFFD97706), height: 18),
                             _buildCertificateRow(
-                              context.tr('noter_field_agreed_price'),
+                              context.tr('noter_agreed_price'),
                               CurrencyFormatter.format(widget.agreedPrice),
                               isBold: true,
                               textColor: const Color(0xFFB45309),
                             ),
+                            if (perkDiscount > 0) ...[
+                              _buildCertificateRow(
+                                context.tr('noter_perk_discount'),
+                                '-${CurrencyFormatter.format(perkDiscount)}',
+                                isBold: true,
+                                textColor: const Color(0xFF10B981),
+                              ),
+                              _buildCertificateRow(
+                                context.tr('noter_effective_price'),
+                                CurrencyFormatter.format(widget.effectivePrice),
+                                isBold: true,
+                                textColor: const Color(0xFF047857),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -337,6 +356,22 @@ class _NoterTransferDialogState extends State<NoterTransferDialog>
                           ),
                         ),
                         const SizedBox(height: 8),
+                        _buildFeeLine(
+                          context.tr('noter_agreed_price'),
+                          CurrencyFormatter.format(widget.agreedPrice),
+                        ),
+                        if (perkDiscount > 0) ...[
+                          _buildFeeLine(
+                            context.tr('noter_perk_discount'),
+                            '-${CurrencyFormatter.format(perkDiscount)}',
+                            textColor: const Color(0xFF10B981),
+                          ),
+                          _buildFeeLine(
+                            context.tr('noter_effective_price'),
+                            CurrencyFormatter.format(widget.effectivePrice),
+                            textColor: const Color(0xFF047857),
+                          ),
+                        ],
                         _buildFeeLine(
                           context.tr('noter_fee_devir_rate'),
                           CurrencyFormatter.format(widget.noterFee),

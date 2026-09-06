@@ -94,6 +94,7 @@ class _SubcontractorNegotiationChatScreenState
         patience: 100,
         satisfaction: 60,
         currentPrice: stageCost * sub.costMultiplier,
+        minPrice: (stageCost * sub.costMultiplier * 0.75).roundToDouble(),
         messages: [
           ChatMessageModel(
             id: 'msg_0',
@@ -184,11 +185,6 @@ class _SubcontractorNegotiationChatScreenState
     _scrollToBottom();
 
     if (_chatState!.isAgreed) {
-      GameSoundHapticService.playCashSuccess();
-      NotificationService.showSuccess(
-        context,
-        context.tr('subcontractor_toast_agreed'),
-      );
       _confirmStageStart();
     } else if (_chatState!.isWalkedAway) {
       GameSoundHapticService.playWarningVibration();
@@ -200,9 +196,14 @@ class _SubcontractorNegotiationChatScreenState
   }
 
   void _confirmStageStart() {
-    final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
-          (r) => r.id == widget.landId,
-        );
+    final properties = ref.read(gameProvider).ownedRealEstates;
+    final idx = properties.indexWhere((r) => r.id == widget.landId);
+    if (idx == -1) {
+      NotificationService.showError(context, context.tr('real_estate_not_found'));
+      context.pop();
+      return;
+    }
+    final land = properties[idx];
 
     final success = ref.read(gameProvider.notifier).startSelfBuildStage(
           land.id,
@@ -210,12 +211,26 @@ class _SubcontractorNegotiationChatScreenState
           customStageCost: _chatState?.currentPrice,
         );
 
+    if (!success) {
+      NotificationService.showError(
+        context,
+        context.tr('subcontractor_stage_start_failed'),
+      );
+      return;
+    }
+
+    GameSoundHapticService.playCashSuccess();
+    NotificationService.showSuccess(
+      context,
+      context.tr('subcontractor_toast_agreed'),
+    );
+
     setState(() {
       _activeSubcontractor = null;
       _chatState = null;
     });
 
-    if (success && mounted) {
+    if (mounted) {
       context.pop();
     }
   }

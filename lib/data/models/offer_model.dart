@@ -14,6 +14,7 @@ class OfferModel {
   final int counterCount;
   final int maxCounters;
   final DateTime expiresAt;
+  final int expiresOnDay;
   final OfferType offerType;
   final int customerCreditScore; // 0 - 100
   final int installmentMonths;    // e.g. 6 or 12
@@ -33,6 +34,7 @@ class OfferModel {
     this.counterCount = 0,
     this.maxCounters = 3,
     DateTime? expiresAt,
+    this.expiresOnDay = 0,
     this.offerType = OfferType.cash,
     this.customerCreditScore = 85,
     this.installmentMonths = 0,
@@ -42,7 +44,9 @@ class OfferModel {
     this.counterStrategy,
   }) : expiresAt = expiresAt ?? createdAt.add(const Duration(hours: 12));
 
-  bool get isExpired => DateTime.now().isAfter(expiresAt);
+  bool get isExpired => (expiresOnDay > 0) ? false : DateTime.now().isAfter(expiresAt);
+  bool isExpiredForDay(int currentDay) => (expiresOnDay > 0) ? (currentDay > expiresOnDay) : DateTime.now().isAfter(expiresAt);
+  int remainingDays(int currentDay) => (expiresOnDay > currentDay) ? (expiresOnDay - currentDay) : 0;
 
   /// Credit Risk Level: safe (80+), moderate (50-79), risky (30-49), severe (<30)
   String get riskLevel {
@@ -72,6 +76,7 @@ class OfferModel {
       'counterCount': counterCount,
       'maxCounters': maxCounters,
       'expiresAt': expiresAt.toIso8601String(),
+      'expiresOnDay': expiresOnDay,
       'offerType': offerType.name,
       'customerCreditScore': customerCreditScore,
       'installmentMonths': installmentMonths,
@@ -98,6 +103,7 @@ class OfferModel {
       counterCount: json['counterCount'] as int? ?? 0,
       maxCounters: json['maxCounters'] as int? ?? 3,
       expiresAt: DateTime.tryParse(json['expiresAt'] as String? ?? '') ?? created.add(const Duration(hours: 12)),
+      expiresOnDay: json['expiresOnDay'] as int? ?? 0,
       offerType: OfferType.values.firstWhere(
         (e) => e.name == json['offerType'],
         orElse: () => OfferType.cash,
@@ -119,6 +125,7 @@ class OfferModel {
     String? buyerMessage,
     int? counterCount,
     DateTime? expiresAt,
+    int? expiresOnDay,
     OfferType? offerType,
     int? customerCreditScore,
     int? installmentMonths,
@@ -138,6 +145,7 @@ class OfferModel {
       counterCount: counterCount ?? this.counterCount,
       maxCounters: maxCounters,
       expiresAt: expiresAt ?? this.expiresAt,
+      expiresOnDay: expiresOnDay ?? this.expiresOnDay,
       offerType: offerType ?? this.offerType,
       customerCreditScore: customerCreditScore ?? this.customerCreditScore,
       installmentMonths: installmentMonths ?? this.installmentMonths,

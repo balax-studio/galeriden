@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_parser.dart';
 import '../../../data/models/car_model.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
@@ -301,12 +302,7 @@ class _CarWashPainter extends CustomPainter {
   });
 
   Color _parseColor(String hex) {
-    try {
-      final clean = hex.replaceAll('#', '');
-      return Color(int.parse('FF$clean', radix: 16));
-    } catch (_) {
-      return const Color(0xFFFFDE59);
-    }
+    return ColorParser.parseCarColor(hex, const Color(0xFFFFDE59));
   }
 
   @override

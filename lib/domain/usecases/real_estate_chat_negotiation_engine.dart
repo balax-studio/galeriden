@@ -92,6 +92,13 @@ class ChatNegotiationState {
   final List<ChatMessageModel> messages;
   final bool isAgreed;
   final bool isWalkedAway;
+  final int jokeUseCount;
+  final double minPrice;
+  final bool hasPrimeFloorClause;
+  final bool hasQualityUpgrade;
+  final double contractorAdvancePaid;
+  final bool hasBankGuarantee;
+  final int contractorStageDays;
   final String? lastToastMessage;
 
   const ChatNegotiationState({
@@ -108,6 +115,13 @@ class ChatNegotiationState {
     this.messages = const [],
     this.isAgreed = false,
     this.isWalkedAway = false,
+    this.jokeUseCount = 0,
+    this.minPrice = 0.0,
+    this.hasPrimeFloorClause = false,
+    this.hasQualityUpgrade = false,
+    this.contractorAdvancePaid = 0.0,
+    this.hasBankGuarantee = false,
+    this.contractorStageDays = 15,
     this.lastToastMessage,
   });
 
@@ -122,6 +136,13 @@ class ChatNegotiationState {
     List<ChatMessageModel>? messages,
     bool? isAgreed,
     bool? isWalkedAway,
+    int? jokeUseCount,
+    double? minPrice,
+    bool? hasPrimeFloorClause,
+    bool? hasQualityUpgrade,
+    double? contractorAdvancePaid,
+    bool? hasBankGuarantee,
+    int? contractorStageDays,
     String? lastToastMessage,
   }) {
     return ChatNegotiationState(
@@ -138,26 +159,37 @@ class ChatNegotiationState {
       messages: messages ?? this.messages,
       isAgreed: isAgreed ?? this.isAgreed,
       isWalkedAway: isWalkedAway ?? this.isWalkedAway,
+      jokeUseCount: jokeUseCount ?? this.jokeUseCount,
+      minPrice: minPrice ?? this.minPrice,
+      hasPrimeFloorClause: hasPrimeFloorClause ?? this.hasPrimeFloorClause,
+      hasQualityUpgrade: hasQualityUpgrade ?? this.hasQualityUpgrade,
+      contractorAdvancePaid: contractorAdvancePaid ?? this.contractorAdvancePaid,
+      hasBankGuarantee: hasBankGuarantee ?? this.hasBankGuarantee,
+      contractorStageDays: contractorStageDays ?? this.contractorStageDays,
       lastToastMessage: lastToastMessage ?? this.lastToastMessage,
     );
   }
 }
 
 class RealEstateChatNegotiationEngine {
-  /// Müteahhit açılış diyalogunu oluşturur
+  /// Müteahhit açılış diyalogunu oluşturur (F1·12)
   static ChatNegotiationState createContractorSession({
     required String landId,
     String? contractorName,
     required int totalUnits,
     required double baseMarketValue,
     ContractorNegotiationProfile? profile,
+    int playerReputationScore = 0,
   }) {
     final effectiveProfile = profile;
     final name = effectiveProfile?.defaultName ??
         contractorName ??
         'Metropol Yapı Mimarlık';
     final initialShare = effectiveProfile?.initialOfferPercent ?? 50;
-    final maxCap = effectiveProfile?.maxCapPercent ?? 58;
+    int maxCap = effectiveProfile?.maxCapPercent ?? 55;
+    if (playerReputationScore >= 700) {
+      maxCap = max(maxCap, 60); // F1·12: Yüksek itibar pay tavanını %60'a çıkarır
+    }
     final patience = effectiveProfile?.basePatience ?? 100;
 
     String openingText;
@@ -361,6 +393,12 @@ class RealEstateChatNegotiationEngine {
     int nextSatisfaction = state.satisfaction;
     double nextPrice = state.currentPrice;
     int nextShare = state.currentSharePercent;
+    int nextJokeCount = state.jokeUseCount;
+    bool nextPrimeFloors = state.hasPrimeFloorClause;
+    bool nextQualityUpgrade = state.hasQualityUpgrade;
+    double nextAdvance = state.contractorAdvancePaid;
+    bool nextBankGuarantee = state.hasBankGuarantee;
+    int nextStageDays = state.contractorStageDays;
     bool nextAgreed = false;
     bool nextWalkedAway = false;
     String replyText = '';
@@ -396,6 +434,7 @@ class RealEstateChatNegotiationEngine {
         nextPatience -= 15;
         if (random.nextDouble() < 0.70) {
           nextSatisfaction += 15;
+          nextPrimeFloors = true;
           final primeSuccessPool = [
             'Anlaştık, projedeki en üst 2 katın ve köşe dairelerin tapusunu sizin adınıza tescil edeceğiz.',
             'Sözleşmeye şerefiye maddesi eklendi: Güney cepheli ve ferah üst kat daireleri doğrudan sizin listenize yazıldı.',
@@ -416,6 +455,8 @@ class RealEstateChatNegotiationEngine {
       case ChatTacticType.demandQualityUpgrade:
         nextPatience -= 15;
         if (random.nextDouble() < 0.65) {
+          nextSatisfaction += 15;
+          nextQualityUpgrade = true;
           final qualitySuccessPool = [
             'C35 hazır beton, yerden ısıtma, taşyünü mantolama ve akustik ses yalıtımı şartnamesini sözleşmeye ekliyoruz.',
             'Kabul, temelden çatıya 1. sınıf C35 beton ve sessiz boru tesisatı şartnamesini imzalıyoruz.',
@@ -439,6 +480,7 @@ class RealEstateChatNegotiationEngine {
         nextPatience -= 25;
         if (random.nextDouble() < 0.50) {
           nextSatisfaction += 20;
+          nextAdvance = 350000.0;
           final advanceSuccessPool = [
             'İnşaat süresince kiranızı karşılamak adına peşin ₺350.000 nakit kira avansını hesabınıza yatırıyoruz.',
             'Kabul, taşınma ve kira masraflarınız için ₺350.000 teminat avansını noter devrinde peşin ödeyeceğiz.',
@@ -464,6 +506,7 @@ class RealEstateChatNegotiationEngine {
         final successChance = isCorporateOrLuxury ? 0.70 : 0.45;
         if (random.nextDouble() < successChance) {
           nextSatisfaction += 20;
+          nextBankGuarantee = true;
           final guaranteePool = [
             'Haklısınız, yarım kalan şantiyeler piyasayı tedirgin etti • Kamu bankasından kesin teminat mektubunu çıkarıp noter sözleşmesine ekliyoruz.',
             'Kurumsal mali gücümüz tamdır • ₺2.500.000 tutarındaki banka teminat mektubunu adınıza bloke edip şantiyeye öyle başlıyoruz.',
@@ -482,20 +525,29 @@ class RealEstateChatNegotiationEngine {
         break;
 
       case ChatTacticType.askJokeOrChat:
-        nextPatience = min(state.maxPatience, nextPatience + 22);
-        nextSatisfaction = min(100, nextSatisfaction + 15);
-        final jokeKey = ContractorNegotiationExpansion.getRandomJokeKey(random);
-        replyText = _getJokeText(jokeKey);
-        replyBadge = 'ÇAY VE SOHBET • SABIR +22';
+        nextJokeCount++;
+        if (nextJokeCount <= 3) {
+          final gain = max(0, 22 - (nextJokeCount - 1) * 8);
+          nextPatience = min(state.maxPatience, nextPatience + gain);
+          nextSatisfaction = min(100, nextSatisfaction + max(5, 15 - (nextJokeCount - 1) * 5));
+          final jokeKey = ContractorNegotiationExpansion.getRandomJokeKey(random);
+          replyText = _getJokeText(jokeKey);
+          replyBadge = 'ÇAY VE SOHBET • SABIR +$gain';
+        } else {
+          nextPatience -= 10;
+          replyText = 'Patron laf lafı açıyor da işimize dönelim, şantiye bizi bekler.';
+          replyBadge = 'İŞE ODAKLANMA • SABIR -10';
+        }
         break;
 
       case ChatTacticType.counterPrice:
         nextPatience -= 20;
+        final effectiveFloor = state.minPrice > 0 ? state.minPrice : (state.currentPrice * 0.75);
         final delta = state.counterpartyRole == ChatSenderRole.buyer
             ? state.currentPrice * 0.05
             : state.currentPrice * -0.05;
-        if (random.nextDouble() < 0.65) {
-          nextPrice += delta;
+        if (random.nextDouble() < 0.65 && (state.counterpartyRole == ChatSenderRole.buyer || nextPrice + delta >= effectiveFloor)) {
+          nextPrice = max(effectiveFloor, nextPrice + delta);
           nextSatisfaction += 10;
           replyText =
               'Önerdiğiniz rakamı değerlendirdik. Yeni fiyat ₺${nextPrice.round()} olarak el sıkışabiliriz.';
@@ -510,6 +562,7 @@ class RealEstateChatNegotiationEngine {
         nextPatience -= 15;
         if (random.nextDouble() < 0.65) {
           nextSatisfaction += 15;
+          nextStageDays = 11;
           replyText =
               'Anlaştık patron • Sahaya seyyar aydınlatma ve ekstra jeneratör kuruyoruz • Gece çift vardiyaya girip süreden gün kazanacağız.';
           replyBadge = 'ÇİFT VARDİYA ONAYLANDI';
@@ -520,10 +573,11 @@ class RealEstateChatNegotiationEngine {
         break;
 
       case ChatTacticType.demandCashMaterials:
-        nextPatience -= 10;
-        if (random.nextDouble() < 0.70) {
+        nextPatience -= 20;
+        final effectiveFloor = state.minPrice > 0 ? state.minPrice : (state.currentPrice * 0.75);
+        if (random.nextDouble() < 0.70 && nextPrice > effectiveFloor) {
           final discount = (state.currentPrice * 0.08).roundToDouble();
-          nextPrice = state.currentPrice - discount;
+          nextPrice = max(effectiveFloor, state.currentPrice - discount);
           nextSatisfaction += 20;
           replyText =
               'Madem demiri hazır betonu peşin bağlıyorsun patron, biz de işçilik birim fiyatından ₺${discount.round()} düşüyoruz • Helali hoş olsun.';
@@ -549,11 +603,32 @@ class RealEstateChatNegotiationEngine {
         break;
 
       case ChatTacticType.demandCashDiscount:
+        nextPatience -= 20;
+        final effectiveFloor = state.minPrice > 0 ? state.minPrice : (state.currentPrice * 0.75);
+        if (random.nextDouble() < 0.65 && nextPrice > effectiveFloor) {
+          final discount = (nextPrice * 0.07).roundToDouble();
+          nextPrice = max(effectiveFloor, nextPrice - discount);
+          nextSatisfaction += 15;
+          replyText =
+              'Peşin ödeme yapacağınızı göz önünde bulundurarak ₺${discount.round()} nakit indirimi uyguladık.';
+          replyBadge = 'NAKİT İNDİRİM: -₺${discount.round()}';
+        } else {
+          replyText =
+              'Bu fiyatın altına inmemiz mümkün değil, nakit akışımız kurtarmıyor.';
+        }
+        break;
+
       case ChatTacticType.acceptAgreement:
-        nextAgreed = true;
-        replyText =
-            'Harika! Şartlarda mutabık kaldık. Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!';
-        replyBadge = 'MUTABAKAT SAĞLANDI';
+        if (state.satisfaction >= 40) {
+          nextAgreed = true;
+          replyText =
+              'Harika! Şartlarda mutabık kaldık. Sözleşmeyi hazırlatıyorum, hayırlı uğurlu olsun!';
+          replyBadge = 'MUTABAKAT SAĞLANDI';
+        } else {
+          nextPatience -= 25;
+          replyText =
+              'Bu şartlarda henüz el sıkışamayız patron • Talepleriniz dengeleri çok zorladı, ortak bir noktada buluşmamız gerek.';
+        }
         break;
 
       case ChatTacticType.transferDeedCosts:
@@ -598,6 +673,12 @@ class RealEstateChatNegotiationEngine {
       satisfaction: min(100, max(0, nextSatisfaction)),
       currentPrice: nextPrice,
       currentSharePercent: nextShare,
+      jokeUseCount: nextJokeCount,
+      hasPrimeFloorClause: nextPrimeFloors,
+      hasQualityUpgrade: nextQualityUpgrade,
+      contractorAdvancePaid: nextAdvance,
+      hasBankGuarantee: nextBankGuarantee,
+      contractorStageDays: nextStageDays,
       messages: [...stateWithPlayer.messages, replyMessage],
       isAgreed: nextAgreed,
       isWalkedAway: nextWalkedAway,

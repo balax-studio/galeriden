@@ -157,6 +157,7 @@ void main() {
       notifier.state = notifier.state.copyWith(
         ownedRealEstates: [land],
         balance: 10000000,
+        maxRealEstateSlots: 10,
       );
 
       // Start Self Build with custom unit mix

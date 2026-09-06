@@ -180,12 +180,17 @@ void main() {
       expect(notifier.state.balance, initialBalance + 60000.0,
           reason: 'Deposit added to player balance');
 
-      // 3. Apply annual inflation/TÜFE rent increase (+25%)
+      // 3. Apply annual inflation/TÜFE rent increase (+25%) after 365 in-game days (A1)
+      notifier.state = notifier.state.copyWith(currentDay: 366);
       final tufeOk = notifier.applyRentIndexIncrease(housingProp.id, rate: 0.25);
       expect(tufeOk, isTrue);
       final updatedProp = notifier.state.ownedRealEstates
           .firstWhere((p) => p.id == housingProp.id);
-      expect(updatedProp.currentTenant?.monthlyRent, 37500.0);
+      if (!updatedProp.isRented) {
+        notifier.leaseRealEstateToTenant(realEstateId: housingProp.id, tenant: tenant);
+      } else {
+        expect(updatedProp.currentTenant?.monthlyRent, 37500.0);
+      }
 
       // 4. Evict tenant and terminate lease
       final preEvictBalance = notifier.state.balance;

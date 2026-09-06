@@ -27,6 +27,7 @@ import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/review_engine.dart';
+import '../../../domain/usecases/weather_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
 import 'game_base_notifier.dart';
 
@@ -533,7 +534,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     // Rule 3: Max 3 active offers per car limit
     final activeOffersCount = state.incomingOffers
-        .where((o) => o.carId == car.id && !o.isExpired)
+        .where((o) => o.carId == car.id && !o.isExpiredForDay(state.currentDay))
         .length;
     if (activeOffersCount >= 3) return false;
 
@@ -554,7 +555,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     Future.delayed(Duration(seconds: delay1), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers
-          .where((o) => o.carId == car.id && !o.isExpired)
+          .where((o) => o.carId == car.id && !o.isExpiredForDay(state.currentDay))
           .length;
       if (currentOffers >= 3) return;
       final multipliers = _calculateOfferMultipliersForCar(car);
@@ -564,6 +565,9 @@ mixin GameMarketMixin on GameBaseNotifier {
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
         districtMultiplier: multipliers.$1,
         gossipMultiplier: multipliers.$2,
+        weatherMultiplier: multipliers.$3,
+        branchMultiplier: state.branchProfitMultiplier,
+        currentDay: state.currentDay,
       );
       state =
           state.copyWith(incomingOffers: [...state.incomingOffers, newOffer1]);
@@ -573,7 +577,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     Future.delayed(Duration(seconds: delay2), () {
       if (!mounted || !state.ownedCars.any((c) => c.id == car.id)) return;
       final currentOffers = state.incomingOffers
-          .where((o) => o.carId == car.id && !o.isExpired)
+          .where((o) => o.carId == car.id && !o.isExpiredForDay(state.currentDay))
           .length;
       if (currentOffers >= 3) return;
       final multipliers = _calculateOfferMultipliersForCar(car);
@@ -583,6 +587,9 @@ mixin GameMarketMixin on GameBaseNotifier {
         isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
         districtMultiplier: multipliers.$1,
         gossipMultiplier: multipliers.$2,
+        weatherMultiplier: multipliers.$3,
+        branchMultiplier: state.branchProfitMultiplier,
+        currentDay: state.currentDay,
       );
       state =
           state.copyWith(incomingOffers: [...state.incomingOffers, newOffer2]);
@@ -592,8 +599,8 @@ mixin GameMarketMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Calculates district perks and active player gossip multipliers for incoming offers
-  (double, double) _calculateOfferMultipliersForCar(CarModel car) {
+  /// Calculates district perks, active player gossip, and weather multipliers for incoming offers
+  (double, double, double) _calculateOfferMultipliersForCar(CarModel car) {
     double districtMult = 1.0;
 
     // 1. Kadıköy Klasik Sokağı (%50+ pay): Klasik, yadigâr ve 2000 model altı araçlara +%15 taban fiyat primi
@@ -626,7 +633,12 @@ mixin GameMarketMixin on GameBaseNotifier {
       gossipMult += 0.15;
     }
 
-    return (districtMult, gossipMult);
+    // 4. Hava Durumu Talebi Entegrasyonu (B4):
+    final weather = WeatherEngine.getWeatherForDay(state.currentDay);
+    final weatherMult =
+        WeatherEngine.getVehicleDemandMultiplier(weather, car.bodyType);
+
+    return (districtMult, gossipMult, weatherMult);
   }
 
   /// Organic buyer offers trigger over time ONLY for listed, non-rented cars with < 3 active offers
@@ -638,7 +650,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     for (final car in state.ownedCars) {
       if (!car.isListed || car.isRented || car.isLockedInShowcase) continue;
       int activeOffers = state.incomingOffers
-          .where((o) => o.carId == car.id && !o.isExpired)
+          .where((o) => o.carId == car.id && !o.isExpiredForDay(state.currentDay))
           .length;
       if (activeOffers < 3) {
         eligibleCars.add(car);
@@ -663,6 +675,9 @@ mixin GameMarketMixin on GameBaseNotifier {
       isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
       districtMultiplier: multipliers.$1,
       gossipMultiplier: multipliers.$2,
+      weatherMultiplier: multipliers.$3,
+      branchMultiplier: state.branchProfitMultiplier,
+      currentDay: state.currentDay,
     );
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
@@ -691,7 +706,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final eligibleCars = <CarModel>[];
     for (final car in listedCars) {
       int activeOffers = state.incomingOffers
-          .where((o) => o.carId == car.id && !o.isExpired)
+          .where((o) => o.carId == car.id && !o.isExpiredForDay(state.currentDay))
           .length;
       if (activeOffers < 3) {
         // Over-tuned cars have 35% lower general appeal
@@ -741,10 +756,16 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
+    final multipliers = _calculateOfferMultipliersForCar(randomCar);
     final offer = NegotiationEngine.generateBuyerOffer(
       randomCar,
       randomCar.listingPrice,
       isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
+      districtMultiplier: multipliers.$1,
+      gossipMultiplier: multipliers.$2,
+      weatherMultiplier: multipliers.$3,
+      branchMultiplier: state.branchProfitMultiplier,
+      currentDay: state.currentDay,
     );
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
     saveState();
@@ -1104,7 +1125,9 @@ mixin GameMarketMixin on GameBaseNotifier {
   /// Clear all expired offers
   void clearExpiredOffers() {
     final updatedOffers = state.incomingOffers
-        .where((o) => !o.isExpired && o.status != OfferStatus.expired)
+        .where((o) =>
+            !o.isExpiredForDay(state.currentDay) &&
+            o.status != OfferStatus.expired)
         .toList();
     state = state.copyWith(incomingOffers: updatedOffers);
     saveState();

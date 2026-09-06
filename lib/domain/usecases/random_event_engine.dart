@@ -24,6 +24,7 @@ class RandomEventEngine {
               balanceChange: -25000.0,
               reputationChange: 5,
               xpGain: 120,
+              staffMoraleChange: 5,
             ),
             GameEventChoice(
               label: 'Cezayı Kabul Et & Aracı Teslim Et • -60.000 ₺',
@@ -31,6 +32,7 @@ class RandomEventEngine {
               balanceChange: -60000.0,
               reputationChange: -20,
               xpGain: 50,
+              targetCarEffect: 'impound',
             ),
             GameEventChoice(
               label: 'Gece Yarısı Aracı Kaçırmaya Çalış • Riskli',
@@ -38,6 +40,8 @@ class RandomEventEngine {
               balanceChange: -150000.0,
               reputationChange: -35,
               xpGain: 20,
+              targetCarEffect: 'impound',
+              staffMoraleChange: -10,
             ),
           ],
         ),
@@ -50,8 +54,20 @@ class RandomEventEngine {
           type: GameEventType.badEvent,
           date: DateTime.now(),
           choices: [
-            GameEventChoice(label: 'Cezayı Öde • -5.000 ₺', resultText: 'Ceza makbuzunu ödedin, itibarın korundu.', balanceChange: -5000.0, reputationChange: 5, xpGain: 30),
-            GameEventChoice(label: 'İtiraz Et & Çay Ismarla', resultText: 'Çay sohbetiyle ceza yarıya indi!', balanceChange: -2500.0, reputationChange: 0, xpGain: 50),
+            GameEventChoice(
+              label: 'Cezayı Öde • -5.000 ₺',
+              resultText: 'Ceza makbuzunu ödedin, resmi prosedür tamamlandı.',
+              balanceChange: -5000.0,
+              reputationChange: 0,
+              xpGain: 30,
+            ),
+            GameEventChoice(
+              label: 'Tabelayı Kaldır & Kurallara Uy',
+              resultText: 'Tabelayı dükkan sınırına çekerek denetimi cezasız atlattın.',
+              balanceChange: 0.0,
+              reputationChange: 5,
+              xpGain: 50,
+            ),
           ],
         ),
         GameEventModel(
@@ -63,8 +79,22 @@ class RandomEventEngine {
           type: GameEventType.badEvent,
           date: DateTime.now(),
           choices: [
-            GameEventChoice(label: 'Detaylı Temizlik Yaptır • -8.000 ₺', resultText: 'Tüm araçlar pırıl pırıl temizlendi.', balanceChange: -8000.0, reputationChange: 10, xpGain: 60),
-            GameEventChoice(label: 'Kendi İmkanlarınla Yıka', resultText: 'Yorucu oldu ama az masrafla atlattın.', balanceChange: -2000.0, reputationChange: -5, xpGain: 40),
+            GameEventChoice(
+              label: 'Detaylı Temizlik Yaptır • -8.000 ₺',
+              resultText: 'Tüm araçlar pırıl pırıl temizlendi.',
+              balanceChange: -8000.0,
+              reputationChange: 10,
+              xpGain: 60,
+              targetCarEffect: 'wash_all',
+            ),
+            GameEventChoice(
+              label: 'Kendi İmkanlarınla Yıka',
+              resultText: 'Yorucu oldu ama araçlar kısmen çamurlu kaldı.',
+              balanceChange: -2000.0,
+              reputationChange: -5,
+              xpGain: 40,
+              targetCarEffect: 'dirty',
+            ),
           ],
         ),
         GameEventModel(
@@ -76,8 +106,22 @@ class RandomEventEngine {
           type: GameEventType.meme,
           date: DateTime.now(),
           choices: [
-            GameEventChoice(label: 'Mama Al & Sev • +İtibar, -500 ₺', resultText: 'Kedisever müşteriler galeriye akın etti!', balanceChange: -500.0, reputationChange: 15, xpGain: 50),
-            GameEventChoice(label: 'Pışt De & Kov • -İtibar', resultText: 'Mahalleli bu duruma biraz içerledi.', balanceChange: 0.0, reputationChange: -15, xpGain: 10),
+            GameEventChoice(
+              label: 'Mama Al & Sev • +İtibar • -500 ₺',
+              resultText: 'Kedisever müşteriler galeriye akın etti!',
+              balanceChange: -500.0,
+              reputationChange: 15,
+              xpGain: 50,
+              staffMoraleChange: 5,
+            ),
+            GameEventChoice(
+              label: 'Pışt De & Kov • -İtibar',
+              resultText: 'Mahalleli bu duruma biraz içerledi.',
+              balanceChange: 0.0,
+              reputationChange: -15,
+              xpGain: 10,
+              staffMoraleChange: -5,
+            ),
           ],
         ),
         GameEventModel(
@@ -89,8 +133,23 @@ class RandomEventEngine {
           type: GameEventType.badEvent,
           date: DateTime.now(),
           choices: [
-            GameEventChoice(label: 'Hemen Fırın Boyaya Al • -12.000 ₺', resultText: 'Kusursuz boyandı, müşteri fark etmedi bile.', balanceChange: -12000.0, reputationChange: 5, xpGain: 80),
-            GameEventChoice(label: 'Pasta Cila ile Kurtar • -3.000 ₺', resultText: 'Belli belirsiz oldu ama ucuz kurtardın.', balanceChange: -3000.0, reputationChange: -10, xpGain: 40),
+            GameEventChoice(
+              label: 'Hemen Fırın Boyaya Al • -12.000 ₺',
+              resultText: 'Kusursuz boyandı, müşteri fark etmedi bile.',
+              balanceChange: -12000.0,
+              reputationChange: 5,
+              xpGain: 80,
+              targetCarEffect: 'repaint',
+            ),
+            GameEventChoice(
+              label: 'Pasta Cila ile Kurtar • -3.000 ₺',
+              resultText: 'Belli belirsiz oldu ama aracın kaportası hasarlı kaldı.',
+              balanceChange: -3000.0,
+              reputationChange: -10,
+              xpGain: 40,
+              targetCarEffect: 'damage',
+              staffMoraleChange: -5,
+            ),
           ],
         ),
         GameEventModel(
@@ -183,8 +242,24 @@ class RandomEventEngine {
           type: GameEventType.badEvent,
           date: DateTime.now(),
           choices: [
-            GameEventChoice(label: 'Orijinal İtalyan Pompa Al & Taktır • -14.000 ₺', resultText: 'Yeni nesil seramik pistonlu pompa takıldı, yıkama hızı ve itibar arttı.', balanceChange: -14000.0, reputationChange: 10, xpGain: 70),
-            GameEventChoice(label: 'Çıkma Pompayla İdare Et • -4.000 ₺', resultText: 'Pompa geçici olarak çalıştı ama yıkama performansı biraz düştü.', balanceChange: -4000.0, reputationChange: -5, xpGain: 35),
+            GameEventChoice(
+              label: 'Orijinal İtalyan Pompa Al & Taktır • -14.000 ₺',
+              resultText: 'Yeni nesil seramik pistonlu pompa takıldı, kesintisiz devam.',
+              balanceChange: -14000.0,
+              reputationChange: 10,
+              xpGain: 70,
+              sideBusinessId: 'car_wash',
+              sideBusinessDowntimeDays: 0,
+            ),
+            GameEventChoice(
+              label: 'Tamiri Bekle • 2 Gün Kapalı',
+              resultText: 'Yıkama istasyonu 2 gün süreyle servis dışı kaldı.',
+              balanceChange: 0.0,
+              reputationChange: -5,
+              xpGain: 30,
+              sideBusinessId: 'car_wash',
+              sideBusinessDowntimeDays: 2,
+            ),
           ],
         ),
         GameEventModel(

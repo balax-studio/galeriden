@@ -98,19 +98,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// Purchase a car from market with RiskEngine check
   PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice,
       {bool isExpertiseCompleted = false}) {
-    double finalPurchasePrice = purchasePrice;
-    // Skill Perk: Pazarlık Gücü - negotiationMultiplier (up to 18% discount)
-    if (state.skills.negotiationMultiplier > 0) {
-      finalPurchasePrice *= (1.0 - state.skills.negotiationMultiplier);
-    }
-    // Origin Perk: Tüccar Torunu -%8 alım indirimi
-    if (state.characterOrigin == CharacterOrigin.tuccarTorunu) {
-      finalPurchasePrice *= 0.92;
-    }
-    // Specialization Perk: Pazar Kurdu (Trader) -%10 alım indirimi
-    if (state.specializationPath == SpecializationPath.trader) {
-      finalPurchasePrice *= 0.90;
-    }
+    // Unified buyer acquisition perks (pazarlık, tüccar torunu, pazar kurdu) (C2)
+    final double finalPurchasePrice = state.applyBuyerPerks(purchasePrice);
 
     if (state.balance < finalPurchasePrice) return null;
     if (state.ownedCars.length >= state.maxGarageSlots) return null;
@@ -170,7 +159,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     double registrationFee = 850.0,
     bool isExpertiseCompleted = false,
   }) {
-    final totalAcquisitionCost = agreedPrice + noterFee + registrationFee;
+    // Unified buyer acquisition perks (pazarlık, tüccar torunu, pazar kurdu) (C2)
+    final double effectiveAgreedPrice = state.applyBuyerPerks(agreedPrice);
+    final totalAcquisitionCost = effectiveAgreedPrice + noterFee + registrationFee;
     if (state.balance < totalAcquisitionCost) return null;
     if (state.ownedCars.length >= state.maxGarageSlots) return null;
 
@@ -189,9 +180,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
     }
 
     final logEntry =
-        'Gün ${state.currentDay}: Noter tesciliyle ₺${agreedPrice.round()} bedel + ₺${(noterFee + registrationFee).round()} masrafla galeri stoklarına katıldı.';
+        'Gün ${state.currentDay}: Noter tesciliyle ₺${effectiveAgreedPrice.round()} bedel + ₺${(noterFee + registrationFee).round()} masrafla galeri stoklarına katıldı.';
     final purchasedCar = outcome.updatedCar.copyWith(
-      currentPurchasePrice: agreedPrice,
+      currentPurchasePrice: effectiveAgreedPrice,
       hasCertifiedExpertise: isExpertiseCompleted,
       provenanceLog: [
         ...outcome.updatedCar.provenanceLog,
@@ -377,55 +368,6 @@ mixin GameInventoryMixin on GameBaseNotifier {
     saveState();
   }
 
-  /// Upgrade Prestige Branch Tier
-  bool upgradePrestigeBranch(int targetTier) {
-    double cost = 100000.0;
-    int extraSlots = 1;
-    String tierKey = 'property_tier_2';
-
-    if (targetTier == 3) {
-      cost = 350000.0;
-      extraSlots = 2;
-      tierKey = 'property_tier_3';
-    } else if (targetTier == 4) {
-      cost = 900000.0;
-      extraSlots = 2;
-      tierKey = 'property_tier_4';
-    } else if (targetTier == 5) {
-      cost = 2500000.0;
-      extraSlots = 2;
-      tierKey = 'property_tier_5';
-    } else if (targetTier == 6) {
-      cost = 6000000.0;
-      extraSlots = 3;
-      tierKey = 'property_tier_6';
-    } else if (targetTier == 7) {
-      cost = 14000000.0;
-      extraSlots = 3;
-      tierKey = 'property_tier_7';
-    } else if (targetTier == 8) {
-      cost = 30000000.0;
-      extraSlots = 4;
-      tierKey = 'property_tier_8';
-    }
-
-    if (state.balance < cost) return false;
-    if (state.unlockedBuildings.contains(tierKey)) return false;
-
-    final updatedBuildings = Set<String>.from(state.unlockedBuildings)
-      ..add(tierKey);
-
-    state = state.copyWith(
-      balance: state.balance - cost,
-      maxGarageSlots: state.maxGarageSlots + extraSlots,
-      unlockedBuildings: updatedBuildings,
-    );
-
-    addXP(500);
-    saveState();
-    return true;
-  }
-
   /// Sell a car from garage
   bool sellCar(String carId, double sellingPrice) {
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
@@ -551,23 +493,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Expand Garage Slots
-  bool expandGarageSlot(int newMaxSlots, double cost) {
-    if (state.balance < cost) return false;
-    state = state.copyWith(
-      balance: state.balance - cost,
-      maxGarageSlots: newMaxSlots,
-    );
-    addXP(100);
-    checkAchievement('garage_expand');
-    saveState();
-    return true;
-  }
-
-  /// Purchase & Upgrade Branch (Dual-Gate: Level Requirement + Capital Investment)
+  /// Purchase & Upgrade Branch (Dual-Gate: Level Requirement + Capital Investment + Sequential Order)
   bool upgradeBranch(BranchModel branch) {
     if (state.balance < branch.requiredBalance) return false;
     if (state.level < branch.targetLevel) return false;
+    // Sequential progression gate: must advance one tier at a time (A5)
+    if (branch.targetLevel != state.currentBranchTier + 1) return false;
 
     final updatedBuildings = Set<String>.from(state.unlockedBuildings);
     if (branch.targetLevel >= 2) {
@@ -636,7 +567,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     state = state.copyWith(
       balance: state.balance - branch.requiredBalance,
-      maxGarageSlots: branch.maxGarageSlots,
+      // Protect any extra purchased garage slots from being overwritten (A5)
+      maxGarageSlots: state.maxGarageSlots > branch.maxGarageSlots
+          ? state.maxGarageSlots
+          : branch.maxGarageSlots,
       unlockedBuildings: updatedBuildings,
     );
     addXP(250);
@@ -1224,6 +1158,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
         updatedCar,
         updatedCar.listingPrice,
         isFinanceUnlocked: false,
+        branchMultiplier: state.branchProfitMultiplier,
+        currentDay: state.currentDay,
       );
       newIncomingOffers.add(instantOffer);
     }

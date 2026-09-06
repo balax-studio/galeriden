@@ -13,6 +13,7 @@ import '../../../data/models/real_estate_model.dart';
 import '../../../domain/usecases/architectural_yield_engine.dart';
 import '../../../domain/usecases/contractor_negotiation_expansion.dart';
 import '../../../domain/usecases/real_estate_chat_negotiation_engine.dart';
+import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/chat_typing_indicator_bubble.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -80,6 +81,7 @@ class _ContractorNegotiationChatScreenState
         totalUnits: _plan.totalUnits,
         baseMarketValue: _land.baseMarketValue,
         profile: _currentContractor,
+        playerReputationScore: game.reputationScore,
       );
       _isInitialized = true;
     }
@@ -100,6 +102,7 @@ class _ContractorNegotiationChatScreenState
   void _switchContractor(ContractorNegotiationProfile contractor) {
     if (_currentContractor.id == contractor.id) return;
     HapticFeedback.selectionClick();
+    final rep = ref.read(gameProvider).reputationScore;
     setState(() {
       _currentContractor = contractor;
       _chatState = RealEstateChatNegotiationEngine.createContractorSession(
@@ -107,6 +110,7 @@ class _ContractorNegotiationChatScreenState
         totalUnits: _plan.totalUnits,
         baseMarketValue: _land.baseMarketValue,
         profile: contractor,
+        playerReputationScore: rep,
       );
     });
     _scrollToBottom();
@@ -167,11 +171,6 @@ class _ContractorNegotiationChatScreenState
     _scrollToBottom();
 
     if (_chatState.isAgreed) {
-      GameSoundHapticService.playCashSuccess();
-      NotificationService.showSuccess(
-        context,
-        context.tr('contractor_chat_agreed_toast'),
-      );
       _finalizeContract();
     } else if (_chatState.isWalkedAway) {
       GameSoundHapticService.playWarningVibration();
@@ -183,14 +182,39 @@ class _ContractorNegotiationChatScreenState
   }
 
   void _finalizeContract() {
-    final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
-          (r) => r.id == widget.landId,
-        );
+    final properties = ref.read(gameProvider).ownedRealEstates;
+    final idx = properties.indexWhere((r) => r.id == widget.landId);
+    if (idx == -1) {
+      NotificationService.showError(context, context.tr('real_estate_not_found'));
+      context.pop();
+      return;
+    }
+    final land = properties[idx];
 
-    ref.read(gameProvider.notifier).startContractorConstruction(
-          land.id,
-          sharePercent: _chatState.currentSharePercent,
-        );
+    final success = ref.read(gameProvider.notifier).startContractorConstruction(
+      land.id,
+      sharePercent: _chatState.currentSharePercent,
+      customUnitMix: land.customUnitMix != null ? ZoningUnitMix.fromMap(land.customUnitMix!) : null,
+      hasPrimeFloorClause: _chatState.hasPrimeFloorClause,
+      hasQualityUpgrade: _chatState.hasQualityUpgrade,
+      contractorAdvancePaid: _chatState.contractorAdvancePaid,
+      hasBankGuarantee: _chatState.hasBankGuarantee,
+      contractorStageDays: _chatState.contractorStageDays,
+    );
+
+    if (!success) {
+      NotificationService.showError(
+        context,
+        context.tr('contractor_contract_failed'),
+      );
+      return;
+    }
+
+    GameSoundHapticService.playCashSuccess();
+    NotificationService.showSuccess(
+      context,
+      context.tr('contractor_chat_agreed_toast'),
+    );
 
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) context.pop();

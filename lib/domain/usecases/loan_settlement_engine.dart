@@ -188,7 +188,7 @@ class LoanSettlementEngine {
   /// Calculates progressive daily corporate tax based on dealership level and liquid wealth.
   static double calculateDailyTax(int dealershipLevel, {double totalLiquidWealth = 0.0}) {
     double baseTax;
-    if (dealershipLevel >= 9) {
+    if (dealershipLevel >= 8) {
       baseTax = 5000.0;
     } else if (dealershipLevel >= 6) {
       baseTax = 2000.0;

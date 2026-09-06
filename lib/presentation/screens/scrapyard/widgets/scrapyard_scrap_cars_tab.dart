@@ -97,13 +97,7 @@ class ScrapyardScrapCarsTab extends ConsumerWidget {
                       Expanded(
                         child: Builder(
                           builder: (context) {
-                            final bool canWorkGig =
-                                game.lastScrapyardGigDate == null ||
-                                    DateTime.now()
-                                            .difference(
-                                                game.lastScrapyardGigDate!)
-                                            .inHours >=
-                                        20;
+                            final bool canWorkGig = game.lastScrapyardGigDay < game.currentDay;
 
                             return NeoBrutalButton(
                               label: canWorkGig

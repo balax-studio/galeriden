@@ -88,6 +88,7 @@ void main() {
       final profitableDealership = DealershipModel.initial().copyWith(
         sideBusinesses: businesses,
         hiredStaff: [],
+        carsWashedLast7Days: 10,
       );
 
       SharedPreferences.setMockInitialValues({

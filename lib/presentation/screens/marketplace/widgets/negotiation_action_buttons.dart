@@ -13,6 +13,8 @@ class NegotiationActionButtons extends StatelessWidget {
   final bool isProcessing;
   final double offeredPrice;
   final double? agreedFinalPrice;
+  final double? effectivePrice;
+  final double? perkDiscount;
   final int counterOfferCount;
   final bool canAfford;
   final bool isDark;
@@ -29,6 +31,8 @@ class NegotiationActionButtons extends StatelessWidget {
     required this.isProcessing,
     required this.offeredPrice,
     required this.agreedFinalPrice,
+    this.effectivePrice,
+    this.perkDiscount,
     required this.counterOfferCount,
     required this.canAfford,
     required this.isDark,
@@ -39,6 +43,10 @@ class NegotiationActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final finalAgreed = agreedFinalPrice ?? offeredPrice;
+    final finalEffective = effectivePrice ?? finalAgreed;
+    final finalDiscount = perkDiscount ?? (finalAgreed - finalEffective);
+
     return Row(
       children: [
         if (sellerResponse == null)
@@ -65,20 +73,105 @@ class NegotiationActionButtons extends StatelessWidget {
           )
         else if (isAccepted)
           Expanded(
-            child: NeoBrutalButton(
-              label: context.tr('deal_pay_and_buy_btn', {
-                'price': CurrencyFormatter.formatShort(
-                  agreedFinalPrice ?? offeredPrice,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141721) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF00E575),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.tr('neg_agreed_price'),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(finalAgreed),
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.tr('neg_perk_discount'),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          Text(
+                            finalDiscount > 0
+                                ? '-${CurrencyFormatter.format(finalDiscount)}'
+                                : '₺0',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF10B981),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 12, thickness: 1),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.tr('neg_final_price'),
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          Text(
+                            CurrencyFormatter.format(finalEffective),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF00E575),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              }),
-              icon: Icons.shopping_bag_rounded,
-              backgroundColor: const Color(0xFF00E575),
-              textColor: Colors.black,
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              fullWidth: true,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              onPressed: (!canAfford || isProcessing) ? null : onPayAndBuy,
+                NeoBrutalButton(
+                  label: context.tr('deal_pay_and_buy_btn', {
+                    'price': CurrencyFormatter.formatShort(finalEffective),
+                  }),
+                  icon: Icons.shopping_bag_rounded,
+                  backgroundColor: const Color(0xFF00E575),
+                  textColor: Colors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  fullWidth: true,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  onPressed: (!canAfford || isProcessing) ? null : onPayAndBuy,
+                ),
+              ],
             ),
           )
         else if (!isLockedOut)

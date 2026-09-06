@@ -58,4 +58,20 @@ class SideBusinessEngine {
     }
     return (currentBalance, updatedBusinesses);
   }
+
+  /// Calculates expected daily net income from operational side businesses (Single Source of Truth for Cashflow)
+  static double calculateDailyIncome(DealershipModel game) {
+    final (income, _) = processDailyEarnings(
+      balance: 0.0,
+      cars: game.ownedCars,
+      businesses: game.sideBusinesses,
+      specializationPath: game.specializationPath,
+      carsWashedLast7Days: game.carsWashedLast7Days,
+      expertisesPerformedLast7Days: game.expertisesPerformedLast7Days,
+      partsRepairedLast7Days: game.partsRepairedLast7Days,
+      towedCarsLast7Days: game.towedCarsLast7Days,
+      activeRentalsCount: game.activeRentals.length,
+    );
+    return income;
+  }
 }

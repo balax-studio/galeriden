@@ -148,11 +148,11 @@ class DramaticCardEngine {
     if (selectedOutcome.spawnBargainCar && updatedCars.length < state.maxGarageSlots) {
       final bargainCar = CarModel(
         id: 'bargain_${DateTime.now().millisecondsSinceEpoch}',
-        brand: 'Volk',
+        brand: 'Vosgen',
         modelName: 'Golf GTI Klasiği',
         modelYear: 2018,
         bodyType: 'Hatchback',
-        colorHex: 'D90429',
+        colorHex: '#D90429',
         colorDisplayName: 'Lansman Kırmızısı',
         colorRarity: 'rare',
         plateNumber: '06 GTI 18',

@@ -420,6 +420,36 @@ class CarModel {
       }
     }
 
+    // 5. Multi-dimensional Age, Mileage, and Tramer Valuation (C1)
+    final isClassicOrRare = isRare || bodyType.toLowerCase() == 'klasik';
+    const currentYear = 2026;
+    final age = (currentYear - modelYear).clamp(0, 50);
+
+    if (isClassicOrRare) {
+      // Classic appreciation: older vintage/rare gems gain value
+      if (age > 15) {
+        factor += ((age - 15) * 0.008).clamp(0.0, 0.30);
+      }
+    } else {
+      // Normal age depreciation for standard passenger cars
+      factor -= (age * 0.007).clamp(0.0, 0.25);
+    }
+
+    // Mileage impact
+    if (expertise.mileage < 30000) {
+      factor += 0.04; // Low-mileage premium
+    } else if (expertise.mileage > 120000 && !isClassicOrRare) {
+      final highMileageDepreciation = (((expertise.mileage - 120000) / 100000) * 0.04).clamp(0.0, 0.20);
+      factor -= highMileageDepreciation;
+    }
+
+    // Tramer damage history impact
+    if (expertise.tramerAmount > 0 && baseMarketValue > 0) {
+      final tramerRatio = (expertise.tramerAmount / baseMarketValue).clamp(0.0, 1.0);
+      final tramerPenalty = (0.02 + tramerRatio * 0.20).clamp(0.02, 0.25);
+      factor -= tramerPenalty;
+    }
+
     final safeBase = baseMarketValue.clamp(0.0, double.infinity);
     return (safeBase * factor).clamp(safeBase * 0.2, safeBase * 1.6);
   }

@@ -721,8 +721,8 @@ class DashboardAdvisorGuidanceBanner extends StatelessWidget {
         .toList();
     final unlistedCars = game.ownedCars.where((c) => !c.isListed).toList();
     final carsWithOffers = game.ownedCars
-        .where((c) =>
-            game.incomingOffers.any((o) => o.carId == c.id && !o.isExpired))
+        .where((c) => game.incomingOffers
+            .any((o) => o.carId == c.id && !o.isExpiredForDay(game.currentDay)))
         .toList();
 
     if (carsWithOffers.isNotEmpty) {
@@ -875,8 +875,7 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
         game.balance + game.bankDepositBalance + totalOwnedValue;
     final canClaimBailout = totalAssets <= 15000;
 
-    final bool canWorkGig = game.lastScrapyardGigDate == null ||
-        DateTime.now().difference(game.lastScrapyardGigDate!).inHours >= 20;
+    final bool canWorkGig = game.lastScrapyardGigDay < game.currentDay;
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),

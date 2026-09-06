@@ -67,6 +67,17 @@ extension RealEstateSellerTypeExtension on RealEstateSellerType {
   }
 }
 
+enum LandPhase {
+  imar,
+  modSecimi,
+  muteahhitBekleme,
+  etapHazir,
+  etapCalisiyor,
+  etapTeslimAlinir,
+  teslimeHazir,
+  tamamlandi,
+}
+
 class RealEstateModel {
   final String id;
   final String title;
@@ -97,7 +108,14 @@ class RealEstateModel {
   final bool isPersonalResidence; // Kişisel ikametgah olarak atanmış mülk
   final int constructionStage; // 0: Başlanmadı, 1: Ruhsat, 2: Hafriyat, 3: Kaba Yapı, 4: Cephe/Çatı, 5: Tesisat, 6: İnce İşler, 7: Peyzaj, 8: İskan
   final String? constructionMode; // null, 'contractor' (Müteahhit Kat Karşılığı), 'selfBuild' (Öz-İnşaat)
-  final int contractorSharePercent; // Müteahhit anlaşmasında 50, öz-inşaatta 0
+  final int playerSharePercent; // Oyuncunun kat karşılığı daire payı (ör. 50, öz-inşaatta 100)
+  int get contractorSharePercent => 100 - playerSharePercent; // Geriye dönük uyumluluk getter'ı
+  final double totalConstructionSpent; // Öz-inşaatta kümülatif harcanan toplam inşaat bütçesi (C4)
+  final bool hasPrimeFloorClause; // Üst katların tahsisi sözleşme şartı (A7, C3)
+  final bool hasQualityUpgrade; // C35 lüks şartname (+%8 değer) (A7)
+  final double contractorAdvancePaid; // Nakit avans (A7)
+  final bool hasBankGuarantee; // Banka teminat mektubu (A7, A9)
+  final int contractorStageDays; // Müteahhit etap süresi (A7, F1: çift vardiyada 11, standart 15)
   final int _totalProjectUnits; // Toplam daire adedi
   final int soldPreSaleUnits; // Topraktan satılmış daire adedi
   final int constructionDaysRemaining; // Mevcut şantiye etabına kalan gün
@@ -112,6 +130,8 @@ class RealEstateModel {
   final String? listingDescription; // İlan detay metni
   final List<String> listingFeatures; // Seçilen mülk özellikleri / etiketleri
   final String listingPackage; // 'standard', 'featured', 'super'
+  final double qualityScore; // 0.0 - 100.0, default 75.0 (F3·3)
+  final bool isMortgaged; // İpotekli mi (İnşaat kredisi teminatı • F2·6, F5)
 
   const RealEstateModel({
     required this.id,
@@ -143,7 +163,14 @@ class RealEstateModel {
     this.isPersonalResidence = false,
     this.constructionStage = 0,
     this.constructionMode,
-    this.contractorSharePercent = 50,
+    int? playerSharePercent,
+    int? contractorSharePercent,
+    this.totalConstructionSpent = 0.0,
+    this.hasPrimeFloorClause = false,
+    this.hasQualityUpgrade = false,
+    this.contractorAdvancePaid = 0.0,
+    this.hasBankGuarantee = false,
+    this.contractorStageDays = 15,
     int totalProjectUnits = 0,
     this.soldPreSaleUnits = 0,
     this.constructionDaysRemaining = 0,
@@ -158,9 +185,15 @@ class RealEstateModel {
     this.listingDescription,
     this.listingFeatures = const [],
     this.listingPackage = 'standard',
-  }) : _totalProjectUnits = totalProjectUnits;
+    this.qualityScore = 75.0,
+    this.isMortgaged = false,
+  })  : _totalProjectUnits = totalProjectUnits,
+        playerSharePercent = playerSharePercent ??
+            (contractorSharePercent != null
+                ? 100 - contractorSharePercent
+                : 50);
 
-  /// Dynamic fair market value accounting for deed status, renovations, and defects
+  /// Dynamic fair market value accounting for deed status, renovations, defects, and construction quality
   double get estimatedRealValue {
     double value = baseMarketValue * deedType.valueMultiplier;
     if (isRenovated || renovationStage >= 3) {
@@ -168,6 +201,11 @@ class RealEstateModel {
     }
     if (hasWaterLeakRisk) {
       value *= 0.90; // -%10 gizli su kaçağı hasar kırımı
+    }
+    if (category != RealEstateCategory.land) {
+      // F3·3: Kalite skoru ±%15 değerleme etkisi (75 taban)
+      final qualityDelta = ((qualityScore - 75.0) / 25.0).clamp(-1.0, 1.0);
+      value *= (1.0 + (qualityDelta * 0.15));
     }
     return value.roundToDouble();
   }
@@ -197,9 +235,42 @@ class RealEstateModel {
 
   /// Arsa inşaat durumu hesaplanan özellikleri (8 Aşamalı Döngü)
   bool get isConstructionActive =>
-      constructionMode != null || (constructionStage > 0 && constructionStage < 8);
+      constructionMode != null || (constructionStage > 0 && constructionStage <= 8);
   double get constructionProgress => (constructionStage / 8.0).clamp(0.0, 1.0);
   int get constructionPercent => (constructionProgress * 100).round();
+
+  /// Şantiye tamamen bitti mi (Etap 8 tamamlandı ve gün 0)
+  bool get isConstructionComplete =>
+      category == RealEstateCategory.land &&
+      isConstructionActive &&
+      constructionStage >= 8 &&
+      constructionDaysRemaining <= 0 &&
+      !isConstructionWorking;
+
+  /// Durum makinesi fazı (Tek birincil buton mimarisi • E0)
+  LandPhase get landPhase {
+    if (category != RealEstateCategory.land) return LandPhase.tamamlandi;
+    if (isConstructionComplete) return LandPhase.teslimeHazir;
+    if (!isConstructionActive) {
+      if (customUnitMix == null) return LandPhase.imar;
+      return LandPhase.modSecimi;
+    }
+    if (constructionMode == 'contractor') {
+      return LandPhase.muteahhitBekleme;
+    }
+    if (constructionMode == 'selfBuild') {
+      if (isConstructionWorking) return LandPhase.etapCalisiyor;
+      if (constructionDaysRemaining == 0 &&
+          constructionStage > 1 &&
+          constructionStage <= 8 &&
+          activeSubcontractorName != null &&
+          activeSubcontractorName!.isNotEmpty) {
+        return LandPhase.etapTeslimAlinir;
+      }
+      return LandPhase.etapHazir;
+    }
+    return LandPhase.modSecimi;
+  }
 
   int get totalProjectUnits {
     if (customUnitMix != null) {
@@ -221,7 +292,7 @@ class RealEstateModel {
 
   int get playerShareUnits {
     if (totalProjectUnits <= 0) return 0;
-    final totalShare = (totalProjectUnits * (100 - contractorSharePercent) ~/ 100);
+    final totalShare = (totalProjectUnits * playerSharePercent ~/ 100);
     return (totalShare - soldPreSaleUnits).clamp(0, totalProjectUnits);
   }
 
@@ -232,9 +303,21 @@ class RealEstateModel {
       constructionStage <= 7 &&
       playerShareUnits > 1;
 
-  double get preSaleUnitPrice => totalProjectUnits > 0
-      ? ((baseMarketValue * 2.2 / totalProjectUnits) * 0.75).roundToDouble()
-      : 0.0;
+  double get preSaleDiscountRate => switch (constructionStage) {
+    <= 2 => 0.65, // Temel ve hafriyat aşaması en riskli
+    3 => 0.70,
+    4 => 0.75,
+    5 => 0.80,
+    6 => 0.85,
+    7 => 0.92, // İnce işler bitmek üzere, neredeyse anahtar teslim
+    _ => 1.00,
+  };
+
+  double get preSaleUnitPrice {
+    if (totalProjectUnits <= 0) return 0.0;
+    // F1·6: Etaba göre kademeli ön satış iskontosu (Risk azaldıkça fiyat artar)
+    return ((baseMarketValue * 2.2 / totalProjectUnits) * preSaleDiscountRate).roundToDouble();
+  }
 
   double get turnkeyUnitPrice => totalProjectUnits > 0
       ? (baseMarketValue * 2.5 / totalProjectUnits).roundToDouble()
@@ -288,8 +371,14 @@ class RealEstateModel {
     return null;
   }
 
-  /// Whether property can be sold or listed on the market
-  bool get canBeSold => !isRented && !isPersonalResidence && !isUnderRenovation && !isConstructionActive && !isRentalListed;
+  /// Whether property can be sold or listed on the market (F2·6: İpotekli mülk satılamaz)
+  bool get canBeSold =>
+      !isRented &&
+      !isPersonalResidence &&
+      !isUnderRenovation &&
+      !isConstructionActive &&
+      !isRentalListed &&
+      !isMortgaged;
 
   /// Whether property can be set as personal residence (strictly housing category only)
   bool get canBePersonalResidence =>
@@ -351,7 +440,14 @@ class RealEstateModel {
       'isPersonalResidence': isPersonalResidence,
       'constructionStage': constructionStage,
       'constructionMode': constructionMode,
-      'contractorSharePercent': contractorSharePercent,
+      'playerSharePercent': playerSharePercent,
+      'contractorSharePercent': 100 - playerSharePercent,
+      'totalConstructionSpent': totalConstructionSpent,
+      'hasPrimeFloorClause': hasPrimeFloorClause,
+      'hasQualityUpgrade': hasQualityUpgrade,
+      'contractorAdvancePaid': contractorAdvancePaid,
+      'hasBankGuarantee': hasBankGuarantee,
+      'contractorStageDays': contractorStageDays,
       'totalProjectUnits': totalProjectUnits,
       'soldPreSaleUnits': soldPreSaleUnits,
       'constructionDaysRemaining': constructionDaysRemaining,
@@ -366,6 +462,8 @@ class RealEstateModel {
       'listingDescription': listingDescription,
       'listingFeatures': listingFeatures,
       'listingPackage': listingPackage,
+      'qualityScore': qualityScore,
+      'isMortgaged': isMortgaged,
     };
   }
 
@@ -412,7 +510,16 @@ class RealEstateModel {
       isPersonalResidence: json['isPersonalResidence'] as bool? ?? false,
       constructionStage: json['constructionStage'] as int? ?? 0,
       constructionMode: json['constructionMode'] as String?,
-      contractorSharePercent: json['contractorSharePercent'] as int? ?? 50,
+      playerSharePercent: json['playerSharePercent'] as int? ??
+          (json['contractorSharePercent'] != null
+              ? (100 - (json['contractorSharePercent'] as num).toInt()).clamp(0, 100)
+              : 50),
+      totalConstructionSpent: (json['totalConstructionSpent'] as num?)?.toDouble() ?? 0.0,
+      hasPrimeFloorClause: json['hasPrimeFloorClause'] as bool? ?? false,
+      hasQualityUpgrade: json['hasQualityUpgrade'] as bool? ?? false,
+      contractorAdvancePaid: (json['contractorAdvancePaid'] as num?)?.toDouble() ?? 0.0,
+      hasBankGuarantee: json['hasBankGuarantee'] as bool? ?? false,
+      contractorStageDays: json['contractorStageDays'] as int? ?? 15,
       totalProjectUnits: json['totalProjectUnits'] as int? ?? 0,
       soldPreSaleUnits: json['soldPreSaleUnits'] as int? ?? 0,
       constructionDaysRemaining: json['constructionDaysRemaining'] as int? ?? 0,
@@ -435,6 +542,8 @@ class RealEstateModel {
               .toList() ??
           const [],
       listingPackage: json['listingPackage'] as String? ?? 'standard',
+      qualityScore: (json['qualityScore'] as num?)?.toDouble() ?? 75.0,
+      isMortgaged: json['isMortgaged'] as bool? ?? false,
     );
   }
 
@@ -468,7 +577,15 @@ class RealEstateModel {
     bool? isPersonalResidence,
     int? constructionStage,
     String? constructionMode,
+    bool clearConstructionMode = false,
+    int? playerSharePercent,
     int? contractorSharePercent,
+    double? totalConstructionSpent,
+    bool? hasPrimeFloorClause,
+    bool? hasQualityUpgrade,
+    double? contractorAdvancePaid,
+    bool? hasBankGuarantee,
+    int? contractorStageDays,
     int? totalProjectUnits,
     int? soldPreSaleUnits,
     int? constructionDaysRemaining,
@@ -487,6 +604,8 @@ class RealEstateModel {
     String? listingDescription,
     List<String>? listingFeatures,
     String? listingPackage,
+    double? qualityScore,
+    bool? isMortgaged,
   }) {
     final nextRenovationStage = renovationStage ?? this.renovationStage;
     final nextIsRenovated = isRenovated ?? (nextRenovationStage >= 3 || this.isRenovated);
@@ -520,8 +639,17 @@ class RealEstateModel {
       uncollectedRentDays: uncollectedRentDays ?? this.uncollectedRentDays,
       isPersonalResidence: isPersonalResidence ?? this.isPersonalResidence,
       constructionStage: constructionStage ?? this.constructionStage,
-      constructionMode: constructionMode ?? this.constructionMode,
-      contractorSharePercent: contractorSharePercent ?? this.contractorSharePercent,
+      constructionMode: clearConstructionMode ? null : (constructionMode ?? this.constructionMode),
+      playerSharePercent: playerSharePercent ??
+          (contractorSharePercent != null
+              ? 100 - contractorSharePercent
+              : this.playerSharePercent),
+      totalConstructionSpent: totalConstructionSpent ?? this.totalConstructionSpent,
+      hasPrimeFloorClause: hasPrimeFloorClause ?? this.hasPrimeFloorClause,
+      hasQualityUpgrade: hasQualityUpgrade ?? this.hasQualityUpgrade,
+      contractorAdvancePaid: contractorAdvancePaid ?? this.contractorAdvancePaid,
+      hasBankGuarantee: hasBankGuarantee ?? this.hasBankGuarantee,
+      contractorStageDays: contractorStageDays ?? this.contractorStageDays,
       totalProjectUnits: totalProjectUnits ?? this.totalProjectUnits,
       soldPreSaleUnits: soldPreSaleUnits ?? this.soldPreSaleUnits,
       constructionDaysRemaining: constructionDaysRemaining ?? this.constructionDaysRemaining,
@@ -538,6 +666,8 @@ class RealEstateModel {
       listingDescription: listingDescription ?? this.listingDescription,
       listingFeatures: listingFeatures ?? this.listingFeatures,
       listingPackage: listingPackage ?? this.listingPackage,
+      qualityScore: qualityScore ?? this.qualityScore,
+      isMortgaged: isMortgaged ?? this.isMortgaged,
     );
   }
 }

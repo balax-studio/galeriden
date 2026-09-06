@@ -1,10 +1,13 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../../../data/models/game_event_model.dart';
+import '../../../data/models/loan_model.dart';
 import '../../../data/models/real_estate_category.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../../data/models/real_estate_offer_model.dart';
+import '../../../data/models/staff_model.dart';
 import '../../../data/models/tenant_model.dart';
+import '../../../data/models/weather_model.dart';
 import '../../../domain/usecases/construction_negative_events_engine.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/real_estate_listing_narrative_engine.dart';
@@ -668,10 +671,39 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (!property.isRented || property.currentTenant == null) return false;
 
     final tenant = property.currentTenant!;
-    final newRent = (tenant.monthlyRent * (1.0 + rate)).roundToDouble();
-    final updatedTenant = tenant.copyWith(monthlyRent: newRent);
+    // Strict annual gating: requires at least 365 in-game days between index increases
+    if (state.currentDay - tenant.lastRentIncreaseDay < 365) return false;
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
+    final random = Random();
+    // 20% probability tenant rejects the aggressive hike and terminates lease unilaterally
+    final bool doesTenantVacate = random.nextInt(100) < 20;
+
+    if (doesTenantVacate) {
+      final updatedProperty = property.copyWith(
+        isRented: false,
+        currentTenant: null,
+        clearCurrentTenant: true,
+        provenanceLog: [
+          ...property.provenanceLog,
+          '$nowStr • TÜFE kira artışı reddedildi • Kiracı sözleşmeyi tek taraflı feshetti',
+        ],
+      );
+      final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+      updatedList[index] = updatedProperty;
+      state = state.copyWith(ownedRealEstates: updatedList);
+      saveState();
+      return true;
+    }
+
+    final newRent = (tenant.monthlyRent * (1.0 + rate)).roundToDouble();
+    final newEvictionRisk = (tenant.evictionRiskScore + 15).clamp(0, 95);
+    final updatedTenant = tenant.copyWith(
+      monthlyRent: newRent,
+      lastRentIncreaseDay: state.currentDay,
+      evictionRiskScore: newEvictionRisk,
+    );
+
     final updatedProperty = property.copyWith(
       currentTenant: updatedTenant,
       provenanceLog: [
@@ -684,7 +716,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     updatedList[index] = updatedProperty;
 
     state = state.copyWith(ownedRealEstates: updatedList);
-    addXP(50);
+    addXP(10);
     saveState();
     return true;
   }
@@ -751,13 +783,90 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     );
   }
 
+  /// Saves custom typology mix designed in Tab 1 to land model (D1)
+  bool saveUnitMix(String landId, Map<String, dynamic> unitMix) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (index == -1) return false;
+
+    final land = state.ownedRealEstates[index];
+    final updatedLand = land.copyWith(
+      customUnitMix: unitMix,
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedLand;
+
+    state = state.copyWith(ownedRealEstates: updatedList);
+    saveState();
+    return true;
+  }
+
+  /// Cancels an active construction project on a land, returning 40% of spent costs (C7)
+  bool cancelConstruction(String landId) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (index == -1) return false;
+
+    final land = state.ownedRealEstates[index];
+    if (!land.isConstructionActive) return false;
+
+    double refundAmount = 0.0;
+    if (land.constructionMode == 'selfBuild') {
+      refundAmount = (land.totalConstructionSpent * 0.40).roundToDouble();
+    }
+
+    double preSaleLiability = 0.0;
+    int repPenalty = 0;
+    if (land.soldPreSaleUnits > 0) {
+      preSaleLiability = (land.soldPreSaleUnits * land.preSaleUnitPrice).roundToDouble();
+      repPenalty = 10;
+    }
+
+    final netBalanceChange = refundAmount - preSaleLiability;
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+
+    final updatedLand = land.copyWith(
+      clearConstructionMode: true,
+      constructionStage: 0,
+      constructionDaysRemaining: 0,
+      isConstructionWorking: false,
+      clearActiveSubcontractor: true,
+      stageTotalDays: 0,
+      soldPreSaleUnits: 0,
+      totalConstructionSpent: 0.0,
+      provenanceLog: [
+        ...land.provenanceLog,
+        '$nowStr • İnşaat projesi iptal edildi • ₺${refundAmount.round()} iade alındı${preSaleLiability > 0 ? ' • ₺${preSaleLiability.round()} ön satış tazminatı ödendi' : ''}',
+      ],
+    );
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedLand;
+
+    final nextBalance = (state.balance + netBalanceChange).clamp(0.0, double.infinity);
+    final nextRep = (state.reputationScore - repPenalty).clamp(0, 1000);
+
+    state = state.copyWith(
+      balance: nextBalance,
+      reputationScore: nextRep,
+      ownedRealEstates: updatedList,
+    );
+
+    saveState();
+    return true;
+  }
+
   /// Starts Contractor Construction Agreement (Kat Karşılığı Müteahhit Sözleşmesi)
-  /// 0 upfront cost, 40-60% customizable share, 15 days per milestone
+  /// 0 upfront cost, 33-60% customizable player share, customizable contract terms
   bool startContractorConstruction(
     String landId, {
     int sharePercent = 50,
     int? customTotalUnits,
     ZoningUnitMix? customUnitMix,
+    bool hasPrimeFloorClause = false,
+    bool hasQualityUpgrade = false,
+    double contractorAdvancePaid = 0.0,
+    bool hasBankGuarantee = false,
+    int contractorStageDays = 15,
   }) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
@@ -766,35 +875,57 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (land.category != RealEstateCategory.land) return false;
     if (land.isConstructionActive) return false;
 
-    final totalUnits = customUnitMix?.totalUnits ?? customTotalUnits ?? land.totalProjectUnits;
-    final clampedShare = sharePercent.clamp(40, 60);
+    final effectiveMix = customUnitMix ??
+        (land.customUnitMix != null ? ZoningUnitMix.fromMap(land.customUnitMix!) : null);
+
+    // Domain Emsal Check (D2)
+    if (effectiveMix != null) {
+      final zoning = ZoningEngine.calculateZoning(
+        parcelSquareMeters: land.squareMeters.toDouble(),
+        baseMarketValue: land.baseMarketValue,
+        customUnitMix: effectiveMix,
+      );
+      if (zoning.isEmsalExceeded) return false;
+    }
+
+    final totalUnits = effectiveMix?.totalUnits ?? customTotalUnits ?? land.totalProjectUnits;
+    final clampedShare = sharePercent.clamp(33, 60);
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
     final updatedLand = land.copyWith(
       constructionMode: 'contractor',
-      contractorSharePercent: clampedShare,
+      playerSharePercent: clampedShare,
       totalProjectUnits: totalUnits,
-      customUnitMix: customUnitMix?.toMap(),
+      customUnitMix: effectiveMix?.toMap(),
+      hasPrimeFloorClause: hasPrimeFloorClause,
+      hasQualityUpgrade: hasQualityUpgrade,
+      contractorAdvancePaid: contractorAdvancePaid,
+      hasBankGuarantee: hasBankGuarantee,
+      contractorStageDays: contractorStageDays,
       soldPreSaleUnits: 0,
       constructionStage: 1,
-      constructionDaysRemaining: 15,
+      constructionDaysRemaining: contractorStageDays,
+      qualityScore: hasQualityUpgrade ? 90.0 : 75.0,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Müteahhitle kat karşılığı sözleşmesi imzalandı • $totalUnits Dairelik Proje • %$clampedShare Oyuncu Payı',
+        '$nowStr • Müteahhitle kat karşılığı sözleşmesi imzalandı • $totalUnits Dairelik Proje • %$clampedShare Oyuncu Payı${contractorAdvancePaid > 0 ? ' • ₺${contractorAdvancePaid.round()} Nakit Avans' : ''}',
       ],
     );
 
     final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
     updatedList[index] = updatedLand;
 
-    state = state.copyWith(ownedRealEstates: updatedList);
+    state = state.copyWith(
+      balance: state.balance + contractorAdvancePaid,
+      ownedRealEstates: updatedList,
+    );
     addXP(100);
     saveState();
     return true;
   }
 
   /// Starts Self-Build Development Project (Kendi İnşaatını Yap • Kendi Şantiyen)
-  /// 100% flat share, requires capital investment per stage
+  /// 100% flat share, Stage 1 (Permits) funded upfront, ready for Stage 2 (Excavation)
   bool startSelfBuildConstruction(String landId, {ZoningUnitMix? customUnitMix}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
@@ -803,17 +934,34 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (land.category != RealEstateCategory.land) return false;
     if (land.isConstructionActive) return false;
 
-    final stageCost = (land.baseMarketValue * 0.10).roundToDouble(); // Etap 1: Proje & Ruhsat (%10)
+    final effectiveMix = customUnitMix ??
+        (land.customUnitMix != null ? ZoningUnitMix.fromMap(land.customUnitMix!) : null);
+
+    // Domain Emsal Check (D2)
+    if (effectiveMix != null) {
+      final zoning = ZoningEngine.calculateZoning(
+        parcelSquareMeters: land.squareMeters.toDouble(),
+        baseMarketValue: land.baseMarketValue,
+        customUnitMix: effectiveMix,
+      );
+      if (zoning.isEmsalExceeded) return false;
+    }
+
+    // F1·13, F2·5: Ruhsat harcı %10, Hukuk Müşaviri varsa %30 indirim, malzeme endeksi çarpanı
+    final hasLegalAdvisor = state.hiredStaff.any((s) => s.role == StaffRole.legalAdvisor);
+    final discountMultiplier = hasLegalAdvisor ? 0.70 : 1.0;
+    final stageCost = (land.baseMarketValue * 0.10 * discountMultiplier * state.constructionCostIndex).roundToDouble();
     if (state.balance < stageCost) return false;
 
-    final totalUnits = customUnitMix?.totalUnits ?? land.totalProjectUnits;
+    final totalUnits = effectiveMix?.totalUnits ?? land.totalProjectUnits;
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
     final updatedLand = land.copyWith(
       constructionMode: 'selfBuild',
-      contractorSharePercent: 0,
+      playerSharePercent: 100,
       totalProjectUnits: totalUnits,
-      customUnitMix: customUnitMix?.toMap(),
+      customUnitMix: effectiveMix?.toMap(),
+      totalConstructionSpent: stageCost,
       soldPreSaleUnits: 0,
       constructionStage: 1,
       constructionDaysRemaining: 0,
@@ -822,7 +970,7 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       stageTotalDays: 0,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Öz-inşaat şantiyesi kuruldu • Ruhsat ve saha izinleri alındı • ₺${stageCost.round()}',
+        '$nowStr • Öz-inşaat şantiyesi kuruldu • Ruhsat ve saha izinleri alındı${hasLegalAdvisor ? ' • Hukuk Müşaviri %30 İndirimi' : ''} • ₺${stageCost.round()}',
       ],
     );
 
@@ -857,19 +1005,22 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     final sub = subcontractor ??
         ConstructionTimelineEngine.getSubcontractorsForStage(land.constructionStage)[1]; // Standard default
 
-    final stageDetails = ConstructionTimelineEngine.getStageDetails(land.constructionStage);
-    final stageRate = stageDetails.costPercentage;
-
-    final calculatedBaseCost = (land.baseMarketValue * stageRate).roundToDouble();
-    final baseCostWithMultiplier = (calculatedBaseCost * sub.costMultiplier).roundToDouble();
+    // F1·9, F3·2: Malzeme Fiyat Endeksi ile çarpılan tekil etap maliyeti
+    final calculatedCost = ConstructionPricing.stageCost(
+      land,
+      land.constructionStage,
+      subcontractor: sub,
+      costIndex: state.constructionCostIndex,
+    );
     final stageCost = (customStageCost != null && customStageCost > 0)
         ? customStageCost
-        : baseCostWithMultiplier;
+        : calculatedCost;
 
     if (state.balance < stageCost) return false;
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
+    // F1·8, F2·5: Etaba göre risk, usta mekanik ve hava durumu entegrasyonu
     final incident = triggerIncidents
         ? ConstructionNegativeEventsEngine.rollStageIncident(
             stageNumber: land.constructionStage,
@@ -877,6 +1028,8 @@ mixin GameRealEstateMixin on GameBaseNotifier {
             riskMultiplier: sub.tier == SubcontractorTier.budget
                 ? 1.3
                 : (sub.tier == SubcontractorTier.speed ? 0.8 : 1.0),
+            hasMasterMechanic: state.hiredStaff.any((s) => s.role == StaffRole.masterMechanic),
+            isBadWeather: (state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy),
           )
         : null;
 
@@ -903,11 +1056,23 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       tier: sub.tier,
     ) + extraDays;
 
+    // F3·3: Taşeron kademesine göre kalite skoru değişimi
+    double nextQuality = land.qualityScore;
+    if (sub.tier == SubcontractorTier.speed) {
+      nextQuality = (nextQuality - 5.0).clamp(20.0, 100.0);
+    } else if (sub.tier == SubcontractorTier.budget) {
+      nextQuality = (nextQuality - 8.0).clamp(20.0, 100.0);
+    } else {
+      nextQuality = (nextQuality + 2.0).clamp(20.0, 100.0);
+    }
+
     final updatedLand = land.copyWith(
       constructionDaysRemaining: stageDays,
       stageTotalDays: stageDays,
       isConstructionWorking: true,
       activeSubcontractorName: sub.name,
+      totalConstructionSpent: land.totalConstructionSpent + stageCost + incidentCost,
+      qualityScore: nextQuality,
       provenanceLog: [
         ...land.provenanceLog,
         '$nowStr • Aşama ${land.constructionStage} başladı • Taşeron: ${sub.name} • Süre: $stageDays Gün • ₺${stageCost.round()}',
@@ -917,14 +1082,10 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
     updatedList[index] = updatedLand;
-
     state = state.copyWith(
       balance: state.balance - totalDeduction,
       ownedRealEstates: updatedList,
     );
-
-    addXP(100);
-    saveState();
     return true;
   }
 
@@ -935,10 +1096,10 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final land = state.ownedRealEstates[index];
     if (land.constructionMode != 'selfBuild') return false;
-    if (!land.isConstructionWorking) return false;
+    if (land.activeSubcontractorName == null || land.activeSubcontractorName!.isEmpty) return false;
     if (land.constructionDaysRemaining > 0) return false; // Must wait for duration to finish
 
-    final nextStage = land.constructionStage + 1;
+    final nextStage = (land.constructionStage + 1).clamp(1, 8);
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
     final updatedLand = land.copyWith(
@@ -965,32 +1126,33 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     return true;
   }
 
-  /// Funds and advances next milestone in Self-Build mode (legacy compatibility)
+  /// Funds and advances next milestone in Self-Build mode
   bool advanceSelfBuildStage(String landId, {bool triggerIncidents = true, double? customStageCost}) {
     final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
     if (index == -1) return false;
 
     final land = state.ownedRealEstates[index];
     if (land.constructionMode != 'selfBuild') return false;
-    if (land.constructionStage < 1 || land.constructionStage >= 8) return false;
+    if (land.constructionStage >= 8) return false;
 
-    final stageDetails = ConstructionTimelineEngine.getStageDetails(land.constructionStage);
-    final stageRate = stageDetails.costPercentage;
-
-    final calculatedCost = (land.baseMarketValue * stageRate).roundToDouble();
+    final calculatedCost = (land.baseMarketValue *
+            ConstructionTimelineEngine.getStageDetails(land.constructionStage)
+                .costPercentage)
+        .roundToDouble();
     final stageCost = (customStageCost != null && customStageCost > 0)
         ? customStageCost
         : calculatedCost;
 
     if (state.balance < stageCost) return false;
 
-    final nextStage = land.constructionStage + 1;
+    final nextStage = (land.constructionStage + 1).clamp(1, 8);
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
     final updatedLand = land.copyWith(
       constructionStage: nextStage,
       constructionDaysRemaining: 4,
       isConstructionWorking: true,
+      totalConstructionSpent: land.totalConstructionSpent + stageCost,
       provenanceLog: [
         ...land.provenanceLog,
         '$nowStr • Şantiye Aşama $nextStage fonlandı ve başladı • ₺${stageCost.round()}',
@@ -1053,42 +1215,128 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (land.constructionDaysRemaining > 0) return [];
 
     final unitsToCreate = land.playerShareUnits;
+
+    // Slot capacity guard (C2)
+    final availableSlots = state.maxRealEstateSlots - (state.ownedRealEstates.length - 1);
+    if (unitsToCreate > availableSlots) {
+      return [];
+    }
+
     final createdApartments = <RealEstateModel>[];
 
-    // Build typologies queue based on customUnitMix or default fallback
-    final List<Map<String, dynamic>> typologyQueue = [];
-    if (land.customUnitMix != null) {
-      final mix = ZoningUnitMix.fromMap(land.customUnitMix!);
-      for (int i = 0; i < mix.units1Plus0; i++) {
-        typologyQueue.add({'type': '1+0', 'gross': ZoningUnitMix.grossArea1Plus0, 'net': ZoningUnitMix.netArea1Plus0});
+    // Zoning calculations & fallback unit mix (C5, C6)
+    final zoning = ZoningEngine.calculateZoning(
+      parcelSquareMeters: land.squareMeters.toDouble(),
+      baseMarketValue: land.baseMarketValue,
+      customUnitMix: land.customUnitMix != null ? ZoningUnitMix.fromMap(land.customUnitMix!) : null,
+    );
+
+    final activeMix = land.customUnitMix != null
+        ? ZoningUnitMix.fromMap(land.customUnitMix!)
+        : ZoningEngine.optimizeUnitMix(zoning.netResidentialArea);
+
+    final List<Map<String, dynamic>> allProjectUnits = [];
+    for (int i = 0; i < activeMix.units4Plus1; i++) {
+      allProjectUnits.add({'type': '4+1', 'gross': ZoningUnitMix.grossArea4Plus1, 'net': ZoningUnitMix.netArea4Plus1});
+    }
+    for (int i = 0; i < activeMix.units3Plus1; i++) {
+      allProjectUnits.add({'type': '3+1', 'gross': ZoningUnitMix.grossArea3Plus1, 'net': ZoningUnitMix.netArea3Plus1});
+    }
+    for (int i = 0; i < activeMix.units2Plus1; i++) {
+      allProjectUnits.add({'type': '2+1', 'gross': ZoningUnitMix.grossArea2Plus1, 'net': ZoningUnitMix.netArea2Plus1});
+    }
+    for (int i = 0; i < activeMix.units2Plus0; i++) {
+      allProjectUnits.add({'type': '2+0', 'gross': ZoningUnitMix.grossArea2Plus0, 'net': ZoningUnitMix.netArea2Plus0});
+    }
+    for (int i = 0; i < activeMix.units1Plus1; i++) {
+      allProjectUnits.add({'type': '1+1', 'gross': ZoningUnitMix.grossArea1Plus1, 'net': ZoningUnitMix.netArea1Plus1});
+    }
+    for (int i = 0; i < activeMix.units1Plus0; i++) {
+      allProjectUnits.add({'type': '1+0', 'gross': ZoningUnitMix.grossArea1Plus0, 'net': ZoningUnitMix.netArea1Plus0});
+    }
+
+    // Dynamic valuation with emsal premium & quality specification (C5, A7, F1·4, F3·3, F3·4)
+    final totalBuildable = max(1.0, zoning.netResidentialArea);
+    double avgValuePerM2 = (land.baseMarketValue * 2.8) / totalBuildable;
+    avgValuePerM2 *= (1.0 + (zoning.kaks - 1.5) * 0.10);
+    if (land.hasQualityUpgrade) {
+      avgValuePerM2 *= 1.08;
+    }
+    final hasRivalPressure = state.recentEvents.any((e) => e.id.contains('rival_project_completed_${land.id}'));
+    if (hasRivalPressure) {
+      avgValuePerM2 *= 0.92; // F3·4: Rakip erken teslim kırım baskısı (%8)
+    }
+
+    // Fair value allocation (C3)
+    final List<Map<String, dynamic>> playerAllocatedTypologies = [];
+    if (land.constructionMode == 'selfBuild') {
+      final remainingUnits = List<Map<String, dynamic>>.from(allProjectUnits);
+      for (int s = 0; s < land.soldPreSaleUnits && remainingUnits.isNotEmpty; s++) {
+        remainingUnits.removeLast(); // sacrifice smallest units first (C3)
       }
-      for (int i = 0; i < mix.units1Plus1; i++) {
-        typologyQueue.add({'type': '1+1', 'gross': ZoningUnitMix.grossArea1Plus1, 'net': ZoningUnitMix.netArea1Plus1});
-      }
-      for (int i = 0; i < mix.units2Plus0; i++) {
-        typologyQueue.add({'type': '2+0', 'gross': ZoningUnitMix.grossArea2Plus0, 'net': ZoningUnitMix.netArea2Plus0});
-      }
-      for (int i = 0; i < mix.units2Plus1; i++) {
-        typologyQueue.add({'type': '2+1', 'gross': ZoningUnitMix.grossArea2Plus1, 'net': ZoningUnitMix.netArea2Plus1});
-      }
-      for (int i = 0; i < mix.units3Plus1; i++) {
-        typologyQueue.add({'type': '3+1', 'gross': ZoningUnitMix.grossArea3Plus1, 'net': ZoningUnitMix.netArea3Plus1});
-      }
-      for (int i = 0; i < mix.units4Plus1; i++) {
-        typologyQueue.add({'type': '4+1', 'gross': ZoningUnitMix.grossArea4Plus1, 'net': ZoningUnitMix.netArea4Plus1});
+      playerAllocatedTypologies.addAll(remainingUnits.take(unitsToCreate));
+    } else {
+      if (land.hasPrimeFloorClause) {
+        playerAllocatedTypologies.addAll(allProjectUnits.take(unitsToCreate));
+      } else {
+        // Serpentine 1-2-2-1 fair distribution
+        final playerUnits = <Map<String, dynamic>>[];
+        bool playerTurn = true;
+        int consecutive = 0;
+        int targetConsecutive = 1;
+        for (final unit in allProjectUnits) {
+          if (playerUnits.length >= unitsToCreate) break;
+          if (playerTurn) {
+            playerUnits.add(unit);
+            consecutive++;
+            if (consecutive >= targetConsecutive) {
+              playerTurn = false;
+              consecutive = 0;
+              targetConsecutive = 2;
+            }
+          } else {
+            consecutive++;
+            if (consecutive >= targetConsecutive) {
+              playerTurn = true;
+              consecutive = 0;
+              targetConsecutive = 2;
+            }
+          }
+        }
+        while (playerUnits.length < unitsToCreate && playerUnits.length < allProjectUnits.length) {
+          for (final u in allProjectUnits) {
+            if (!playerUnits.contains(u)) {
+              playerUnits.add(u);
+              if (playerUnits.length >= unitsToCreate) break;
+            }
+          }
+        }
+        playerAllocatedTypologies.addAll(playerUnits);
       }
     }
 
-    final double avgValuePerM2 = (land.baseMarketValue * 2.8) / (land.squareMeters * 1.8);
+    // Unit acquisition cost calculation for accurate profit accounting (C4)
+    final totalInvested = land.currentPurchasePrice +
+        land.deedFeePaid +
+        land.commissionPaid +
+        land.totalConstructionSpent;
+    final costPerUnit = unitsToCreate > 0 ? (totalInvested / unitsToCreate).roundToDouble() : 0.0;
 
     for (int i = 0; i < unitsToCreate; i++) {
-      final typology = (i < typologyQueue.length)
-          ? typologyQueue[i]
-          : {'type': '2+1', 'gross': 105.0, 'net': 88.0};
+      final typology = (i < playerAllocatedTypologies.length)
+          ? playerAllocatedTypologies[i]
+          : (i < allProjectUnits.length ? allProjectUnits[i] : {'type': '2+1', 'gross': 105.0, 'net': 88.0});
 
       final grossM2 = (typology['gross'] as num).toDouble();
       final roomType = typology['type'] as String;
       final unitVal = (grossM2 * (avgValuePerM2 > 0 ? avgValuePerM2 : 35000.0)).roundToDouble();
+
+      // F3·3: Kalite ve gizli kusur değerlendirmesi
+      final bool hasHiddenDefect = (land.qualityScore < 60.0);
+      final double qualityMultiplier = land.qualityScore >= 85.0
+          ? 1.15 // +%15 piyasa primi
+          : (land.qualityScore < 60.0 ? 0.85 : 1.0); // -%15 kırım
+      final finalUnitVal = (unitVal * qualityMultiplier).roundToDouble();
 
       createdApartments.add(
         RealEstateModel(
@@ -1102,10 +1350,12 @@ mixin GameRealEstateMixin on GameBaseNotifier {
           buildingAge: 0,
           deedType: DeedType.ownershipDeed, // Kat Mülkiyeti (İskanlı, sorunsuz)
           sellerType: RealEstateSellerType.individual,
-          baseMarketValue: unitVal > 0 ? unitVal : 3500000.0,
-          currentPurchasePrice: 0.0,
+          baseMarketValue: finalUnitVal > 0 ? finalUnitVal : 3500000.0,
+          currentPurchasePrice: costPerUnit, // C4
           isRenovated: true,
           renovationStage: 3,
+          hasWaterLeakRisk: hasHiddenDefect, // F3·3: Düşük kalitede gizli su kaçağı kusuru
+          qualityScore: land.qualityScore,
         ),
       );
     }
@@ -1118,5 +1368,100 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     addXP(500);
     saveState();
     return createdApartments;
+  }
+
+  /// Takes a mortgage-backed construction loan using land parcel as collateral (F2·6, F5)
+  bool takeConstructionLoan(String landId, double amount) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (index == -1) return false;
+
+    final land = state.ownedRealEstates[index];
+    if (land.category != RealEstateCategory.land) return false;
+    if (land.isMortgaged) return false;
+
+    final maxLoan = (land.baseMarketValue * 0.50).roundToDouble();
+    if (amount <= 0 || amount > maxLoan) return false;
+
+    final loanId = 'loan_construction_${land.id}';
+    final totalRepayment = (amount * 1.25).roundToDouble();
+    final newLoan = LoanModel(
+      id: loanId,
+      bankName: 'Emlak Katılım Bankası • Şantiye Finansmanı',
+      principalAmount: amount,
+      interestRate: 0.25,
+      totalRepayment: totalRepayment,
+      remainingAmount: totalRepayment,
+      totalInstallments: 12,
+      remainingInstallments: 12,
+      monthlyPayment: (totalRepayment / 12).roundToDouble(),
+    );
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+    final updatedLand = land.copyWith(
+      isMortgaged: true,
+      provenanceLog: [
+        ...land.provenanceLog,
+        '$nowStr • Emlak Katılım Bankası • Arsa ipoteği karşılığı ₺${amount.round()} inşaat kredisi çekildi',
+      ],
+    );
+
+    final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedLands[index] = updatedLand;
+
+    final updatedLoans = List<LoanModel>.from(state.activeLoans)..add(newLoan);
+
+    state = state.copyWith(
+      balance: state.balance + amount,
+      ownedRealEstates: updatedLands,
+      activeLoans: updatedLoans,
+    );
+
+    saveState();
+    return true;
+  }
+
+  /// Repays the construction loan and releases the mortgage on the land (F2·6, F5)
+  bool repayConstructionLoan(String landId) {
+    final landIndex = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (landIndex == -1) return false;
+
+    final land = state.ownedRealEstates[landIndex];
+    if (!land.isMortgaged) return false;
+
+    final loanId = 'loan_construction_${land.id}';
+    final loanIndex = state.activeLoans.indexWhere((l) => l.id == loanId);
+    if (loanIndex == -1) {
+      final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
+      updatedLands[landIndex] = land.copyWith(isMortgaged: false);
+      state = state.copyWith(ownedRealEstates: updatedLands);
+      saveState();
+      return true;
+    }
+
+    final loan = state.activeLoans[loanIndex];
+    if (state.balance < loan.remainingAmount) return false;
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+    final updatedLand = land.copyWith(
+      isMortgaged: false,
+      provenanceLog: [
+        ...land.provenanceLog,
+        '$nowStr • İnşaat kredisi kapatıldı • Arsa üzerindeki banka ipoteği kaldırıldı',
+      ],
+    );
+
+    final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedLands[landIndex] = updatedLand;
+
+    final updatedLoans = List<LoanModel>.from(state.activeLoans)..removeAt(loanIndex);
+
+    state = state.copyWith(
+      balance: state.balance - loan.remainingAmount,
+      ownedRealEstates: updatedLands,
+      activeLoans: updatedLoans,
+    );
+
+    saveState();
+    return true;
   }
 }

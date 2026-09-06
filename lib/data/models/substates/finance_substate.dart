@@ -18,7 +18,10 @@ class FinanceSubstate {
   final List<IpoOfferModel> activeIpos;
   final List<PlayerIpoRequestModel> playerIpoRequests;
   final double totalProfit;
-  final double dailyTaxRate;
+  final double taxRatePercent;
+
+  /// Backwards-compatible alias for tax rate percentage
+  double get dailyTaxRate => taxRatePercent;
 
   const FinanceSubstate({
     this.balance = 50000.0,
@@ -34,8 +37,9 @@ class FinanceSubstate {
     this.activeIpos = const [],
     this.playerIpoRequests = const [],
     this.totalProfit = 0.0,
-    this.dailyTaxRate = 0.02,
-  });
+    double? taxRatePercent,
+    double? dailyTaxRate,
+  }) : taxRatePercent = taxRatePercent ?? dailyTaxRate ?? 0.02;
 
   FinanceSubstate copyWith({
     double? balance,
@@ -51,6 +55,7 @@ class FinanceSubstate {
     List<IpoOfferModel>? activeIpos,
     List<PlayerIpoRequestModel>? playerIpoRequests,
     double? totalProfit,
+    double? taxRatePercent,
     double? dailyTaxRate,
   }) {
     return FinanceSubstate(
@@ -67,7 +72,7 @@ class FinanceSubstate {
       activeIpos: activeIpos ?? this.activeIpos,
       playerIpoRequests: playerIpoRequests ?? this.playerIpoRequests,
       totalProfit: totalProfit ?? this.totalProfit,
-      dailyTaxRate: dailyTaxRate ?? this.dailyTaxRate,
+      taxRatePercent: taxRatePercent ?? dailyTaxRate ?? this.taxRatePercent,
     );
   }
 }

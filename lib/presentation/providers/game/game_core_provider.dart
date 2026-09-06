@@ -109,8 +109,9 @@ class GameCoreNotifier extends GameBaseNotifier
         final bool freezeConsumed = loaded.hasStreakFreeze && (calDays > 1);
 
         // Filter expired offers
-        final activeOffers =
-            loaded.incomingOffers.where((o) => !o.isExpired).toList();
+        final activeOffers = loaded.incomingOffers
+            .where((o) => !o.isExpiredForDay(loaded.currentDay))
+            .toList();
 
         // Process offline time progression
         final offlineResult = OfflineProgression.processOfflineTime(
