@@ -258,7 +258,7 @@ class _SubcontractorNegotiationChatScreenState
       ),
     );
 
-    final totalBudget = (land.baseMarketValue * 0.75).roundToDouble();
+    final totalBudget = land.baseMarketValue;
 
     return Scaffold(
       backgroundColor:

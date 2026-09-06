@@ -4612,6 +4612,7 @@ const Map<String, String> enTranslations = {
     'real_estate_construction_cost_index_title': 'Material Cost Index',
     'real_estate_quality_score_label': 'Construction Quality Score',
     'real_estate_mortgaged_badge': 'Mortgaged Land',
+    'real_estate_loan_debt_badge': 'Remaining Debt • {amount}',
     'real_estate_construction_loan_btn': 'Take Construction Loan',
     'real_estate_construction_loan_repay_btn': 'Repay Mortgaged Loan',
     'real_estate_construction_loan_dialog_title': 'Mortgage Construction Loan',

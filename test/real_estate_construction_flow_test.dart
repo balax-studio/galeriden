@@ -183,18 +183,18 @@ void main() {
       var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
       expect(currentLand.isConstructionActive, isTrue);
       expect(currentLand.constructionMode, equals('selfBuild'));
-      expect(currentLand.constructionStage, equals(1));
+      expect(currentLand.constructionStage, equals(2)); // B1: Ruhsat tamamlandı, 2. etaptan başlar
       expect(currentLand.constructionDaysRemaining, equals(0));
       expect(currentLand.isConstructionWorking, isFalse);
       expect(currentLand.activeSubcontractorName, isNull);
 
-      // Cannot complete stage 1 before starting/working
+      // Cannot complete stage 2 before starting/working
       final earlyComplete = notifier.completeSelfBuildStage('land_sim_test');
       expect(earlyComplete, isFalse);
 
       // --- STATE 2: WORKING ---
-      // Select subcontractor and start Stage 1
-      final sub = ConstructionTimelineEngine.getSubcontractorsForStage(1).first;
+      // Select subcontractor and start Stage 2
+      final sub = ConstructionTimelineEngine.getSubcontractorsForStage(2).first;
       final balanceBeforeStage = notifier.state.balance;
       final stageStartSuccess = notifier.startSelfBuildStage(
         'land_sim_test',
@@ -227,24 +227,24 @@ void main() {
       expect(currentLand.constructionDaysRemaining, equals(0));
 
       // --- STATE 3: HANDOVER & ADVANCE ---
-      // Now player can complete and inspect stage 1
-      final completeStage1 = notifier.completeSelfBuildStage('land_sim_test');
-      expect(completeStage1, isTrue);
+      // Now player can complete and inspect stage 2
+      final completeStage2 = notifier.completeSelfBuildStage('land_sim_test');
+      expect(completeStage2, isTrue);
 
       currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
-      expect(currentLand.constructionStage, equals(2));
+      expect(currentLand.constructionStage, equals(3));
       expect(currentLand.constructionDaysRemaining, equals(0));
       expect(currentLand.isConstructionWorking, isFalse);
       expect(currentLand.activeSubcontractorName, isNull);
 
       // Provenance log check
       expect(
-        currentLand.provenanceLog.any((log) => log.contains('Aşama 1 başarıyla teslim alındı')),
+        currentLand.provenanceLog.any((log) => log.contains('Aşama 2 başarıyla teslim alındı')),
         isTrue,
       );
 
-      // Complete stages 2 through 8
-      for (int stage = 2; stage <= 8; stage++) {
+      // Complete stages 3 through 8
+      for (int stage = 3; stage <= 8; stage++) {
         final stageSub = ConstructionTimelineEngine.getSubcontractorsForStage(stage)[1];
         notifier.startSelfBuildStage(
           'land_sim_test',

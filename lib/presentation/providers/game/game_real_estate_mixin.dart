@@ -963,14 +963,14 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       customUnitMix: effectiveMix?.toMap(),
       totalConstructionSpent: stageCost,
       soldPreSaleUnits: 0,
-      constructionStage: 1,
+      constructionStage: 2,
       constructionDaysRemaining: 0,
       isConstructionWorking: false,
       clearActiveSubcontractor: true,
       stageTotalDays: 0,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Öz-inşaat şantiyesi kuruldu • Ruhsat ve saha izinleri alındı${hasLegalAdvisor ? ' • Hukuk Müşaviri %30 İndirimi' : ''} • ₺${stageCost.round()}',
+        '$nowStr • Öz-inşaat şantiyesi kuruldu • Ruhsat ve saha izinleri tamamlandı (1. Etap)${hasLegalAdvisor ? ' • Hukuk Müşaviri %30 İndirimi' : ''} • ₺${stageCost.round()}',
       ],
     );
 
@@ -999,7 +999,8 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final land = state.ownedRealEstates[index];
     if (land.constructionMode != 'selfBuild') return false;
-    if (land.constructionStage < 1 || land.constructionStage > 8) return false;
+    // B1: 1. etap (Proje & Ruhsat) zaten başlangıçta tamamlandı, etaplar 2-8 arasındadır
+    if (land.constructionStage < 2 || land.constructionStage > 8) return false;
     if (land.isConstructionWorking) return false; // Already actively working
 
     final sub = subcontractor ??
@@ -1020,41 +1021,13 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
-    // F1·8, F2·5: Etaba göre risk, usta mekanik ve hava durumu entegrasyonu
-    final incident = triggerIncidents
-        ? ConstructionNegativeEventsEngine.rollStageIncident(
-            stageNumber: land.constructionStage,
-            baseStageCost: stageCost,
-            riskMultiplier: sub.tier == SubcontractorTier.budget
-                ? 1.3
-                : (sub.tier == SubcontractorTier.speed ? 0.8 : 1.0),
-            hasMasterMechanic: state.hiredStaff.any((s) => s.role == StaffRole.masterMechanic),
-            isBadWeather: (state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy),
-          )
-        : null;
-
-    int extraDays = 0;
-    double incidentCost = 0.0;
-    final extraLogs = <String>[];
-
-    if (incident != null) {
-      extraDays = incident.dayDelayImpact;
-      if (state.balance >= stageCost + incident.costImpact) {
-        incidentCost = incident.costImpact;
-      } else {
-        extraDays += 1;
-      }
-      extraLogs.add('$nowStr • Şantiye Olayı: ${incident.title} • Etki: ₺${incident.costImpact.round()}');
-    }
-
-    final totalDeduction = stageCost + incidentCost;
-    if (state.balance < totalDeduction) return false;
-
+    // B7: Süre hesabı taşeron durationMultiplier ile yapılır
     final stageDays = ConstructionTimelineEngine.calculateStageDays(
       stageNumber: land.constructionStage,
       parcelSquareMeters: land.squareMeters.toDouble(),
       tier: sub.tier,
-    ) + extraDays;
+      durationMultiplier: sub.durationMultiplier,
+    );
 
     // F3·3: Taşeron kademesine göre kalite skoru değişimi
     double nextQuality = land.qualityScore;
@@ -1066,24 +1039,25 @@ mixin GameRealEstateMixin on GameBaseNotifier {
       nextQuality = (nextQuality + 2.0).clamp(20.0, 100.0);
     }
 
+    // B6: İmzada sürpriz kesinti ve olay zarı yok; anlaşılan stageCost tahsil edilir
     final updatedLand = land.copyWith(
       constructionDaysRemaining: stageDays,
       stageTotalDays: stageDays,
       isConstructionWorking: true,
       activeSubcontractorName: sub.name,
-      totalConstructionSpent: land.totalConstructionSpent + stageCost + incidentCost,
+      totalConstructionSpent: land.totalConstructionSpent + stageCost,
       qualityScore: nextQuality,
       provenanceLog: [
         ...land.provenanceLog,
         '$nowStr • Aşama ${land.constructionStage} başladı • Taşeron: ${sub.name} • Süre: $stageDays Gün • ₺${stageCost.round()}',
-        ...extraLogs,
       ],
     );
 
     final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
     updatedList[index] = updatedLand;
+
     state = state.copyWith(
-      balance: state.balance - totalDeduction,
+      balance: state.balance - stageCost,
       ownedRealEstates: updatedList,
     );
     return true;
@@ -1122,52 +1096,6 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     );
 
     addXP(150);
-    saveState();
-    return true;
-  }
-
-  /// Funds and advances next milestone in Self-Build mode
-  bool advanceSelfBuildStage(String landId, {bool triggerIncidents = true, double? customStageCost}) {
-    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
-    if (index == -1) return false;
-
-    final land = state.ownedRealEstates[index];
-    if (land.constructionMode != 'selfBuild') return false;
-    if (land.constructionStage >= 8) return false;
-
-    final calculatedCost = (land.baseMarketValue *
-            ConstructionTimelineEngine.getStageDetails(land.constructionStage)
-                .costPercentage)
-        .roundToDouble();
-    final stageCost = (customStageCost != null && customStageCost > 0)
-        ? customStageCost
-        : calculatedCost;
-
-    if (state.balance < stageCost) return false;
-
-    final nextStage = (land.constructionStage + 1).clamp(1, 8);
-    final nowStr = DateTime.now().toIso8601String().split('T').first;
-
-    final updatedLand = land.copyWith(
-      constructionStage: nextStage,
-      constructionDaysRemaining: 4,
-      isConstructionWorking: true,
-      totalConstructionSpent: land.totalConstructionSpent + stageCost,
-      provenanceLog: [
-        ...land.provenanceLog,
-        '$nowStr • Şantiye Aşama $nextStage fonlandı ve başladı • ₺${stageCost.round()}',
-      ],
-    );
-
-    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
-    updatedList[index] = updatedLand;
-
-    state = state.copyWith(
-      balance: (state.balance - stageCost).roundToDouble(),
-      ownedRealEstates: updatedList,
-    );
-
-    addXP(120);
     saveState();
     return true;
   }

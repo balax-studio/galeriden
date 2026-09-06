@@ -4612,6 +4612,7 @@ const Map<String, String> esTranslations = {
     'real_estate_construction_cost_index_title': 'Índice de Costos de Materiales',
     'real_estate_quality_score_label': 'Puntuación de Calidad de Obra',
     'real_estate_mortgaged_badge': 'Terreno Hipotecado',
+    'real_estate_loan_debt_badge': 'Deuda Restante • {amount}',
     'real_estate_construction_loan_btn': 'Solicitar Crédito de Construcción',
     'real_estate_construction_loan_repay_btn': 'Liquidar Crédito Hipotecario',
     'real_estate_construction_loan_dialog_title': 'Crédito de Construcción con Hipoteca',

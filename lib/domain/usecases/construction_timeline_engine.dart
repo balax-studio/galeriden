@@ -57,6 +57,18 @@ class SubcontractorProfile {
     required this.reliabilityScore,
     required this.pitchKey,
   });
+
+  /// B7: Taşeron kademesi risk dengesi (Hızlı ekip aceleci/hata riskli, standart güvenli, bütçe ucuz/eksik iş riskli)
+  double get riskMultiplier {
+    switch (tier) {
+      case SubcontractorTier.speed:
+        return 1.25;
+      case SubcontractorTier.standard:
+        return 0.80;
+      case SubcontractorTier.budget:
+        return 1.10;
+    }
+  }
 }
 
 enum MunicipalDocStatus {
@@ -208,7 +220,7 @@ class ConstructionTimelineEngine {
         tier: SubcontractorTier.speed,
         costMultiplier: 1.25,
         durationMultiplier: 0.75,
-        reliabilityScore: 0.95,
+        reliabilityScore: 0.82,
         pitchKey: 'subcontractor_pitch_speed',
       ),
       SubcontractorProfile(
@@ -218,7 +230,7 @@ class ConstructionTimelineEngine {
         tier: SubcontractorTier.standard,
         costMultiplier: 1.00,
         durationMultiplier: 1.00,
-        reliabilityScore: 0.88,
+        reliabilityScore: 0.95,
         pitchKey: 'subcontractor_pitch_standard',
       ),
       SubcontractorProfile(
@@ -228,7 +240,7 @@ class ConstructionTimelineEngine {
         tier: SubcontractorTier.budget,
         costMultiplier: 0.80,
         durationMultiplier: 1.25,
-        reliabilityScore: 0.76,
+        reliabilityScore: 0.74,
         pitchKey: 'subcontractor_pitch_budget',
       ),
     ];

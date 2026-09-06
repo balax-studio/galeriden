@@ -328,10 +328,13 @@ class _RealEstateConstructionScreenState
                   ),
                 ],
               ),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 6,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   NeoBrutalBadge(
                     text:
@@ -381,7 +384,8 @@ class _RealEstateConstructionScreenState
                     ),
                 ],
               ),
-            ],
+            ),
+          ],
           ),
         ],
       ),
@@ -1787,7 +1791,7 @@ class _RealEstateConstructionScreenState
                   ],
                 ),
                 NeoBrutalBadge(
-                  text: 'Borç: ${CurrencyFormatter.format(remaining)}',
+                  text: context.tr('real_estate_loan_debt_badge', {'amount': CurrencyFormatter.format(remaining)}),
                   backgroundColor: const Color(0xFFFEE2E2),
                   textColor: const Color(0xFFDC2626),
                 ),

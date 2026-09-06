@@ -4612,6 +4612,7 @@ const Map<String, String> ruTranslations = {
     'real_estate_construction_cost_index_title': 'Индекс стоимости материалов',
     'real_estate_quality_score_label': 'Оценка качества стройки',
     'real_estate_mortgaged_badge': 'Земля в залоге',
+    'real_estate_loan_debt_badge': 'Остаток долга • {amount}',
     'real_estate_construction_loan_btn': 'Взять кредит на строительство',
     'real_estate_construction_loan_repay_btn': 'Погасить ипотечный кредит',
     'real_estate_construction_loan_dialog_title': 'Ипотечный строительный кредит',

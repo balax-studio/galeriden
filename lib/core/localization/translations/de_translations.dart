@@ -4612,6 +4612,7 @@ const Map<String, String> deTranslations = {
     'real_estate_construction_cost_index_title': 'Materialkostenindex',
     'real_estate_quality_score_label': 'Bauqualitätswert',
     'real_estate_mortgaged_badge': 'Verpfändetes Grundstück',
+    'real_estate_loan_debt_badge': 'Restschuld • {amount}',
     'real_estate_construction_loan_btn': 'Baukredit aufnehmen',
     'real_estate_construction_loan_repay_btn': 'Verpfändeten Kredit tilgen',
     'real_estate_construction_loan_dialog_title': 'Hypothekarischer Baukredit',

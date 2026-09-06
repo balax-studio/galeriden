@@ -4612,6 +4612,7 @@ const Map<String, String> trTranslations = {
     'real_estate_construction_cost_index_title': 'Malzeme Fiyat Endeksi',
     'real_estate_quality_score_label': 'Şantiye Kalite Skoru',
     'real_estate_mortgaged_badge': 'İpotekli Arsa',
+    'real_estate_loan_debt_badge': 'Kalan Borç • {amount}',
     'real_estate_construction_loan_btn': 'İnşaat Kredisi Çek',
     'real_estate_construction_loan_repay_btn': 'İpotekli Krediyi Kapat',
     'real_estate_construction_loan_dialog_title': 'İpotekli İnşaat Kredisi',

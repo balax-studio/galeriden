@@ -4612,6 +4612,7 @@ const Map<String, String> arTranslations = {
     'real_estate_construction_cost_index_title': 'مؤشر تكلفة المواد',
     'real_estate_quality_score_label': 'درجة جودة البناء',
     'real_estate_mortgaged_badge': 'أرض مرهونة',
+    'real_estate_loan_debt_badge': 'الدين المتبقي • {amount}',
     'real_estate_construction_loan_btn': 'أخذ قرض بناء',
     'real_estate_construction_loan_repay_btn': 'سداد القرض المرهون',
     'real_estate_construction_loan_dialog_title': 'قرض بناء برهن عقاري',

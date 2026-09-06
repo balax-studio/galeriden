@@ -12,6 +12,7 @@ import 'package:galeriden/core/localization/translations/ru_translations.dart';
 import 'package:galeriden/core/localization/translations/tr_translations.dart';
 import 'package:galeriden/data/models/real_estate_category.dart';
 import 'package:galeriden/data/models/real_estate_model.dart';
+import 'package:galeriden/domain/usecases/construction_timeline_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/real_estate/real_estate_construction_screen.dart';
 
@@ -76,7 +77,7 @@ void main() {
       expect(selfBuildLand.constructionPercent, equals(25));
       expect(selfBuildLand.playerShareUnits, equals(5)); // 6 units total - 1 presold = 5
       expect(selfBuildLand.canPreSell, isTrue); // sold 1 < 5 max allowed
-      expect(selfBuildLand.preSaleUnitPrice, equals(1375000)); // (5.0M * 2.2 / 6) * 0.75
+      expect(selfBuildLand.preSaleUnitPrice, equals(1191667)); // (5.0M * 2.2 / 6) * 0.65 (stage 2)
       expect(selfBuildLand.turnkeyUnitPrice, equals(2083333)); // 5.0M * 2.5 / 6
 
       // Serialization round-trip
@@ -191,19 +192,19 @@ void main() {
 
       var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
       expect(currentLand.constructionMode, equals('selfBuild'));
-      expect(currentLand.constructionStage, equals(1));
+      expect(currentLand.constructionStage, equals(2)); // B1: Ruhsat tamamlandı, 2. etaptan başlar
       expect(currentLand.playerShareUnits, equals(4)); // 400m2 -> 4 units, all for player
 
-      // 2. Advance Stage to Stage 2 with capital funding (Stage 1 -> 2: 10% = 400,000)
-      final balanceBeforeAdvance = notifier.state.balance;
-      final advanceCost = (currentLand.baseMarketValue * 0.10).roundToDouble();
-      final advanceSuccess = notifier.advanceSelfBuildStage('land_selfbuild_test', triggerIncidents: false);
-      expect(advanceSuccess, isTrue);
-      expect(notifier.state.balance, equals(balanceBeforeAdvance - advanceCost));
+      // 2. Start Stage 2 with subcontractor (B1 & B9: startSelfBuildStage replaces legacy advance)
+      final balanceBeforeStage2 = notifier.state.balance;
+      final stage2Cost = ConstructionPricing.stageCost(currentLand, 2);
+      final stage2Success = notifier.startSelfBuildStage('land_selfbuild_test', triggerIncidents: false);
+      expect(stage2Success, isTrue);
+      expect(notifier.state.balance, equals(balanceBeforeStage2 - stage2Cost));
 
       currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_selfbuild_test');
       expect(currentLand.constructionStage, equals(2));
-      expect(currentLand.constructionDaysRemaining, equals(4));
+      expect(currentLand.isConstructionWorking, isTrue);
 
       // 3. Off-Plan Pre-Sale (Topraktan Satış) - enabled at stage 2+
       final balanceBeforePreSale = notifier.state.balance;
