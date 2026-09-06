@@ -4,6 +4,7 @@ import 'package:galeriden/data/models/black_market_car_model.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/offer_model.dart';
+import 'package:galeriden/domain/usecases/black_market_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 
 void main() {
@@ -220,6 +221,46 @@ void main() {
         expect(notifier.state.reputationScore, lessThan(100));
         expect(notifier.state.balance, equals(92000)); // 100.000 - 8.000 fine
         expect(notifier.state.ownedCars.length, equals(1)); // Car was not sold
+      }
+    });
+  });
+
+  group('Kara Borsa Dinamik Algoritma ve Risk Testleri', () {
+    test('Kara borsa araç üretimi dinamik ve çeşitli olmalı', () {
+      final day1Cars = BlackMarketEngine.generateBlackMarketCars(day: 1, count: 4);
+      final day2Cars = BlackMarketEngine.generateBlackMarketCars(day: 2, count: 4);
+
+      expect(day1Cars.length, equals(4));
+      expect(day2Cars.length, equals(4));
+
+      for (final car in day1Cars) {
+        // İndirimli fiyat gerçek piyasa değerinden düşük olmalı
+        expect(car.askingPrice, lessThan(car.realMarketValue));
+        expect(car.askingPrice, greaterThan(0));
+
+        // İndirim oranı %15 ile %60 arasında olmalı
+        final discountRatio = (car.realMarketValue - car.askingPrice) / car.realMarketValue;
+        expect(discountRatio, greaterThanOrEqualTo(0.15));
+        expect(discountRatio, lessThanOrEqualTo(0.60));
+
+        // Risk seviyesi indirim oranına paralel ve geçerli aralıkta olmalı (15 - 60)
+        expect(car.riskLevelPercent, greaterThanOrEqualTo(15));
+        expect(car.riskLevelPercent, lessThanOrEqualTo(60));
+
+        // Proje kuralları: Sıfır Parantez ve Sıfır Unicode Emoji kontrolü
+        expect(car.modelName.contains('('), isFalse, reason: 'Parantez bulunmamalı');
+        expect(car.modelName.contains(')'), isFalse, reason: 'Parantez bulunmamalı');
+        expect(car.riskDescription.contains('('), isFalse, reason: 'Parantez bulunmamalı');
+        expect(car.riskDescription.contains(')'), isFalse, reason: 'Parantez bulunmamalı');
+      }
+    });
+
+    test('Daha yüksek indirim oranı genel olarak daha yüksek risk üretmeli', () {
+      final cars = BlackMarketEngine.generateBlackMarketCars(day: 10, count: 20);
+      for (final car in cars) {
+        final discountPercent = ((car.realMarketValue - car.askingPrice) / car.realMarketValue) * 100;
+        final diff = (car.riskLevelPercent - discountPercent).abs();
+        expect(diff, lessThanOrEqualTo(12.0));
       }
     });
   });

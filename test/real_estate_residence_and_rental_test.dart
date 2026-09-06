@@ -373,5 +373,60 @@ void main() {
       expect(updatedProp.currentTenant?.name, 'Murat Arslan');
       expect(updatedProp.activeOffers, isEmpty);
     });
+
+    test('applyRentIndexIncrease respects 365 in-game days cooldown and updates risk', () {
+      final tenant = TenantModel(
+        id: 'tenant_t1',
+        name: 'Test Kiracı',
+        profession: 'Mühendis',
+        reliabilityScore: 85,
+        monthlyRent: 20000.0,
+        depositAmount: 40000.0,
+        evictionRiskScore: 10,
+        lastRentIncreaseDay: 0,
+      );
+
+      final property = RealEstateModel(
+        id: 'prop_t1',
+        title: 'Kadıköy 2+1 Daire',
+        category: RealEstateCategory.housing,
+        city: 'İstanbul',
+        district: 'Kadıköy',
+        squareMeters: 95,
+        roomCount: '2+1',
+        buildingAge: 5,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 4500000.0,
+        currentPurchasePrice: 4000000.0,
+        isRented: true,
+        currentTenant: tenant,
+      );
+
+      gameNotifier.state = gameNotifier.state.copyWith(
+        currentDay: 100,
+        ownedRealEstates: [property],
+      );
+
+      final okEarly = gameNotifier.applyRentIndexIncrease('prop_t1');
+      expect(okEarly, isFalse, reason: 'Must block increase if less than 365 days since last increase');
+
+      gameNotifier.state = gameNotifier.state.copyWith(currentDay: 400);
+
+      final okValid = gameNotifier.applyRentIndexIncrease('prop_t1');
+      expect(okValid, isTrue, reason: 'Must allow increase after 365 in-game days');
+
+      final updatedProp = gameNotifier.state.ownedRealEstates.firstWhere((p) => p.id == 'prop_t1');
+      if (updatedProp.isRented) {
+        expect(updatedProp.currentTenant!.lastRentIncreaseDay, equals(400));
+        expect(updatedProp.currentTenant!.monthlyRent, equals(25000.0));
+        expect(updatedProp.currentTenant!.evictionRiskScore, equals(25));
+
+        final okImmediate = gameNotifier.applyRentIndexIncrease('prop_t1');
+        expect(okImmediate, isFalse, reason: 'Spam tap must be rejected immediately by 365-day cooldown');
+      } else {
+        expect(updatedProp.currentTenant, isNull);
+      }
+    });
   });
 }

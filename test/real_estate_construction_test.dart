@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,8 +14,20 @@ import 'package:galeriden/core/localization/translations/tr_translations.dart';
 import 'package:galeriden/data/models/real_estate_category.dart';
 import 'package:galeriden/data/models/real_estate_model.dart';
 import 'package:galeriden/domain/usecases/construction_timeline_engine.dart';
+import 'package:galeriden/domain/usecases/real_estate_chat_negotiation_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/real_estate/real_estate_construction_screen.dart';
+
+class FixedRandom implements Random {
+  final double val;
+  FixedRandom(this.val);
+  @override
+  double nextDouble() => val;
+  @override
+  int nextInt(int max) => 0;
+  @override
+  bool nextBool() => true;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -415,6 +428,494 @@ void main() {
       // Clean up timer and container
       notifier.stopPeriodicOrganicOfferTimer();
       container.dispose();
+    });
+
+    test('6. ConstructionTimelineEngine: 8 Stages, Tier multipliers & Duration calculation', () {
+      expect(ConstructionTimelineEngine.stages.length, equals(8));
+
+      final stage1 = ConstructionTimelineEngine.getStageDetails(1);
+      expect(stage1.stageNumber, equals(1));
+      expect(stage1.baseDays, equals(8));
+      expect(stage1.costPercentage, equals(0.10));
+
+      final stage2 = ConstructionTimelineEngine.getStageDetails(2);
+      expect(stage2.stageNumber, equals(2));
+      expect(stage2.baseDays, equals(10));
+      expect(stage2.costPercentage, equals(0.12));
+
+      final standardDays = ConstructionTimelineEngine.calculateStageDays(
+        stageNumber: 1,
+        parcelSquareMeters: 500,
+        tier: SubcontractorTier.standard,
+      );
+      final speedDays = ConstructionTimelineEngine.calculateStageDays(
+        stageNumber: 1,
+        parcelSquareMeters: 500,
+        tier: SubcontractorTier.speed,
+      );
+      final budgetDays = ConstructionTimelineEngine.calculateStageDays(
+        stageNumber: 1,
+        parcelSquareMeters: 500,
+        tier: SubcontractorTier.budget,
+      );
+
+      expect(speedDays, lessThanOrEqualTo(standardDays));
+      expect(budgetDays, greaterThanOrEqualTo(standardDays));
+
+      for (int s = 1; s <= 4; s++) {
+        final subs = ConstructionTimelineEngine.getSubcontractorsForStage(s);
+        expect(subs.length, equals(3));
+        expect(subs.any((sub) => sub.tier == SubcontractorTier.speed), isTrue);
+        expect(subs.any((sub) => sub.tier == SubcontractorTier.standard), isTrue);
+        expect(subs.any((sub) => sub.tier == SubcontractorTier.budget), isTrue);
+      }
+
+      expect(ConstructionTimelineEngine.humorousAnecdoteKeys.isNotEmpty, isTrue);
+      expect(ConstructionTimelineEngine.anecdoteTurkishTexts.isNotEmpty, isTrue);
+      final randomAnecdote = ConstructionTimelineEngine.getRandomAnecdoteText(Random(42));
+      expect(randomAnecdote.isNotEmpty, isTrue);
+    });
+
+    test('7. RealEstateChatNegotiationEngine: Subcontractor Tactics Execution', () {
+      final session = ChatNegotiationState(
+        targetId: 'land_sub_test',
+        counterpartyName: 'Dozerci Bekir',
+        counterpartyRole: ChatSenderRole.subcontractor,
+        currentPrice: 500000.0,
+        patience: 100,
+        satisfaction: 60,
+        messages: [
+          ChatMessageModel(
+            id: 'msg_0',
+            senderName: 'Dozerci Bekir',
+            role: ChatSenderRole.subcontractor,
+            message: 'Hafriyat işini alırız patron.',
+            timestamp: DateTime.now(),
+            isFromPlayer: false,
+          ),
+        ],
+      );
+
+      expect(session.counterpartyRole, equals(ChatSenderRole.subcontractor));
+      expect(session.currentPrice, equals(500000.0));
+      expect(session.patience, equals(100));
+
+      final afterDoubleShift = RealEstateChatNegotiationEngine.executeTactic(
+        state: session,
+        tactic: ChatTacticType.demandDoubleShift,
+        playerMessageText: 'Mikserleri gece sokalım, çift vardiya basalım!',
+        random: FixedRandom(0.2),
+      );
+      expect(afterDoubleShift.messages.length, greaterThan(session.messages.length));
+      expect(afterDoubleShift.patience, lessThan(session.patience));
+      expect(afterDoubleShift.messages.last.badgeText, equals('ÇİFT VARDİYA ONAYLANDI'));
+
+      final afterCash = RealEstateChatNegotiationEngine.executeTactic(
+        state: afterDoubleShift,
+        tactic: ChatTacticType.demandCashMaterials,
+        playerMessageText: 'Demir ve çimentoyu nakit çekeceğim!',
+        random: FixedRandom(0.2),
+      );
+      expect(afterCash.currentPrice, lessThan(afterDoubleShift.currentPrice));
+      expect(afterCash.messages.last.badgeText, equals('PEŞİN MALZEME İNDİRİMİ'));
+
+      final afterPenalty = RealEstateChatNegotiationEngine.executeTactic(
+        state: afterCash,
+        tactic: ChatTacticType.demandPenaltyClause,
+        playerMessageText: 'Gecikme cezası koyuyorum!',
+        random: FixedRandom(0.2),
+      );
+      expect(afterPenalty.messages.last.badgeText, equals('CEZAİ ŞART TAAHHÜDÜ'));
+
+      final agreed = RealEstateChatNegotiationEngine.executeTactic(
+        state: afterPenalty,
+        tactic: ChatTacticType.acceptAgreement,
+        playerMessageText: 'Anlaştık usta el sıkışalım.',
+        random: FixedRandom(0.2),
+      );
+      expect(agreed.isAgreed, isTrue);
+      expect(agreed.messages.last.badgeText, equals('MUTABAKAT SAĞLANDI'));
+    });
+
+    test('8. GameRealEstateMixin & GameTimeMixin: 3-State Construction Lifecycle & Daily Countdown', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final land = RealEstateModel(
+        id: 'land_sim_test',
+        title: 'Kemerburgaz Proje Arsası',
+        category: RealEstateCategory.land,
+        city: 'İstanbul',
+        district: 'Eyüpsultan',
+        squareMeters: 600,
+        roomCount: '-',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 6000000,
+        currentPurchasePrice: 6000000,
+      );
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [land],
+        balance: 10000000,
+        maxRealEstateSlots: 10,
+      );
+
+      final startSuccess = notifier.startSelfBuildConstruction('land_sim_test');
+      expect(startSuccess, isTrue);
+
+      var currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isConstructionActive, isTrue);
+      expect(currentLand.constructionMode, equals('selfBuild'));
+      expect(currentLand.constructionStage, equals(1));
+      expect(currentLand.constructionDaysRemaining, equals(1));
+      expect(currentLand.isConstructionWorking, isTrue);
+      expect(currentLand.isArchitecturalApproved, isFalse);
+
+      notifier.advanceGameDay();
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isArchitecturalApproved, isTrue);
+      expect(currentLand.hasBuildingPermit, isFalse);
+      expect(currentLand.isConstructionWorking, isFalse);
+
+      final permitSuccess = notifier.submitSelfBuildMunicipalPermit('land_sim_test');
+      expect(permitSuccess, isTrue);
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isConstructionWorking, isTrue);
+      expect(currentLand.constructionDaysRemaining, equals(1));
+
+      notifier.advanceGameDay();
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.hasBuildingPermit, isTrue);
+      expect(currentLand.constructionStage, equals(2));
+      expect(currentLand.constructionDaysRemaining, equals(0));
+      expect(currentLand.isConstructionWorking, isFalse);
+
+      final sub = ConstructionTimelineEngine.getSubcontractorsForStage(2).first;
+      final balanceBeforeStage = notifier.state.balance;
+      final stageStartSuccess = notifier.startSelfBuildStage(
+        'land_sim_test',
+        subcontractor: sub,
+        triggerIncidents: false,
+      );
+      expect(stageStartSuccess, isTrue);
+      expect(notifier.state.balance, lessThan(balanceBeforeStage));
+
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.isConstructionWorking, isTrue);
+      expect(currentLand.activeSubcontractorName, equals(sub.name));
+      expect(currentLand.constructionDaysRemaining, greaterThan(0));
+
+      while (currentLand.constructionDaysRemaining > 0) {
+        notifier.advanceGameDay();
+        currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      }
+      expect(currentLand.constructionDaysRemaining, equals(0));
+
+      final completeStage2 = notifier.completeSelfBuildStage('land_sim_test');
+      expect(completeStage2, isTrue);
+
+      currentLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+      expect(currentLand.constructionStage, equals(3));
+      expect(currentLand.isConstructionWorking, isFalse);
+
+      for (int stage = 3; stage <= 8; stage++) {
+        final stageSub = ConstructionTimelineEngine.getSubcontractorsForStage(stage)[1];
+        notifier.startSelfBuildStage(
+          'land_sim_test',
+          subcontractor: stageSub,
+          triggerIncidents: false,
+        );
+
+        var workingLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+        while (workingLand.constructionDaysRemaining > 0) {
+          notifier.advanceGameDay();
+          workingLand = notifier.state.ownedRealEstates.firstWhere((x) => x.id == 'land_sim_test');
+        }
+
+        final completeSuccess = notifier.completeSelfBuildStage('land_sim_test');
+        expect(completeSuccess, isTrue);
+      }
+
+      final turnkeyApartments = notifier.finalizeConstruction('land_sim_test');
+      expect(turnkeyApartments.isNotEmpty, isTrue);
+      expect(turnkeyApartments.length, equals(6));
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
+
+    test('9. Invariant Rules: Anecdotes & Radio Messages have Zero Emojis & Zero Parentheses', () {
+      final emojiPattern = RegExp(
+        r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]',
+        unicode: true,
+      );
+      final parenthesesPattern = RegExp(r'[()]');
+
+      for (final text in ConstructionTimelineEngine.anecdoteTurkishTexts.values) {
+        expect(emojiPattern.hasMatch(text), isFalse,
+            reason: 'Invariant Violation: Emoji found in anecdote: "$text"');
+        expect(parenthesesPattern.hasMatch(text), isFalse,
+            reason: 'Invariant Violation: Parentheses found in anecdote: "$text"');
+      }
+    });
+
+    test('10. Stage 4 Pre-Sale Capability & Dynamic Stage Cost Calculation', () {
+      const baseLand = RealEstateModel(
+        id: 'stage4_test_land',
+        title: 'Beykoz Proje Sahası',
+        category: RealEstateCategory.land,
+        city: 'İstanbul',
+        district: 'Beykoz',
+        squareMeters: 600,
+        roomCount: 'İmarlı Arsa',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 10000000.0,
+        currentPurchasePrice: 10000000.0,
+        constructionMode: 'selfBuild',
+        contractorSharePercent: 0,
+        constructionStage: 4,
+        isConstructionWorking: true,
+        constructionDaysRemaining: 10,
+        soldPreSaleUnits: 2,
+      );
+
+      expect(baseLand.playerShareUnits, equals(4));
+      expect(baseLand.canPreSell, isTrue);
+
+      for (final stage in ConstructionTimelineEngine.stages) {
+        final expectedCost = (baseLand.baseMarketValue * stage.costPercentage).roundToDouble();
+        expect(expectedCost, greaterThan(0));
+      }
+    });
+  });
+
+  group('Construction & Kat Karşılığı Audit Constitution Tests', () {
+    late RealEstateModel sampleLand;
+
+    setUp(() {
+      sampleLand = const RealEstateModel(
+        id: 'test_land_1',
+        title: 'Ataşehir Arsa Parseli',
+        category: RealEstateCategory.land,
+        city: 'İstanbul',
+        district: 'Ataşehir',
+        squareMeters: 1000,
+        roomCount: 'Arsa',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 10000000.0,
+        currentPurchasePrice: 10000000.0,
+        deedFeePaid: 400000.0,
+        commissionPaid: 200000.0,
+        customUnitMix: {
+          'units1Plus0': 0,
+          'units1Plus1': 4,
+          'units2Plus0': 0,
+          'units2Plus1': 4,
+          'units3Plus1': 2,
+          'units4Plus1': 0,
+        },
+      );
+    });
+
+    test('A1: Player share percentage calculation and unit allocation', () {
+      expect(sampleLand.totalProjectUnits, 10);
+
+      final land55 = sampleLand.copyWith(playerSharePercent: 55);
+      expect(land55.playerShareUnits, 5);
+
+      final land33 = sampleLand.copyWith(playerSharePercent: 33);
+      expect(land33.playerShareUnits, 3);
+
+      expect(land55.contractorSharePercent, 45);
+      expect(land33.contractorSharePercent, 67);
+    });
+
+    test('A5: Negotiation engine acceptAgreement requires satisfaction >= 40', () {
+      final stateLowSatisfaction = RealEstateChatNegotiationEngine.createContractorSession(
+        landId: 'land_test',
+        totalUnits: 10,
+        baseMarketValue: 5000000.0,
+      ).copyWith(satisfaction: 20);
+
+      final stateRejected = RealEstateChatNegotiationEngine.executeTactic(
+        state: stateLowSatisfaction,
+        tactic: ChatTacticType.acceptAgreement,
+        playerMessageText: 'Anlaştık',
+        random: Random(42),
+      );
+      expect(stateRejected.isAgreed, isFalse);
+
+      final stateHighSatisfaction = stateLowSatisfaction.copyWith(satisfaction: 60);
+      final stateAgreed = RealEstateChatNegotiationEngine.executeTactic(
+        state: stateHighSatisfaction,
+        tactic: ChatTacticType.acceptAgreement,
+        playerMessageText: 'Anlaştık',
+        random: Random(42),
+      );
+      expect(stateAgreed.isAgreed, isTrue);
+    });
+
+    test('A5: demandCashDiscount is distinct from acceptAgreement and observes minPrice', () {
+      final initialPrice = 1000000.0;
+      final minPrice = 800000.0;
+      final state = RealEstateChatNegotiationEngine.createContractorSession(
+        landId: 'land_test',
+        totalUnits: 10,
+        baseMarketValue: initialPrice,
+      ).copyWith(
+        currentPrice: initialPrice,
+        minPrice: minPrice,
+      );
+
+      final nextState = RealEstateChatNegotiationEngine.executeTactic(
+        state: state,
+        tactic: ChatTacticType.demandCashDiscount,
+        playerMessageText: 'Peşin indirim istiyorum',
+        random: Random(42),
+      );
+
+      expect(nextState.isAgreed, isFalse);
+      expect(nextState.currentPrice, greaterThanOrEqualTo(minPrice));
+    });
+
+    test('A6: Diminishing returns on askJokeOrChat', () {
+      var state = RealEstateChatNegotiationEngine.createContractorSession(
+        landId: 'land_test',
+        totalUnits: 10,
+        baseMarketValue: 5000000.0,
+      ).copyWith(patience: 50, maxPatience: 100);
+
+      state = RealEstateChatNegotiationEngine.executeTactic(
+        state: state,
+        tactic: ChatTacticType.askJokeOrChat,
+        playerMessageText: 'Bir fıkra anlatayım',
+        random: Random(42),
+      );
+      expect(state.jokeUseCount, 1);
+      expect(state.patience, greaterThan(50));
+
+      state = RealEstateChatNegotiationEngine.executeTactic(
+        state: state,
+        tactic: ChatTacticType.askJokeOrChat,
+        playerMessageText: 'Bir tane daha',
+        random: Random(42),
+      );
+      expect(state.jokeUseCount, 2);
+
+      state = RealEstateChatNegotiationEngine.executeTactic(
+        state: state,
+        tactic: ChatTacticType.askJokeOrChat,
+        playerMessageText: 'Son bir şaka',
+        random: Random(42),
+      );
+      expect(state.jokeUseCount, 3);
+
+      final patienceBefore = state.patience;
+      state = RealEstateChatNegotiationEngine.executeTactic(
+        state: state,
+        tactic: ChatTacticType.askJokeOrChat,
+        playerMessageText: 'Bir espri daha',
+        random: Random(42),
+      );
+      expect(state.jokeUseCount, 4);
+      expect(state.patience, lessThan(patienceBefore));
+    });
+
+    test('B1 & B4: Stage cost calculation and self build initialization', () {
+      final stage2Cost = ConstructionPricing.stageCost(sampleLand, 2);
+      final stageDetails = ConstructionTimelineEngine.getStageDetails(2);
+      expect(stage2Cost, (sampleLand.baseMarketValue * stageDetails.costPercentage).roundToDouble());
+
+      final daysStandard = ConstructionTimelineEngine.calculateStageDays(
+        stageNumber: 2,
+        parcelSquareMeters: 1000,
+        tier: SubcontractorTier.standard,
+      );
+      final daysSpeed = ConstructionTimelineEngine.calculateStageDays(
+        stageNumber: 2,
+        parcelSquareMeters: 1000,
+        durationMultiplier: 0.75,
+      );
+      expect(daysSpeed, lessThanOrEqualTo(daysStandard));
+    });
+
+    test('B10 & E0: LandPhase state machine transitions', () {
+      final landNoMix = sampleLand.copyWith(clearCustomUnitMix: true);
+      expect(landNoMix.landPhase, LandPhase.imar);
+
+      expect(sampleLand.landPhase, LandPhase.modSecimi);
+
+      final landContractor = sampleLand.copyWith(
+        constructionMode: 'contractor',
+        constructionStage: 2,
+        constructionDaysRemaining: 15,
+      );
+      expect(landContractor.landPhase, LandPhase.muteahhitBekleme);
+
+      final landSelfBuildReady = sampleLand.copyWith(
+        constructionMode: 'selfBuild',
+        constructionStage: 2,
+        isConstructionWorking: false,
+        constructionDaysRemaining: 0,
+      );
+      expect(landSelfBuildReady.landPhase, LandPhase.etapHazir);
+
+      final landSelfBuildWorking = sampleLand.copyWith(
+        constructionMode: 'selfBuild',
+        constructionStage: 2,
+        isConstructionWorking: true,
+        constructionDaysRemaining: 8,
+      );
+      expect(landSelfBuildWorking.landPhase, LandPhase.etapCalisiyor);
+
+      final landComplete = sampleLand.copyWith(
+        constructionMode: 'selfBuild',
+        constructionStage: 8,
+        isConstructionWorking: false,
+        constructionDaysRemaining: 0,
+      );
+      expect(landComplete.isConstructionComplete, isTrue);
+      expect(landComplete.landPhase, LandPhase.teslimeHazir);
+    });
+
+    test('C4: Unit acquisition cost includes land purchase, fees, and construction expenses', () {
+      final landWithSpent = sampleLand.copyWith(
+        constructionStage: 8,
+        constructionDaysRemaining: 0,
+        totalConstructionSpent: 5000000.0,
+      );
+
+      final totalInvested = landWithSpent.currentPurchasePrice +
+          landWithSpent.deedFeePaid +
+          landWithSpent.commissionPaid +
+          landWithSpent.totalConstructionSpent;
+      final unitsToCreate = landWithSpent.playerShareUnits;
+      final costPerUnit = (totalInvested / unitsToCreate).roundToDouble();
+
+      expect(costPerUnit, 3120000.0);
+    });
+
+    test('C7: copyWith clearConstructionMode clears active construction', () {
+      final activeLand = sampleLand.copyWith(
+        constructionMode: 'contractor',
+        constructionStage: 4,
+      );
+      expect(activeLand.isConstructionActive, isTrue);
+
+      final clearedLand = activeLand.copyWith(
+        clearConstructionMode: true,
+        constructionStage: 0,
+        constructionDaysRemaining: 0,
+      );
+      expect(clearedLand.constructionMode, isNull);
+      expect(clearedLand.isConstructionActive, isFalse);
     });
   });
 }

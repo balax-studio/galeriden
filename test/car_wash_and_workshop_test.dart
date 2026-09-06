@@ -1,25 +1,22 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/constants/first_time_action_keys.dart';
 import 'package:galeriden/data/models/car_model.dart';
+import 'package:galeriden/data/models/car_wash_job_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';
-import 'package:galeriden/data/models/car_wash_job_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
-
-  group('Oto Yıkama & Tamir Atölyesi Mikro RPG & Derinlik Test Paketi', () {
+  group('Car Wash, Detailing Packages & Workshop Micro RPG Suite', () {
     late ProviderContainer container;
     late CarModel testCar;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       container = ProviderContainer();
 
       testCar = CarModel(
@@ -46,6 +43,10 @@ void main() {
             'Tavan': 100.0,
           },
         ),
+        isWashed: false,
+        isPolished: false,
+        isDetailedCleaned: false,
+        appliedDetailingOptionIds: [],
       );
 
       container.read(gameProvider.notifier).state = container.read(gameProvider).copyWith(
@@ -63,7 +64,71 @@ void main() {
       );
     });
 
-    test('1. Customer wash jobs generate randomized requests with payouts and XP', () {
+    tearDown(() {
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
+
+    test('1. Applying Package 1 (Köpüklü Yıkama) sets isWashed but does NOT mark Package 2 (Interior)', () {
+      final notifier = container.read(gameProvider.notifier);
+
+      final washSuccess = notifier.performWashService(
+        testCar.id,
+        cost: 350.0,
+        valueBoostPercent: 0.01,
+        setWashed: true,
+        setInterior: false,
+        setPolished: false,
+        setDetailed: false,
+      );
+
+      expect(washSuccess, isTrue);
+      final updatedCar = notifier.state.ownedCars.first;
+
+      expect(updatedCar.isWashed, isTrue);
+      expect(updatedCar.isInteriorCleaned, isFalse);
+      expect(updatedCar.isPolished, isFalse);
+      expect(updatedCar.isDetailedCleaned, isFalse);
+    });
+
+    test('2. Package 2 (Detaylı İç-Dış Temizlik) can be applied after Package 1 independently and rejects duplicates', () {
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.performWashService(
+        testCar.id,
+        cost: 350.0,
+        valueBoostPercent: 0.01,
+        setWashed: true,
+      );
+
+      expect(notifier.state.ownedCars.first.isWashed, isTrue);
+      expect(notifier.state.ownedCars.first.isInteriorCleaned, isFalse);
+
+      final interiorSuccess = notifier.performWashService(
+        testCar.id,
+        cost: 1200.0,
+        valueBoostPercent: 0.03,
+        setWashed: true,
+        setInterior: true,
+      );
+
+      expect(interiorSuccess, isTrue);
+      final fullyWashedCar = notifier.state.ownedCars.first;
+      expect(fullyWashedCar.isWashed, isTrue);
+      expect(fullyWashedCar.isInteriorCleaned, isTrue);
+      expect(fullyWashedCar.isPolished, isFalse);
+      expect(fullyWashedCar.isDetailedCleaned, isFalse);
+
+      final duplicateInterior = notifier.performWashService(
+        testCar.id,
+        cost: 1200.0,
+        valueBoostPercent: 0.03,
+        setInterior: true,
+      );
+      expect(duplicateInterior, isFalse);
+    });
+
+    test('3. Customer wash jobs generate randomized requests with payouts and XP', () {
       final jobs = CustomerWashJob.generateRandomJobs(count: 4);
 
       expect(jobs.length, equals(4));
@@ -75,7 +140,7 @@ void main() {
       }
     });
 
-    test('2. Completing a customer wash job adds money to balance and awards XP', () {
+    test('4. Completing a customer wash job adds money to balance and awards XP', () {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         completedFirstTimeActions: {FirstTimeActionKeys.firstCarWash},
@@ -100,9 +165,9 @@ void main() {
       expect(container.read(gameProvider).skills.xp, equals(initialXp + job.masteryXp));
     });
 
-    test('3. Applying a scented aroma tags the car and adds detailing option', () {
+    test('5. Applying a scented aroma tags the car and adds detailing option', () {
       final initialBalance = container.read(gameProvider).balance;
-      final scent = CarScent.availableScents.first; // Kavun & Sakız (₺150)
+      final scent = CarScent.availableScents.first;
 
       final success = container.read(gameProvider.notifier).applyCarScent(testCar.id, scent);
 
@@ -113,7 +178,7 @@ void main() {
       expect(updatedCar.appliedScentId, equals(scent.id));
     });
 
-    test('4. Headlight restoration and wheel iron decon increase car value and tag detailing', () {
+    test('6. Headlight restoration and wheel iron decon increase car value and tag detailing', () {
       final initialBalance = container.read(gameProvider).balance;
 
       final successHeadlight = container.read(gameProvider.notifier).restoreHeadlights(testCar.id);
@@ -121,7 +186,6 @@ void main() {
 
       expect(successHeadlight, isTrue);
       expect(successIron, isTrue);
-      // Cost: 850 + 450 = 1300
       expect(container.read(gameProvider).balance, equals(initialBalance - 1300));
 
       final updatedCar = container.read(gameProvider).ownedCars.firstWhere((c) => c.id == testCar.id);
@@ -129,7 +193,7 @@ void main() {
       expect(updatedCar.hasIronDecon, isTrue);
     });
 
-    test('5. PDR dent repair and 2-Year TÜVTÜRK certification tag car correctly', () {
+    test('7. PDR dent repair and 2-Year TÜVTÜRK certification tag car correctly', () {
       final initialBalance = container.read(gameProvider).balance;
 
       final successPdr = container.read(gameProvider.notifier).performPdrDentRepair(testCar.id);
@@ -137,7 +201,6 @@ void main() {
 
       expect(successPdr, isTrue);
       expect(successTuvturk, isTrue);
-      // Cost: 3200 + 1500 = 4700
       expect(container.read(gameProvider).balance, equals(initialBalance - 4700));
 
       final updatedCar = container.read(gameProvider).ownedCars.firstWhere((c) => c.id == testCar.id);
@@ -145,7 +208,7 @@ void main() {
       expect(updatedCar.hasTuvturkCertified, isTrue);
     });
 
-    test('6. Treating workshop staff with sanayi tostu boosts morale', () {
+    test('8. Treating workshop staff with sanayi tostu boosts morale', () {
       final initialBalance = container.read(gameProvider).balance;
       final initialMorale = container.read(gameProvider).hiredStaff.first.morale;
 

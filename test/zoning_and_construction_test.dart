@@ -1,13 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:galeriden/core/localization/translations/ar_translations.dart';
-import 'package:galeriden/core/localization/translations/de_translations.dart';
-import 'package:galeriden/core/localization/translations/en_translations.dart';
-import 'package:galeriden/core/localization/translations/es_translations.dart';
-import 'package:galeriden/core/localization/translations/pt_translations.dart';
-import 'package:galeriden/core/localization/translations/ru_translations.dart';
-import 'package:galeriden/core/localization/translations/tr_translations.dart';
+import 'helpers/invariant_test_helpers.dart';
+import 'package:galeriden/data/models/construction_stages_model.dart';
 import 'package:galeriden/data/models/real_estate_category.dart';
 import 'package:galeriden/data/models/real_estate_model.dart';
+import 'package:galeriden/domain/usecases/construction_negative_events_engine.dart';
 import 'package:galeriden/domain/usecases/construction_timeline_engine.dart';
 import 'package:galeriden/domain/usecases/zoning_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
@@ -21,7 +17,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  group('Dynamic KAKS & 8-Stage Municipal Lifecycle Test Suite', () {
+  group('Dynamic KAKS & Zoning Construction Lifecycle Suite', () {
     test('1. Turkish Zoning Law KAKS & TAKS Math & 15% Core Deduction', () {
       const parcelM2 = 1000.0;
       const baseValue = 10000000.0;
@@ -71,7 +67,6 @@ void main() {
       );
 
       expect(customMix.totalUnits, equals(17));
-      // Total gross area check
       final expectedGross = (2 * 45) + (4 * 65) + (3 * 80) + (5 * 105) + (2 * 135) + (1 * 175);
       expect(customMix.totalGrossArea, equals(expectedGross.toDouble()));
 
@@ -90,21 +85,19 @@ void main() {
       final optimized = ZoningEngine.optimizeUnitMix(1000.0);
       expect(optimized.totalUnits, greaterThan(0));
       expect(optimized.totalGrossArea, lessThanOrEqualTo(1000.0));
-      expect(optimized.totalGrossArea, greaterThan(800.0)); // Highly efficient fill
+      expect(optimized.totalGrossArea, greaterThan(800.0));
     });
 
     test('3. ConstructionTimelineEngine 8 Stages & Municipal Checklist Progression', () {
       final stages = ConstructionTimelineEngine.stages;
       expect(stages.length, equals(8));
 
-      // Verify strict sequential numbering 1 to 8
       for (int i = 0; i < 8; i++) {
         expect(stages[i].stageNumber, equals(i + 1));
         expect(stages[i].costPercentage, greaterThan(0.0));
         expect(stages[i].baseDays, greaterThan(0));
       }
 
-      // Total cost percentage across all 8 stages should sum to 1.0 (100%)
       final totalPercentage = stages.fold<double>(0.0, (sum, s) => sum + s.costPercentage);
       expect(totalPercentage, closeTo(1.0, 0.001));
 
@@ -112,12 +105,12 @@ void main() {
       final stage1Docs = ConstructionTimelineEngine.getMunicipalDocuments(1);
       expect(stage1Docs.length, equals(8));
       final inReviewAtStage1 = stage1Docs.where((d) => d.status == MunicipalDocStatus.inReview).toList();
-      expect(inReviewAtStage1.length, equals(4)); // 4 documents required for stage 1 are currently inReview
+      expect(inReviewAtStage1.length, equals(4));
 
       // Municipal Documents: Stage 2 (Stage 1 docs now approved)
       final stage2Docs = ConstructionTimelineEngine.getMunicipalDocuments(2);
       final approvedAtStage2 = stage2Docs.where((d) => d.status == MunicipalDocStatus.approved).toList();
-      expect(approvedAtStage2.length, equals(4)); // Stage 1 docs approved
+      expect(approvedAtStage2.length, equals(4));
 
       // Municipal Documents: Stage 8 (Finished)
       final finishedDocs = ConstructionTimelineEngine.getMunicipalDocuments(8, isFinished: true);
@@ -160,7 +153,6 @@ void main() {
         maxRealEstateSlots: 10,
       );
 
-      // Start Self Build with custom unit mix
       final startSuccess = notifier.startSelfBuildConstruction(
         'land_typology_mint_test',
         customUnitMix: configuredMix,
@@ -171,7 +163,6 @@ void main() {
       expect(activeLand.customUnitMix, isNotNull);
       expect(activeLand.totalProjectUnits, equals(8));
 
-      // Fast-forward to Stage 8 finished
       notifier.state = notifier.state.copyWith(
         ownedRealEstates: [
           activeLand.copyWith(
@@ -181,11 +172,9 @@ void main() {
         ],
       );
 
-      // Finalize construction
       final mintedUnits = notifier.finalizeConstruction('land_typology_mint_test');
       expect(mintedUnits.length, equals(8));
 
-      // Check distribution of created apartments
       expect(mintedUnits.where((u) => u.roomCount == '1+0').length, equals(1));
       expect(mintedUnits.where((u) => u.roomCount == '1+1').length, equals(2));
       expect(mintedUnits.where((u) => u.roomCount == '2+0').length, equals(1));
@@ -193,27 +182,67 @@ void main() {
       expect(mintedUnits.where((u) => u.roomCount == '3+1').length, equals(1));
       expect(mintedUnits.where((u) => u.roomCount == '4+1').length, equals(1));
 
-      // Verify gross square meters on minted apartments
       final unit1Plus0 = mintedUnits.firstWhere((u) => u.roomCount == '1+0');
       expect(unit1Plus0.squareMeters, equals(45));
 
       final unit4Plus1 = mintedUnits.firstWhere((u) => u.roomCount == '4+1');
       expect(unit4Plus1.squareMeters, equals(175));
 
+      notifier.stopPeriodicOrganicOfferTimer();
       container.dispose();
     });
 
-    test('5. Invariant Rules: Zero Unicode Emojis & Zero Parentheses across all 7 languages', () {
-      final allLanguages = <String, Map<String, String>>{
-        'tr': trTranslations,
-        'en': enTranslations,
-        'de': deTranslations,
-        'pt': ptTranslations,
-        'es': esTranslations,
-        'ru': ruTranslations,
-        'ar': arTranslations,
-      };
+    test('5. Standard contractors list has 3 distinct tiers with realistic ranges', () {
+      final contractors = ZoningEngine.standardContractors;
+      expect(contractors.length, equals(3));
+      for (final c in contractors) {
+        expect(c.minShare, greaterThanOrEqualTo(40));
+        expect(c.maxShare, lessThanOrEqualTo(65));
+        expect(c.rating, inInclusiveRange(3.0, 5.0));
+      }
+    });
 
+    test('6. ConstructionStagesCatalog & Subcontractor tiers', () {
+      final stages = ConstructionStagesCatalog.stages;
+      expect(stages.length, equals(9));
+
+      for (int i = 0; i < 9; i++) {
+        expect(stages[i].stageNumber, equals(i + 1));
+        expect(stages[i].title.isNotEmpty, isTrue);
+        expect(stages[i].baseCostRatio, greaterThan(0));
+      }
+
+      final stage5 = ConstructionStagesCatalog.getStage(5);
+      expect(stage5.id, equals('cati_izolasyon'));
+
+      final tiers = ConstructionStagesCatalog.subcontractorTiers;
+      expect(tiers.length, equals(3));
+      expect(tiers.map((t) => t.id).toList(), containsAll(['ekonomik', 'usta', 'elit']));
+    });
+
+    test('7. ConstructionNegativeEventsEngine incident roll mechanics and text invariant checks', () {
+      final noIncident = ConstructionNegativeEventsEngine.rollStageIncident(
+        stageNumber: 1,
+        baseStageCost: 100000.0,
+        riskMultiplier: 0.0,
+      );
+      expect(noIncident, isNull);
+
+      for (int i = 0; i < 50; i++) {
+        final incident = ConstructionNegativeEventsEngine.rollStageIncident(
+          stageNumber: 2,
+          baseStageCost: 100000.0,
+          riskMultiplier: 10.0,
+        );
+        if (incident != null) {
+          expect(incident.title.contains('('), isFalse, reason: 'Title must not contain parentheses');
+          expect(incident.title.contains(')'), isFalse, reason: 'Title must not contain parentheses');
+          expect(incident.costImpact, greaterThan(0));
+        }
+      }
+    });
+
+    test('8. Invariant Rules: Zero Unicode Emojis & Zero Parentheses across all 7 languages for zoning & precon keys', () {
       final newZoningKeys = [
         'real_estate_construction_tab_stages',
         'real_estate_construction_tab_kaks',
@@ -270,38 +299,176 @@ void main() {
         'municipal_doc_sgk_desc',
         'municipal_doc_iskan_title',
         'municipal_doc_iskan_desc',
+        'real_estate_precon_plan_title',
+        'real_estate_precon_plan_working_desc',
+        'real_estate_precon_plan_idle_desc',
+        'real_estate_precon_plan_btn_working',
+        'real_estate_self_build_plan_btn',
+        'real_estate_self_build_plan_started_toast',
+        'real_estate_precon_permit_title',
+        'real_estate_precon_permit_working_desc',
+        'real_estate_precon_permit_idle_desc',
+        'real_estate_precon_permit_btn_working',
+        'real_estate_precon_permit_btn',
+        'real_estate_precon_permit_submitted_toast',
       ];
 
-      final emojiRegex = RegExp(
-        r'[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}]',
-        unicode: true,
+      expectInvariantKeys(newZoningKeys);
+    });
+
+    const basePreconLand = RealEstateModel(
+      id: 'precon_land_test',
+      title: 'Göktürk Proje Parseli',
+      category: RealEstateCategory.land,
+      city: 'İstanbul',
+      district: 'Eyüpsultan',
+      squareMeters: 500,
+      roomCount: 'İmarlı Arsa',
+      buildingAge: 0,
+      deedType: DeedType.ownershipDeed,
+      sellerType: RealEstateSellerType.individual,
+      baseMarketValue: 10000000.0,
+      currentPurchasePrice: 10000000.0,
+    );
+
+    test('9. RealEstateModel pre-construction fields and serialization', () {
+      expect(basePreconLand.isArchitecturalApproved, isFalse);
+      expect(basePreconLand.hasBuildingPermit, isFalse);
+      expect(basePreconLand.preConstructionStep, isNull);
+
+      final updated = basePreconLand.copyWith(
+        isArchitecturalApproved: true,
+        hasBuildingPermit: true,
+        preConstructionStep: 'permitApproved',
       );
 
-      for (final langEntry in allLanguages.entries) {
-        final lang = langEntry.key;
-        final map = langEntry.value;
+      expect(updated.isArchitecturalApproved, isTrue);
+      expect(updated.hasBuildingPermit, isTrue);
+      expect(updated.preConstructionStep, equals('permitApproved'));
 
-        for (final key in newZoningKeys) {
-          expect(map.containsKey(key), isTrue,
-              reason: 'Key $key must exist in language $lang');
+      final json = updated.toJson();
+      expect(json['isArchitecturalApproved'], isTrue);
+      expect(json['hasBuildingPermit'], isTrue);
+      expect(json['preConstructionStep'], equals('permitApproved'));
 
-          final value = map[key]!;
+      final restored = RealEstateModel.fromJson(json);
+      expect(restored.isArchitecturalApproved, isTrue);
+      expect(restored.hasBuildingPermit, isTrue);
+      expect(restored.preConstructionStep, equals('permitApproved'));
+    });
 
-          // Rule 1: Zero Unicode Emojis
-          expect(
-            emojiRegex.hasMatch(value),
-            isFalse,
-            reason: 'Value for $key in $lang must not contain Unicode emojis: $value',
-          );
+    test('10. Dynamic fee calculations for architectural plan & municipal permit', () {
+      final basePlanCost = ConstructionPricing.architecturalPlanCost(
+        basePreconLand,
+        costIndex: 1.0,
+        hasArchitectStaff: false,
+      );
+      expect(basePlanCost, equals(400000.0));
 
-          // Rule 2: Zero Parentheses
-          expect(
-            value.contains('(') || value.contains(')'),
-            isFalse,
-            reason: 'Value for $key in $lang must not contain parentheses: $value',
-          );
-        }
-      }
+      final discountedPlanCost = ConstructionPricing.architecturalPlanCost(
+        basePreconLand,
+        costIndex: 1.0,
+        hasArchitectStaff: true,
+      );
+      expect(discountedPlanCost, equals(280000.0));
+
+      final basePermitCost = ConstructionPricing.municipalPermitCost(
+        basePreconLand,
+        costIndex: 1.0,
+        hasLegalAdvisor: false,
+      );
+      expect(basePermitCost, equals(600000.0));
+
+      final discountedPermitCost = ConstructionPricing.municipalPermitCost(
+        basePreconLand,
+        costIndex: 1.0,
+        hasLegalAdvisor: true,
+      );
+      expect(discountedPermitCost, equals(420000.0));
+    });
+
+    test('11. Full 2-Step Pre-Construction Lifecycle in Game Provider', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [basePreconLand],
+        balance: 20000000.0,
+        constructionCostIndex: 1.0,
+      );
+
+      // STEP 1: Architectural Plan
+      final balanceBeforePlan = notifier.state.balance;
+      final planSuccess = notifier.startSelfBuildArchitecturalPlan(basePreconLand.id);
+      expect(planSuccess, isTrue);
+
+      var land = notifier.state.ownedRealEstates.firstWhere((r) => r.id == basePreconLand.id);
+      expect(land.constructionMode, equals('selfBuild'));
+      expect(land.constructionStage, equals(1));
+      expect(land.constructionDaysRemaining, equals(1));
+      expect(land.stageTotalDays, equals(1));
+      expect(land.isConstructionWorking, isTrue);
+      expect(land.isArchitecturalApproved, isFalse);
+      expect(land.hasBuildingPermit, isFalse);
+      expect(land.preConstructionStep, equals('drafting'));
+      expect(notifier.state.balance, equals(balanceBeforePlan - 400000.0));
+
+      final earlyPermit = notifier.submitSelfBuildMunicipalPermit(basePreconLand.id);
+      expect(earlyPermit, isFalse);
+
+      final sub = ConstructionTimelineEngine.getSubcontractorsForStage(2).first;
+      final earlySubcontractor = notifier.startSelfBuildStage(basePreconLand.id, subcontractor: sub);
+      expect(earlySubcontractor, isFalse);
+
+      notifier.advanceGameDay();
+
+      land = notifier.state.ownedRealEstates.firstWhere((r) => r.id == basePreconLand.id);
+      expect(land.constructionStage, equals(1));
+      expect(land.constructionDaysRemaining, equals(0));
+      expect(land.isConstructionWorking, isFalse);
+      expect(land.isArchitecturalApproved, isTrue);
+      expect(land.hasBuildingPermit, isFalse);
+      expect(land.preConstructionStep, equals('draftingCompleted'));
+
+      // STEP 2: Municipal Permit Submission
+      final balanceBeforePermit = notifier.state.balance;
+      final expectedPermitCost = ConstructionPricing.municipalPermitCost(
+        land,
+        costIndex: notifier.state.constructionCostIndex,
+      );
+      final permitSuccess = notifier.submitSelfBuildMunicipalPermit(basePreconLand.id);
+      expect(permitSuccess, isTrue);
+
+      land = notifier.state.ownedRealEstates.firstWhere((r) => r.id == basePreconLand.id);
+      expect(land.constructionDaysRemaining, equals(1));
+      expect(land.isConstructionWorking, isTrue);
+      expect(land.preConstructionStep, equals('municipalReview'));
+      expect(notifier.state.balance, equals(balanceBeforePermit - expectedPermitCost));
+
+      notifier.advanceGameDay();
+
+      land = notifier.state.ownedRealEstates.firstWhere((r) => r.id == basePreconLand.id);
+      expect(land.hasBuildingPermit, isTrue);
+      expect(land.constructionStage, equals(2));
+      expect(land.constructionDaysRemaining, equals(0));
+      expect(land.isConstructionWorking, isFalse);
+      expect(land.preConstructionStep, equals('permitApproved'));
+
+      // STAGE 2: Subcontractor Hiring
+      final subStageSuccess = notifier.startSelfBuildStage(
+        basePreconLand.id,
+        subcontractor: sub,
+        triggerIncidents: false,
+      );
+      expect(subStageSuccess, isTrue);
+
+      land = notifier.state.ownedRealEstates.firstWhere((r) => r.id == basePreconLand.id);
+      expect(land.isConstructionWorking, isTrue);
+      expect(land.activeSubcontractorName, equals(sub.name));
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
     });
   });
 }

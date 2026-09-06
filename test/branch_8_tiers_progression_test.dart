@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/data/models/branch_model.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
@@ -142,6 +143,89 @@ void main() {
       expect(bName3, contains('Sanayi'));
       final bName8 = DealershipModel.getRequiredBranchName('/scrapyard');
       expect(bName8, contains('Holding'));
+    });
+
+    test('Sequential upgrade requirement prevents jumping tiers', () {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+
+      final branches = BranchModel.getAllBranches();
+      final branchTier3 = branches.firstWhere((b) => b.targetLevel == 3);
+      final branchTier2 = branches.firstWhere((b) => b.targetLevel == 2);
+
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = DealershipModel.initial().copyWith(
+        balance: 10000000.0,
+        level: 10,
+      );
+
+      final jumped = notifier.upgradeBranch(branchTier3);
+      expect(jumped, isFalse, reason: 'Cannot jump from Tier 1 to Tier 3');
+      expect(container.read(gameProvider).currentBranchTier, equals(1));
+
+      final upgradedTier2 = notifier.upgradeBranch(branchTier2);
+      expect(upgradedTier2, isTrue, reason: 'Upgrading from Tier 1 to Tier 2 is sequential and valid');
+      expect(container.read(gameProvider).currentBranchTier, equals(2));
+    });
+
+    test('Garage slots are not downgraded if previously expanded', () {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = DealershipModel.initial().copyWith(
+        balance: 10000000.0,
+        level: 10,
+        maxGarageSlots: 10,
+      );
+      expect(container.read(gameProvider).maxGarageSlots, equals(10));
+
+      final branchTier2 = BranchModel.getAllBranches().firstWhere((b) => b.targetLevel == 2);
+      final upgraded = notifier.upgradeBranch(branchTier2);
+      expect(upgraded, isTrue);
+      expect(container.read(gameProvider).maxGarageSlots, equals(10));
+    });
+
+    test('Deed ownership grants base rent immunity for owned branch tier', () {
+      final rentedDealership = DealershipModel.initial();
+      expect(rentedDealership.dailyPropertyRentBurn, equals(300.0));
+
+      final deedDealership = rentedDealership.copyWith(
+        ownedBranchDeeds: {'branch_1'},
+      );
+      expect(deedDealership.dailyPropertyRentBurn, equals(1250.0));
+
+      final tier2WithDeed1 = rentedDealership.copyWith(
+        unlockedBuildings: {'property_tier_2'},
+        ownedBranchDeeds: {'branch_1'},
+      );
+      expect(tier2WithDeed1.dailyPropertyRentBurn, equals(750.0 + 1250.0));
+
+      final tier2WithBothDeeds = rentedDealership.copyWith(
+        unlockedBuildings: {'property_tier_2'},
+        ownedBranchDeeds: {'branch_1', 'branch_2'},
+      );
+      expect(tier2WithBothDeeds.dailyPropertyRentBurn, equals(2500.0));
+    });
+
+    test('Branch profit multiplier scales with branch tier', () {
+      final initial = DealershipModel.initial();
+      expect(initial.branchProfitMultiplier, equals(1.00));
+
+      final tier2 = initial.copyWith(unlockedBuildings: {'property_tier_2'});
+      expect(tier2.branchProfitMultiplier, equals(1.10));
+
+      final tier4 = initial.copyWith(unlockedBuildings: {'property_tier_2', 'property_tier_3', 'property_tier_4'});
+      expect(tier4.branchProfitMultiplier, equals(1.40));
+
+      final tier8 = initial.copyWith(unlockedBuildings: {'property_tier_8'});
+      expect(tier8.branchProfitMultiplier, equals(2.50));
     });
   });
 }

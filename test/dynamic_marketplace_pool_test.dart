@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/market_trend_model.dart';
+import 'package:galeriden/data/models/marketplace_extensions_model.dart';
 import 'package:galeriden/domain/usecases/market_engine.dart';
 import 'package:galeriden/presentation/providers/market_provider.dart';
 
@@ -88,6 +90,43 @@ void main() {
         final currentCount = container.read(marketProvider).length;
         expect(currentCount, greaterThanOrEqualTo(20), reason: 'Market pool must never fall below minimum 20 listings');
         expect(currentCount, lessThanOrEqualTo(70), reason: 'Market pool must never exceed maximum 70 listings');
+      }
+    });
+
+    testWidgets('5. MarketEngine generated listings dynamically translate across all 7 locales', (tester) async {
+      final supportedLanguages = ['tr', 'en', 'de', 'pt', 'es', 'ru', 'ar'];
+      final trend = MarketEngine.generateMarketTrend();
+      final pool = MarketEngine.generateRandomListings(playerLevel: 3, trend: trend, count: 15);
+
+      expect(pool.isNotEmpty, isTrue);
+
+      for (final lang in supportedLanguages) {
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: Locale(lang),
+            home: Builder(
+              builder: (context) {
+                for (final listing in pool) {
+                  final cityName = listing.getLocalizedSellerCity(context);
+                  final sellerName = listing.getLocalizedSellerName(context);
+                  final sellerTrait = listing.getLocalizedSellerTrait(context);
+                  final title = listing.getLocalizedTitle(context);
+                  final description = listing.getLocalizedDescription(context);
+                  final persona = SellerPersona.fromListing(listing);
+
+                  expect(cityName.isNotEmpty, isTrue);
+                  expect(sellerName.isNotEmpty, isTrue);
+                  expect(sellerTrait.isNotEmpty, isTrue);
+                  expect(title.isNotEmpty, isTrue);
+                  expect(description.isNotEmpty, isTrue);
+                  expect(persona, isNotNull);
+                }
+                return const Scaffold(body: Text('Marketplace Test Ready'));
+              },
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
       }
     });
   });

@@ -11,6 +11,7 @@ import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/listing_model.dart';
 import 'package:galeriden/data/models/vehicle_category.dart';
 import 'package:galeriden/domain/usecases/vasita_negotiation_engine.dart';
+import 'helpers/invariant_test_helpers.dart';
 
 void main() {
   CarModel createSampleCar({
@@ -193,17 +194,85 @@ void main() {
     });
   });
 
-  group('Dark Pattern & Suspense Localization & Invariants', () {
-    final translationMaps = {
-      'tr': trTranslations,
-      'en': enTranslations,
-      'de': deTranslations,
-      'es': esTranslations,
-      'pt': ptTranslations,
-      'ru': ruTranslations,
-      'ar': arTranslations,
-    };
+  group('Vasita Negotiation Resistance & Expertise Tests', () {
+    test('PartStatus enum includes localPainted and parses correctly', () {
+      expect(PartStatus.values.contains(PartStatus.localPainted), isTrue);
+      expect(PartStatus.localPainted.name, equals('localPainted'));
+      expect(PartStatus.original.name, equals('original'));
+      expect(PartStatus.painted.name, equals('painted'));
+      expect(PartStatus.changed.name, equals('changed'));
+    });
 
+    test('ExpertiseReport condition maps and localPainted serialization', () {
+      final report = ExpertiseReport(
+        engineCondition: 90.0,
+        transmissionCondition: 88.0,
+        tramerAmount: 1500,
+        mileage: 45000,
+        isMileageTampered: false,
+        bodyParts: {
+          'solOnCamurluk': PartStatus.localPainted,
+          'kaput': PartStatus.original,
+        },
+      );
+      expect(report.bodyParts['solOnCamurluk'], equals(PartStatus.localPainted));
+      expect(report.partConditions['solOnCamurluk'], equals(85.0));
+
+      final json = report.toJson();
+      final reconstructed = ExpertiseReport.fromJson(json);
+      expect(reconstructed.bodyParts['solOnCamurluk'], equals(PartStatus.localPainted));
+      expect(reconstructed.partConditions['solOnCamurluk'], equals(85.0));
+    });
+
+    test('VasitaNegotiationEngine seller tokluk score calculation', () {
+      final urgentTokluk = VasitaNegotiationEngine.calculateSellerTokluk('Acil satılık');
+      final normalTokluk = VasitaNegotiationEngine.calculateSellerTokluk('Tok satıcı');
+      final esnafTokluk = VasitaNegotiationEngine.calculateSellerTokluk('Galerici esnaf');
+
+      expect(urgentTokluk, equals(20));
+      expect(normalTokluk, equals(75));
+      expect(esnafTokluk, equals(55));
+      expect(urgentTokluk, lessThan(normalTokluk));
+    });
+
+    test('Tactic success score factors in player charisma, tactic weight, and seller tokluk', () {
+      final highCharismaScore = VasitaNegotiationEngine.calculateTacticSuccessScore(
+        playerCharisma: 90,
+        tacticWeight: 80,
+        sellerTokluk: 20,
+      );
+
+      final toughSellerScore = VasitaNegotiationEngine.calculateTacticSuccessScore(
+        playerCharisma: 30,
+        tacticWeight: 40,
+        sellerTokluk: 75,
+      );
+
+      expect(highCharismaScore, greaterThan(toughSellerScore));
+    });
+
+    test('calculateBuyerSuccessChance clamps tactic bonus to at most 35 percent', () {
+      final chanceWith35Bonus = VasitaNegotiationEngine.calculateBuyerSuccessChance(
+        askingPrice: 500000.0,
+        offeredPrice: 420000.0,
+        playerLevel: 1,
+        sellerTrait: 'Normal',
+        extraBonusPercent: 0.35,
+      );
+
+      final chanceWithOvercappedBonus = VasitaNegotiationEngine.calculateBuyerSuccessChance(
+        askingPrice: 500000.0,
+        offeredPrice: 420000.0,
+        playerLevel: 1,
+        sellerTrait: 'Normal',
+        extraBonusPercent: 0.90, // should be clamped to 0.35
+      );
+
+      expect(chanceWithOvercappedBonus, equals(chanceWith35Bonus));
+    });
+  });
+
+  group('Dark Pattern & Suspense Localization & Invariants', () {
     const newKeys = [
       'vasita_think_comm_1',
       'vasita_think_comm_2',
@@ -243,47 +312,70 @@ void main() {
       'vasita_dark_net_benefit',
     ];
 
-    test('All 36 extended keys exist across all 7 supported languages without empty values', () {
-      for (final entry in translationMaps.entries) {
-        final lang = entry.key;
-        final map = entry.value;
-
-        for (final key in newKeys) {
-          expect(map.containsKey(key), isTrue, reason: 'Language $lang missing key: $key');
-          expect(map[key]!.trim().isNotEmpty, isTrue, reason: 'Language $lang has empty key: $key');
-        }
-      }
+    test('All 36 extended keys exist across all 7 supported languages without empty values or invariant violations', () {
+      expectInvariantKeys(newKeys);
     });
+  });
 
-    test('Zero Unicode Emojis invariant strictly respected in all new keys across 7 languages', () {
-      final emojiRegex = RegExp(
-        r'[\u{1F300}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}]',
-        unicode: true,
-      );
+  group('Diagnostic Scan Localization & Invariants', () {
+    final diagnosticKeys = [
+      'diag_dialog_title',
+      'diag_dialog_subtitle',
+      'diag_progress_text',
+      'diag_status_queued',
+      'diag_status_scanning',
+      'diag_status_done',
+      'diag_complete_badge',
+      'diag_view_report_btn',
+      'diag_arch_perf',
+      'diag_arch_suv',
+      'diag_arch_comm',
+      'diag_arch_classic',
+      'diag_arch_standard',
+      'diag_perf_s1_t',
+      'diag_perf_s1_d',
+      'diag_perf_s2_t',
+      'diag_perf_s2_d',
+      'diag_perf_s3_t',
+      'diag_perf_s3_d',
+      'diag_perf_s4_t',
+      'diag_perf_s4_d',
+      'diag_suv_s1_t',
+      'diag_suv_s1_d',
+      'diag_suv_s2_t',
+      'diag_suv_s2_d',
+      'diag_suv_s3_t',
+      'diag_suv_s3_d',
+      'diag_suv_s4_t',
+      'diag_suv_s4_d',
+      'diag_comm_s1_t',
+      'diag_comm_s1_d',
+      'diag_comm_s2_t',
+      'diag_comm_s2_d',
+      'diag_comm_s3_t',
+      'diag_comm_s3_d',
+      'diag_comm_s4_t',
+      'diag_comm_s4_d',
+      'diag_classic_s1_t',
+      'diag_classic_s1_d',
+      'diag_classic_s2_t',
+      'diag_classic_s2_d',
+      'diag_classic_s3_t',
+      'diag_classic_s3_d',
+      'diag_classic_s4_t',
+      'diag_classic_s4_d',
+      'diag_std_s1_t',
+      'diag_std_s1_d',
+      'diag_std_s2_t',
+      'diag_std_s2_d',
+      'diag_std_s3_t',
+      'diag_std_s3_d',
+      'diag_std_s4_t',
+      'diag_std_s4_d',
+    ];
 
-      for (final entry in translationMaps.entries) {
-        final lang = entry.key;
-        final map = entry.value;
-
-        for (final key in newKeys) {
-          final text = map[key]!;
-          expect(emojiRegex.hasMatch(text), isFalse,
-              reason: 'Key $key in language $lang contains forbidden Unicode Emoji: $text');
-        }
-      }
-    });
-
-    test('Zero Parentheses invariant strictly respected in all new keys across 7 languages', () {
-      for (final entry in translationMaps.entries) {
-        final lang = entry.key;
-        final map = entry.value;
-
-        for (final key in newKeys) {
-          final text = map[key]!;
-          expect(text.contains('(') || text.contains(')'), isFalse,
-              reason: 'Key $key in language $lang contains forbidden parentheses: $text');
-        }
-      }
+    test('All 53 diagnostic keys satisfy 7-language invariant checks', () {
+      expectInvariantKeys(diagnosticKeys);
     });
   });
 }
