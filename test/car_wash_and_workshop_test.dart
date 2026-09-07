@@ -5,6 +5,7 @@ import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/car_wash_job_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/staff_model.dart';
+import 'package:galeriden/data/models/workshop_job_model.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -144,6 +145,16 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         completedFirstTimeActions: {FirstTimeActionKeys.firstCarWash},
+        hiredStaff: [
+          ...container.read(gameProvider).hiredStaff,
+          StaffModel(
+            id: 'staff_washer_4',
+            name: 'Cemil Usta',
+            role: StaffRole.washer,
+            morale: 80,
+            hiredAt: DateTime.now(),
+          ),
+        ],
       );
       final initialBalance = container.read(gameProvider).balance;
       final initialXp = container.read(gameProvider).skills.xp;
@@ -217,6 +228,96 @@ void main() {
       expect(success, isTrue);
       expect(container.read(gameProvider).balance, equals(initialBalance - 250));
       expect(container.read(gameProvider).hiredStaff.first.morale, equals(initialMorale + 20));
+    });
+
+    test('9. Workshop master repair consumes daily quota, blocks when exhausted, resets on day advance', () {
+      final notifier = container.read(gameProvider.notifier);
+      final initialQuota = container.read(gameProvider).remainingWorkshopRepairsToday;
+      expect(initialQuota, greaterThan(0));
+
+      final repairJob = CustomerRepairJob(
+        id: 'repair_job_quota_1',
+        customerName: 'Ahmet Bey',
+        carModelName: 'Fiat Egea',
+        customerStory: 'Debriyaj kaciriyor',
+        jobType: RepairJobType.transmission,
+        partsCost: 500.0,
+        laborReward: 1500.0,
+        masteryXpReward: 50,
+        correctDiagnosisKey: 'clutch',
+      );
+
+      // Perform repairs until quota is exhausted
+      notifier.state = notifier.state.copyWith(
+        lastWorkshopRepairDay: notifier.state.currentDay,
+        dailyWorkshopRepairsCount: container.read(gameProvider).maxDailyWorkshopRepairs - 1,
+      );
+      expect(container.read(gameProvider).remainingWorkshopRepairsToday, equals(1));
+
+      // 1 repair remaining - should succeed
+      final success1 = notifier.completeCustomerRepairJob(repairJob);
+      expect(success1, isTrue);
+      expect(container.read(gameProvider).remainingWorkshopRepairsToday, equals(0));
+
+      // 0 repairs remaining - should fail
+      final success2 = notifier.completeCustomerRepairJob(repairJob);
+      expect(success2, isFalse);
+
+      // Advance day resets daily quota
+      notifier.advanceGameDay();
+      expect(container.read(gameProvider).remainingWorkshopRepairsToday, equals(container.read(gameProvider).maxDailyWorkshopRepairs));
+      expect(container.read(gameProvider).dailyWorkshopRepairsCount, equals(0));
+    });
+
+    test('10. Car wash specialist consumes daily quota, blocks when exhausted, resets on day advance', () {
+      final notifier = container.read(gameProvider.notifier);
+      
+      // Add washer to staff
+      notifier.state = notifier.state.copyWith(
+        hiredStaff: [
+          ...container.read(gameProvider).hiredStaff,
+          StaffModel(
+            id: 'staff_washer_1',
+            name: 'Cemil Usta',
+            role: StaffRole.washer,
+            morale: 80,
+            hiredAt: DateTime.now(),
+          ),
+        ],
+      );
+
+      expect(container.read(gameProvider).remainingCarWashesToday, greaterThan(0));
+
+      final washJob = CustomerWashJob(
+        id: 'wash_job_quota_1',
+        customerName: 'Mehmet Bey',
+        vehicleName: 'Toyota Corolla',
+        customerStory: 'Toz toprak icinde kaldi',
+        washType: WashJobType.foamWash,
+        paymentReward: 500.0,
+        masteryXp: 20,
+      );
+
+      // Exhaust all but 1
+      notifier.state = notifier.state.copyWith(
+        lastCarWashDay: notifier.state.currentDay,
+        dailyCarWashCount: container.read(gameProvider).maxDailyCarWashes - 1,
+      );
+      expect(container.read(gameProvider).remainingCarWashesToday, equals(1));
+
+      // 1 wash remaining - succeeds
+      final success1 = notifier.completeCustomerWashJob(washJob);
+      expect(success1, isTrue);
+      expect(container.read(gameProvider).remainingCarWashesToday, equals(0));
+
+      // 0 wash remaining - fails
+      final success2 = notifier.completeCustomerWashJob(washJob);
+      expect(success2, isFalse);
+
+      // Advance day resets wash quota
+      notifier.advanceGameDay();
+      expect(container.read(gameProvider).remainingCarWashesToday, equals(container.read(gameProvider).maxDailyCarWashes));
+      expect(container.read(gameProvider).dailyCarWashCount, equals(0));
     });
   });
 }

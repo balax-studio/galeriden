@@ -57,6 +57,19 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   bool _isRefreshing = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
+        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.marketplace)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     _debounceTimer?.cancel();

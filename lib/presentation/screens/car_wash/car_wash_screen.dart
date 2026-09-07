@@ -11,7 +11,6 @@ import '../../../data/models/vehicle_category.dart';
 import '../../../data/models/car_wash_job_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/staff_model.dart';
-import '../../../data/models/side_business_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
@@ -332,10 +331,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               builder: (context) {
                 final hasWasherStaff =
                     game.hiredStaff.any((s) => s.role == StaffRole.washer);
-                final hasWashBusiness = game.sideBusinesses.any(
-                    (b) => b.type == SideBusinessType.carWash && b.isOperational);
 
-                if (!hasWasherStaff && !hasWashBusiness) {
+                if (!hasWasherStaff) {
                   return NeoBrutalCard(
                     padding: const EdgeInsets.all(20),
                     backgroundColor:
@@ -441,6 +438,10 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   );
                 }
 
+                final remainingQuota = game.remainingCarWashesToday;
+                final maxQuota = game.maxDailyCarWashes;
+                final hasQuota = remainingQuota > 0;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -448,11 +449,31 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                            child: Text(
-                          context.tr('car_wash_queue_title'),
-                          style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w900),
-                        )),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('car_wash_queue_title'),
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w900),
+                              ),
+                              const SizedBox(height: 4),
+                              NeoBrutalBadge(
+                                text: context.tr('car_wash_daily_quota_badge', {
+                                  'remaining': '$remainingQuota',
+                                  'max': '$maxQuota',
+                                }),
+                                icon: Icons.timelapse_rounded,
+                                backgroundColor: hasQuota
+                                    ? const Color(0xFF00E575)
+                                    : AppColors.errorRed,
+                                textColor:
+                                    hasQuota ? Colors.black : Colors.white,
+                                fontSize: 9.5,
+                              ),
+                            ],
+                          ),
+                        ),
                         NeoBrutalButton(
                           label: context.tr('car_wash_btn_scan_requests'),
                           icon: Icons.refresh_rounded,
@@ -464,6 +485,13 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
                           onPressed: () {
+                            if (!hasQuota) {
+                              NotificationService.showInfo(
+                                  context,
+                                  context
+                                      .tr('car_wash_toast_quota_exhausted'));
+                              return;
+                            }
                             setState(() {
                               _customerWashJobs =
                                   CustomerWashJob.generateRandomJobs(count: 4);
@@ -488,10 +516,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   child: Text(context.tr('car_wash_queue_empty')),
                 ),
               )
-            else if (game.hiredStaff.any((s) => s.role == StaffRole.washer) ||
-                game.sideBusinesses.any(
-                    (b) => b.type == SideBusinessType.carWash && b.isOperational))
+            else if (game.hiredStaff.any((s) => s.role == StaffRole.washer))
               ..._customerWashJobs.map((job) {
+                final hasWashQuota = game.remainingCarWashesToday > 0;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: NeoBrutalCard(
@@ -597,63 +624,83 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                             ),
                             const SizedBox(width: 8),
                             NeoBrutalButton(
-                              label: context.tr('car_wash_btn_wash_earn'),
-                              icon: Icons.cleaning_services_rounded,
-                              backgroundColor: const Color(0xFF00E575),
-                              textColor: Colors.black,
+                              label: hasWashQuota
+                                  ? context.tr('car_wash_btn_wash_earn')
+                                  : context.tr('daily_quota_exhausted_btn'),
+                              icon: hasWashQuota
+                                  ? Icons.cleaning_services_rounded
+                                  : Icons.block_rounded,
+                              backgroundColor: hasWashQuota
+                                  ? const Color(0xFF00E575)
+                                  : (isDark
+                                      ? const Color(0xFF1E2330)
+                                      : const Color(0xFFE2E8F0)),
+                              textColor: hasWashQuota
+                                  ? Colors.black
+                                  : (isDark ? Colors.white38 : Colors.black38),
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
-                              onPressed: () {
-                                if (job.isVipCustomer &&
-                                    !hasPolisher &&
-                                    !hasFoamPump) {
-                                  NotificationService.showError(
-                                    context,
-                                    context.tr('wash_toast_vip_equip_req'),
-                                  );
-                                  return;
-                                }
+                              onPressed: !hasWashQuota
+                                  ? null
+                                  : () {
+                                      if (job.isVipCustomer &&
+                                          !hasPolisher &&
+                                          !hasFoamPump) {
+                                        NotificationService.showError(
+                                          context,
+                                          context
+                                              .tr('wash_toast_vip_equip_req'),
+                                        );
+                                        return;
+                                      }
 
-                                final dummyCar = CarModel(
-                                  id: job.id,
-                                  brand: job.customerName,
-                                  modelName: job.vehicleName,
-                                  modelYear: 2022,
-                                  bodyType: 'Sedan',
-                                  colorHex: '#38BDF8',
-                                  currentPurchasePrice: 200000.0,
-                                  baseMarketValue: 200000.0,
-                                  expertise: ExpertiseReport(
-                                    engineCondition: 100,
-                                    transmissionCondition: 100,
-                                    tramerAmount: 0,
-                                    mileage: 50000,
-                                    isMileageTampered: false,
-                                    bodyParts: {},
-                                  ),
-                                );
-
-                                CarWashMiniGameModal.show(
-                                  context,
-                                  car: dummyCar,
-                                  onCleanCompleted: () {
-                                    final success = ref
-                                        .read(gameProvider.notifier)
-                                        .completeCustomerWashJob(job);
-                                    if (success) {
-                                      NotificationService.showSuccess(
-                                        context,
-                                        context.tr('wash_toast_job_delivered'),
+                                      final dummyCar = CarModel(
+                                        id: job.id,
+                                        brand: job.customerName,
+                                        modelName: job.vehicleName,
+                                        modelYear: 2022,
+                                        bodyType: 'Sedan',
+                                        colorHex: '#38BDF8',
+                                        currentPurchasePrice: 200000.0,
+                                        baseMarketValue: 200000.0,
+                                        expertise: ExpertiseReport(
+                                          engineCondition: 100,
+                                          transmissionCondition: 100,
+                                          tramerAmount: 0,
+                                          mileage: 50000,
+                                          isMileageTampered: false,
+                                          bodyParts: {},
+                                        ),
                                       );
-                                      setState(() {
-                                        _customerWashJobs
-                                            .removeWhere((j) => j.id == job.id);
-                                      });
-                                    }
-                                  },
-                                );
-                              },
+
+                                      CarWashMiniGameModal.show(
+                                        context,
+                                        car: dummyCar,
+                                        onCleanCompleted: () {
+                                          final success = ref
+                                              .read(gameProvider.notifier)
+                                              .completeCustomerWashJob(job);
+                                          if (success) {
+                                            NotificationService.showSuccess(
+                                              context,
+                                              context.tr(
+                                                  'wash_toast_job_delivered'),
+                                            );
+                                            setState(() {
+                                              _customerWashJobs.removeWhere(
+                                                  (j) => j.id == job.id);
+                                            });
+                                          } else {
+                                            NotificationService.showError(
+                                              context,
+                                              context.tr(
+                                                  'car_wash_toast_quota_exhausted'),
+                                            );
+                                          }
+                                        },
+                                      );
+                                    },
                             ),
                           ],
                         ),

@@ -7,7 +7,7 @@ import '../../presentation/widgets/ads/neo_brutal_fallback_ad_dialog.dart';
 import 'ad_reward_calculator.dart';
 
 /// Singleton Service to manage Google Mobile Ads (AdMob) Rewarded Video and Native Advanced Ads
-class AdService {
+class AdService with ChangeNotifier {
   static final AdService instance = AdService._internal();
   AdService._internal();
 
@@ -72,24 +72,36 @@ class AdService {
 
   /// Determines if a native ad or in-game sponsored window should be active on a given in-game day.
   ///
-  /// Rule 1: First 7 in-game days (currentDay <= 7) are completely ad-free and sponsor-free (closed).
-  /// Rule 2: From Day 8 onwards, uses a pseudo-random deterministic pacing algorithm
-  /// based on game days (~55% active days, alternating randomly to prevent ad fatigue).
+  /// Rule: First 7 in-game days (currentDay <= 7) are completely ad-free and sponsor-free (closed).
+  /// From Day 8 onwards, native ad slots are consistently active across all game domains.
   static bool shouldShowNativeAdForDay(int currentDay, [dynamic contextType]) {
     if (currentDay <= 7) {
       return false;
     }
-
-    final contextOffset = contextType != null ? contextType.hashCode.abs() % 13 : 0;
-    // Multiplicative pseudo-random hashing based on in-game day & context
-    final hash = ((currentDay * 37 + contextOffset * 17 + 101) * 2654435761) & 0x7FFFFFFF;
-    final dayScore = hash % 100;
-
-    return dayScore < 55;
+    return true;
   }
 
   static const Duration minNativeAdInterval = Duration(seconds: 30);
   DateTime? _lastNativeAdRequestedAt;
+
+  NativeAd? _preloadedNativeAd;
+  DateTime? _preloadedNativeAdLoadedAt;
+  bool _isPreloadingNativeAd = false;
+  int _nativeAdRetryAttempt = 0;
+  DateTime? _lastNativeAdFailedAt;
+
+  /// Cooldown after a native ad load failure
+  static const Duration nativeAdFailureCooldown = Duration(seconds: 30);
+
+  /// Checks if cached preloaded native ad is expired (>50 min)
+  bool get isPreloadedNativeAdExpired {
+    if (_preloadedNativeAdLoadedAt == null) return false;
+    return DateTime.now().difference(_preloadedNativeAdLoadedAt!) > adExpirationThreshold;
+  }
+
+  /// Checks if a valid, unexpired preloaded native ad is ready in the cache pool
+  bool get hasPreloadedNativeAd =>
+      _preloadedNativeAd != null && !isPreloadedNativeAdExpired;
 
   /// Global throttle to prevent rapid-fire native ad requests during fast list scrolls.
   bool get canRequestNativeAd {
@@ -101,6 +113,99 @@ class AdService {
   /// Marks that a native ad request was sent to AdMob, updating the global throttle.
   void markNativeAdRequested() {
     _lastNativeAdRequestedAt = DateTime.now();
+  }
+
+  /// Preloads a single NativeAd into the warm singleton cache pool.
+  void preloadNativeAd() {
+    if (kIsWeb || !_isInitialized || _isPreloadingNativeAd) return;
+
+    if (_lastNativeAdFailedAt != null &&
+        DateTime.now().difference(_lastNativeAdFailedAt!) < nativeAdFailureCooldown) {
+      debugPrint('[AdService] Native ad preload throttled due to failure cooldown (30s).');
+      return;
+    }
+
+    if (_preloadedNativeAd != null) {
+      if (isPreloadedNativeAdExpired) {
+        debugPrint('[AdService] Preloaded native ad is expired (>50 min). Disposing and reloading fresh.');
+        _preloadedNativeAd?.dispose();
+        _preloadedNativeAd = null;
+        _preloadedNativeAdLoadedAt = null;
+      } else {
+        // Already warm and ready in cache pool
+        return;
+      }
+    }
+
+    _isPreloadingNativeAd = true;
+    try {
+      final ad = createNativeAd(
+        onAdLoaded: (loadedAd) {
+          debugPrint('[AdService] Native ad preloaded and cached in singleton pool.');
+          _preloadedNativeAd = loadedAd;
+          _preloadedNativeAdLoadedAt = DateTime.now();
+          _isPreloadingNativeAd = false;
+          _nativeAdRetryAttempt = 0;
+          _lastNativeAdFailedAt = null;
+          notifyListeners();
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('[AdService] Native ad preload failed: ${error.message} - code: ${error.code}');
+          _preloadedNativeAd = null;
+          _preloadedNativeAdLoadedAt = null;
+          _isPreloadingNativeAd = false;
+          _lastNativeAdFailedAt = DateTime.now();
+          _nativeAdRetryAttempt++;
+          notifyListeners();
+          if (_nativeAdRetryAttempt <= 2) {
+            final delay = Duration(seconds: _nativeAdRetryAttempt * 25);
+            debugPrint('[AdService] Retrying native ad preload in ${delay.inSeconds}s (attempt $_nativeAdRetryAttempt/2)...');
+            Future.delayed(delay, () {
+              if (_preloadedNativeAd == null && !_isPreloadingNativeAd) {
+                preloadNativeAd();
+              }
+            });
+          }
+        },
+      );
+      markNativeAdRequested();
+      ad.load();
+    } catch (e) {
+      debugPrint('[AdService] createNativeAd preload exception: $e');
+      _preloadedNativeAd = null;
+      _preloadedNativeAdLoadedAt = null;
+      _isPreloadingNativeAd = false;
+      _lastNativeAdFailedAt = DateTime.now();
+      notifyListeners();
+    }
+  }
+
+  /// Consumes the warm preloaded NativeAd from cache and transfers ownership to the caller widget.
+  /// Automatically replenishes the cache immediately (1s delay).
+  NativeAd? consumePreloadedNativeAd() {
+    if (!hasPreloadedNativeAd) return null;
+    final ad = _preloadedNativeAd;
+    _preloadedNativeAd = null;
+    _preloadedNativeAdLoadedAt = null;
+    notifyListeners();
+
+    // Replenish cache for subsequent ad slots quickly so next screen/slot is warm
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!hasPreloadedNativeAd && !_isPreloadingNativeAd) {
+        preloadNativeAd();
+      }
+    });
+
+    return ad;
+  }
+
+  /// Disposes any unconsumed preloaded native ad in the cache pool.
+  void disposePreloadedNativeAd() {
+    _preloadedNativeAd?.dispose();
+    _preloadedNativeAd = null;
+    _preloadedNativeAdLoadedAt = null;
+    _isPreloadingNativeAd = false;
+    notifyListeners();
   }
 
   /// Initialize early platform services.
@@ -125,6 +230,7 @@ class AdService {
         }
 
         loadRewardedAd();
+        preloadNativeAd();
       } catch (e) {
         debugPrint('[AdService] MobileAds initialization failed or not supported on this platform: $e');
       }
@@ -170,6 +276,9 @@ class AdService {
 
       if (_rewardedAd == null && !_isAdLoading) {
         loadRewardedAd();
+      }
+      if (!hasPreloadedNativeAd && !_isPreloadingNativeAd) {
+        preloadNativeAd();
       }
     } else {
       if (!_isInitialized) {

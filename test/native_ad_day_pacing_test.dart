@@ -43,25 +43,18 @@ void main() {
       }
     });
 
-    test('AdService.shouldShowNativeAdForDay alternates dynamically after Day 7', () {
-      int activeDays = 0;
-      int inactiveDays = 0;
-
+    test('AdService.shouldShowNativeAdForDay is consistently active for all days after Day 7', () {
       // Sample a 30-day window (Days 8 to 37)
       for (int day = 8; day <= 37; day++) {
         final isShown = AdService.shouldShowNativeAdForDay(day, NativeAdContextType.marketplace);
-        if (isShown) {
-          activeDays++;
-        } else {
-          inactiveDays++;
-        }
+        expect(isShown, isTrue, reason: 'Day $day must be active after day 7');
       }
+    });
 
-      // Both active and inactive days must exist (bazen açık, bazen kapalı)
-      expect(activeDays > 0, isTrue, reason: 'There must be active ad days after day 7');
-      expect(inactiveDays > 0, isTrue, reason: 'There must be clean ad-free days after day 7');
-      // The ratio should be balanced (around 40% - 70%)
-      expect(activeDays, inInclusiveRange(10, 24));
+    test('AdService native ad cache pool correctly tracks availability', () {
+      // On web/test environment without MobileAds initialization, hasPreloadedNativeAd is false
+      expect(AdService.instance.hasPreloadedNativeAd, isFalse);
+      expect(AdService.instance.consumePreloadedNativeAd(), isNull);
     });
 
     test('All NeoBrutalNativeAdCard sponsor snippet translation keys exist across 7 languages', () {

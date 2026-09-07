@@ -10,6 +10,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
   final String repairType;
   final double baseCost;
   final Function(RepairTier tier, double cost) onTierSelected;
+  final int masterRemainingQuota;
+  final int masterMaxQuota;
 
   const RepairTierSelectionSheet({
     super.key,
@@ -17,6 +19,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
     required this.repairType,
     required this.baseCost,
     required this.onTierSelected,
+    this.masterRemainingQuota = 5,
+    this.masterMaxQuota = 5,
   });
 
   static void show({
@@ -25,6 +29,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
     required String repairType,
     required double baseCost,
     required Function(RepairTier tier, double cost) onTierSelected,
+    int masterRemainingQuota = 5,
+    int masterMaxQuota = 5,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -40,6 +46,8 @@ class RepairTierSelectionSheet extends StatelessWidget {
           car: car,
           repairType: repairType,
           baseCost: baseCost,
+          masterRemainingQuota: masterRemainingQuota,
+          masterMaxQuota: masterMaxQuota,
           onTierSelected: (tier, cost) {
             Navigator.pop(ctx);
             onTierSelected(tier, cost);
@@ -62,6 +70,9 @@ class RepairTierSelectionSheet extends StatelessWidget {
                 : (repairType == 'chassis'
                     ? context.tr('repair_tier_chassis_title')
                     : context.tr('repair_tier_body_title'))));
+
+    final hasMaster = masterMaxQuota > 0;
+    final isMasterAvailable = hasMaster && masterRemainingQuota > 0;
 
     return SafeArea(
       top: false,
@@ -113,12 +124,25 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _buildTierOption(
-            title: context.tr('repair_tier_master_title'),
-            subtitle: context.tr('repair_tier_master_desc'),
+            title: hasMaster
+                ? '${context.tr('repair_tier_master_title')} • ${context.tr('workshop_daily_quota_badge', {'remaining': '$masterRemainingQuota', 'max': '$masterMaxQuota'})}'
+                : context.tr('repair_tier_master_title'),
+            subtitle: !hasMaster
+                ? context.tr('repair_tier_master_no_staff_desc')
+                : (isMasterAvailable
+                    ? context.tr('repair_tier_master_desc')
+                    : context.tr('workshop_toast_quota_exhausted')),
             cost: baseCost * 1.75,
-            successRate: '%100',
-            color: const Color(0xFF00E575),
+            successRate: !hasMaster
+                ? context.tr('repair_tier_master_no_staff')
+                : (isMasterAvailable
+                    ? '%100'
+                    : context.tr('repair_tier_master_exhausted')),
+            color: isMasterAvailable
+                ? const Color(0xFF00E575)
+                : Colors.grey,
             isDark: isDark,
+            isEnabled: isMasterAvailable,
             onTap: () => onTierSelected(RepairTier.master, baseCost * 1.75),
           ),
           const SizedBox(height: 10),
@@ -137,20 +161,23 @@ class RepairTierSelectionSheet extends StatelessWidget {
     required Color color,
     required bool isDark,
     required VoidCallback onTap,
+    bool isEnabled = true,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-            width: 2.0,
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.55,
+      child: InkWell(
+        onTap: isEnabled ? onTap : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1E2330) : const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+              width: 2.0,
+            ),
           ),
-        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -220,6 +247,7 @@ class RepairTierSelectionSheet extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

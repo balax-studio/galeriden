@@ -264,9 +264,17 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     final updatedCars = List<CarModel>.from(state.ownedCars);
     updatedCars[carIndex] = updatedCar;
 
+    final hasActiveMechanic = state.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+        state.remainingWorkshopRepairsToday > 0;
+    final usedRepairs = (state.lastWorkshopRepairDay == state.currentDay)
+        ? state.dailyWorkshopRepairsCount
+        : 0;
+
     state = state.copyWith(
       balance: state.balance - finalCost,
       ownedCars: updatedCars,
+      dailyWorkshopRepairsCount: hasActiveMechanic ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
+      lastWorkshopRepairDay: hasActiveMechanic ? state.currentDay : state.lastWorkshopRepairDay,
     );
 
     addXP(50);
@@ -277,11 +285,19 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
   /// Complete a customer repair contract job
   bool completeCustomerRepairJob(CustomerRepairJob job) {
     if (state.balance < job.partsCost) return false;
+    if (state.remainingWorkshopRepairsToday <= 0) return false;
+
     final netGain = job.laborReward - job.partsCost;
+    final usedRepairs = (state.lastWorkshopRepairDay == state.currentDay)
+        ? state.dailyWorkshopRepairsCount
+        : 0;
+
     state = state.copyWith(
       balance: state.balance + netGain,
       totalProfit: state.totalProfit + (netGain > 0 ? netGain : 0.0),
       partsRepairedLast7Days: state.partsRepairedLast7Days + 1,
+      dailyWorkshopRepairsCount: usedRepairs + 1,
+      lastWorkshopRepairDay: state.currentDay,
     );
     addXP(job.masteryXpReward);
     updateMissionProgress(MissionType.repairParts, 1);
@@ -367,10 +383,11 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
         .toList();
     if (unwashedCars.isEmpty) return false;
 
-    final totalCost = hasWasher ? 0.0 : (unwashedCars.length * 600.0);
+    final canUseWasher = hasWasher && state.remainingCarWashesToday > 0;
+    final totalCost = canUseWasher ? 0.0 : (unwashedCars.length * 600.0);
     if (state.balance < totalCost) return false;
 
-    final costPerCar = hasWasher ? 0.0 : 600.0;
+    final costPerCar = canUseWasher ? 0.0 : 600.0;
     final updatedCars = state.ownedCars.map((c) {
       if (c.isRented) return c;
       final wasClean = c.isWashed && c.isPolished && c.isDetailedCleaned;
@@ -381,9 +398,15 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
       );
     }).toList();
 
+    final usedWashes = (state.lastCarWashDay == state.currentDay)
+        ? state.dailyCarWashCount
+        : 0;
+
     state = state.copyWith(
       balance: state.balance - totalCost,
       ownedCars: updatedCars,
+      dailyCarWashCount: canUseWasher ? (usedWashes + 1) : state.dailyCarWashCount,
+      lastCarWashDay: canUseWasher ? state.currentDay : state.lastCarWashDay,
     );
 
     addXP(15 * unwashedCars.length);
@@ -395,9 +418,17 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
 
   /// Complete an incoming customer wash job
   bool completeCustomerWashJob(CustomerWashJob job) {
+    if (state.remainingCarWashesToday <= 0) return false;
+
+    final usedWashes = (state.lastCarWashDay == state.currentDay)
+        ? state.dailyCarWashCount
+        : 0;
+
     state = state.copyWith(
       balance: state.balance + job.paymentReward,
       totalProfit: state.totalProfit + job.paymentReward,
+      dailyCarWashCount: usedWashes + 1,
+      lastCarWashDay: state.currentDay,
     );
     addXP(job.masteryXp);
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarWash);

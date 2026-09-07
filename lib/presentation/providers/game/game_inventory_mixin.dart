@@ -1064,9 +1064,16 @@ mixin GameInventoryMixin on GameBaseNotifier {
       final updatedCars = state.ownedCars
           .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
+      final isMasterRepair = tier == RepairTier.master;
+      final usedRepairs = (state.lastWorkshopRepairDay == state.currentDay)
+          ? state.dailyWorkshopRepairsCount
+          : 0;
+
       state = state.copyWith(
         balance: state.balance - result.costPaid,
         ownedCars: updatedCars,
+        dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
+        lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
       );
       if (result.isSuccess) {
         addXP(30);
@@ -1088,9 +1095,16 @@ mixin GameInventoryMixin on GameBaseNotifier {
       final updatedCars = state.ownedCars
           .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
+      final isMasterRepair = tier == RepairTier.master;
+      final usedRepairs = (state.lastWorkshopRepairDay == state.currentDay)
+          ? state.dailyWorkshopRepairsCount
+          : 0;
+
       state = state.copyWith(
         balance: state.balance - result.costPaid,
         ownedCars: updatedCars,
+        dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
+        lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
       );
       if (result.isSuccess) {
         addXP(30);

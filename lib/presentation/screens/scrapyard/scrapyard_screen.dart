@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../providers/game_provider.dart';
@@ -28,6 +29,14 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
   }
 
   @override

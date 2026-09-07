@@ -146,11 +146,17 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('workshop_engine_perfect_toast'));
         return;
       }
-      if (tier == RepairTier.master &&
-          !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(
-            context, context.tr('workshop_toast_lift_req'));
-        return;
+      if (tier == RepairTier.master) {
+        if (!game.unlockedBuildings.contains('workshop_eq_lift')) {
+          NotificationService.showError(
+              context, context.tr('workshop_toast_lift_req'));
+          return;
+        }
+        if (game.remainingWorkshopRepairsToday <= 0) {
+          NotificationService.showError(
+              context, context.tr('workshop_toast_quota_exhausted'));
+          return;
+        }
       }
       final result =
           ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
@@ -171,11 +177,17 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('toast_gearbox_already_perfect'));
         return;
       }
-      if (tier == RepairTier.master &&
-          !game.unlockedBuildings.contains('workshop_eq_lift')) {
-        NotificationService.showError(
-            context, context.tr('workshop_toast_lift_req'));
-        return;
+      if (tier == RepairTier.master) {
+        if (!game.unlockedBuildings.contains('workshop_eq_lift')) {
+          NotificationService.showError(
+              context, context.tr('workshop_toast_lift_req'));
+          return;
+        }
+        if (game.remainingWorkshopRepairsToday <= 0) {
+          NotificationService.showError(
+              context, context.tr('workshop_toast_quota_exhausted'));
+          return;
+        }
       }
       final result =
           ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
@@ -202,10 +214,11 @@ class _WorkshopGarageRepairsTabState
         return;
       }
 
-      final hasMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final hasActiveMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+              game.remainingWorkshopRepairsToday > 0;
       final double successRate =
-          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -240,10 +253,11 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('workshop_ecu_perfect_toast'));
         return;
       }
-      final hasMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final hasActiveMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+              game.remainingWorkshopRepairsToday > 0;
       final double successRate =
-          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -276,10 +290,11 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('workshop_chassis_perfect_toast'));
         return;
       }
-      final hasMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic);
+      final hasActiveMechanic =
+          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+              game.remainingWorkshopRepairsToday > 0;
       final double successRate =
-          hasMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
       final isSuccess = Random().nextDouble() <= successRate;
       if (!isSuccess) {
         ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
@@ -1044,6 +1059,8 @@ class _WorkshopGarageRepairsTabState
                     car: _selectedCar!,
                     repairType: 'engine',
                     baseCost: dynamicEngineCost,
+                    masterRemainingQuota: game.remainingWorkshopRepairsToday,
+                    masterMaxQuota: game.maxDailyWorkshopRepairs,
                     onTierSelected: (tier, cost) => _executeTierRepair(
                         _selectedCar!, 'engine', tier, cost),
                   ),
@@ -1107,6 +1124,8 @@ class _WorkshopGarageRepairsTabState
                     car: _selectedCar!,
                     repairType: 'transmission',
                     baseCost: dynamicTransCost,
+                    masterRemainingQuota: game.remainingWorkshopRepairsToday,
+                    masterMaxQuota: game.maxDailyWorkshopRepairs,
                     onTierSelected: (tier, cost) => _executeTierRepair(
                         _selectedCar!, 'transmission', tier, cost),
                   ),
@@ -1166,6 +1185,8 @@ class _WorkshopGarageRepairsTabState
                     car: _selectedCar!,
                     repairType: 'ecu',
                     baseCost: dynamicEcuCost,
+                    masterRemainingQuota: game.remainingWorkshopRepairsToday,
+                    masterMaxQuota: game.maxDailyWorkshopRepairs,
                     onTierSelected: (tier, cost) => _executeTierRepair(
                         _selectedCar!, 'ecu', tier, cost),
                   ),
@@ -1228,6 +1249,8 @@ class _WorkshopGarageRepairsTabState
                     car: _selectedCar!,
                     repairType: 'bodywork',
                     baseCost: dynamicBodyCost,
+                    masterRemainingQuota: game.remainingWorkshopRepairsToday,
+                    masterMaxQuota: game.maxDailyWorkshopRepairs,
                     onTierSelected: (tier, cost) => _executeTierRepair(
                         _selectedCar!, 'bodywork', tier, cost),
                   ),
@@ -1290,6 +1313,8 @@ class _WorkshopGarageRepairsTabState
                     car: _selectedCar!,
                     repairType: 'chassis',
                     baseCost: dynamicChassisCost,
+                    masterRemainingQuota: game.remainingWorkshopRepairsToday,
+                    masterMaxQuota: game.maxDailyWorkshopRepairs,
                     onTierSelected: (tier, cost) => _executeTierRepair(
                         _selectedCar!, 'chassis', tier, cost),
                   ),

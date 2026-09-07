@@ -81,6 +81,26 @@ void main() {
       expect(notifier.importSaveCode('GLRD_SAVE_V1:INVALID_BASE64'), isFalse);
       expect(notifier.importSaveCode('GLRD_SAVE_V1:${base64Encode(utf8.encode('{"invalid": "data"}'))}'), isFalse);
     });
+
+    test('importSaveCode balabanyazkanka cheat code unlocks max level and adds 999999999 money', () {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+
+      final notifier = container.read(gameProvider.notifier);
+      final initialBalance = container.read(gameProvider).balance;
+
+      final success = notifier.importSaveCode('balabanyazkanka');
+      expect(success, isTrue);
+
+      final state = container.read(gameProvider);
+      expect(state.level, equals(15));
+      expect(state.balance, equals(initialBalance + 999999999.0));
+      expect(state.skills.negotiationLevel, equals(10));
+      expect(state.unlockedBuildings.contains('property_tier_8'), isTrue);
+    });
   });
 
   group('Dynamic Ad Reward Scaling Tests', () {

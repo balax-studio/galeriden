@@ -386,6 +386,8 @@ mixin GameTimeMixin on GameBaseNotifier {
       consignmentOffers: updatedConsignmentOffers,
       districtMarketShare: updatedDistrictShares,
       dailyRacesRemaining: 3, // Her gün 3 yarış hakkı yenilenir
+      dailyWorkshopRepairsCount: 0,
+      dailyCarWashCount: 0,
       pendingCrmEvents: remainingCrmEvents,
       activeCrmEvent: nextActiveCrm,
     );

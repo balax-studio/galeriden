@@ -101,6 +101,10 @@ class _WorkshopCustomerJobsTabState
       );
     }
 
+    final remainingQuota = game.remainingWorkshopRepairsToday;
+    final maxQuota = game.maxDailyWorkshopRepairs;
+    final hasQuota = remainingQuota > 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -108,10 +112,27 @@ class _WorkshopCustomerJobsTabState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                context.tr('workshop_customer_repairs_title'),
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.tr('workshop_customer_repairs_title'),
+                    style:
+                        const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 4),
+                  NeoBrutalBadge(
+                    text: context.tr('workshop_daily_quota_badge', {
+                      'remaining': '$remainingQuota',
+                      'max': '$maxQuota',
+                    }),
+                    icon: Icons.timelapse_rounded,
+                    backgroundColor:
+                        hasQuota ? AppColors.brutalGreen : AppColors.errorRed,
+                    textColor: hasQuota ? Colors.black : Colors.white,
+                    fontSize: 9.5,
+                  ),
+                ],
               ),
             ),
             NeoBrutalButton(
@@ -123,6 +144,11 @@ class _WorkshopCustomerJobsTabState
               fontSize: 10,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               onPressed: () {
+                if (!hasQuota) {
+                  NotificationService.showInfo(
+                      context, context.tr('workshop_toast_quota_exhausted'));
+                  return;
+                }
                 setState(() {
                   _customerJobs =
                       CustomerRepairJob.generateRandomJobs(count: 4);
@@ -269,32 +295,49 @@ class _WorkshopCustomerJobsTabState
                         ),
                         const SizedBox(width: 8),
                         NeoBrutalButton(
-                          label: context.tr('workshop_repair_earn_btn'),
-                          icon: Icons.handshake_rounded,
-                          backgroundColor: AppColors.brutalGreen,
-                          textColor: Colors.black,
+                          label: hasQuota
+                              ? context.tr('workshop_repair_earn_btn')
+                              : context.tr('daily_quota_exhausted_btn'),
+                          icon: hasQuota
+                              ? Icons.handshake_rounded
+                              : Icons.block_rounded,
+                          backgroundColor: hasQuota
+                              ? AppColors.brutalGreen
+                              : (isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0)),
+                          textColor: hasQuota
+                              ? Colors.black
+                              : (isDark ? Colors.white38 : Colors.black38),
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 8),
-                          onPressed: () {
-                            final success = ref
-                                .read(gameProvider.notifier)
-                                .completeCustomerRepairJob(job);
-                            if (success) {
-                              NotificationService.showSuccess(
-                                context,
-                                context.tr('toast_job_completed_profit', {
-                                  'customer': job.customerName,
-                                  'profit': CurrencyFormatter.format(netProfit),
-                                  'xp': '${job.masteryXpReward}',
-                                }),
-                              );
-                              setState(() {
-                                _customerJobs
-                                    .removeWhere((j) => j.id == job.id);
-                              });
-                            }
-                          },
+                          onPressed: !hasQuota
+                              ? null
+                              : () {
+                                  final success = ref
+                                      .read(gameProvider.notifier)
+                                      .completeCustomerRepairJob(job);
+                                  if (success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      context.tr('toast_job_completed_profit', {
+                                        'customer': job.customerName,
+                                        'profit': CurrencyFormatter.format(netProfit),
+                                        'xp': '${job.masteryXpReward}',
+                                      }),
+                                    );
+                                    setState(() {
+                                      _customerJobs
+                                          .removeWhere((j) => j.id == job.id);
+                                    });
+                                  } else {
+                                    NotificationService.showError(
+                                      context,
+                                      context.tr('workshop_toast_quota_exhausted'),
+                                    );
+                                  }
+                                },
                         ),
                       ],
                     ),

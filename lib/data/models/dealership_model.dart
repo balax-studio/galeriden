@@ -289,6 +289,10 @@ class DealershipModel {
   final int lastSiftahDay;
   final int scrapyardSearchesToday;
   final int lastScrapyardSearchDay;
+  final int dailyWorkshopRepairsCount;
+  final int lastWorkshopRepairDay;
+  final int dailyCarWashCount;
+  final int lastCarWashDay;
 
   // Mağaza Puanlama & Öneri Tek Seferlik Ödül Takibi
   final bool hasReceivedReviewReward;
@@ -340,6 +344,42 @@ class DealershipModel {
   bool get isSmartHookClaimedToday => lastSmartHookUsedDay >= currentDay;
   bool get isSiftahDoneToday => lastSiftahDay >= currentDay;
   int get remainingScrapSearchesToday => (lastScrapyardSearchDay == currentDay) ? (3 - scrapyardSearchesToday).clamp(0, 3) : 3;
+
+  int get maxDailyWorkshopRepairs {
+    final mechanic = hiredStaff.cast<StaffModel?>().firstWhere(
+      (s) => s?.role == StaffRole.masterMechanic,
+      orElse: () => null,
+    );
+    if (mechanic == null) return 0;
+    final hasApprentice = hiredStaff.any((s) => s.role == StaffRole.apprentice);
+    return 5 + (mechanic.masteryLevel - 1) + (hasApprentice ? 2 : 0);
+  }
+
+  int get remainingWorkshopRepairsToday {
+    final maxAllowed = maxDailyWorkshopRepairs;
+    if (maxAllowed == 0) return 0;
+    final used = (lastWorkshopRepairDay == currentDay) ? dailyWorkshopRepairsCount : 0;
+    return (maxAllowed - used).clamp(0, maxAllowed);
+  }
+
+  int get maxDailyCarWashes {
+    final washer = hiredStaff.cast<StaffModel?>().firstWhere(
+      (s) => s?.role == StaffRole.washer,
+      orElse: () => null,
+    );
+    if (washer == null) return 0;
+    final hasWashBusiness = sideBusinesses.any(
+      (b) => b.type == SideBusinessType.carWash && b.isOperational,
+    );
+    return 5 + (washer.masteryLevel - 1) + (hasWashBusiness ? 3 : 0);
+  }
+
+  int get remainingCarWashesToday {
+    final maxAllowed = maxDailyCarWashes;
+    if (maxAllowed == 0) return 0;
+    final used = (lastCarWashDay == currentDay) ? dailyCarWashCount : 0;
+    return (maxAllowed - used).clamp(0, maxAllowed);
+  }
   int get nextScrapSearchCost {
     final used = (lastScrapyardSearchDay == currentDay) ? scrapyardSearchesToday : 0;
     if (used == 0) return 500;
@@ -1360,6 +1400,10 @@ class DealershipModel {
     this.lastSiftahDay = 0,
     this.scrapyardSearchesToday = 0,
     this.lastScrapyardSearchDay = 0,
+    this.dailyWorkshopRepairsCount = 0,
+    this.lastWorkshopRepairDay = 0,
+    this.dailyCarWashCount = 0,
+    this.lastCarWashDay = 0,
     this.hasReceivedReviewReward = false,
     this.ownedBranchDeeds = const {},
     this.activePrCampaign,
@@ -1867,6 +1911,10 @@ class DealershipModel {
       'lastSiftahDay': lastSiftahDay,
       'scrapyardSearchesToday': scrapyardSearchesToday,
       'lastScrapyardSearchDay': lastScrapyardSearchDay,
+      'dailyWorkshopRepairsCount': dailyWorkshopRepairsCount,
+      'lastWorkshopRepairDay': lastWorkshopRepairDay,
+      'dailyCarWashCount': dailyCarWashCount,
+      'lastCarWashDay': lastCarWashDay,
       'hasReceivedReviewReward': hasReceivedReviewReward,
       'ownedLifestyleItems': ownedLifestyleItems.toList(),
       'equippedSuitId': equippedSuitId,
@@ -2084,6 +2132,10 @@ class DealershipModel {
       lastSiftahDay: json['lastSiftahDay'] as int? ?? 0,
       scrapyardSearchesToday: json['scrapyardSearchesToday'] as int? ?? 0,
       lastScrapyardSearchDay: json['lastScrapyardSearchDay'] as int? ?? 0,
+      dailyWorkshopRepairsCount: json['dailyWorkshopRepairsCount'] as int? ?? 0,
+      lastWorkshopRepairDay: json['lastWorkshopRepairDay'] as int? ?? 0,
+      dailyCarWashCount: json['dailyCarWashCount'] as int? ?? 0,
+      lastCarWashDay: json['lastCarWashDay'] as int? ?? 0,
       hasReceivedReviewReward: json['hasReceivedReviewReward'] as bool? ?? false,
       ownedLifestyleItems: (json['ownedLifestyleItems'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {},
       equippedSuitId: json['equippedSuitId'] as String?,
@@ -2257,6 +2309,10 @@ class DealershipModel {
     int? lastSiftahDay,
     int? scrapyardSearchesToday,
     int? lastScrapyardSearchDay,
+    int? dailyWorkshopRepairsCount,
+    int? lastWorkshopRepairDay,
+    int? dailyCarWashCount,
+    int? lastCarWashDay,
     bool? hasReceivedReviewReward,
     Set<String>? ownedBranchDeeds,
     ActivePrCampaign? activePrCampaign,
@@ -2395,6 +2451,10 @@ class DealershipModel {
       lastSiftahDay: lastSiftahDay ?? this.lastSiftahDay,
       scrapyardSearchesToday: scrapyardSearchesToday ?? this.scrapyardSearchesToday,
       lastScrapyardSearchDay: lastScrapyardSearchDay ?? this.lastScrapyardSearchDay,
+      dailyWorkshopRepairsCount: dailyWorkshopRepairsCount ?? this.dailyWorkshopRepairsCount,
+      lastWorkshopRepairDay: lastWorkshopRepairDay ?? this.lastWorkshopRepairDay,
+      dailyCarWashCount: dailyCarWashCount ?? this.dailyCarWashCount,
+      lastCarWashDay: lastCarWashDay ?? this.lastCarWashDay,
       hasReceivedReviewReward: hasReceivedReviewReward ?? this.hasReceivedReviewReward,
       ownedBranchDeeds: ownedBranchDeeds ?? this.ownedBranchDeeds,
       activePrCampaign: clearActivePrCampaign ? null : (activePrCampaign ?? this.activePrCampaign),

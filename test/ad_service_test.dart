@@ -35,6 +35,19 @@ void main() {
       // On web or when not initialized, canRequestNativeAd is false, protecting against request floods
       expect(adService.canRequestNativeAd, isFalse);
     });
+
+    test('AdService correctly acts as ChangeNotifier and notifies listeners on cache events', () {
+      final adService = AdService.instance;
+      int notificationCount = 0;
+      void listener() {
+        notificationCount++;
+      }
+
+      adService.addListener(listener);
+      adService.disposePreloadedNativeAd();
+      expect(notificationCount, equals(1));
+      adService.removeListener(listener);
+    });
   });
 
   group('AdRewardCalculator Dynamic Scaling & Variable Ratio Tests', () {

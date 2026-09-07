@@ -1362,13 +1362,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       onPressed: () {
                         final rawCode = textController.text.trim();
                         if (rawCode.isEmpty) return;
+                        final isCheat = rawCode.toLowerCase() == 'balabanyazkanka';
                         final success = ref
                             .read(gameProvider.notifier)
                             .importSaveCode(rawCode);
                         Navigator.pop(ctx);
                         if (success) {
                           NotificationService.showSuccess(
-                              context, context.tr('import_save_success'));
+                              context,
+                              isCheat
+                                  ? context.tr('cheat_code_activated')
+                                  : context.tr('import_save_success'));
                         } else {
                           NotificationService.showError(
                               context, context.tr('import_save_error'));

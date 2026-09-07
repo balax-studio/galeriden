@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_category.dart';
@@ -38,6 +39,14 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.realEstate)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
   }
 
   @override
@@ -445,9 +454,12 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       padding: const EdgeInsets.all(16),
                       itemCount: listings.length,
                       itemBuilder: (context, index) {
-                        final listing = listings[index];
-                        final showNativeAd = adIndices.contains(index);
+                        final showNativeAd = AdService.shouldShowNativeAdForDay(
+                                game.currentDay,
+                                NativeAdContextType.realEstate) &&
+                            adIndices.contains(index);
 
+                        final listing = listings[index];
                         final card = _buildListingCard(theme, listing, game);
 
                         if (showNativeAd) {

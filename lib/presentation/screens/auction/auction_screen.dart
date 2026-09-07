@@ -60,6 +60,14 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     )..repeat(reverse: true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
   }
 
   void _placePlayerBid(double increment, {bool isAggressiveFlag = false}) {

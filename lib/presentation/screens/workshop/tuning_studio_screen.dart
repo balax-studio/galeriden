@@ -20,6 +20,7 @@ import '../../widgets/mini_games/engine_timing_canvas.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../core/services/ad_service.dart';
 import '../../widgets/hazard_stripe_widget.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import 'dart:math' as math;
@@ -37,6 +38,19 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       0; // 0: Tümü, 1: Motor, 2: Aero, 3: Yürüyen, 4: Egzoz, 5: Hazır Paketler
   final Set<String> _timedCalibratedCarIds = {};
   final Set<String> _dynoTestedCarIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.workshop)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
+  }
 
   void _runDynoSimulation(BuildContext context, CarDynoStats dyno) {
     if (_selectedCar == null) return;

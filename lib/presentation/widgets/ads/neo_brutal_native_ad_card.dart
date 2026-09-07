@@ -95,7 +95,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   Timer? _debounceTimer;
 
   @override
-  bool get wantKeepAlive => _isAdLoaded && _nativeAd != null;
+  bool get wantKeepAlive => true;
 
   static final List<InGameSponsorSnippet> _marketplaceSnippets = [
     const InGameSponsorSnippet(
@@ -470,6 +470,36 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   void initState() {
     super.initState();
     _pickFallbackSnippet();
+    AdService.instance.addListener(_onAdServiceChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay, widget.contextType)) {
+          if (!kIsWeb && !AdService.instance.hasPreloadedNativeAd) {
+            AdService.instance.preloadNativeAd();
+          }
+        }
+      }
+    });
+  }
+
+  void _onAdServiceChanged() {
+    if (!mounted || kIsWeb || _nativeAd != null || _isAdLoaded || _isAdLoading) return;
+    final currentDay = ref.read(gameProvider).currentDay;
+    if (!AdService.shouldShowNativeAdForDay(currentDay, widget.contextType)) return;
+
+    if (AdService.instance.hasPreloadedNativeAd) {
+      final cachedAd = AdService.instance.consumePreloadedNativeAd();
+      if (cachedAd != null) {
+        _cancelDebounce();
+        setState(() {
+          _nativeAd = cachedAd;
+          _isAdLoaded = true;
+          _isAdLoading = false;
+        });
+        updateKeepAlive();
+      }
+    }
   }
 
   void _pickFallbackSnippet() {
@@ -587,9 +617,6 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   }
 
   void _evaluateAdLoading(int currentDay) {
-    if (_lastDayEvaluated == currentDay) return;
-    _lastDayEvaluated = currentDay;
-
     final bool shouldShow =
         AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
     if (!shouldShow) {
@@ -608,10 +635,29 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       return;
     }
 
+    if (_lastDayEvaluated == currentDay && (_nativeAd != null || _isAdLoading)) return;
+    _lastDayEvaluated = currentDay;
+
     if (_nativeAd == null && !_isAdLoaded && !_isAdLoading) {
-      if (!AdService.instance.canRequestNativeAd) {
-        return; // Retains lore sponsor fallback, avoiding unviewed ad requests
+      // 1. Instant Cache Pool Check: If a warm preloaded native ad is ready, consume immediately!
+      if (!kIsWeb && AdService.instance.hasPreloadedNativeAd) {
+        final cachedAd = AdService.instance.consumePreloadedNativeAd();
+        if (cachedAd != null) {
+          _cancelDebounce();
+          _nativeAd = cachedAd;
+          _isAdLoaded = true;
+          _isAdLoading = false;
+          updateKeepAlive();
+          return;
+        }
       }
+
+      // 2. Proactively trigger background preload if pool is currently empty
+      if (!kIsWeb && !AdService.instance.hasPreloadedNativeAd) {
+        AdService.instance.preloadNativeAd();
+      }
+
+      // 3. Debounced fallback load in case the card dwells in the viewport without a preloaded ad
       _scheduleDebouncedLoad();
     }
   }
@@ -621,9 +667,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     // 1500ms debounce prevents rapid scrolling and quick screen transitions from firing requests that are immediately disposed
     _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
-        if (AdService.instance.canRequestNativeAd) {
-          _loadNativeAd();
-        }
+        _loadNativeAd();
       }
     });
   }
@@ -634,7 +678,25 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   }
 
   void _loadNativeAd() {
-    if (kIsWeb || _isAdLoading || _nativeAd != null || !AdService.instance.canRequestNativeAd) {
+    if (kIsWeb || _isAdLoading || _nativeAd != null) {
+      return;
+    }
+
+    // Check pool one more time before firing a cold network request
+    if (AdService.instance.hasPreloadedNativeAd) {
+      final cachedAd = AdService.instance.consumePreloadedNativeAd();
+      if (cachedAd != null) {
+        setState(() {
+          _nativeAd = cachedAd;
+          _isAdLoaded = true;
+          _isAdLoading = false;
+        });
+        updateKeepAlive();
+        return;
+      }
+    }
+
+    if (!AdService.instance.canRequestNativeAd) {
       return;
     }
 
@@ -669,6 +731,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
 
   @override
   void dispose() {
+    AdService.instance.removeListener(_onAdServiceChanged);
     _cancelDebounce();
     _nativeAd?.dispose();
     _nativeAd = null;

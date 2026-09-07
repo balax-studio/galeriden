@@ -128,15 +128,37 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
                         color: AppColors.brutalGreen, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(
-                        hasMechanic && hasApprentice
-                            ? context.tr('workshop_staff_synergy_both')
-                            : (hasMechanic
-                                ? context.tr('workshop_staff_synergy_mechanic')
-                                : context
-                                    .tr('workshop_staff_synergy_apprentice')),
-                        style: const TextStyle(
-                            fontSize: 10.5, fontWeight: FontWeight.w700),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            hasMechanic && hasApprentice
+                                ? context.tr('workshop_staff_synergy_both')
+                                : (hasMechanic
+                                    ? context.tr('workshop_staff_synergy_mechanic')
+                                    : context
+                                        .tr('workshop_staff_synergy_apprentice')),
+                            style: const TextStyle(
+                                fontSize: 10.5, fontWeight: FontWeight.w700),
+                          ),
+                          if (hasMechanic) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              context.tr('workshop_daily_quota_badge', {
+                                'remaining':
+                                    '${game.remainingWorkshopRepairsToday}',
+                                'max': '${game.maxDailyWorkshopRepairs}',
+                              }),
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w800,
+                                color: game.remainingWorkshopRepairsToday > 0
+                                    ? AppColors.brutalGreen
+                                    : AppColors.errorRed,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                     const SizedBox(width: 6),

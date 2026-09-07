@@ -47,6 +47,15 @@ void main() {
         balance: 100000,
         ownedCars: [testCar],
         unlockedBuildings: {'/workshop'},
+        hiredStaff: [
+          StaffModel(
+            id: 'staff_master_1',
+            name: 'Ali Usta',
+            role: StaffRole.masterMechanic,
+            morale: 80,
+            hiredAt: DateTime.now(),
+          ),
+        ],
       );
     });
 

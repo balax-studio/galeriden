@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../core/services/ad_service.dart';
 import 'widgets/forex_trade_modal.dart';
 import 'widgets/ipo_request_modal.dart';
 import 'widgets/stock_trade_modal.dart';
@@ -37,6 +38,14 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider).currentDay;
+        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.stockMarket)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
   }
 
   @override

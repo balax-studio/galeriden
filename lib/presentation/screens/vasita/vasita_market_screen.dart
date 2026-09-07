@@ -35,6 +35,19 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
   String _searchQuery = '';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
+        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.marketplace)) {
+          AdService.instance.preloadNativeAd();
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();

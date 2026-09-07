@@ -252,6 +252,28 @@ class GameCoreNotifier extends GameBaseNotifier
     try {
       final trimmed = rawCode.trim();
       if (trimmed.isEmpty) return false;
+
+      // Easter Egg / Dev Cheat: "balabanyazkanka"
+      if (trimmed.toLowerCase() == 'balabanyazkanka') {
+        unlockAllPropertiesAndMaxLevel();
+        final maxSkills = state.skills.copyWith(
+          xp: 10000000,
+          negotiationLevel: 10,
+          eyeForDetail: 10,
+          marketSense: 10,
+          reputation: 10,
+          financeSense: 10,
+        );
+        state = state.copyWith(
+          level: 15,
+          balance: state.balance + 999999999.0,
+          reputationScore: 1000,
+          skills: maxSkills,
+        );
+        saveState();
+        return true;
+      }
+
       String base64String = trimmed;
       if (trimmed.startsWith('GLRD_SAVE_V1:')) {
         base64String = trimmed.substring('GLRD_SAVE_V1:'.length);
