@@ -81,33 +81,50 @@ class AdService with ChangeNotifier {
     return true;
   }
 
-  static const Duration minNativeAdInterval = Duration(seconds: 30);
+  static const Duration minNativeAdInterval = Duration(milliseconds: 1500);
   DateTime? _lastNativeAdRequestedAt;
 
-  NativeAd? _preloadedNativeAd;
-  DateTime? _preloadedNativeAdLoadedAt;
+  static const int maxNativeAdPoolSize = 4;
+  final List<NativeAd> _preloadedNativeAdPool = [];
+  final List<DateTime> _preloadedNativeAdPoolLoadedAt = [];
   bool _isPreloadingNativeAd = false;
   int _nativeAdRetryAttempt = 0;
   DateTime? _lastNativeAdFailedAt;
 
   /// Cooldown after a native ad load failure
-  static const Duration nativeAdFailureCooldown = Duration(seconds: 30);
+  static const Duration nativeAdFailureCooldown = Duration(seconds: 45);
 
-  /// Checks if cached preloaded native ad is expired (>50 min)
-  bool get isPreloadedNativeAdExpired {
-    if (_preloadedNativeAdLoadedAt == null) return false;
-    return DateTime.now().difference(_preloadedNativeAdLoadedAt!) > adExpirationThreshold;
+  /// Purges expired native ads from the cache pool (>50 min)
+  void _purgeExpiredPreloadedAds() {
+    final now = DateTime.now();
+    for (int i = _preloadedNativeAdPool.length - 1; i >= 0; i--) {
+      if (now.difference(_preloadedNativeAdPoolLoadedAt[i]) >
+          adExpirationThreshold) {
+        _preloadedNativeAdPool[i].dispose();
+        _preloadedNativeAdPool.removeAt(i);
+        _preloadedNativeAdPoolLoadedAt.removeAt(i);
+      }
+    }
   }
 
-  /// Checks if a valid, unexpired preloaded native ad is ready in the cache pool
-  bool get hasPreloadedNativeAd =>
-      _preloadedNativeAd != null && !isPreloadedNativeAdExpired;
+  /// Checks if at least one valid, unexpired preloaded native ad is ready in the cache pool
+  bool get hasPreloadedNativeAd {
+    _purgeExpiredPreloadedAds();
+    return _preloadedNativeAdPool.isNotEmpty;
+  }
 
-  /// Global throttle to prevent rapid-fire native ad requests during fast list scrolls.
+  /// Count of warm preloaded native ads currently in the pool
+  int get preloadedNativeAdCount {
+    _purgeExpiredPreloadedAds();
+    return _preloadedNativeAdPool.length;
+  }
+
+  /// Global throttle to prevent rapid-fire burst requests within the same millisecond.
   bool get canRequestNativeAd {
     if (kIsWeb || !_isInitialized) return false;
     if (_lastNativeAdRequestedAt == null) return true;
-    return DateTime.now().difference(_lastNativeAdRequestedAt!) >= minNativeAdInterval;
+    return DateTime.now().difference(_lastNativeAdRequestedAt!) >=
+        minNativeAdInterval;
   }
 
   /// Marks that a native ad request was sent to AdMob, updating the global throttle.
@@ -115,54 +132,67 @@ class AdService with ChangeNotifier {
     _lastNativeAdRequestedAt = DateTime.now();
   }
 
-  /// Preloads a single NativeAd into the warm singleton cache pool.
-  void preloadNativeAd() {
-    if (kIsWeb || !_isInitialized || _isPreloadingNativeAd) return;
+  /// Preloads native ads into the cache pool up to [targetCount] (max [maxNativeAdPoolSize]).
+  void preloadNativeAdPool({int targetCount = maxNativeAdPoolSize}) {
+    if (kIsWeb || !_isInitialized) return;
+    _purgeExpiredPreloadedAds();
 
-    if (_lastNativeAdFailedAt != null &&
-        DateTime.now().difference(_lastNativeAdFailedAt!) < nativeAdFailureCooldown) {
-      debugPrint('[AdService] Native ad preload throttled due to failure cooldown (30s).');
+    final desired = targetCount.clamp(1, maxNativeAdPoolSize);
+    if (_preloadedNativeAdPool.length >= desired || _isPreloadingNativeAd) {
       return;
     }
 
-    if (_preloadedNativeAd != null) {
-      if (isPreloadedNativeAdExpired) {
-        debugPrint('[AdService] Preloaded native ad is expired (>50 min). Disposing and reloading fresh.');
-        _preloadedNativeAd?.dispose();
-        _preloadedNativeAd = null;
-        _preloadedNativeAdLoadedAt = null;
-      } else {
-        // Already warm and ready in cache pool
-        return;
-      }
+    _preloadNextInPool(desired);
+  }
+
+  void _preloadNextInPool(int targetCount) {
+    if (kIsWeb || !_isInitialized || _isPreloadingNativeAd) return;
+    _purgeExpiredPreloadedAds();
+    if (_preloadedNativeAdPool.length >= targetCount) return;
+
+    if (_lastNativeAdFailedAt != null &&
+        DateTime.now().difference(_lastNativeAdFailedAt!) <
+            nativeAdFailureCooldown) {
+      debugPrint(
+          '[AdService] Native ad pool preload throttled due to failure cooldown (45s).');
+      return;
     }
 
     _isPreloadingNativeAd = true;
     try {
       final ad = createNativeAd(
         onAdLoaded: (loadedAd) {
-          debugPrint('[AdService] Native ad preloaded and cached in singleton pool.');
-          _preloadedNativeAd = loadedAd;
-          _preloadedNativeAdLoadedAt = DateTime.now();
+          debugPrint(
+              '[AdService] Native ad #${_preloadedNativeAdPool.length + 1} preloaded and added to pool.');
+          _preloadedNativeAdPool.add(loadedAd);
+          _preloadedNativeAdPoolLoadedAt.add(DateTime.now());
           _isPreloadingNativeAd = false;
           _nativeAdRetryAttempt = 0;
           _lastNativeAdFailedAt = null;
           notifyListeners();
+
+          // If more ads needed to fill pool to targetCount, stagger next fetch gently (600ms)
+          if (_preloadedNativeAdPool.length < targetCount) {
+            Future.delayed(const Duration(milliseconds: 600), () {
+              _preloadNextInPool(targetCount);
+            });
+          }
         },
         onAdFailedToLoad: (error) {
-          debugPrint('[AdService] Native ad preload failed: ${error.message} - code: ${error.code}');
-          _preloadedNativeAd = null;
-          _preloadedNativeAdLoadedAt = null;
+          debugPrint(
+              '[AdService] Native ad pool preload failed: ${error.message} - code: ${error.code}');
           _isPreloadingNativeAd = false;
           _lastNativeAdFailedAt = DateTime.now();
           _nativeAdRetryAttempt++;
           notifyListeners();
           if (_nativeAdRetryAttempt <= 2) {
-            final delay = Duration(seconds: _nativeAdRetryAttempt * 25);
-            debugPrint('[AdService] Retrying native ad preload in ${delay.inSeconds}s (attempt $_nativeAdRetryAttempt/2)...');
+            final delay = Duration(seconds: _nativeAdRetryAttempt * 30);
+            debugPrint(
+                '[AdService] Retrying native ad pool preload in ${delay.inSeconds}s (attempt $_nativeAdRetryAttempt/2)...');
             Future.delayed(delay, () {
-              if (_preloadedNativeAd == null && !_isPreloadingNativeAd) {
-                preloadNativeAd();
+              if (_preloadedNativeAdPool.length < targetCount &&
+                  !_isPreloadingNativeAd) {
+                _preloadNextInPool(targetCount);
               }
             });
           }
@@ -171,39 +201,46 @@ class AdService with ChangeNotifier {
       markNativeAdRequested();
       ad.load();
     } catch (e) {
-      debugPrint('[AdService] createNativeAd preload exception: $e');
-      _preloadedNativeAd = null;
-      _preloadedNativeAdLoadedAt = null;
+      debugPrint('[AdService] createNativeAd pool exception: $e');
       _isPreloadingNativeAd = false;
       _lastNativeAdFailedAt = DateTime.now();
       notifyListeners();
     }
   }
 
-  /// Consumes the warm preloaded NativeAd from cache and transfers ownership to the caller widget.
-  /// Automatically replenishes the cache immediately (1s delay).
+  /// Preloads native ads into the warm singleton cache pool.
+  void preloadNativeAd() {
+    preloadNativeAdPool(targetCount: maxNativeAdPoolSize);
+  }
+
+  /// Consumes the first available warm NativeAd from the pool and transfers ownership to the caller widget.
+  /// Automatically replenishes the cache pool in the background.
   NativeAd? consumePreloadedNativeAd() {
-    if (!hasPreloadedNativeAd) return null;
-    final ad = _preloadedNativeAd;
-    _preloadedNativeAd = null;
-    _preloadedNativeAdLoadedAt = null;
+    _purgeExpiredPreloadedAds();
+    if (_preloadedNativeAdPool.isEmpty) return null;
+
+    final ad = _preloadedNativeAdPool.removeAt(0);
+    _preloadedNativeAdPoolLoadedAt.removeAt(0);
     notifyListeners();
 
-    // Replenish cache for subsequent ad slots quickly so next screen/slot is warm
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!hasPreloadedNativeAd && !_isPreloadingNativeAd) {
-        preloadNativeAd();
+    // Replenish pool in background with gentle stagger so subsequent ad slots stay warm
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (_preloadedNativeAdPool.length < maxNativeAdPoolSize &&
+          !_isPreloadingNativeAd) {
+        preloadNativeAdPool(targetCount: maxNativeAdPoolSize);
       }
     });
 
     return ad;
   }
 
-  /// Disposes any unconsumed preloaded native ad in the cache pool.
+  /// Disposes all unconsumed preloaded native ads in the cache pool.
   void disposePreloadedNativeAd() {
-    _preloadedNativeAd?.dispose();
-    _preloadedNativeAd = null;
-    _preloadedNativeAdLoadedAt = null;
+    for (final ad in _preloadedNativeAdPool) {
+      ad.dispose();
+    }
+    _preloadedNativeAdPool.clear();
+    _preloadedNativeAdPoolLoadedAt.clear();
     _isPreloadingNativeAd = false;
     notifyListeners();
   }

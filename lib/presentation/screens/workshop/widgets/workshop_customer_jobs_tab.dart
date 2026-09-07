@@ -12,6 +12,8 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../../core/services/ad_service.dart';
+import '../../../widgets/tactile_operation_overlay.dart';
 
 class WorkshopCustomerJobsTab extends ConsumerStatefulWidget {
   final List<CustomerRepairJob> initialJobs;
@@ -160,6 +162,78 @@ class _WorkshopCustomerJobsTabState
           ],
         ),
         const SizedBox(height: 10),
+        if (!hasQuota)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor:
+                  isDark ? const Color(0xFF1E1A29) : const Color(0xFFFEF9C3),
+              borderColor: AppColors.brutalYellow,
+              borderWidth: 2.0,
+              borderRadius: 12,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow,
+                      border: Border.all(color: Colors.black, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child:
+                        const Icon(Icons.bolt, color: Colors.black, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('ad_replenish_workshop_quota_title'),
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          context.tr('ad_replenish_workshop_quota_desc'),
+                          style: const TextStyle(
+                              fontSize: 10,
+                              color: Color(0xFF64748B),
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  NeoBrutalButton(
+                    label: context.tr('ad_replenish_workshop_quota_btn'),
+                    icon: Icons.ondemand_video_rounded,
+                    backgroundColor: AppColors.brutalYellow,
+                    textColor: Colors.black,
+                    fontSize: 10.5,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    onPressed: () {
+                      AdService.instance.showRewardedAdWithFallback(
+                        context: context,
+                        customRewardTitle:
+                            context.tr('ad_replenish_workshop_quota_title'),
+                        onRewardEarned: () {
+                          ref
+                              .read(gameProvider.notifier)
+                              .replenishWorkshopQuota(2);
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('ad_replenish_workshop_quota_title'),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
         if (_customerJobs.isEmpty)
           NeoBrutalCard(
             padding: const EdgeInsets.all(20),
@@ -315,28 +389,49 @@ class _WorkshopCustomerJobsTabState
                           onPressed: !hasQuota
                               ? null
                               : () {
-                                  final success = ref
-                                      .read(gameProvider.notifier)
-                                      .completeCustomerRepairJob(job);
-                                  if (success) {
-                                    NotificationService.showSuccess(
-                                      context,
-                                      context.tr('toast_job_completed_profit', {
-                                        'customer': job.customerName,
-                                        'profit': CurrencyFormatter.format(netProfit),
-                                        'xp': '${job.masteryXpReward}',
-                                      }),
-                                    );
-                                    setState(() {
-                                      _customerJobs
-                                          .removeWhere((j) => j.id == job.id);
-                                    });
-                                  } else {
+                                  if (game.balance < job.partsCost) {
                                     NotificationService.showError(
                                       context,
-                                      context.tr('workshop_toast_quota_exhausted'),
+                                      context.tr('toast_insufficient_balance_needed', {
+                                        'cost': CurrencyFormatter.format(job.partsCost),
+                                      }),
                                     );
+                                    return;
                                   }
+                                  TactileOperationOverlay.show(
+                                    context,
+                                    title: context.tr('op_workshop_repair_title'),
+                                    stage1Text: context.tr('op_workshop_repair_stage1'),
+                                    stage2Text: context.tr('op_workshop_repair_stage2'),
+                                    stage3Text: context.tr('op_workshop_repair_stage3'),
+                                    stampText: context.tr('stamp_repair_completed'),
+                                    accentColor: AppColors.toxicLime,
+                                    icon: Icons.precision_manufacturing_rounded,
+                                    onCompleted: () {
+                                      final success = ref
+                                          .read(gameProvider.notifier)
+                                          .completeCustomerRepairJob(job);
+                                      if (success) {
+                                        NotificationService.showSuccess(
+                                          context,
+                                          context.tr('toast_job_completed_profit', {
+                                            'customer': job.customerName,
+                                            'profit': CurrencyFormatter.format(netProfit),
+                                            'xp': '${job.masteryXpReward}',
+                                          }),
+                                        );
+                                        setState(() {
+                                          _customerJobs
+                                              .removeWhere((j) => j.id == job.id);
+                                        });
+                                      } else {
+                                        NotificationService.showError(
+                                          context,
+                                          context.tr('workshop_toast_quota_exhausted'),
+                                        );
+                                      }
+                                    },
+                                  );
                                 },
                         ),
                       ],

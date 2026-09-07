@@ -305,6 +305,30 @@ mixin GameWorkshopDetailingMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Replenish workshop repair quota via sponsor support (+2 default)
+  void replenishWorkshopQuota([int amount = 2]) {
+    final used = (state.lastWorkshopRepairDay == state.currentDay)
+        ? state.dailyWorkshopRepairsCount
+        : 0;
+    state = state.copyWith(
+      dailyWorkshopRepairsCount: (used - amount).clamp(0, 999999),
+      lastWorkshopRepairDay: state.currentDay,
+    );
+    saveState();
+  }
+
+  /// Replenish car wash quota via sponsor support (+3 default)
+  void replenishCarWashQuota([int amount = 3]) {
+    final used = (state.lastCarWashDay == state.currentDay)
+        ? state.dailyCarWashCount
+        : 0;
+    state = state.copyWith(
+      dailyCarWashCount: (used - amount).clamp(0, 999999),
+      lastCarWashDay: state.currentDay,
+    );
+    saveState();
+  }
+
   /// Perform 10.000 KM Periodic Maintenance (+15% condition)
   bool performPeriodicMaintenance(String carId) {
     const cost = 3500.0;

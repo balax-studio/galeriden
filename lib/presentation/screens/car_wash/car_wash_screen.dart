@@ -508,6 +508,80 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               },
             ),
 
+            if (game.hiredStaff.any((s) => s.role == StaffRole.washer) &&
+                game.remainingCarWashesToday <= 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(12),
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E1A29)
+                      : const Color(0xFFFEF9C3),
+                  borderColor: AppColors.brutalYellow,
+                  borderWidth: 2.0,
+                  borderRadius: 12,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.brutalYellow,
+                          border: Border.all(color: Colors.black, width: 1.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.bolt,
+                            color: Colors.black, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.tr('ad_replenish_wash_quota_title'),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w900),
+                            ),
+                            Text(
+                              context.tr('ad_replenish_wash_quota_desc'),
+                              style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFF64748B),
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      NeoBrutalButton(
+                        label: context.tr('ad_replenish_wash_quota_btn'),
+                        icon: Icons.ondemand_video_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 10.5,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                        onPressed: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle:
+                                context.tr('ad_replenish_wash_quota_title'),
+                            onRewardEarned: () {
+                              ref
+                                  .read(gameProvider.notifier)
+                                  .replenishCarWashQuota(3);
+                              NotificationService.showSuccess(
+                                context,
+                                context.tr('ad_replenish_wash_quota_title'),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (_customerWashJobs.isEmpty)
               NeoBrutalCard(
                 padding: const EdgeInsets.all(20),

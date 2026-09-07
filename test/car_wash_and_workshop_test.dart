@@ -319,5 +319,44 @@ void main() {
       expect(container.read(gameProvider).remainingCarWashesToday, equals(container.read(gameProvider).maxDailyCarWashes));
       expect(container.read(gameProvider).dailyCarWashCount, equals(0));
     });
+
+    test('11. Sponsor quota replenishment restores action quotas without waiting for day change', () {
+      final notifier = container.read(gameProvider.notifier);
+
+      // Add required staff
+      notifier.state = notifier.state.copyWith(
+        hiredStaff: [
+          StaffModel(
+            id: 'staff_master_1',
+            name: 'Ali Usta',
+            role: StaffRole.masterMechanic,
+            morale: 90,
+            hiredAt: DateTime.now(),
+          ),
+          StaffModel(
+            id: 'staff_washer_1',
+            name: 'Cemil Usta',
+            role: StaffRole.washer,
+            morale: 80,
+            hiredAt: DateTime.now(),
+          ),
+        ],
+        lastWorkshopRepairDay: notifier.state.currentDay,
+        dailyWorkshopRepairsCount: 5,
+        lastCarWashDay: notifier.state.currentDay,
+        dailyCarWashCount: 5,
+      );
+
+      expect(container.read(gameProvider).remainingWorkshopRepairsToday, equals(0));
+      expect(container.read(gameProvider).remainingCarWashesToday, equals(0));
+
+      // Replenish workshop quota with sponsor support (+2)
+      notifier.replenishWorkshopQuota(2);
+      expect(container.read(gameProvider).remainingWorkshopRepairsToday, equals(2));
+
+      // Replenish car wash quota with sponsor support (+3)
+      notifier.replenishCarWashQuota(3);
+      expect(container.read(gameProvider).remainingCarWashesToday, equals(3));
+    });
   });
 }

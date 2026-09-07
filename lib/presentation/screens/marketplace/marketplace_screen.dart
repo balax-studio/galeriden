@@ -62,8 +62,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
-        if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.marketplace)) {
-          AdService.instance.preloadNativeAd();
+        if (AdService.shouldShowNativeAdForDay(
+            currentDay, NativeAdContextType.marketplace)) {
+          AdService.instance.preloadNativeAdPool(targetCount: 4);
         }
       }
     });

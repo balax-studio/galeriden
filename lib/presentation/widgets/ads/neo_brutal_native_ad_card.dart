@@ -484,7 +484,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   }
 
   void _onAdServiceChanged() {
-    if (!mounted || kIsWeb || _nativeAd != null || _isAdLoaded || _isAdLoading) return;
+    if (!mounted || kIsWeb || _nativeAd != null || _isAdLoaded) return;
     final currentDay = ref.read(gameProvider).currentDay;
     if (!AdService.shouldShowNativeAdForDay(currentDay, widget.contextType)) return;
 
@@ -654,7 +654,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
 
       // 2. Proactively trigger background preload if pool is currently empty
       if (!kIsWeb && !AdService.instance.hasPreloadedNativeAd) {
-        AdService.instance.preloadNativeAd();
+        AdService.instance.preloadNativeAdPool(targetCount: 4);
       }
 
       // 3. Debounced fallback load in case the card dwells in the viewport without a preloaded ad
@@ -697,6 +697,7 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     }
 
     if (!AdService.instance.canRequestNativeAd) {
+      _scheduleDebouncedLoad();
       return;
     }
 

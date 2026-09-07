@@ -11,7 +11,13 @@ enum OperationSuspenseType {
   tuningStance,
   tuningExhaust,
   tuningPreset,
-  generalWork;
+  generalWork,
+  workshopRepair,
+  workshopMaintenance,
+  scrapyardCrush,
+  scrapyardDismantle,
+  expertiseInspection,
+  notaryTransfer;
 
   static OperationSuspenseType fromWashServiceId(String serviceId) {
     switch (serviceId) {
@@ -63,6 +69,18 @@ enum OperationSuspenseType {
         return 'op_tuning_preset_title';
       case OperationSuspenseType.generalWork:
         return 'op_general_work_title';
+      case OperationSuspenseType.workshopRepair:
+        return 'op_workshop_repair_title';
+      case OperationSuspenseType.workshopMaintenance:
+        return 'op_workshop_maintenance_title';
+      case OperationSuspenseType.scrapyardCrush:
+        return 'op_scrapyard_crush_title';
+      case OperationSuspenseType.scrapyardDismantle:
+        return 'op_scrapyard_dismantle_title';
+      case OperationSuspenseType.expertiseInspection:
+        return 'op_expertise_inspection_title';
+      case OperationSuspenseType.notaryTransfer:
+        return 'op_notary_transfer_title';
     }
   }
 
@@ -127,6 +145,42 @@ enum OperationSuspenseType {
           'op_general_work_stage1',
           'op_general_work_stage2',
           'op_general_work_stage3',
+        ];
+      case OperationSuspenseType.workshopRepair:
+        return [
+          'op_workshop_repair_stage1',
+          'op_workshop_repair_stage2',
+          'op_workshop_repair_stage3',
+        ];
+      case OperationSuspenseType.workshopMaintenance:
+        return [
+          'op_workshop_maintenance_stage1',
+          'op_workshop_maintenance_stage2',
+          'op_workshop_maintenance_stage3',
+        ];
+      case OperationSuspenseType.scrapyardCrush:
+        return [
+          'op_scrapyard_crush_stage1',
+          'op_scrapyard_crush_stage2',
+          'op_scrapyard_crush_stage3',
+        ];
+      case OperationSuspenseType.scrapyardDismantle:
+        return [
+          'op_scrapyard_dismantle_stage1',
+          'op_scrapyard_dismantle_stage2',
+          'op_scrapyard_dismantle_stage3',
+        ];
+      case OperationSuspenseType.expertiseInspection:
+        return [
+          'op_expertise_inspection_stage1',
+          'op_expertise_inspection_stage2',
+          'op_expertise_inspection_stage3',
+        ];
+      case OperationSuspenseType.notaryTransfer:
+        return [
+          'op_notary_transfer_stage1',
+          'op_notary_transfer_stage2',
+          'op_notary_transfer_stage3',
         ];
     }
   }

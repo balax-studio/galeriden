@@ -34,6 +34,7 @@ class AdRewardCalculator {
   static AdRewardOutcome calculateDynamicReward({
     required int playerLevel,
     required double totalGarageValue,
+    double? playerBalance,
     double? targetCarPrice,
     int dayStreak = 1,
   }) {
@@ -41,6 +42,12 @@ class AdRewardCalculator {
 
     // 1. Dynamic base scaling based on player level and garage net worth
     double baseAmount = 5000.0 + (playerLevel * 2500.0) + (totalGarageValue * 0.015);
+
+    // Kasa / balance scaling (dynamically 10% of player balance when provided)
+    if (playerBalance != null && playerBalance > 0) {
+      final balanceRatioAmount = playerBalance * 0.10;
+      baseAmount = max(baseAmount, balanceRatioAmount);
+    }
 
     if (targetCarPrice != null && targetCarPrice > 0) {
       // If tied to a specific car context, factor 3% of car value
@@ -61,14 +68,21 @@ class AdRewardCalculator {
       maxJackpotCap = 500000.0;
     }
 
-    baseAmount = baseAmount.clamp(5000.0, maxBaseCap);
+    final effectiveMaxBaseCap = (playerBalance != null && playerBalance > 0)
+        ? max(maxBaseCap, playerBalance * 0.10)
+        : maxBaseCap;
+    final effectiveMaxJackpotCap = (playerBalance != null && playerBalance > 0)
+        ? max(maxJackpotCap, effectiveMaxBaseCap * 4.0)
+        : maxJackpotCap;
+
+    baseAmount = baseAmount.clamp(5000.0, effectiveMaxBaseCap);
 
     // 2. Roll variable ratio outcome
     final roll = random.nextInt(100) + 1; // 1 to 100
 
     if (roll >= 98) {
       // 3% Legendary Jackpot
-      final total = (baseAmount * 4.0).clamp(0.0, maxJackpotCap);
+      final total = (baseAmount * 4.0).clamp(0.0, effectiveMaxJackpotCap);
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.legendaryJackpot,
@@ -80,7 +94,7 @@ class AdRewardCalculator {
       );
     } else if (roll >= 81) {
       // 17% Double Luck
-      final total = (baseAmount * 2.0).clamp(0.0, maxJackpotCap);
+      final total = (baseAmount * 2.0).clamp(0.0, effectiveMaxJackpotCap);
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.doubleLuck,

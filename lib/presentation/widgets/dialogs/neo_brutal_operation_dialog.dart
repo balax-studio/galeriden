@@ -30,6 +30,18 @@ extension OperationSuspenseUiExtension on OperationSuspenseType {
         return Icons.all_inclusive_rounded;
       case OperationSuspenseType.generalWork:
         return Icons.build_circle_rounded;
+      case OperationSuspenseType.workshopRepair:
+        return Icons.build_circle_rounded;
+      case OperationSuspenseType.workshopMaintenance:
+        return Icons.oil_barrel_rounded;
+      case OperationSuspenseType.scrapyardCrush:
+        return Icons.compress_rounded;
+      case OperationSuspenseType.scrapyardDismantle:
+        return Icons.hardware_rounded;
+      case OperationSuspenseType.expertiseInspection:
+        return Icons.verified_rounded;
+      case OperationSuspenseType.notaryTransfer:
+        return Icons.gavel_rounded;
     }
   }
 
@@ -55,6 +67,18 @@ extension OperationSuspenseUiExtension on OperationSuspenseType {
         return AppColors.brutalYellow;
       case OperationSuspenseType.generalWork:
         return AppColors.brutalYellow;
+      case OperationSuspenseType.workshopRepair:
+        return AppColors.brutalYellow;
+      case OperationSuspenseType.workshopMaintenance:
+        return const Color(0xFFFF7A00);
+      case OperationSuspenseType.scrapyardCrush:
+        return AppColors.brutalRed;
+      case OperationSuspenseType.scrapyardDismantle:
+        return AppColors.brutalOrange;
+      case OperationSuspenseType.expertiseInspection:
+        return const Color(0xFF38BDF8);
+      case OperationSuspenseType.notaryTransfer:
+        return const Color(0xFF00E575);
     }
   }
 }

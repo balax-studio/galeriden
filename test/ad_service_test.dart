@@ -30,7 +30,8 @@ void main() {
 
     test('AdService enforces native ad request throttle interval', () {
       final adService = AdService.instance;
-      expect(AdService.minNativeAdInterval, equals(const Duration(seconds: 30)));
+      expect(AdService.minNativeAdInterval,
+          equals(const Duration(milliseconds: 1500)));
       adService.markNativeAdRequested();
       // On web or when not initialized, canRequestNativeAd is false, protecting against request floods
       expect(adService.canRequestNativeAd, isFalse);
@@ -85,6 +86,19 @@ void main() {
       );
 
       expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0)); // 500k max jackpot
+    });
+
+    test('Dynamically calculates at least 10% of player cash balance when provided', () {
+      const balance = 2000000.0; // 2 Million TL
+      final outcome = AdRewardCalculator.calculateDynamicReward(
+        playerLevel: 5,
+        totalGarageValue: 500000.0,
+        playerBalance: balance,
+      );
+
+      // 10% of 2M TL is 200.000 TL (multiplier 1x, 2x, or 4x)
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(200000.0));
+      expect(outcome.moneyAmount % 200000.0, equals(0.0));
     });
   });
 }
