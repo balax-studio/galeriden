@@ -49,7 +49,7 @@ class ThermalReceiptCard extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.25),
+            color: isDark ? Colors.black : const Color(0xFF0F172A),
             offset: const Offset(4, 5),
             blurRadius: 0,
           ),

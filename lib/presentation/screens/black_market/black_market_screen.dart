@@ -9,7 +9,6 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../domain/usecases/black_market_container_engine.dart';
 import '../../providers/game_provider.dart';
-import '../../widgets/fake_doc_ink_spread_widget.dart';
 import '../../widgets/mini_games/hidden_stash_canvas.dart';
 import '../../widgets/mini_games/mystery_container_unboxing_modal.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -17,6 +16,9 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/hazard_stripe_widget.dart';
+import '../../widgets/neo_brutal_stamp.dart';
 
 class BlackMarketScreen extends ConsumerStatefulWidget {
   const BlackMarketScreen({super.key});
@@ -53,7 +55,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
     if (!game.isFeatureUnlocked('/black-market')) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+            isDark ? const Color(0xFF080A0E) : const Color(0xFFF3F1EA),
         appBar: NeoBrutalAppBar(title: context.tr('bm_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/black-market',
@@ -65,7 +67,7 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+          isDark ? const Color(0xFF080A0E) : const Color(0xFFF3F1EA),
       appBar: NeoBrutalAppBar(title: context.tr('bm_screen_title')),
       body: Column(
         children: [
@@ -163,42 +165,58 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           padding: const EdgeInsets.all(14),
           backgroundColor: const Color(0xFF1F1212),
           borderColor: AppColors.errorRed,
+          borderWidth: 2.5,
           borderRadius: 14,
-          child: Row(
+          shadowOffset: const Offset(4.0, 4.0),
+          child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: AppColors.errorRed,
-                  borderRadius: BorderRadius.circular(10),
-                  border:
-                      Border.all(color: const Color(0xFF0F172A), width: 2.0),
+              const ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                child: HazardStripeWidget(
+                  height: 6,
+                  color1: AppColors.errorRed,
+                  color2: Colors.black,
+                  isAnimated: true,
                 ),
-                child: const Icon(Icons.warning_amber_rounded,
-                    color: Colors.white, size: 24),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr('bm_warning_banner_title'),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.errorRed),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.errorRed,
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: const Color(0xFF0F172A), width: 2.0),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      context.tr('bm_warning_banner_desc'),
-                      style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFFEF4444)),
+                    child: const Icon(Icons.warning_amber_rounded,
+                        color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('bm_warning_banner_title'),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.errorRed),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          context.tr('bm_warning_banner_desc'),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFEF4444)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -285,15 +303,36 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
                     isDark ? const Color(0xFF141721) : Colors.white,
                 borderColor:
                     isCleansed ? AppColors.brutalGreen : AppColors.errorRed,
+                borderWidth: 2.5,
                 borderRadius: 14,
+                shadowOffset: const Offset(4.0, 4.0),
                 child: Stack(
                   children: [
                     if (isCleansed)
                       Positioned(
                         right: 4,
                         top: 4,
-                        child: FakeDocInkSpreadWidget(
-                            stampText: context.tr('bm_stamp_cleansed'), size: 55),
+                        child: NeoBrutalStamp(
+                          text: context.tr('bm_stamp_cleansed'),
+                          subtext: 'TEMİZ SİCİL',
+                          icon: Icons.verified_user_rounded,
+                          type: NeoBrutalStampType.approved,
+                          angle: -0.06,
+                          fontSize: 10.0,
+                        ),
+                      )
+                    else if (displayRisk >= 50)
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: NeoBrutalStamp(
+                          text: 'YÜKSEK RİSK',
+                          subtext: '%$displayRisk POLİS',
+                          icon: Icons.warning_rounded,
+                          type: NeoBrutalStampType.rejected,
+                          angle: 0.05,
+                          fontSize: 9.5,
+                        ),
                       ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,6 +564,10 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
               ),
             );
           }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.blackMarket,
+          ),
       ],
     );
   }
@@ -548,10 +591,24 @@ class _BlackMarketScreenState extends ConsumerState<BlackMarketScreen>
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor:
               isAvailable ? AppColors.brutalYellow : const Color(0xFF64748B),
+          borderWidth: 2.5,
           borderRadius: 16,
+          shadowOffset: const Offset(4.0, 4.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (isAvailable) ...[
+                const ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(4)),
+                  child: HazardStripeWidget(
+                    height: 6,
+                    color1: AppColors.brutalYellow,
+                    color2: Colors.black,
+                    isAnimated: true,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

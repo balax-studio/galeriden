@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/first_time_action_keys.dart';
 import '../../../core/localization/app_localizations.dart';
-import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/notification_service.dart';
@@ -68,7 +67,6 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
   @override
   void initState() {
     super.initState();
-    AdService.instance.loadRewardedAd();
     _offeredPrice = (widget.listing.askingPrice * 0.90).roundToDouble();
     _customer =
         CustomerModel.generateSellerFromListing(widget.listing.sellerName);

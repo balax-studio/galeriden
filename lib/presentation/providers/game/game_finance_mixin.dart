@@ -46,6 +46,9 @@ mixin GameFinanceMixin on GameBaseNotifier {
     saveState();
   }
 
+  /// Alias for addMoney
+  void deposit(double amount) => addMoney(amount);
+
   /// Take bank loan
   bool takeBankLoan(
       {required String bankName, required double amount, required int months}) {

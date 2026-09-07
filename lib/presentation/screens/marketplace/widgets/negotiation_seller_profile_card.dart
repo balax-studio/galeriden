@@ -37,9 +37,9 @@ class NegotiationSellerProfileCard extends StatelessWidget {
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor:
               isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-          borderWidth: 2,
+          borderWidth: 2.5,
           borderRadius: 12,
-          shadowOffset: const Offset(3, 3),
+          shadowOffset: const Offset(3.5, 3.5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -56,7 +56,7 @@ class NegotiationSellerProfileCard extends StatelessWidget {
                         color: isDark
                             ? const Color(0xFF333B4F)
                             : const Color(0xFF0F172A),
-                        width: 2.0,
+                        width: 2.2,
                       ),
                     ),
                     child: Center(
@@ -115,7 +115,7 @@ class NegotiationSellerProfileCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // Seller Patience & Tolerance Gauge
+              // Seller Patience & Tolerance Gauge (Punch-Card Meter)
               Row(
                 children: [
                   Text(
@@ -129,36 +129,28 @@ class NegotiationSellerProfileCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        height: 8,
+                  Row(
+                    children: List.generate(3, (index) {
+                      final isRemaining = index < (3 - counterOfferCount);
+                      final isCritical = (3 - counterOfferCount) <= 1;
+                      return Container(
+                        width: 20,
+                        height: 9,
+                        margin: const EdgeInsets.only(right: 4),
                         decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0),
+                          color: isRemaining
+                              ? (isCritical ? AppColors.errorRed : AppColors.brutalYellow)
+                              : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                          borderRadius: BorderRadius.circular(2),
                           border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 1.2,
+                            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                            width: 1.5,
                           ),
                         ),
-                        child: FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor:
-                              ((3 - counterOfferCount) / 3).clamp(0.0, 1.0),
-                          child: Container(
-                            color: counterOfferCount >= 2
-                                ? const Color(0xFFEF4444)
-                                : const Color(0xFFFFDE59),
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    }),
                   ),
-                  const SizedBox(width: 8),
+                  const Spacer(),
                   Text(
                     '${3 - counterOfferCount}/3 Hak',
                     style: TextStyle(
@@ -182,9 +174,9 @@ class NegotiationSellerProfileCard extends StatelessWidget {
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor:
               isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-          borderWidth: 2,
+          borderWidth: 2.5,
           borderRadius: 12,
-          shadowOffset: const Offset(3, 3),
+          shadowOffset: const Offset(3.5, 3.5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

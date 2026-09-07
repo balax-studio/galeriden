@@ -6,8 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../core/theme/stat_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
@@ -751,11 +753,19 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                           totalAmount: CurrencyFormatter.format(fairValue),
                           stampOverlay: NeoBrutalStamp(
                             text: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
-                                ? 'KUSURSUZ'
-                                : (exp.tramerAmount > 40000 ? 'AĞIR HASAR' : 'EKSPERTİZ ONAYLI'),
-                            color: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
-                                ? const Color(0xFF00E575)
-                                : (exp.tramerAmount > 40000 ? const Color(0xFFEF4444) : const Color(0xFF0EA5E9)),
+                                ? 'HATASIZ BOYASIZ'
+                                : (exp.tramerAmount > 40000 ? 'AĞIR HASARLI' : 'EKSPERTİZ ONAYLI'),
+                            subtext: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
+                                ? 'KUSURSUZ RAPOR'
+                                : (exp.tramerAmount > 40000 ? 'PERT KAYITLI' : 'TSE ONAYLI'),
+                            icon: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
+                                ? Icons.verified_rounded
+                                : (exp.tramerAmount > 40000 ? Icons.warning_rounded : Icons.fact_check_rounded),
+                            type: exp.tramerAmount == 0 && exp.bodyParts.values.every((s) => s == PartStatus.original)
+                                ? NeoBrutalStampType.approved
+                                : (exp.tramerAmount > 40000 ? NeoBrutalStampType.pert : NeoBrutalStampType.inspected),
+                            angle: -0.07,
+                            fontSize: 11.5,
                           ),
                         ),
                       ],
@@ -764,6 +774,73 @@ class _ExpertiseScreenState extends ConsumerState<ExpertiseScreen> {
                 },
               ),
             ],
+            const SizedBox(height: 14),
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(12),
+              backgroundColor:
+                  isDark ? const Color(0xFF141721) : const Color(0xFFF8FAFC),
+              borderColor:
+                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+              borderRadius: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.verified_rounded,
+                          color: Color(0xFF38BDF8), size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.tr('ad_native_dyno_tag'),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF38BDF8)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    context.tr('ad_native_dyno_desc'),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 10),
+                  NeoBrutalButton(
+                    label: context.tr('exp_btn_sponsored_dyno'),
+                    icon: Icons.auto_awesome_rounded,
+                    backgroundColor: const Color(0xFF38BDF8),
+                    textColor: Colors.black,
+                    fontSize: 11.5,
+                    fullWidth: true,
+                    onPressed: () {
+                      AdService.instance.showRewardedAdWithFallback(
+                        context: context,
+                        customRewardTitle: context.tr('exp_btn_sponsored_dyno'),
+                        onRewardEarned: () {
+                          ref.read(gameProvider.notifier).addReputation(5);
+                          ref.read(gameProvider.notifier).deposit(10000);
+                          GameSoundHapticService.playStampSlam();
+                          NotificationService.showReward(
+                            context,
+                            context.tr('exp_toast_sponsored_dyno_done'),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            const NeoBrutalNativeAdCard(
+              contextType: NativeAdContextType.expertise,
+              margin: EdgeInsets.only(bottom: 12),
+            ),
           ],
         ),
       ),

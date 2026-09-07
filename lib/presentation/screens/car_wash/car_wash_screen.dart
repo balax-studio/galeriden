@@ -22,6 +22,8 @@ import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/mini_games/car_wash_canvas.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
+import '../../../core/services/ad_service.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class CarWashScreen extends ConsumerStatefulWidget {
   const CarWashScreen({super.key});
@@ -923,6 +925,43 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+                    NeoBrutalButton(
+                      label: context.tr('wash_btn_sponsored_vip'),
+                      icon: Icons.auto_awesome_rounded,
+                      backgroundColor: const Color(0xFFA855F7),
+                      textColor: Colors.white,
+                      fontSize: 11,
+                      fullWidth: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      onPressed: selectedCar.isDetailedCleaned
+                          ? null
+                          : () {
+                              AdService.instance.showRewardedAdWithFallback(
+                                context: context,
+                                customRewardTitle:
+                                    context.tr('wash_btn_sponsored_vip'),
+                                onRewardEarned: () {
+                                  ref
+                                      .read(gameProvider.notifier)
+                                      .performWashService(
+                                        selectedCar!.id,
+                                        cost: 0,
+                                        valueBoostPercent: 12.0,
+                                        setWashed: true,
+                                        setInterior: true,
+                                        setPolished: true,
+                                        setDetailed: true,
+                                      );
+                                  NotificationService.showReward(
+                                    context,
+                                    context.tr('wash_toast_sponsored_vip_done'),
+                                  );
+                                  setState(() {});
+                                },
+                              );
+                            },
+                    ),
                     const SizedBox(height: 12),
 
                     // Micro Quick Actions: Dikiz Aynası Kokusu, Far Restorasyonu, Demir Tozu
@@ -1027,7 +1066,11 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
+              const NeoBrutalNativeAdCard(
+                contextType: NativeAdContextType.carWash,
+                margin: EdgeInsets.symmetric(vertical: 14),
+              ),
+              const SizedBox(height: 10),
 
               // Interactive Detailing Canvas Trigger
               NeoBrutalButton(

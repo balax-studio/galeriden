@@ -19,6 +19,9 @@ import '../../widgets/mini_games/dyno_run_canvas.dart';
 import '../../widgets/mini_games/engine_timing_canvas.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/hazard_stripe_widget.dart';
+import '../../widgets/neo_brutal_stamp.dart';
 import 'dart:math' as math;
 
 class TuningStudioScreen extends ConsumerStatefulWidget {
@@ -260,7 +263,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     if (!game.isFeatureUnlocked('/tuning-studio')) {
       return Scaffold(
         backgroundColor:
-            isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+            isDark ? const Color(0xFF080B10) : const Color(0xFFF3F1EA),
         appBar: NeoBrutalAppBar(title: context.tr('tuning_screen_title')),
         body: NeoBrutalLockedFeatureView(
           route: '/tuning-studio',
@@ -328,7 +331,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
 
     return Scaffold(
       backgroundColor:
-          isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
+          isDark ? const Color(0xFF080B10) : const Color(0xFFF3F1EA),
       appBar: NeoBrutalAppBar(
         title: context.tr('tuning_screen_title'),
         subtitle: context.tr('tuning_slug'),
@@ -491,53 +494,72 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
             NeoBrutalCard(
               padding: const EdgeInsets.all(14),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor: AppColors.brutalGreen,
+              borderColor: _selectedCar!.isOverTuned
+                  ? AppColors.brutalOrange
+                  : (dyno.isInspectionCompliant ? AppColors.brutalGreen : AppColors.brutalCyan),
+              borderWidth: 2.5,
               borderRadius: 14,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              shadowOffset: const Offset(4.0, 4.0),
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (_selectedCar!.isOverTuned) ...[
+                        const ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(4)),
+                          child: HazardStripeWidget(
+                            height: 6,
+                            color1: AppColors.brutalOrange,
+                            color2: Colors.black,
+                            isAnimated: true,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(Icons.speed_rounded,
-                              color: AppColors.brutalGreen, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            context.tr('tuning_dyno_card_title',
-                                {'brand': _selectedCar!.brand}),
-                            style: const TextStyle(
-                                fontSize: 11.5, fontWeight: FontWeight.w900),
+                          Row(
+                            children: [
+                              const Icon(Icons.speed_rounded,
+                                  color: AppColors.brutalGreen, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                context.tr('tuning_dyno_card_title',
+                                    {'brand': _selectedCar!.brand}),
+                                style: const TextStyle(
+                                    fontSize: 11.5, fontWeight: FontWeight.w900),
+                              ),
+                            ],
+                          ),
+                          Wrap(
+                            spacing: 4,
+                            children: [
+                              if (_selectedCar!.isOverTuned)
+                                NeoBrutalBadge(
+                                  text: context.tr('tuning_overtuned_badge'),
+                                  backgroundColor: AppColors.brutalOrange,
+                                  textColor: Colors.black,
+                                  fontSize: 9.0,
+                                ),
+                              NeoBrutalBadge(
+                                text: dyno.isInspectionCompliant
+                                    ? context.tr('tuning_tuvturk_ok')
+                                    : context.tr('tuning_tuvturk_fail'),
+                                backgroundColor: dyno.isInspectionCompliant
+                                    ? AppColors.brutalGreen
+                                    : AppColors.errorRed,
+                                textColor: dyno.isInspectionCompliant
+                                    ? Colors.black
+                                    : Colors.white,
+                                fontSize: 9.0,
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      Wrap(
-                        spacing: 4,
-                        children: [
-                          if (_selectedCar!.isOverTuned)
-                            NeoBrutalBadge(
-                              text: context.tr('tuning_overtuned_badge'),
-                              backgroundColor: AppColors.brutalOrange,
-                              textColor: Colors.black,
-                              fontSize: 9.0,
-                            ),
-                          NeoBrutalBadge(
-                            text: dyno.isInspectionCompliant
-                                ? context.tr('tuning_tuvturk_ok')
-                                : context.tr('tuning_tuvturk_fail'),
-                            backgroundColor: dyno.isInspectionCompliant
-                                ? AppColors.brutalGreen
-                                : AppColors.errorRed,
-                            textColor: dyno.isInspectionCompliant
-                                ? Colors.black
-                                : Colors.white,
-                            fontSize: 9.0,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -648,8 +670,23 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
+              if (_dynoTestedCarIds.contains(_selectedCar!.id))
+                Positioned(
+                  right: 2,
+                  bottom: 50,
+                  child: NeoBrutalStamp(
+                    text: 'DYNO ONAYLI',
+                    subtext: '${dyno.totalHp} HP ONAY',
+                    icon: Icons.verified_rounded,
+                    type: NeoBrutalStampType.approved,
+                    angle: -0.06,
+                    fontSize: 10.0,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
 
             // 4. Tab Bar (Tümü, Motor, Aero, Stance, Egzoz, Paketler)
             SizedBox(
@@ -729,30 +766,34 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                     borderColor: allApplied
                         ? AppColors.brutalGreen
                         : AppColors.brutalOrange,
+                    borderWidth: 2.5,
                     borderRadius: 14,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    shadowOffset: const Offset(4.0, 4.0),
+                    child: Stack(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                                child: Text(preset.title,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w900))),
-                            NeoBrutalBadge(
-                              text: allApplied
-                                  ? context.tr('tuning_badge_applied')
-                                  : context.tr('tuning_badge_discount'),
-                              backgroundColor: allApplied
-                                  ? AppColors.brutalGreen
-                                  : AppColors.brutalYellow,
-                              textColor: Colors.black,
-                              fontSize: 10,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                    child: Text(preset.title,
+                                        style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w900))),
+                                NeoBrutalBadge(
+                                  text: allApplied
+                                      ? context.tr('tuning_badge_applied')
+                                      : context.tr('tuning_badge_discount'),
+                                  backgroundColor: allApplied
+                                      ? AppColors.brutalGreen
+                                      : AppColors.brutalYellow,
+                                  textColor: Colors.black,
+                                  fontSize: 10,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
                         const SizedBox(height: 6),
                         Text(preset.description,
                             style: const TextStyle(
@@ -806,8 +847,23 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         ),
                       ],
                     ),
-                  ),
-                );
+                    if (allApplied)
+                      Positioned(
+                        right: 4,
+                        top: 28,
+                        child: NeoBrutalStamp(
+                          text: 'YÜKLENDİ',
+                          subtext: 'TAM DONANIM',
+                          icon: Icons.verified_rounded,
+                          type: NeoBrutalStampType.approved,
+                          angle: -0.06,
+                          fontSize: 10.0,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
               }),
             ] else ...[
               // Standard Options List
@@ -826,7 +882,9 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         : (isDark
                             ? const Color(0xFF2A3142)
                             : const Color(0xFF0F172A)),
+                    borderWidth: 2.5,
                     borderRadius: 14,
+                    shadowOffset: const Offset(3.5, 3.5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -993,6 +1051,10 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
               }),
             ],
           ],
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.workshop,
+            margin: EdgeInsets.only(top: 14, bottom: 8),
+          ),
         ],
       ),
     ),
@@ -1004,12 +1066,19 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0C0E14) : const Color(0xFFF1F5F9),
+        color: isDark ? const Color(0xFF0E121A) : Colors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1),
-          width: 1.5,
+          color: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+          width: 2.0,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black : const Color(0xFF0F172A),
+            offset: const Offset(2.0, 2.0),
+            blurRadius: 0,
+          ),
+        ],
       ),
       child: Column(
         children: [

@@ -17,6 +17,29 @@ enum NativeAdContextType {
   gossip,
   stockMarket,
   realEstate,
+  expertise,
+  scrapyard,
+  carWash,
+  finance,
+  workshop,
+  staff,
+  rentACar,
+  sideBusiness,
+  reviews,
+  salesHistory,
+  consignment,
+  branch,
+  album,
+  blackMarket,
+  character,
+  auction,
+  specialPlate,
+  offerEvaluation,
+  mediaAgency,
+  staffAcademy,
+  showroomDecor,
+  bankInvestments,
+  district,
 }
 
 class InGameSponsorSnippet {
@@ -167,6 +190,282 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     ),
   ];
 
+  static final List<InGameSponsorSnippet> _expertiseSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_dyno_title',
+      description: 'ad_native_dyno_desc',
+      badgeText: 'ad_native_dyno_tag',
+      actionText: 'ad_native_dyno_cta',
+      icon: Icons.speed_rounded,
+      accentColor: Color(0xFF38BDF8),
+      benefitToast: 'ad_native_dyno_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _scrapyardSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_salvage_title',
+      description: 'ad_native_salvage_desc',
+      badgeText: 'ad_native_salvage_tag',
+      actionText: 'ad_native_salvage_cta',
+      icon: Icons.car_crash_rounded,
+      accentColor: Color(0xFFF97316),
+      benefitToast: 'ad_native_salvage_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _carWashSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_detailing_title',
+      description: 'ad_native_detailing_desc',
+      badgeText: 'ad_native_detailing_tag',
+      actionText: 'ad_native_detailing_cta',
+      icon: Icons.local_car_wash_rounded,
+      accentColor: Color(0xFF06B6D4),
+      benefitToast: 'ad_native_detailing_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _financeSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_credit_title',
+      description: 'ad_native_credit_desc',
+      badgeText: 'ad_native_credit_tag',
+      actionText: 'ad_native_credit_cta',
+      icon: Icons.account_balance_rounded,
+      accentColor: Color(0xFF10B981),
+      benefitToast: 'ad_native_credit_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _workshopSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_workshop_title',
+      description: 'ad_native_workshop_desc',
+      badgeText: 'ad_native_workshop_tag',
+      actionText: 'ad_native_workshop_cta',
+      icon: Icons.precision_manufacturing_rounded,
+      accentColor: Color(0xFFEF4444),
+      benefitToast: 'ad_native_workshop_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _staffSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_staff_title',
+      description: 'ad_native_staff_desc',
+      badgeText: 'ad_native_staff_tag',
+      actionText: 'ad_native_staff_cta',
+      icon: Icons.badge_rounded,
+      accentColor: Color(0xFF3B82F6),
+      benefitToast: 'ad_native_staff_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _rentACarSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_rental_title',
+      description: 'ad_native_rental_desc',
+      badgeText: 'ad_native_rental_tag',
+      actionText: 'ad_native_rental_cta',
+      icon: Icons.car_rental_rounded,
+      accentColor: Color(0xFF8B5CF6),
+      benefitToast: 'ad_native_rental_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _sideBusinessSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_business_title',
+      description: 'ad_native_business_desc',
+      badgeText: 'ad_native_business_tag',
+      actionText: 'ad_native_business_cta',
+      icon: Icons.ev_station_rounded,
+      accentColor: Color(0xFFF59E0B),
+      benefitToast: 'ad_native_business_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _reviewsSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_review_title',
+      description: 'ad_native_review_desc',
+      badgeText: 'ad_native_review_tag',
+      actionText: 'ad_native_review_cta',
+      icon: Icons.rate_review_rounded,
+      accentColor: Color(0xFF10B981),
+      benefitToast: 'ad_native_review_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _salesHistorySnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_ledger_title',
+      description: 'ad_native_ledger_desc',
+      badgeText: 'ad_native_ledger_tag',
+      actionText: 'ad_native_ledger_cta',
+      icon: Icons.receipt_long_rounded,
+      accentColor: Color(0xFF64748B),
+      benefitToast: 'ad_native_ledger_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _consignmentSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_consignment_title',
+      description: 'ad_native_consignment_desc',
+      badgeText: 'ad_native_consignment_tag',
+      actionText: 'ad_native_consignment_cta',
+      icon: Icons.handshake_rounded,
+      accentColor: AppColors.brutalGreen,
+      benefitToast: 'ad_native_consignment_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _branchSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_branch_title',
+      description: 'ad_native_branch_desc',
+      badgeText: 'ad_native_branch_tag',
+      actionText: 'ad_native_branch_cta',
+      icon: Icons.domain_rounded,
+      accentColor: Color(0xFF6366F1),
+      benefitToast: 'ad_native_branch_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _albumSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_album_title',
+      description: 'ad_native_album_desc',
+      badgeText: 'ad_native_album_tag',
+      actionText: 'ad_native_album_cta',
+      icon: Icons.auto_stories_rounded,
+      accentColor: AppColors.brutalYellow,
+      benefitToast: 'ad_native_album_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _blackMarketSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_bm_title',
+      description: 'ad_native_bm_desc',
+      badgeText: 'ad_native_bm_tag',
+      actionText: 'ad_native_bm_cta',
+      icon: Icons.anchor_rounded,
+      accentColor: Color(0xFFEF4444),
+      benefitToast: 'ad_native_bm_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _characterSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_character_title',
+      description: 'ad_native_character_desc',
+      badgeText: 'ad_native_character_tag',
+      actionText: 'ad_native_character_cta',
+      icon: Icons.military_tech_rounded,
+      accentColor: Color(0xFFA855F7),
+      benefitToast: 'ad_native_character_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _auctionSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_auction_title',
+      description: 'ad_native_auction_desc',
+      badgeText: 'ad_native_auction_tag',
+      actionText: 'ad_native_auction_cta',
+      icon: Icons.gavel_rounded,
+      accentColor: Color(0xFF38BDF8),
+      benefitToast: 'ad_native_auction_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _specialPlateSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_plate_title',
+      description: 'ad_native_plate_desc',
+      badgeText: 'ad_native_plate_tag',
+      actionText: 'ad_native_plate_cta',
+      icon: Icons.badge_rounded,
+      accentColor: Color(0xFFFFDE59),
+      benefitToast: 'ad_native_plate_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _offerEvaluationSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_offer_title',
+      description: 'ad_native_offer_desc',
+      badgeText: 'ad_native_offer_tag',
+      actionText: 'ad_native_offer_cta',
+      icon: Icons.price_check_rounded,
+      accentColor: Color(0xFF10B981),
+      benefitToast: 'ad_native_offer_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _mediaAgencySnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_media_title',
+      description: 'ad_native_media_desc',
+      badgeText: 'ad_native_media_tag',
+      actionText: 'ad_native_media_cta',
+      icon: Icons.campaign_rounded,
+      accentColor: Color(0xFF0284C7),
+      benefitToast: 'ad_native_media_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _staffAcademySnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_academy_title',
+      description: 'ad_native_academy_desc',
+      badgeText: 'ad_native_academy_tag',
+      actionText: 'ad_native_academy_cta',
+      icon: Icons.school_rounded,
+      accentColor: Color(0xFFA855F7),
+      benefitToast: 'ad_native_academy_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _showroomDecorSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_decor_title',
+      description: 'ad_native_decor_desc',
+      badgeText: 'ad_native_decor_tag',
+      actionText: 'ad_native_decor_cta',
+      icon: Icons.architecture_rounded,
+      accentColor: Color(0xFF06B6D4),
+      benefitToast: 'ad_native_decor_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _bankInvestmentsSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_bank_title',
+      description: 'ad_native_bank_desc',
+      badgeText: 'ad_native_bank_tag',
+      actionText: 'ad_native_bank_cta',
+      icon: Icons.savings_rounded,
+      accentColor: Color(0xFF10B981),
+      benefitToast: 'ad_native_bank_toast',
+    ),
+  ];
+
+  static final List<InGameSponsorSnippet> _districtSnippets = [
+    const InGameSponsorSnippet(
+      title: 'ad_native_district_title',
+      description: 'ad_native_district_desc',
+      badgeText: 'ad_native_district_tag',
+      actionText: 'ad_native_district_cta',
+      icon: Icons.location_city_rounded,
+      accentColor: Color(0xFF3B82F6),
+      benefitToast: 'ad_native_district_toast',
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -191,6 +490,98 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       case NativeAdContextType.realEstate:
         _fallbackSnippet =
             _realEstateSnippets[random.nextInt(_realEstateSnippets.length)];
+        break;
+      case NativeAdContextType.expertise:
+        _fallbackSnippet =
+            _expertiseSnippets[random.nextInt(_expertiseSnippets.length)];
+        break;
+      case NativeAdContextType.scrapyard:
+        _fallbackSnippet =
+            _scrapyardSnippets[random.nextInt(_scrapyardSnippets.length)];
+        break;
+      case NativeAdContextType.carWash:
+        _fallbackSnippet =
+            _carWashSnippets[random.nextInt(_carWashSnippets.length)];
+        break;
+      case NativeAdContextType.finance:
+        _fallbackSnippet =
+            _financeSnippets[random.nextInt(_financeSnippets.length)];
+        break;
+      case NativeAdContextType.workshop:
+        _fallbackSnippet =
+            _workshopSnippets[random.nextInt(_workshopSnippets.length)];
+        break;
+      case NativeAdContextType.staff:
+        _fallbackSnippet =
+            _staffSnippets[random.nextInt(_staffSnippets.length)];
+        break;
+      case NativeAdContextType.rentACar:
+        _fallbackSnippet =
+            _rentACarSnippets[random.nextInt(_rentACarSnippets.length)];
+        break;
+      case NativeAdContextType.sideBusiness:
+        _fallbackSnippet =
+            _sideBusinessSnippets[random.nextInt(_sideBusinessSnippets.length)];
+        break;
+      case NativeAdContextType.reviews:
+        _fallbackSnippet =
+            _reviewsSnippets[random.nextInt(_reviewsSnippets.length)];
+        break;
+      case NativeAdContextType.salesHistory:
+        _fallbackSnippet =
+            _salesHistorySnippets[random.nextInt(_salesHistorySnippets.length)];
+        break;
+      case NativeAdContextType.consignment:
+        _fallbackSnippet =
+            _consignmentSnippets[random.nextInt(_consignmentSnippets.length)];
+        break;
+      case NativeAdContextType.branch:
+        _fallbackSnippet =
+            _branchSnippets[random.nextInt(_branchSnippets.length)];
+        break;
+      case NativeAdContextType.album:
+        _fallbackSnippet =
+            _albumSnippets[random.nextInt(_albumSnippets.length)];
+        break;
+      case NativeAdContextType.blackMarket:
+        _fallbackSnippet =
+            _blackMarketSnippets[random.nextInt(_blackMarketSnippets.length)];
+        break;
+      case NativeAdContextType.character:
+        _fallbackSnippet =
+            _characterSnippets[random.nextInt(_characterSnippets.length)];
+        break;
+      case NativeAdContextType.auction:
+        _fallbackSnippet =
+            _auctionSnippets[random.nextInt(_auctionSnippets.length)];
+        break;
+      case NativeAdContextType.specialPlate:
+        _fallbackSnippet =
+            _specialPlateSnippets[random.nextInt(_specialPlateSnippets.length)];
+        break;
+      case NativeAdContextType.offerEvaluation:
+        _fallbackSnippet =
+            _offerEvaluationSnippets[random.nextInt(_offerEvaluationSnippets.length)];
+        break;
+      case NativeAdContextType.mediaAgency:
+        _fallbackSnippet =
+            _mediaAgencySnippets[random.nextInt(_mediaAgencySnippets.length)];
+        break;
+      case NativeAdContextType.staffAcademy:
+        _fallbackSnippet =
+            _staffAcademySnippets[random.nextInt(_staffAcademySnippets.length)];
+        break;
+      case NativeAdContextType.showroomDecor:
+        _fallbackSnippet =
+            _showroomDecorSnippets[random.nextInt(_showroomDecorSnippets.length)];
+        break;
+      case NativeAdContextType.bankInvestments:
+        _fallbackSnippet =
+            _bankInvestmentsSnippets[random.nextInt(_bankInvestmentsSnippets.length)];
+        break;
+      case NativeAdContextType.district:
+        _fallbackSnippet =
+            _districtSnippets[random.nextInt(_districtSnippets.length)];
         break;
     }
   }
@@ -227,8 +618,8 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
 
   void _scheduleDebouncedLoad() {
     _cancelDebounce();
-    // 650ms debounce prevents rapid scrolling from firing requests that are immediately disposed
-    _debounceTimer = Timer(const Duration(milliseconds: 650), () {
+    // 1500ms debounce prevents rapid scrolling and quick screen transitions from firing requests that are immediately disposed
+    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
         if (AdService.instance.canRequestNativeAd) {
           _loadNativeAd();

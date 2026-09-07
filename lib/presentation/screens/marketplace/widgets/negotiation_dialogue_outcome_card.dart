@@ -7,6 +7,7 @@ import '../../../../domain/usecases/psychology_engine.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/neo_brutal_stamp.dart';
 import '../../../widgets/pulsing_dot.dart';
 
 class NegotiationDialogueOutcomeCard extends StatelessWidget {
@@ -155,28 +156,45 @@ class NegotiationDialogueOutcomeCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    isAccepted
-                        ? Icons.check_circle_rounded
-                        : Icons.cancel_rounded,
-                    color: isAccepted
-                        ? const Color(0xFF00E575)
-                        : const Color(0xFFEF4444),
-                    size: 22,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          isAccepted
+                              ? Icons.check_circle_rounded
+                              : Icons.cancel_rounded,
+                          color: isAccepted
+                              ? const Color(0xFF00E575)
+                              : const Color(0xFFEF4444),
+                          size: 22,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isAccepted
+                                ? context.tr('deal_offer_accepted')
+                                : context.tr('deal_offer_rejected'),
+                            style: TextStyle(
+                              color: isAccepted
+                                  ? const Color(0xFF00E575)
+                                  : const Color(0xFFEF4444),
+                              fontWeight: FontWeight.w900,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    isAccepted
-                        ? context.tr('deal_offer_accepted')
-                        : context.tr('deal_offer_rejected'),
-                    style: TextStyle(
-                      color: isAccepted
-                          ? const Color(0xFF00E575)
-                          : const Color(0xFFEF4444),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
+                  NeoBrutalStamp(
+                    text: isAccepted ? context.tr('deal_offer_accepted') : context.tr('deal_offer_rejected'),
+                    type: isAccepted ? NeoBrutalStampType.approved : NeoBrutalStampType.rejected,
+                    icon: isAccepted ? Icons.verified_rounded : Icons.cancel_rounded,
+                    angle: isAccepted ? -0.05 : 0.05,
+                    fontSize: 10.0,
                   ),
                 ],
               ),

@@ -56,7 +56,6 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   @override
   void initState() {
     super.initState();
-    AdService.instance.loadRewardedAd();
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),

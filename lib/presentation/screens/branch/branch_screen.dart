@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/dialogs/showroom_construction_modal.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
@@ -641,6 +642,10 @@ class BranchScreen extends ConsumerWidget {
               ),
             );
           }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.branch,
+          ),
         ],
       ),
     ),

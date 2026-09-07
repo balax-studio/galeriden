@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class BankInvestmentsScreen extends ConsumerStatefulWidget {
   const BankInvestmentsScreen({super.key});
@@ -742,6 +743,10 @@ class _BankInvestmentsScreenState extends ConsumerState<BankInvestmentsScreen> {
                 ),
               );
             }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.bankInvestments,
+          ),
         ],
       ),
     );

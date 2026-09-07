@@ -1,11 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:galeriden/core/localization/translations/ar_translations.dart';
-import 'package:galeriden/core/localization/translations/de_translations.dart';
-import 'package:galeriden/core/localization/translations/en_translations.dart';
-import 'package:galeriden/core/localization/translations/es_translations.dart';
-import 'package:galeriden/core/localization/translations/pt_translations.dart';
-import 'package:galeriden/core/localization/translations/ru_translations.dart';
-import 'package:galeriden/core/localization/translations/tr_translations.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/listing_model.dart';

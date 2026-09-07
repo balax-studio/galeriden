@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../widgets/dialogs/rush_training_confirmation_dialog.dart';
 
 class StaffCourseOption {
@@ -561,6 +562,10 @@ class _StaffAcademyScreenState extends ConsumerState<StaffAcademyScreen> {
               ),
             );
           }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.staffAcademy,
+          ),
         ],
       ),
     );

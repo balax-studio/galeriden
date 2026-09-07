@@ -16,6 +16,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class CollectionAlbumScreen extends ConsumerStatefulWidget {
   const CollectionAlbumScreen({super.key});
@@ -204,6 +205,14 @@ class _CollectionAlbumScreenState extends ConsumerState<CollectionAlbumScreen> {
                 ),
               ),
             ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+              child: const NeoBrutalNativeAdCard(
+                contextType: NativeAdContextType.album,
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -5,7 +5,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/scrapyard_model.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../providers/game_provider.dart';
+import '../../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../widgets/hydraulic_crush_wave_widget.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -41,124 +43,157 @@ class ScrapyardScrapCarsTab extends ConsumerWidget {
       itemCount: activeScrapCars.isEmpty ? 2 : activeScrapCars.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: NeoBrutalCard(
-              padding: const EdgeInsets.all(14),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor:
-                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 14,
-              child: Column(
-                children: [
-                  Row(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: NeoBrutalCard(
+                  padding: const EdgeInsets.all(14),
+                  backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+                  borderColor:
+                      isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+                  borderRadius: 14,
+                  child: Column(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.brutalOrange,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 2.0,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalOrange,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 2.0,
+                              ),
+                            ),
+                            child: const Icon(Icons.car_crash_rounded,
+                                color: Colors.black, size: 24),
                           ),
-                        ),
-                        child: const Icon(Icons.car_crash_rounded,
-                            color: Colors.black, size: 24),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('scrap_banner_title'),
-                              style: const TextStyle(
-                                  fontSize: 12.5, fontWeight: FontWeight.w900),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('scrap_banner_title'),
+                                  style: const TextStyle(
+                                      fontSize: 12.5, fontWeight: FontWeight.w900),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr('scrap_banner_desc'),
+                                  style: const TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF64748B)),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              context.tr('scrap_banner_desc'),
-                              style: const TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B)),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Builder(
-                          builder: (context) {
-                            final bool canWorkGig = game.lastScrapyardGigDay < game.currentDay;
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                final bool canWorkGig = game.lastScrapyardGigDay < game.currentDay;
 
-                            return NeoBrutalButton(
-                              label: canWorkGig
-                                  ? context.tr('scrap_btn_gig_available')
-                                  : context.tr('scrap_btn_gig_done'),
-                              icon: canWorkGig
-                                  ? Icons.work_history_rounded
-                                  : Icons.check_circle_rounded,
-                              backgroundColor: canWorkGig
-                                  ? (isDark
-                                      ? const Color(0xFF1E2330)
-                                      : const Color(0xFFE2E8F0))
-                                  : (isDark
-                                      ? const Color(0xFF141721)
-                                      : const Color(0xFFCBD5E1)),
-                              textColor: canWorkGig
-                                  ? (isDark ? Colors.white : Colors.black)
-                                  : (isDark ? Colors.white38 : Colors.black38),
-                              fontSize: 11,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              onPressed: canWorkGig
-                                  ? () {
-                                      final success = ref
-                                          .read(gameProvider.notifier)
-                                          .workScrapyardSideGig();
-                                      if (success) {
-                                        NotificationService.showSuccess(
-                                          context,
-                                          context.tr(
-                                              'scrapyard_toast_apprentice_done'),
-                                        );
-                                      } else {
-                                        NotificationService.showError(
-                                          context,
-                                          context.tr(
-                                              'scrapyard_toast_apprentice_limit'),
-                                        );
-                                      }
-                                    }
-                                  : null,
-                            );
-                          },
-                        ),
+                                return NeoBrutalButton(
+                                  label: canWorkGig
+                                      ? context.tr('scrap_btn_gig_available')
+                                      : context.tr('scrap_btn_gig_done'),
+                                  icon: canWorkGig
+                                      ? Icons.work_history_rounded
+                                      : Icons.check_circle_rounded,
+                                  backgroundColor: canWorkGig
+                                      ? (isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFE2E8F0))
+                                      : (isDark
+                                          ? const Color(0xFF141721)
+                                          : const Color(0xFFCBD5E1)),
+                                  textColor: canWorkGig
+                                      ? (isDark ? Colors.white : Colors.black)
+                                      : (isDark ? Colors.white38 : Colors.black38),
+                                  fontSize: 11,
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  onPressed: canWorkGig
+                                      ? () {
+                                          final success = ref
+                                              .read(gameProvider.notifier)
+                                              .workScrapyardSideGig();
+                                          if (success) {
+                                            NotificationService.showSuccess(
+                                              context,
+                                              context.tr(
+                                                  'scrapyard_toast_apprentice_done'),
+                                            );
+                                          } else {
+                                            NotificationService.showError(
+                                              context,
+                                              context.tr(
+                                                  'scrapyard_toast_apprentice_limit'),
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      NeoBrutalButton(
+                        label: context.tr('scrap_btn_sponsored_gig'),
+                        icon: Icons.local_shipping_rounded,
+                        backgroundColor: const Color(0xFFF97316),
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        fullWidth: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        onPressed: () {
+                          AdService.instance.showRewardedAdWithFallback(
+                            context: context,
+                            customRewardTitle: context.tr('scrap_btn_sponsored_gig'),
+                            onRewardEarned: () {
+                              ref.read(gameProvider.notifier).deposit(15000);
+                              ref.read(gameProvider.notifier).addReputation(3);
+                              NotificationService.showReward(
+                                context,
+                                context.tr('scrap_toast_sponsored_gig_done'),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      NeoBrutalButton(
+                        label: context.tr('scrap_btn_search_zone'),
+                        icon: Icons.travel_explore_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fontSize: 11,
+                        fullWidth: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        onPressed: () =>
+                            ScrapyardSearchZoneDialog.show(context, ref),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  NeoBrutalButton(
-                    label: context.tr('scrap_btn_search_zone'),
-                    icon: Icons.travel_explore_rounded,
-                    backgroundColor: AppColors.brutalYellow,
-                    textColor: Colors.black,
-                    fontSize: 11,
-                    fullWidth: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    onPressed: () =>
-                        ScrapyardSearchZoneDialog.show(context, ref),
-                  ),
-                ],
+                ),
               ),
-            ),
+              const NeoBrutalNativeAdCard(
+                contextType: NativeAdContextType.scrapyard,
+                margin: EdgeInsets.only(bottom: 14),
+              ),
+            ],
           );
         }
 

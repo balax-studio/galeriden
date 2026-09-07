@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class CharacterGrowthScreen extends ConsumerWidget {
   const CharacterGrowthScreen({super.key});
@@ -389,6 +390,10 @@ class CharacterGrowthScreen extends ConsumerWidget {
               ),
             );
           }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.character,
+          ),
         ],
       ),
     ),

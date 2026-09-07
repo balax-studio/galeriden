@@ -19,6 +19,8 @@ import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/candle_spark_widget.dart';
 import '../../widgets/fountain_pen_signature_widget.dart';
 import '../../widgets/tax_alert_bell_widget.dart';
+import '../../../core/services/ad_service.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class FinanceScreen extends ConsumerWidget {
   const FinanceScreen({super.key});
@@ -494,10 +496,37 @@ class FinanceScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+                NeoBrutalButton(
+                  label: context.tr('finance_btn_sponsored_relief'),
+                  icon: Icons.account_balance_wallet_rounded,
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 11,
+                  fullWidth: true,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  onPressed: () {
+                    AdService.instance.showRewardedAdWithFallback(
+                      context: context,
+                      customRewardTitle:
+                          context.tr('finance_btn_sponsored_relief'),
+                      onRewardEarned: () {
+                        ref.read(gameProvider.notifier).deposit(35000);
+                        NotificationService.showReward(
+                          context,
+                          context.tr('finance_toast_sponsored_relief_done'),
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.finance,
+            margin: EdgeInsets.only(bottom: 12),
+          ),
 
           // 1. Bank Investments Nav Banner
           NeoBrutalCard(

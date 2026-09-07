@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class RentACarScreen extends ConsumerWidget {
   const RentACarScreen({super.key});
@@ -150,7 +151,11 @@ class RentACarScreen extends ConsumerWidget {
             ...game.activeRentals.map((rental) =>
                 _buildRentalCard(context, ref, rental, game, isDark)),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.rentACar,
+            margin: EdgeInsets.only(bottom: 14),
+          ),
 
           // 3. Garage Available Cars to Rent
           Text(

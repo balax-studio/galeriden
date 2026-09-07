@@ -22,7 +22,10 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_receipt_card.dart';
+import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../widgets/neo_brutal_segmented_gauge.dart';
 import '../../widgets/neo_brutal_slider.dart';
 import '../../widgets/pulsing_dot.dart';
@@ -160,6 +163,10 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                     car: car,
                     targetPrice: _counterTargetPrice,
                     isDark: isDark,
+                  ),
+                  const SizedBox(height: 16),
+                  const NeoBrutalNativeAdCard(
+                    contextType: NativeAdContextType.offerEvaluation,
                   ),
                 ],
               ),
@@ -1152,39 +1159,55 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
     final double netProfit = targetPrice - car.totalCost - notaryFee;
     final isProfitable = netProfit >= 0;
 
-    return NeoBrutalCard(
+    return NeoBrutalReceiptCard(
+      receiptTitle: 'T.C. NOTER & KÂR HESAPLAŞMA FİŞİ',
+      serialNumber: '#NTR-2026-${car.plateNumber}',
       padding: const EdgeInsets.all(16),
       backgroundColor: isDark ? const Color(0xFF141721) : const Color(0xFFFBFBF9),
       borderColor: Colors.black,
-      borderRadius: 12,
       borderWidth: 2.5,
       shadowOffset: const Offset(4, 4),
-      shadowColor: Colors.black,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00E575),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.black, width: 1.8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00E575),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.black, width: 1.8),
+                      ),
+                      child: const Icon(Icons.receipt_long_rounded, size: 18, color: Colors.black),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        'Noter & Kâr Hesaplaşma',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.receipt_long_rounded, size: 18, color: Colors.black),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Noter & Kâr Hesaplaşma Önizlemesi',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+              NeoBrutalStamp(
+                text: isProfitable ? 'KÂRLI SATIŞ' : 'ZARARINA SATIŞ',
+                subtext: isProfitable ? 'KÂR ONAYLI' : 'RİSKLİ DEVİR',
+                type: isProfitable ? NeoBrutalStampType.approved : NeoBrutalStampType.rejected,
+                icon: isProfitable ? Icons.verified_rounded : Icons.warning_amber_rounded,
+                angle: isProfitable ? -0.04 : 0.04,
+                fontSize: 9.5,
               ),
             ],
           ),

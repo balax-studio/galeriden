@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class CustomerReviewsScreen extends ConsumerWidget {
   const CustomerReviewsScreen({super.key});
@@ -199,7 +200,11 @@ class CustomerReviewsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
+                const NeoBrutalNativeAdCard(
+                  contextType: NativeAdContextType.reviews,
+                  margin: EdgeInsets.only(bottom: 14),
+                ),
 
                 Text(
                   context.tr('reviews_feedback_header'),

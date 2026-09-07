@@ -47,6 +47,15 @@ mixin GameMonetizationMixin on GameBaseNotifier {
     return true;
   }
 
+  /// Adds reputation score to the dealership (capped at 1000)
+  void addReputation(int amount) {
+    if (amount <= 0) return;
+    state = state.copyWith(
+      reputationScore: (state.reputationScore + amount).clamp(0, 1000),
+    );
+    saveState();
+  }
+
   /// Purchases a store progression bundle or no-ads license (b.2)
   bool purchaseStoreBundle(StoreBundleModel bundle,
       {bool paidRealMoney = true}) {

@@ -16,6 +16,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/dialogs/rush_training_confirmation_dialog.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class StaffScreen extends ConsumerWidget {
   const StaffScreen({super.key});
@@ -590,7 +591,11 @@ class StaffScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.staff,
+            margin: EdgeInsets.only(bottom: 14),
+          ),
 
           Text(
             '${context.tr('staff_active_roster')} • ${StaffRole.values.length}',

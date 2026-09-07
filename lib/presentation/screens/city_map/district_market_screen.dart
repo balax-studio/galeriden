@@ -13,6 +13,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class DistrictInfo {
   final String key;
@@ -525,6 +526,10 @@ class DistrictMarketScreen extends ConsumerWidget {
               ),
             );
           }),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.district,
+          ),
         ],
       ),
     );

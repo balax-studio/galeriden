@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class SpecialPlateScreen extends ConsumerStatefulWidget {
   const SpecialPlateScreen({super.key});
@@ -290,6 +291,14 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
               (context, index) => _buildPlateCard(
                   filteredPlates[index], isDark, playerBalance, ownedCars),
               childCount: filteredPlates.length,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(14, 0, 14, 24),
+            child: NeoBrutalNativeAdCard(
+              contextType: NativeAdContextType.specialPlate,
             ),
           ),
         ),

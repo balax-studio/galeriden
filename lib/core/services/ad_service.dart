@@ -65,6 +65,10 @@ class AdService {
   }
 
   int _retryAttempt = 0;
+  DateTime? _lastRewardedAdFailedAt;
+
+  /// Cooldown window after an ad failed to load, preventing request storms and protecting AdMob match rate
+  static const Duration rewardedAdFailureCooldown = Duration(seconds: 45);
 
   /// Determines if a native ad or in-game sponsored window should be active on a given in-game day.
   ///
@@ -189,6 +193,12 @@ class AdService {
   void loadRewardedAd() {
     if (kIsWeb || !_isInitialized || _isAdLoading) return;
 
+    if (_lastRewardedAdFailedAt != null &&
+        DateTime.now().difference(_lastRewardedAdFailedAt!) < rewardedAdFailureCooldown) {
+      debugPrint('[AdService] Rewarded ad request throttled due to recent failure cooldown (45s).');
+      return;
+    }
+
     if (_rewardedAd != null) {
       if (isAdExpired) {
         debugPrint('[AdService] Cached rewarded ad is expired (>50 min). Disposing and reloading fresh.');
@@ -213,6 +223,7 @@ class AdService {
             _rewardedAdLoadedAt = DateTime.now();
             _isAdLoading = false;
             _retryAttempt = 0;
+            _lastRewardedAdFailedAt = null;
             _setupAdCallbacks(ad);
           },
           onAdFailedToLoad: (LoadAdError error) {
@@ -220,11 +231,16 @@ class AdService {
             _rewardedAd = null;
             _rewardedAdLoadedAt = null;
             _isAdLoading = false;
+            _lastRewardedAdFailedAt = DateTime.now();
             _retryAttempt++;
-            if (_retryAttempt <= 3) {
-              final delay = Duration(seconds: _retryAttempt * 5);
-              debugPrint('[AdService] Retrying ad load in ${delay.inSeconds}s - attempt $_retryAttempt/3...');
-              Future.delayed(delay, () => loadRewardedAd());
+            if (_retryAttempt <= 2) {
+              final delay = Duration(seconds: _retryAttempt * 30);
+              debugPrint('[AdService] Delayed gentle retry in ${delay.inSeconds}s - attempt $_retryAttempt/2...');
+              Future.delayed(delay, () {
+                if (_rewardedAd == null && !_isAdLoading) {
+                  loadRewardedAd();
+                }
+              });
             }
           },
         ),
@@ -234,6 +250,7 @@ class AdService {
       _rewardedAd = null;
       _rewardedAdLoadedAt = null;
       _isAdLoading = false;
+      _lastRewardedAdFailedAt = DateTime.now();
     }
   }
 

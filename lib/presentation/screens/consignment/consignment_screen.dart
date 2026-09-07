@@ -16,6 +16,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class ConsignmentScreen extends ConsumerWidget {
   const ConsignmentScreen({super.key});
@@ -293,6 +294,10 @@ class ConsignmentScreen extends ConsumerWidget {
           else
             ...availableOffers
                 .map((car) => _buildOfferCard(context, ref, car, isDark)),
+          const SizedBox(height: 14),
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.consignment,
+          ),
         ],
       ),
     ),

@@ -83,5 +83,45 @@ void main() {
       expect(cleanCar.modelName, 'Korola 1.8 Hibrit Eko');
       expect(cleanCar.carTitle, 'Toyo Korola 1.8 Hibrit Eko');
     });
+
+    test('4. As player safe balance grows, low-priced cars are suppressed and high-tier cars dominate', () {
+      const highBalance = 10000000.0; // ₺10M Tycoon cash
+      final listings = MarketEngine.generateRandomListings(
+        count: 50,
+        playerLevel: 5,
+        playerBalance: highBalance,
+      );
+
+      expect(listings.length, 50);
+
+      // Low priced vehicles under ₺150.000 should be exceptionally rare (< 8% max, usually 0-2 out of 50)
+      final lowTierCount = listings.where((l) => l.askingPrice < 150000.0 && !l.car.isRare && !l.car.isBarnFind).length;
+      expect(lowTierCount, lessThanOrEqualTo(4),
+          reason: 'At ₺10M wealth, non-collectible low-tier clunkers (< ₺150k) should be suppressed');
+
+      // High-tier vehicles (>= ₺500.000) should dominate
+      final highTierCount = listings.where((l) => l.askingPrice >= 500000.0).length;
+      expect(highTierCount, greaterThanOrEqualTo(30),
+          reason: 'At ₺10M wealth, majority of market should offer high-value trade opportunities');
+
+      // Average price should be substantially high
+      final averagePrice = listings.map((l) => l.askingPrice).reduce((a, b) => a + b) / listings.length;
+      expect(averagePrice, greaterThan(1200000.0));
+    });
+
+    test('5. Prestige classics like Supra and S2000 have proper enthusiast base values', () {
+      final supraListings = MarketEngine.generateRandomListings(
+        count: 100,
+        playerLevel: 4,
+        playerBalance: 5000000.0,
+      );
+
+      final supras = supraListings.where((l) => l.car.modelName.contains('Supra')).toList();
+      for (final s in supras) {
+        // Supra should never be a ₺45.000 clunker
+        expect(s.car.baseMarketValue, greaterThanOrEqualTo(2000000.0));
+        expect(s.askingPrice, greaterThanOrEqualTo(1000000.0));
+      }
+    });
   });
 }

@@ -126,13 +126,14 @@ class MarketEngine {
       ));
     }
 
-    // Soft-lock prevention: If player has very low balance, ensure at least one naturally affordable starter model
+    // Soft-lock prevention: If player has low balance, ensure at least one naturally affordable starter model
     final effectiveBalance = (playerBalance != null && playerBalance > 0) ? playerBalance : 75000.0;
-    final maxAffordablePrice = max(40000.0, effectiveBalance * 0.95);
-
-    final hasAffordable = listings.any((l) => l.askingPrice <= maxAffordablePrice);
-    if (!hasAffordable && listings.isNotEmpty) {
-      listings[0] = _generateAffordableStarterListing(playerLevel, activeTrend, maxBudget: maxAffordablePrice);
+    if (effectiveBalance <= 150000.0) {
+      final maxAffordablePrice = max(40000.0, effectiveBalance * 0.95);
+      final hasAffordable = listings.any((l) => l.askingPrice <= maxAffordablePrice);
+      if (!hasAffordable && listings.isNotEmpty) {
+        listings[0] = _generateAffordableStarterListing(playerLevel, activeTrend, maxBudget: maxAffordablePrice);
+      }
     }
 
     return listings;
@@ -279,7 +280,38 @@ class MarketEngine {
     return (bodyType, year, isClassicModel);
   }
 
-  static double _calculateBaseValue(String segment, int year, bool isClassicModel, bool isRare) {
+  static bool _isBudgetRetroModel(String modelName) {
+    return modelName.contains('Murat') ||
+        modelName.contains('Toros') ||
+        modelName.contains('Broad-Vey') ||
+        modelName.contains('Brodvey') ||
+        modelName.contains('A-Bir') ||
+        modelName.contains('Uno') ||
+        modelName.contains('Temprament') ||
+        modelName.contains('Serçe') ||
+        modelName.contains('Kartal') ||
+        modelName.contains('Şahin') ||
+        modelName.contains('Doğan');
+  }
+
+  static double _calculateBaseValue(String segment, int year, bool isClassicModel, bool isRare, {String modelName = ''}) {
+    // Collectible JDM, German, and domestic sports classics reflect proper enthusiast market valuation
+    if (modelName.contains('Supra')) {
+      return isRare ? (3800000.0 + _random.nextInt(1200000)) : (2600000.0 + _random.nextInt(800000));
+    }
+    if (modelName.contains('S-İkiBin')) {
+      return isRare ? (1900000.0 + _random.nextInt(600000)) : (1350000.0 + _random.nextInt(400000));
+    }
+    if (modelName.contains('E-30')) {
+      return isRare ? (650000.0 + _random.nextInt(350000)) : (320000.0 + _random.nextInt(150000));
+    }
+    if (modelName.contains('W-124')) {
+      return isRare ? (600000.0 + _random.nextInt(300000)) : (290000.0 + _random.nextInt(140000));
+    }
+    if (modelName.contains('STC') || modelName.contains('Böcek')) {
+      return isRare ? (450000.0 + _random.nextInt(250000)) : (190000.0 + _random.nextInt(90000));
+    }
+
     if (isClassicModel) {
       return isRare ? (180000.0 + _random.nextInt(220000)) : (45000.0 + _random.nextInt(45000));
     }
@@ -548,8 +580,66 @@ class MarketEngine {
     double? playerBalance,
     bool hasHighNecatiTrust = false,
   }) {
+    // ponytail: Re-roll low-priced listings when player safe balance is high so market scales with wealth
+    for (int attempt = 0; attempt < 3; attempt++) {
+      final listing = _doGenerateSingleListing(
+        playerLevel,
+        trend,
+        playerBalance: playerBalance,
+        hasHighNecatiTrust: hasHighNecatiTrust,
+      );
+
+      if (playerBalance != null && playerBalance > 150000 && attempt < 2) {
+        final price = listing.askingPrice;
+        final isCollectible = listing.car.isRare || listing.car.isBarnFind;
+        if (!isCollectible) {
+          if (playerBalance >= 6000000) {
+            // Tycoon: Drastically eliminate budget cars under ₺400k (95%) and ₺800k (50%)
+            if (price < 400000 && _random.nextDouble() < 0.95) continue;
+            if (price < 800000 && _random.nextDouble() < 0.50) continue;
+          } else if (playerBalance >= 2000000) {
+            // High tier: Strongly reduce cars under ₺220k (90%) and ₺450k (45%)
+            if (price < 220000 && _random.nextDouble() < 0.90) continue;
+            if (price < 450000 && _random.nextDouble() < 0.45) continue;
+          } else if (playerBalance >= 600000) {
+            // Mid-high tier: Suppress clunkers under ₺120k (85%) and ₺200k (35%)
+            if (price < 120000 && _random.nextDouble() < 0.85) continue;
+            if (price < 200000 && _random.nextDouble() < 0.35) continue;
+          } else {
+            // Mid tier (₺150k - ₺600k): Suppress cheap starter clunkers under ₺80k (70%)
+            if (price < 80000 && _random.nextDouble() < 0.70) continue;
+          }
+        }
+      }
+
+      return listing;
+    }
+
+    return _doGenerateSingleListing(
+      playerLevel,
+      trend,
+      playerBalance: playerBalance,
+      hasHighNecatiTrust: hasHighNecatiTrust,
+    );
+  }
+
+  static ListingModel _doGenerateSingleListing(
+    int playerLevel,
+    MarketTrendModel trend, {
+    double? playerBalance,
+    bool hasHighNecatiTrust = false,
+  }) {
     final brandData = _selectWeightedBrand(playerBalance: playerBalance, playerLevel: playerLevel);
-    final modelName = brandData.models[_random.nextInt(brandData.models.length)];
+
+    // Deprioritize vintage low-budget clunkers from mainstream brands when player has high cash
+    List<String> candidateModels = brandData.models;
+    if (playerBalance != null && playerBalance >= 800000) {
+      final nonRetro = brandData.models.where((m) => !_isBudgetRetroModel(m)).toList();
+      if (nonRetro.isNotEmpty && (playerBalance >= 3000000 || _random.nextDouble() < 0.85)) {
+        candidateModels = nonRetro;
+      }
+    }
+    final modelName = candidateModels[_random.nextInt(candidateModels.length)];
     
     final (bodyType, year, isClassicModel) = _determineBodyTypeAndYear(modelName);
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
@@ -642,7 +732,7 @@ class MarketEngine {
       hasAirbagDeployed: hasAirbag,
     );
 
-    double baseValue = _calculateBaseValue(brandData.segment, year, isClassicModel, isRare);
+    double baseValue = _calculateBaseValue(brandData.segment, year, isClassicModel, isRare, modelName: modelName);
     if (baseValue < 35000.0) baseValue = 35000.0;
 
     if (bodyType == 'Spor') baseValue *= 1.25;
@@ -669,7 +759,9 @@ class MarketEngine {
 
     // Barn Find chance (Necati Dayı perk increases barn finds to 10%)
     final barnBaseChance = hasHighNecatiTrust ? 0.10 : 0.04;
-    final isBarnFind = !isPristine && (isClassicModel || _random.nextDouble() < barnBaseChance) && _random.nextDouble() < 0.40;
+    final classicBarnChance = (playerBalance != null && playerBalance >= 1000000) ? 0.08 : 0.40;
+    final isClassicBarnCandidate = isClassicModel && (_random.nextDouble() < classicBarnChance);
+    final isBarnFind = !isPristine && (isClassicBarnCandidate || _random.nextDouble() < barnBaseChance);
 
     final cityData = GameConstants.cities[_random.nextInt(GameConstants.cities.length)];
     final sellerCity = cityData.trName;
@@ -777,11 +869,12 @@ class MarketEngine {
 
   static CarBrandData _selectWeightedBrand({double? playerBalance, int playerLevel = 1}) {
     // Determine dynamic segment weights according to player balance
+    // As player safe balance grows, cheap segments fade out and high-tier segments take over
     double getSegmentMultiplier(String segment) {
       if (playerBalance == null || playerBalance <= 0) return 1.0;
 
       if (playerBalance < 150000) {
-        // Low budget: Economy, Legend, Classic, and Common brands heavily favored
+        // Low budget (under ₺150k): Economy, Legend, Classic, and Common brands heavily favored
         switch (segment) {
           case 'efsane':
           case 'klasik':
@@ -794,48 +887,109 @@ class MarketEngine {
             return 0.8;
           case 'premium':
           case 'lüks':
-            return 0.3;
+            return 0.2;
           case 'süperspor':
           case 'egzotik':
-            return 0.1;
+            return 0.02;
           default:
             return 1.0;
         }
-      } else if (playerBalance < 800000) {
-        // Mid budget: Economy, Popular, Reliable, Common, and moderate Premium
+      } else if (playerBalance < 600000) {
+        // Growing budget (₺150k - ₺600k): Mainstream, reliable, and economy, legends start decreasing
         switch (segment) {
           case 'halk':
           case 'popüler':
           case 'güvenilir':
           case 'ekonomi':
-            return 2.5;
+            return 2.6;
+          case 'efsane':
+          case 'klasik':
+            return 0.75;
           case 'premium':
-            return 1.5;
+            return 1.4;
           case 'lüks':
-            return 0.8;
+            return 0.6;
           case 'süperspor':
           case 'egzotik':
-            return 0.4;
+            return 0.12;
           default:
             return 1.0;
         }
+      } else if (playerBalance < 2000000) {
+        // Established auto gallery (₺600k - ₺2M): Budget clunkers reduced dramatically, premium/luxury rise
+        switch (segment) {
+          case 'premium':
+          case 'lüks':
+          case 'güvenlik':
+            return 3.2;
+          case 'elektrikli':
+            return 2.2;
+          case 'popüler':
+          case 'güvenilir':
+            return 2.2;
+          case 'halk':
+            return 1.5;
+          case 'süperspor':
+            return 0.8;
+          case 'egzotik':
+            return 0.3;
+          case 'ekonomi':
+            return 0.6;
+          case 'efsane':
+          case 'klasik':
+            return 0.15;
+          default:
+            return 1.0;
+        }
+      } else if (playerBalance < 6000000) {
+        // Wealthy dealer (₺2M - ₺6M): Almost no cheap clunkers, market dominated by luxury & sport
+        switch (segment) {
+          case 'premium':
+          case 'lüks':
+          case 'güvenlik':
+          case 'elektrikli':
+            return 3.8;
+          case 'süperspor':
+            return 2.5;
+          case 'egzotik':
+            return 1.8;
+          case 'popüler':
+          case 'güvenilir':
+            return 1.4;
+          case 'halk':
+            return 0.6;
+          case 'ekonomi':
+            return 0.2;
+          case 'efsane':
+          case 'klasik':
+            return 0.03;
+          default:
+            return 0.5;
+        }
       } else {
-        // High budget / Tycoon: Premium, Luxury, Super Sport, Exotic, Electric favored
+        // Tycoon (₺6M+): Supercars, exotics, electrics, top-tier luxury. Cheap clunkers vanish.
         switch (segment) {
           case 'süperspor':
+            return 5.0;
           case 'egzotik':
+            return 6.0;
           case 'lüks':
           case 'premium':
           case 'elektrikli':
-            return 3.5;
+          case 'güvenlik':
+            return 3.0;
           case 'popüler':
           case 'güvenilir':
-            return 1.5;
+            return 0.8;
+          case 'halk':
+            return 0.2;
+          case 'ekonomi':
+            return 0.05;
           case 'efsane':
           case 'klasik':
-            return 1.2;
+            return 0.005;
           default:
-            return 0.6;
+            return 0.2;
         }
       }
     }

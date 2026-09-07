@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/neo_brutal_stamp.dart';
 import '../../widgets/thermal_receipt_card.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class SalesHistoryScreen extends ConsumerStatefulWidget {
   const SalesHistoryScreen({super.key});
@@ -221,7 +222,11 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
+                  const NeoBrutalNativeAdCard(
+                    contextType: NativeAdContextType.salesHistory,
+                    margin: EdgeInsets.only(bottom: 14),
+                  ),
 
                   // 2. Filter Bar
                   Row(

@@ -5,6 +5,7 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class AuctionUpcomingCatalogTab extends StatelessWidget {
   final List<UpcomingLotModel> upcomingLots;
@@ -159,6 +160,10 @@ class AuctionUpcomingCatalogTab extends StatelessWidget {
             ),
           );
         }),
+        const SizedBox(height: 14),
+        const NeoBrutalNativeAdCard(
+          contextType: NativeAdContextType.auction,
+        ),
       ],
     );
   }

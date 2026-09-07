@@ -643,12 +643,6 @@ class AuctionLiveBiddingView extends StatelessWidget {
                   final canAfford20k =
                       playerBalance >= (auction.currentBid + 20000);
 
-                  final disabledBg = isDark
-                      ? const Color(0xFF1E2330)
-                      : const Color(0xFFE2E8F0);
-                  final disabledText =
-                      isDark ? Colors.white54 : Colors.black54;
-
                   return Column(
                     children: [
                       Row(
