@@ -43,7 +43,7 @@ class FinancialHealthCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-      borderRadius: 12,
+      borderRadius: 10,
       borderWidth: 2.5,
       shadowOffset: const Offset(3, 3),
       child: Row(
@@ -53,7 +53,7 @@ class FinancialHealthCard extends StatelessWidget {
             height: 36,
             decoration: BoxDecoration(
               color: grade.color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(color: grade.color, width: 2),
             ),
             alignment: Alignment.center,

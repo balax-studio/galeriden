@@ -389,7 +389,7 @@ class _VasitaDiagnosticDialogState extends State<VasitaDiagnosticDialog>
           constraints: const BoxConstraints(maxWidth: 480),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF141721) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isDark ? const Color(0xFF333B4F) : Colors.black,
               width: 2.5,

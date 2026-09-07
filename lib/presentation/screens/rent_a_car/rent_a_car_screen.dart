@@ -451,7 +451,7 @@ class RentACarScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF141721) : Colors.white,
                 borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(16)),
+                    const BorderRadius.vertical(top: Radius.circular(10)),
                 border: Border(
                   top: BorderSide(
                       color: isDark

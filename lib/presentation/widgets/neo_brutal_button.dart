@@ -7,6 +7,16 @@ import '../../core/theme/app_colors.dart';
 
 enum NeoHapticType { selection, light, medium, heavy, none }
 
+enum NeoBrutalButtonVariant {
+  primary,      // Satın Al / Onayla / Devam Et (brutalGreen, high-contrast dark text)
+  destructive,  // Sat / Reddet / Hurda / İptal (brutalRed, white text)
+  trade,        // Pazarlık / Teklif Sun / İhale (brutalYellow, high-contrast dark text)
+  info,         // Ekspertiz / İncele / Detay (brutalCyan, high-contrast dark text)
+  luxury,       // Tuning / VIP / Özel (brutalPurple, white text)
+  neutral,      // Vazgeç / Kapat / Geri (slate dark / muted light)
+  custom,       // Backward-compatible default styling
+}
+
 /// Neo-Brutalist Tactile Button Widget (Maximalist Industrial Edition)
 /// Features heavy-duty borders, solid 0-blur offset shadow, and mechanical click-down compression feedback.
 /// Includes hardware-grade anti-spam debouncing, loading spinner, and applied/success state transitions.
@@ -16,6 +26,7 @@ class NeoBrutalButton extends StatefulWidget {
   final IconData? icon;
   final IconData? appliedIcon;
   final VoidCallback? onPressed;
+  final NeoBrutalButtonVariant variant;
   final Color? backgroundColor;
   final Color? textColor;
   final Color? borderColor;
@@ -36,6 +47,35 @@ class NeoBrutalButton extends StatefulWidget {
   final String? loadingLabel;
 
   const NeoBrutalButton({
+    super.key,
+    String? label,
+    String? text,
+    this.variant = NeoBrutalButtonVariant.custom,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  }) : label = label ?? text ?? '';
+
+  const NeoBrutalButton.primary({
     super.key,
     String? label,
     String? text,
@@ -61,7 +101,153 @@ class NeoBrutalButton extends StatefulWidget {
     this.debounceDuration = const Duration(milliseconds: 350),
     this.loadingIcon,
     this.loadingLabel,
-  }) : label = label ?? text ?? '';
+  })  : variant = NeoBrutalButtonVariant.primary,
+        label = label ?? text ?? '';
+
+  const NeoBrutalButton.destructive({
+    super.key,
+    String? label,
+    String? text,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  })  : variant = NeoBrutalButtonVariant.destructive,
+        label = label ?? text ?? '';
+
+  const NeoBrutalButton.trade({
+    super.key,
+    String? label,
+    String? text,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  })  : variant = NeoBrutalButtonVariant.trade,
+        label = label ?? text ?? '';
+
+  const NeoBrutalButton.info({
+    super.key,
+    String? label,
+    String? text,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  })  : variant = NeoBrutalButtonVariant.info,
+        label = label ?? text ?? '';
+
+  const NeoBrutalButton.luxury({
+    super.key,
+    String? label,
+    String? text,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  })  : variant = NeoBrutalButtonVariant.luxury,
+        label = label ?? text ?? '';
+
+  const NeoBrutalButton.neutral({
+    super.key,
+    String? label,
+    String? text,
+    this.appliedLabel,
+    this.icon,
+    this.appliedIcon = Icons.check_circle_rounded,
+    this.onPressed,
+    this.backgroundColor,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.5,
+    this.borderRadius = 8.0,
+    this.shadowOffset = const Offset(3.5, 3.5),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.fullWidth = false,
+    this.fontSize = 13.0,
+    this.fontWeight = FontWeight.w900,
+    this.uppercase = false,
+    this.hapticType = NeoHapticType.heavy,
+    this.minHeight,
+    this.isLoading = false,
+    this.isApplied = false,
+    this.debounceDuration = const Duration(milliseconds: 350),
+    this.loadingIcon,
+    this.loadingLabel,
+  })  : variant = NeoBrutalButtonVariant.neutral,
+        label = label ?? text ?? '';
 
   @override
   State<NeoBrutalButton> createState() => _NeoBrutalButtonState();
@@ -101,6 +287,41 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
     widget.onPressed!();
   }
 
+  Color _resolveDefaultBg(bool isDark) {
+    switch (widget.variant) {
+      case NeoBrutalButtonVariant.primary:
+        return AppColors.brutalGreen;
+      case NeoBrutalButtonVariant.destructive:
+        return AppColors.brutalRed;
+      case NeoBrutalButtonVariant.trade:
+        return AppColors.brutalYellow;
+      case NeoBrutalButtonVariant.info:
+        return AppColors.brutalCyan;
+      case NeoBrutalButtonVariant.luxury:
+        return AppColors.brutalPurple;
+      case NeoBrutalButtonVariant.neutral:
+        return isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+      case NeoBrutalButtonVariant.custom:
+        return isDark ? const Color(0xFFE5C158) : const Color(0xFF0F172A);
+    }
+  }
+
+  Color _resolveDefaultText(bool isDark) {
+    switch (widget.variant) {
+      case NeoBrutalButtonVariant.primary:
+      case NeoBrutalButtonVariant.trade:
+      case NeoBrutalButtonVariant.info:
+        return const Color(0xFF07090E);
+      case NeoBrutalButtonVariant.destructive:
+      case NeoBrutalButtonVariant.luxury:
+        return Colors.white;
+      case NeoBrutalButtonVariant.neutral:
+        return isDark ? Colors.white : const Color(0xFF0F172A);
+      case NeoBrutalButtonVariant.custom:
+        return isDark ? const Color(0xFF07090E) : Colors.white;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -111,20 +332,18 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
     if (widget.isApplied) {
       effectiveBg = AppColors.brutalGreen;
     } else if (isEnabled) {
-      effectiveBg = widget.backgroundColor ??
-          (isDark ? const Color(0xFFE5C158) : const Color(0xFF0F172A));
+      effectiveBg = widget.backgroundColor ?? _resolveDefaultBg(isDark);
     } else {
-      effectiveBg = isDark ? Colors.white12 : Colors.black12;
+      effectiveBg = isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0);
     }
 
     Color effectiveText;
     if (widget.isApplied) {
       effectiveText = Colors.black;
     } else if (isEnabled) {
-      effectiveText =
-          widget.textColor ?? (isDark ? const Color(0xFF07090E) : Colors.white);
+      effectiveText = widget.textColor ?? _resolveDefaultText(isDark);
     } else {
-      effectiveText = Colors.grey;
+      effectiveText = isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
     }
 
     final effectiveBorder = widget.borderColor ??

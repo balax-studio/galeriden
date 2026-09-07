@@ -28,7 +28,7 @@ class AuctionTrunkLootDialog extends StatelessWidget {
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: AppColors.brutalYellow,
         borderWidth: 2.5,
-        borderRadius: 12,
+        borderRadius: 10,
         shadowOffset: const Offset(4, 4),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -39,7 +39,7 @@ class AuctionTrunkLootDialog extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: AppColors.brutalYellow,
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isDark
                         ? const Color(0xFF333B4F)

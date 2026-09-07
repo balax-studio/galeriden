@@ -301,7 +301,7 @@ class _MysteryContainerUnboxingModalState
               height: 240,
               decoration: BoxDecoration(
                 color: const Color(0xFF131826),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isOpening
                       ? (shakeVal > 0.7 ? rarityColor : AppColors.brutalYellow)
@@ -372,7 +372,7 @@ class _MysteryContainerUnboxingModalState
                         color: _stage == _UnboxingStage.opening
                             ? AppColors.brutalYellow
                             : const Color(0xFF0F172A),
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.white24, width: 3.0),
                         boxShadow: [
                           BoxShadow(
@@ -476,7 +476,7 @@ class _MysteryContainerUnboxingModalState
                     height: 72,
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E293B),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: rarityColor, width: 2.5),
                     ),
                     child: Center(

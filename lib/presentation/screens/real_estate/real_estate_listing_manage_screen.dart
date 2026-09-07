@@ -610,11 +610,19 @@ class _RealEstateListingManageScreenState
                       children: [
                         Row(
                           children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor:
-                                  _getGradeColor(prop.currentTenant!.reliabilityGrade)
-                                      .withValues(alpha: 0.2),
+                            Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: _getGradeColor(prop.currentTenant!.reliabilityGrade)
+                                    .withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _getGradeColor(
+                                      prop.currentTenant!.reliabilityGrade),
+                                  width: 1.5,
+                                ),
+                              ),
                               child: Icon(
                                 Icons.person_rounded,
                                 color: _getGradeColor(
@@ -806,15 +814,21 @@ class _RealEstateListingManageScreenState
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 14,
-                                    backgroundColor:
-                                        _getGradeColor(cand.reliabilityGrade)
-                                            .withValues(alpha: 0.2),
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: _getGradeColor(cand.reliabilityGrade)
+                                          .withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: _getGradeColor(cand.reliabilityGrade),
+                                        width: 1.5,
+                                      ),
+                                    ),
                                     child: Icon(
                                       Icons.person_outline_rounded,
-                                      color:
-                                          _getGradeColor(cand.reliabilityGrade),
+                                      color: _getGradeColor(cand.reliabilityGrade),
                                       size: 16,
                                     ),
                                   ),
@@ -2413,8 +2427,8 @@ class _RealEstateListingManageScreenState
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
                 color: isSelected ? accentColor : Colors.transparent,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black, width: 1.5),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.black, width: 2.0),
               ),
               child: Icon(
                 isSelected

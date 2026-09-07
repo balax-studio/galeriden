@@ -572,7 +572,9 @@ class BranchScreen extends ConsumerWidget {
                                                     decoration: BoxDecoration(
                                                       color:
                                                           AppColors.brutalYellow,
-                                                      shape: BoxShape.circle,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
                                                       border: Border.all(
                                                         color: isDark
                                                             ? const Color(

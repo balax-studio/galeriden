@@ -31,7 +31,7 @@ class ExpertiseReportSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: p.surfaceColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
         border: Border(
           top: BorderSide(color: p.surfaceBorderColor, width: 3),
           left: BorderSide(color: p.surfaceBorderColor, width: 2),

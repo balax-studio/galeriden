@@ -52,7 +52,7 @@ class ConsignmentScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(24),
               backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
               borderColor: AppColors.brutalOrange,
-              borderRadius: 16,
+              borderRadius: 10,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -60,7 +60,7 @@ class ConsignmentScreen extends ConsumerWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.brutalOrange.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(10),
                       border:
                           Border.all(color: AppColors.brutalOrange, width: 2),
                     ),

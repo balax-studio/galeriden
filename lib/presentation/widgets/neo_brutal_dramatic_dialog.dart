@@ -156,7 +156,7 @@ class _NeoBrutalDramaticDialogState
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
               width: 3.5,
@@ -585,7 +585,7 @@ class _NeoBrutalDramaticDialogState
               color: outcome.isSuccess
                   ? const Color(0xFF00E575).withValues(alpha: 0.2)
                   : const Color(0xFFFF3366).withValues(alpha: 0.2),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: outcome.isSuccess
                     ? const Color(0xFF00E575)

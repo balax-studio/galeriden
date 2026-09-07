@@ -695,7 +695,7 @@ class DashboardRetentionModals {
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
       builder: (ctx) {
         return SafeArea(
           top: false,
@@ -826,7 +826,13 @@ class DashboardRetentionModals {
                                   : (rank == 3
                                       ? const Color(0xFFF97316)
                                       : Colors.transparent)),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
+                            width: 1.5,
+                          ),
                         ),
                         child: Center(
                           child: Text(
@@ -980,7 +986,7 @@ class DashboardRetentionModals {
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(10))),
       builder: (ctx) {
         return SafeArea(
           top: false,

@@ -719,7 +719,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                   ),
                 ],
               ),
-              NeoBrutalButton(
+              NeoBrutalButton.trade(
                 label: isFull
                     ? context.tr('real_estate_btn_slots_full')
                     : context.tr('real_estate_btn_negotiate'),
@@ -735,7 +735,6 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                           ),
                         );
                       },
-                backgroundColor: const Color(0xFFF59E0B),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               ),
@@ -837,12 +836,10 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
-                  child: NeoBrutalButton(
+                  child: NeoBrutalButton.primary(
                     label:
                         '${context.tr('real_estate_rent_collect_all_btn')} • ${CurrencyFormatter.format(totalPendingRent)}',
                     icon: Icons.account_balance_wallet_rounded,
-                    backgroundColor: const Color(0xFF10B981),
-                    textColor: Colors.white,
                     onPressed: () {
                       HapticFeedback.heavyImpact();
                       final collected = ref
@@ -861,11 +858,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: NeoBrutalButton(
+                  child: NeoBrutalButton.trade(
                     label: context.tr('rental_screen_title'),
                     icon: Icons.key_rounded,
-                    backgroundColor: const Color(0xFFFEF08A),
-                    textColor: Colors.black,
                     onPressed: () {
                       HapticFeedback.selectionClick();
                       context.push('/emlak-kiralama');

@@ -956,7 +956,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                             color: isSelected
                                 ? accent
                                 : (isDark ? const Color(0xFF222838) : const Color(0xFFE2E8F0)),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: isSelected ? Colors.black : (isDark ? const Color(0xFF475569) : Colors.black45),
                               width: 1.8,
@@ -1572,7 +1572,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
           padding: const EdgeInsets.all(20),
           backgroundColor: const Color(0xFF141721),
           borderColor: const Color(0xFFFFDE59),
-          borderRadius: 14,
+          borderRadius: 10,
           borderWidth: 3.0,
           shadowOffset: const Offset(5, 5),
           child: Column(
@@ -1582,7 +1582,7 @@ class _OfferEvaluationScreenState extends ConsumerState<OfferEvaluationScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFDE59),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.black, width: 2),
                 ),
                 child: const Icon(

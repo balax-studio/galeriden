@@ -610,7 +610,7 @@ class IndustryGossipScreen extends ConsumerWidget {
       backgroundColor:
           isDark ? const Color(0xFF161922) : const Color(0xFFF8FAFC),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
       ),
       builder: (ctx) {
         return SafeArea(

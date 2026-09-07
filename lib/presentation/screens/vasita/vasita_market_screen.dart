@@ -132,11 +132,9 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  NeoBrutalButton(
+                  NeoBrutalButton.neutral(
                     icon: Icons.refresh_rounded,
                     label: context.tr('market_refresh_tooltip'),
-                    backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                    textColor: isDark ? Colors.white : Colors.black,
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                     onPressed: () {
@@ -538,11 +536,9 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 ],
               ),
               const Spacer(),
-              NeoBrutalButton(
+              NeoBrutalButton.info(
                 icon: Icons.assignment_outlined,
                 label: context.tr('btn_inspect_expertise'),
-                backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                textColor: isDark ? Colors.white : Colors.black,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 onPressed: () {
@@ -558,7 +554,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 },
               ),
               const SizedBox(width: 6),
-              NeoBrutalButton(
+              NeoBrutalButton.primary(
                 icon: isLocked ? Icons.block_rounded : Icons.handshake_rounded,
                 label: isLocked
                     ? context.tr('vasita_badge_locked_today')
@@ -569,8 +565,8 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     ? const Color(0xFF64748B)
                     : (maxSlotsReached
                         ? const Color(0xFF94A3B8)
-                        : const Color(0xFF00E575)),
-                textColor: isLocked ? Colors.white : Colors.black,
+                        : null),
+                textColor: isLocked ? Colors.white : null,
                 fontSize: 11,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 onPressed: (maxSlotsReached || isLocked)

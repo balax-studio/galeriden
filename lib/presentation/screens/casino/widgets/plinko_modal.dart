@@ -146,7 +146,7 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
         constraints: const BoxConstraints(maxWidth: 480, maxHeight: 750),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF111827) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0xFF0F172A), width: 3.5),
           boxShadow: const [
             BoxShadow(
@@ -159,7 +159,7 @@ class _PlinkoModalState extends ConsumerState<PlinkoModal>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: const BoxDecoration(
                 color: Color(0xFF00E575),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
                 border: Border(
                     bottom: BorderSide(color: Color(0xFF0F172A), width: 3)),
               ),

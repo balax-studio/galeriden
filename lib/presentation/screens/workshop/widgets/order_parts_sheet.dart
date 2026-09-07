@@ -38,7 +38,7 @@ class OrderPartsSheet extends StatefulWidget {
       isScrollControlled: true,
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
       ),
       builder: (ctx) {
         return OrderPartsSheet(

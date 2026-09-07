@@ -24,7 +24,7 @@ class ThemeStoreScreen extends ConsumerWidget {
       height: size,
       decoration: BoxDecoration(
         color: color,
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           width: 1.8,

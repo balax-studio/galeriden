@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 
 class FloatingDockItem {
@@ -36,8 +37,8 @@ class AppFloatingDock extends StatelessWidget {
         isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
     final shadowColor =
         isDark ? const Color(0xFF000000) : const Color(0xFF0F172A);
-    final activeBg = p.primaryColor;
-    final activeText = isDark ? Colors.black : Colors.black;
+    final activeBg = isDark ? AppColors.brutalYellow : const Color(0xFF0F172A);
+    final activeText = isDark ? const Color(0xFF07090E) : Colors.white;
 
     return Container(
       margin: const EdgeInsets.only(
@@ -47,7 +48,7 @@ class AppFloatingDock extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
               color: shadowColor,
@@ -63,7 +64,7 @@ class AppFloatingDock extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: borderColor,
               width: 2.0,
@@ -100,6 +101,15 @@ class AppFloatingDock extends StatelessWidget {
                                 : const Color(0xFF0F172A),
                             width: 2.0,
                           )
+                        : null,
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: isDark ? Colors.black : const Color(0xFF0F172A),
+                              offset: const Offset(2.0, 2.0),
+                              blurRadius: 0,
+                            ),
+                          ]
                         : null,
                   ),
                   child: Row(

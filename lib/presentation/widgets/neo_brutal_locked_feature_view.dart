@@ -37,7 +37,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
           borderColor:
               isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderWidth: 2.5,
-          borderRadius: 16,
+          borderRadius: 10,
           shadowOffset: const Offset(4, 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -48,7 +48,7 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                   color: isDark
                       ? const Color(0xFF2A1D1D)
                       : const Color(0xFFFEE2E2),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: AppColors.errorRed,
                     width: 2.0,

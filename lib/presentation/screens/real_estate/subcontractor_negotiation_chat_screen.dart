@@ -413,7 +413,9 @@ class _SubcontractorNegotiationChatScreenState
                                     : (isCurrent
                                         ? const Color(0xFF2563EB)
                                         : Colors.grey),
-                                shape: BoxShape.circle,
+                                borderRadius: BorderRadius.circular(6),
+                                border:
+                                    Border.all(color: Colors.black, width: 1.5),
                               ),
                               child: Text(
                                 '${stage.stageNumber}',
@@ -553,7 +555,7 @@ class _SubcontractorNegotiationChatScreenState
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
             border: Border(top: BorderSide(color: Colors.black, width: 2.5)),
           ),
           child: Column(

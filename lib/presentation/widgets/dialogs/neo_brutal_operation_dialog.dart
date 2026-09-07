@@ -213,7 +213,7 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF12151F) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
               width: 3.0,

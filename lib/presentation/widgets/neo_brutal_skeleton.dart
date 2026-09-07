@@ -64,10 +64,8 @@ class _NeoBrutalSkeletonBoxState extends State<NeoBrutalSkeletonBox>
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
-            shape: widget.isCircle ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius: widget.isCircle
-                ? null
-                : BorderRadius.circular(widget.borderRadius),
+            borderRadius: BorderRadius.circular(
+                widget.isCircle ? 8.0 : widget.borderRadius),
             border: Border.all(color: borderColor, width: 2.0),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -111,7 +109,7 @@ class NeoBrutalSkeletonCarCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: cardBg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: borderColor, width: 2),
         boxShadow: [
           BoxShadow(

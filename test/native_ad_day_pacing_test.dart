@@ -2,6 +2,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:galeriden/core/localization/translations/ar_translations.dart';
+import 'package:galeriden/core/localization/translations/de_translations.dart';
+import 'package:galeriden/core/localization/translations/en_translations.dart';
+import 'package:galeriden/core/localization/translations/es_translations.dart';
+import 'package:galeriden/core/localization/translations/pt_translations.dart';
+import 'package:galeriden/core/localization/translations/ru_translations.dart';
+import 'package:galeriden/core/localization/translations/tr_translations.dart';
 import 'package:galeriden/core/services/ad_service.dart';
 import 'package:galeriden/core/theme/app_theme.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
@@ -55,6 +62,81 @@ void main() {
       expect(inactiveDays > 0, isTrue, reason: 'There must be clean ad-free days after day 7');
       // The ratio should be balanced (around 40% - 70%)
       expect(activeDays, inInclusiveRange(10, 24));
+    });
+
+    test('All NeoBrutalNativeAdCard sponsor snippet translation keys exist across 7 languages', () {
+      final allTranslations = <String, Map<String, String>>{
+        'tr': trTranslations,
+        'en': enTranslations,
+        'de': deTranslations,
+        'pt': ptTranslations,
+        'es': esTranslations,
+        'ru': ruTranslations,
+        'ar': arTranslations,
+      };
+
+      final allRequiredKeys = <String>[
+        'ad_native_local_bulletin',
+        'ad_native_detail_title',
+        'ad_native_detail_desc',
+        'ad_native_sponsor_tag',
+        'ad_native_cta',
+        'ad_native_card_toast',
+        'ad_native_towing_title',
+        'ad_native_towing_desc',
+        'ad_native_towing_tag',
+        'ad_native_towing_cta',
+        'ad_native_towing_toast',
+        'ad_native_engine_title',
+        'ad_native_engine_desc',
+        'ad_native_engine_tag',
+        'ad_native_engine_cta',
+        'ad_native_engine_toast',
+        'ad_native_parts_title',
+        'ad_native_parts_desc',
+        'ad_native_parts_tag',
+        'ad_native_parts_cta',
+        'ad_native_parts_toast',
+        'ad_native_customs_title',
+        'ad_native_customs_desc',
+        'ad_native_customs_tag',
+        'ad_native_customs_cta',
+        'ad_native_customs_toast',
+        'ad_native_stock_title',
+        'ad_native_stock_desc',
+        'ad_native_stock_tag',
+        'ad_native_stock_cta',
+        'ad_native_stock_toast',
+        'ad_native_deed_title',
+        'ad_native_deed_desc',
+        'ad_native_deed_tag',
+        'ad_native_deed_cta',
+        'ad_native_deed_toast',
+        'ad_native_inspection_title',
+        'ad_native_inspection_desc',
+        'ad_native_inspection_tag',
+        'ad_native_inspection_cta',
+        'ad_native_inspection_toast',
+        'ad_native_marble_title',
+        'ad_native_marble_desc',
+        'ad_native_marble_tag',
+        'ad_native_marble_cta',
+        'ad_native_marble_toast',
+      ];
+
+      for (final entry in allTranslations.entries) {
+        final lang = entry.key;
+        final map = entry.value;
+        for (final key in allRequiredKeys) {
+          expect(map.containsKey(key), isTrue,
+              reason: 'Missing key "$key" in $lang translation file');
+          final val = map[key]!;
+          expect(val.trim().isNotEmpty, isTrue,
+              reason: 'Empty translation for key "$key" in $lang');
+          expect(val.contains('(') || val.contains(')'), isFalse,
+              reason: 'Invariant violation: parentheses in "$key" ($lang): $val');
+        }
+      }
     });
 
     testWidgets('NeoBrutalNativeAdCard renders SizedBox.shrink on Day 1-7', (tester) async {

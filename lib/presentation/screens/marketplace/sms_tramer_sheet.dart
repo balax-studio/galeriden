@@ -37,7 +37,7 @@ class SmsTramerSheet extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
           border: Border.all(
             color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             width: 2.5,

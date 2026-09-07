@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../core/localization/app_localizations.dart';
+import '../../core/theme/app_colors.dart';
 
 /// Turkish Oto Galeri Windshield Price Sticker Widget
 /// Rendered with an angled, high-contrast tape/sticker aesthetic with bold monetary value and tactile spring wobble physics on tap.
 class WindshieldPriceSticker extends StatefulWidget {
   final String priceText;
   final String? subtitle;
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final Color textColor;
   final Color borderColor;
   final double angle;
@@ -18,7 +19,7 @@ class WindshieldPriceSticker extends StatefulWidget {
     super.key,
     required this.priceText,
     this.subtitle,
-    this.backgroundColor = const Color(0xFFFFDE59),
+    this.backgroundColor,
     this.textColor = const Color(0xFF0F172A),
     this.borderColor = const Color(0xFF000000),
     this.angle = -0.04,
@@ -103,7 +104,10 @@ class _WindshieldPriceStickerState extends State<WindshieldPriceSticker>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: widget.backgroundColor,
+              color: widget.backgroundColor ??
+                  (widget.isBargain
+                      ? AppColors.toxicLime
+                      : AppColors.brutalYellow),
               borderRadius: BorderRadius.circular(4),
               border: Border.all(color: widget.borderColor, width: 2.2),
               boxShadow: [

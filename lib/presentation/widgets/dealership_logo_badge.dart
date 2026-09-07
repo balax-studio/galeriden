@@ -82,7 +82,7 @@ class DealershipLogoBadge extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(8.0),
             color: bg,
             border:
                 showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
@@ -140,7 +140,7 @@ class DealershipLogoBadge extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(8.0),
             color: bg,
             border: Border.all(color: const Color(0xFFFFDE59), width: 2.5),
             boxShadow: const [
@@ -171,7 +171,7 @@ class DealershipLogoBadge extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(size * 0.22),
+            borderRadius: BorderRadius.circular(8.0),
             border:
                 showBorder ? Border.all(color: Colors.black, width: 2.2) : null,
             boxShadow: showShadow

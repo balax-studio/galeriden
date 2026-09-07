@@ -82,7 +82,7 @@ class ShareableDealershipCardDialog extends ConsumerWidget {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.brutalYellow,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                         color: isDark
                             ? const Color(0xFF333B4F)

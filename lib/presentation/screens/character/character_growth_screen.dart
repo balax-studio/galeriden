@@ -920,7 +920,7 @@ class CharacterGrowthScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF0F172A) : Colors.white,
                   borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
+                      const BorderRadius.vertical(top: Radius.circular(10)),
                   border: Border.all(color: Colors.black, width: 2.5),
                 ),
                 child: SingleChildScrollView(

@@ -76,7 +76,7 @@ class _BidPaddleAnimationState extends State<BidPaddleAnimation>
             height: 48,
             decoration: BoxDecoration(
               color: const Color(0xFFFFDE59),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.black, width: 2.2),
               boxShadow: const [
                 BoxShadow(

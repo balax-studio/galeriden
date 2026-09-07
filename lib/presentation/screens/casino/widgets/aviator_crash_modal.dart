@@ -218,7 +218,7 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal>
         child: Container(
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFF0F172A), width: 3),
             boxShadow: const [
               BoxShadow(
@@ -240,7 +240,7 @@ class _AviatorCrashModalState extends ConsumerState<AviatorCrashModal>
                   decoration: const BoxDecoration(
                     color: Color(0xFFFF3366),
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(13)),
+                        BorderRadius.vertical(top: Radius.circular(7)),
                     border: Border(
                         bottom:
                             BorderSide(color: Color(0xFF0F172A), width: 2.5)),

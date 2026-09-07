@@ -64,7 +64,7 @@ class NeoBrutalEmptyState extends StatelessWidget {
                   width: 96,
                   height: 96,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
                       width: 1.5,
@@ -78,7 +78,7 @@ class NeoBrutalEmptyState extends StatelessWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     color: effectiveAccent.withValues(alpha: isDark ? 0.25 : 0.95),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: borderColor, width: 2.2),
                     boxShadow: [
                       BoxShadow(

@@ -30,7 +30,7 @@ class ScrapyardSearchZoneDialog {
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF10131B) : Colors.white,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
+                  const BorderRadius.vertical(top: Radius.circular(10)),
               border: Border.all(color: Colors.black, width: 3.0),
             ),
             child: SingleChildScrollView(

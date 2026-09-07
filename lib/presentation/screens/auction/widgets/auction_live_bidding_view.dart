@@ -333,7 +333,7 @@ class AuctionLiveBiddingView extends StatelessWidget {
                   builder: (context) {
                     final canAffordReclaim =
                         playerBalance >= (auction.currentBid + 5000);
-                    return NeoBrutalButton(
+                    return NeoBrutalButton.trade(
                       label: canAffordReclaim
                           ? context.tr(
                               'auction_reclaim_lead_btn', {'amount': '₺5.000'})
@@ -341,14 +341,6 @@ class AuctionLiveBiddingView extends StatelessWidget {
                       icon: canAffordReclaim
                           ? Icons.bolt_rounded
                           : Icons.money_off_rounded,
-                      backgroundColor: canAffordReclaim
-                          ? AppColors.brutalYellow
-                          : (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFCBD5E1)),
-                      textColor: canAffordReclaim
-                          ? Colors.black
-                          : (isDark ? Colors.white38 : Colors.black38),
                       fontSize: 11.5,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       fullWidth: true,
@@ -662,16 +654,8 @@ class AuctionLiveBiddingView extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: NeoBrutalButton(
+                            child: NeoBrutalButton.trade(
                               label: '+₺5.000',
-                              backgroundColor:
-                                  (auction.isPlayerHighestBidder || !canAfford5k)
-                                      ? disabledBg
-                                      : AppColors.brutalYellow,
-                              textColor:
-                                  (auction.isPlayerHighestBidder || !canAfford5k)
-                                      ? disabledText
-                                      : Colors.black,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed:
@@ -682,16 +666,9 @@ class AuctionLiveBiddingView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: NeoBrutalButton(
+                            child: NeoBrutalButton.trade(
                               label: '+₺15.000',
-                              backgroundColor:
-                                  (auction.isPlayerHighestBidder || !canAfford15k)
-                                      ? disabledBg
-                                      : AppColors.brutalOrange,
-                              textColor:
-                                  (auction.isPlayerHighestBidder || !canAfford15k)
-                                      ? disabledText
-                                      : Colors.black,
+                              backgroundColor: AppColors.brutalOrange,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed:
@@ -702,16 +679,8 @@ class AuctionLiveBiddingView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: NeoBrutalButton(
+                            child: NeoBrutalButton.primary(
                               label: '+₺30.000',
-                              backgroundColor:
-                                  (auction.isPlayerHighestBidder || !canAfford30k)
-                                      ? disabledBg
-                                      : AppColors.brutalGreen,
-                              textColor:
-                                  (auction.isPlayerHighestBidder || !canAfford30k)
-                                      ? disabledText
-                                      : Colors.black,
                               fontSize: 12,
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               onPressed:
@@ -726,20 +695,12 @@ class AuctionLiveBiddingView extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: NeoBrutalButton(
+                            child: NeoBrutalButton.trade(
                               icon: Icons.flag_rounded,
                               label: context.tr(
                                 'auction_btn_flag',
                                 {'amount': '₺50.000'},
                               ),
-                              backgroundColor:
-                                  (auction.isPlayerHighestBidder || !canAfford50k)
-                                      ? disabledBg
-                                      : const Color(0xFFFFDE59),
-                              textColor:
-                                  (auction.isPlayerHighestBidder || !canAfford50k)
-                                      ? disabledText
-                                      : Colors.black,
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               onPressed:
@@ -751,20 +712,12 @@ class AuctionLiveBiddingView extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: NeoBrutalButton(
+                            child: NeoBrutalButton.luxury(
                               icon: Icons.psychology_rounded,
                               label: context.tr(
                                 'auction_btn_bluff',
                                 {'amount': '₺20.000'},
                               ),
-                              backgroundColor:
-                                  (auction.isPlayerHighestBidder || !canAfford20k)
-                                      ? disabledBg
-                                      : const Color(0xFFA855F7),
-                              textColor:
-                                  (auction.isPlayerHighestBidder || !canAfford20k)
-                                      ? disabledText
-                                      : Colors.white,
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               onPressed:

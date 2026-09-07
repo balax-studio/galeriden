@@ -976,7 +976,7 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
       backgroundColor:
           isDark ? const Color(0xFF0C0E14) : const Color(0xFFF4F4F0),
       shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
         side: BorderSide(
           color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           width: 2.5,

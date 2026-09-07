@@ -121,7 +121,7 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
             constraints: const BoxConstraints(maxWidth: 460),
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(color: Colors.black, width: 3),
               boxShadow: const [
                 BoxShadow(
@@ -141,8 +141,8 @@ class _TapuTransferDialogState extends State<TapuTransferDialog>
                   decoration: const BoxDecoration(
                     color: Color(0xFF1E293B),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(13),
-                      topRight: Radius.circular(13),
+                      topLeft: Radius.circular(7),
+                      topRight: Radius.circular(7),
                     ),
                   ),
                   child: Row(

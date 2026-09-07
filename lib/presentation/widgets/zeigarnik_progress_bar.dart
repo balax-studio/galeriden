@@ -28,8 +28,8 @@ class ZeigarnikProgressCurve extends Curve {
 class ZeigarnikProgressBar extends StatelessWidget {
   final double progress; // 0.0 to 1.0
   final double height;
-  final Color fillColor;
-  final Color backgroundColor;
+  final Color? fillColor;
+  final Color? backgroundColor;
   final Color borderColor;
   final double borderWidth;
   final double borderRadius;
@@ -41,8 +41,23 @@ class ZeigarnikProgressBar extends StatelessWidget {
     super.key,
     required this.progress,
     this.height = 12.0,
-    required this.fillColor,
-    required this.backgroundColor,
+    required Color this.fillColor,
+    required Color this.backgroundColor,
+    this.borderColor = const Color(0xFF0F172A),
+    this.borderWidth = 1.6,
+    this.borderRadius = 6.0,
+    this.animationDuration = const Duration(milliseconds: 900),
+    this.isHazardStriped = false,
+    this.stripeColor,
+  });
+
+  /// Dynamic state-based transition constructor (brutalRed -> brutalYellow -> brutalGreen)
+  const ZeigarnikProgressBar.adaptive({
+    super.key,
+    required this.progress,
+    this.height = 12.0,
+    this.fillColor,
+    this.backgroundColor,
     this.borderColor = const Color(0xFF0F172A),
     this.borderWidth = 1.6,
     this.borderRadius = 6.0,
@@ -53,12 +68,22 @@ class ZeigarnikProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final clampedProgress = progress.clamp(0.0, 1.0);
+
+    final effectiveBg = backgroundColor ??
+        (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0));
+    final effectiveFill = fillColor ??
+        (clampedProgress < 0.35
+            ? const Color(0xFFEF4444)
+            : (clampedProgress < 0.75
+                ? const Color(0xFFFFDE59)
+                : const Color(0xFF00E575)));
 
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: effectiveBg,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: borderColor,
@@ -80,7 +105,7 @@ class ZeigarnikProgressBar extends StatelessWidget {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: fillColor,
+                      color: effectiveFill,
                       borderRadius:
                           BorderRadius.circular(math.max(0, borderRadius - 2)),
                     ),

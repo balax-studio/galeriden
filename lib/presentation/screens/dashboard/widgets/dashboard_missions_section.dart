@@ -147,11 +147,9 @@ class DashboardMissionsList extends ConsumerWidget {
                   ),
                 ] else if (progressRatio >= 1.0) ...[
                   const SizedBox(width: 10),
-                  NeoBrutalButton(
+                  NeoBrutalButton.primary(
                     label: context.tr('claim_action'),
                     icon: Icons.check_circle_rounded,
-                    backgroundColor: const Color(0xFF00E575),
-                    textColor: Colors.black,
                     fontSize: 11,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -318,7 +316,7 @@ class DashboardWantedContractsSection extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           decoration: const BoxDecoration(
             color: Color(0xFF0F172A),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
             border: Border(
               top: BorderSide(color: Color(0xFF333B4F), width: 2.0),
               left: BorderSide(color: Color(0xFF333B4F), width: 2.0),
@@ -385,10 +383,8 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          NeoBrutalButton(
+                          NeoBrutalButton.primary(
                             label: context.tr('deliver_action'),
-                            backgroundColor: const Color(0xFF00E575),
-                            textColor: Colors.black,
                             fontSize: 11,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
@@ -476,16 +472,27 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: const Color(0xFFFF7A00),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF7A00),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF333B4F)
+                                : const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
+                        ),
+                        alignment: Alignment.center,
                         child: Text(
                           contract.clientName.isNotEmpty
                               ? contract.clientName[0]
                               : 'V',
                           style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w900,
                               color: Colors.black),
                         ),
                       ),
@@ -540,12 +547,10 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                         ],
                       ),
                       if (matchingCars.isNotEmpty)
-                        NeoBrutalButton(
+                        NeoBrutalButton.primary(
                           label:
                               '${context.tr('deliver_action')} • ${matchingCars.length}',
                           icon: Icons.local_shipping_rounded,
-                          backgroundColor: const Color(0xFF00E575),
-                          textColor: Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
@@ -553,13 +558,9 @@ class DashboardWantedContractsSection extends ConsumerWidget {
                               context, ref, contract, matchingCars),
                         )
                       else
-                        NeoBrutalButton(
+                        NeoBrutalButton.neutral(
                           label: context.tr('find_in_market'),
                           icon: Icons.search_rounded,
-                          backgroundColor: isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0),
-                          textColor: isDark ? Colors.white : Colors.black,
                           fontSize: 11,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),

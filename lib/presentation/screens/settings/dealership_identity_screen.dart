@@ -535,7 +535,7 @@ class _DealershipIdentityScreenState
                         height: 16,
                         decoration: BoxDecoration(
                           color: colorVal,
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: Colors.black, width: 1.2),
                         ),
                       ),

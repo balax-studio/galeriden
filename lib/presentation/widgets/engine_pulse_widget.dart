@@ -73,7 +73,7 @@ class _EnginePulseWidgetState extends State<EnginePulseWidget>
           height: widget.size,
           decoration: BoxDecoration(
             color: healthColor.withValues(alpha: 0.15),
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(8),
             border: Border.all(color: healthColor, width: 2.0),
           ),
           alignment: Alignment.center,

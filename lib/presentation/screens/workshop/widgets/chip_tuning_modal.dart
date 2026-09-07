@@ -27,7 +27,7 @@ class ChipTuningModal extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
       decoration: const BoxDecoration(
         color: Color(0xFF0F172A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
         border: Border(
           top: BorderSide(color: Color(0xFF333B4F), width: 2.5),
           left: BorderSide(color: Color(0xFF333B4F), width: 2.5),

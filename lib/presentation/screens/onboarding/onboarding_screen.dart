@@ -331,7 +331,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                         height: 42,
                                         decoration: BoxDecoration(
                                           color: accent,
-                                          shape: BoxShape.circle,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                           border: Border.all(
                                             color: const Color(0xFF0F172A),
                                             width: 1.8,

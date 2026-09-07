@@ -71,7 +71,7 @@ class _GavelShockwaveWidgetState extends State<GavelShockwaveWidget>
         width: widget.size,
         height: widget.size,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: const Color(0xFFFFDE59),
             width: 3.5,

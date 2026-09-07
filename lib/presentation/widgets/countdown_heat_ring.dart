@@ -69,6 +69,7 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isUrgent = widget.remainingSeconds <= 3;
     final ringColor = isUrgent
         ? const Color(0xFFEF4444)
@@ -97,7 +98,8 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
               child: CircularProgressIndicator(
                 value: progress,
                 strokeWidth: 4.5,
-                backgroundColor: Colors.black12,
+                backgroundColor:
+                    isDark ? const Color(0xFF2A3142) : Colors.black12,
                 valueColor: AlwaysStoppedAnimation<Color>(ringColor),
               ),
             ),
@@ -106,7 +108,9 @@ class _CountdownHeatRingState extends State<CountdownHeatRing>
               style: TextStyle(
                 fontSize: widget.size * 0.28,
                 fontWeight: FontWeight.w900,
-                color: isUrgent ? const Color(0xFFEF4444) : Colors.black,
+                color: isUrgent
+                    ? const Color(0xFFEF4444)
+                    : (isDark ? const Color(0xFFF8FAFC) : Colors.black),
               ),
             ),
           ],

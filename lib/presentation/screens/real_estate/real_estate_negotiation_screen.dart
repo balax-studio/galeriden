@@ -554,8 +554,8 @@ class _RealEstateNegotiationScreenState
               ScaleTransition(
                 scale: _pulseAnimation,
                 child: Container(
-                  width: 12,
-                  height: 12,
+                  width: 8,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: const Color(0xFFEF4444),
                     shape: BoxShape.circle,
@@ -707,7 +707,7 @@ class _RealEstateNegotiationScreenState
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: borderColor.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(6),
               border: Border.all(color: borderColor, width: 1.5),
             ),
             child: Icon(iconData, size: 18, color: borderColor),
@@ -1009,7 +1009,7 @@ class _RealEstateNegotiationScreenState
                 height: 40,
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.black, width: 2),
                   boxShadow: const [
                     BoxShadow(

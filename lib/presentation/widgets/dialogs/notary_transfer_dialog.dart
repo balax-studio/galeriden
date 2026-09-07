@@ -107,7 +107,7 @@ class _NotaryTransferDialogState extends State<NotaryTransferDialog>
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF141721) : const Color(0xFFFFFBEB),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
             width: 3.0,

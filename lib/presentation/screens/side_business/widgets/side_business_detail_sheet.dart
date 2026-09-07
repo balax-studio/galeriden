@@ -20,7 +20,7 @@ class SideBusinessDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
       child: SizedBox(
         height: MediaQuery.sizeOf(context).height * 0.92,
         child: SideBusinessDetailScreen(businessId: businessId),

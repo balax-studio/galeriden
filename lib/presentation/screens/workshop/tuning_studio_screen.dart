@@ -172,7 +172,7 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E1410),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           side: const BorderSide(color: AppColors.brutalOrange, width: 2.8),
         ),
         title: Row(
@@ -788,20 +788,13 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            NeoBrutalButton(
+                            NeoBrutalButton.luxury(
                               label: allApplied
                                   ? context.tr('tuning_btn_pkg_active')
                                   : context.tr('tuning_btn_apply_pkg'),
                               icon: allApplied
                                   ? Icons.check_circle_rounded
                                   : Icons.flash_on_rounded,
-                              backgroundColor: allApplied
-                                  ? (isDark
-                                      ? const Color(0xFF1E2330)
-                                      : const Color(0xFFE2E8F0))
-                                  : AppColors.brutalYellow,
-                              textColor:
-                                  allApplied ? Colors.grey : Colors.black,
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
@@ -975,21 +968,15 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            NeoBrutalButton(
+                            NeoBrutalButton.luxury(
                               label: isApplied
                                   ? context.tr('tuning_btn_applied')
                                   : context.tr('tuning_btn_apply'),
                               icon: isApplied
                                   ? Icons.check_circle_rounded
                                   : Icons.flash_on_rounded,
-                              backgroundColor: isApplied
-                                  ? (isDark
-                                      ? const Color(0xFF1E2330)
-                                      : const Color(0xFFE2E8F0))
-                                  : opt.color,
-                              textColor: isApplied
-                                  ? (isDark ? Colors.white54 : Colors.black54)
-                                  : Colors.black,
+                              backgroundColor: isApplied ? null : opt.color,
+                              textColor: isApplied ? null : Colors.black,
                               fontSize: 11.5,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),

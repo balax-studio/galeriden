@@ -337,10 +337,8 @@ class _VasitaNegotiationScreenState
           ],
         ),
         actions: [
-          NeoBrutalButton(
+          NeoBrutalButton.neutral(
             label: context.tr('vasita_seller_handover_market_btn'),
-            backgroundColor: const Color(0xFFE2E8F0),
-            textColor: Colors.black,
             fontSize: 12,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onPressed: () {
@@ -348,10 +346,8 @@ class _VasitaNegotiationScreenState
               Navigator.of(context).pop();
             },
           ),
-          NeoBrutalButton(
+          NeoBrutalButton.primary(
             label: context.tr('vasita_seller_handover_garage_btn'),
-            backgroundColor: const Color(0xFF00E575),
-            textColor: Colors.black,
             fontSize: 12,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onPressed: () {
@@ -894,9 +890,17 @@ class _VasitaNegotiationScreenState
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: const Color(0xFF3B82F6),
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF3B82F6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                    width: 2.0,
+                  ),
+                ),
                 child: const Icon(Icons.person_rounded, size: 20, color: Colors.white),
               ),
               const SizedBox(width: 10),
@@ -1420,24 +1424,20 @@ class _VasitaNegotiationScreenState
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          NeoBrutalButton(
+          NeoBrutalButton.primary(
             label: context.tr('vasita_seller_handover_garage_btn'),
             icon: Icons.garage_rounded,
             fullWidth: true,
-            backgroundColor: const Color(0xFF00E575),
-            textColor: Colors.black,
             onPressed: () {
               Navigator.of(context).pop();
               context.go('/inventory');
             },
           ),
           const SizedBox(height: 8),
-          NeoBrutalButton(
+          NeoBrutalButton.neutral(
             label: context.tr('vasita_seller_handover_market_btn'),
             icon: Icons.storefront_rounded,
             fullWidth: true,
-            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-            textColor: isDark ? Colors.white : Colors.black,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -1524,21 +1524,17 @@ class _VasitaNegotiationScreenState
               ],
             ),
           ),
-          NeoBrutalButton(
+          NeoBrutalButton.primary(
             label: context.tr('vasita_btn_complete_noter'),
             icon: Icons.verified_user_rounded,
             fullWidth: true,
-            backgroundColor: const Color(0xFF10B981),
-            textColor: Colors.white,
             onPressed: _showNoterTransferDialog,
           ),
           const SizedBox(height: 8),
-          NeoBrutalButton(
+          NeoBrutalButton.neutral(
             label: context.tr('vasita_btn_cancel_deal'),
             icon: Icons.close_rounded,
             fullWidth: true,
-            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-            textColor: isDark ? Colors.white70 : Colors.black87,
             onPressed: () {
               HapticFeedback.mediumImpact();
               Navigator.of(context).pop();
@@ -1554,12 +1550,10 @@ class _VasitaNegotiationScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hasRescueTea) ...[
-            NeoBrutalButton(
+            NeoBrutalButton.trade(
               label: context.tr('vasita_btn_rescue_tea'),
               icon: Icons.local_cafe_rounded,
               fullWidth: true,
-              backgroundColor: const Color(0xFFF59E0B),
-              textColor: Colors.black,
               onPressed: () {
                 final teaTactic = VasitaNegotiationEngine.allTactics.firstWhere((t) => t.id == 'sanayi_cayi');
                 _executeTactic(teaTactic);
@@ -1567,12 +1561,10 @@ class _VasitaNegotiationScreenState
             ),
             const SizedBox(height: 8),
           ],
-          NeoBrutalButton(
+          NeoBrutalButton.destructive(
             label: context.tr('vasita_btn_leave_table'),
             icon: Icons.exit_to_app_rounded,
             fullWidth: true,
-            backgroundColor: const Color(0xFFEF4444),
-            textColor: Colors.white,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -1618,8 +1610,9 @@ class _VasitaNegotiationScreenState
       label: buttonLabel,
       icon: buttonIcon,
       fullWidth: true,
-      backgroundColor: buttonColor,
-      textColor: Colors.black,
+      variant: buttonColor == const Color(0xFF00E575)
+          ? NeoBrutalButtonVariant.primary
+          : NeoBrutalButtonVariant.trade,
       onPressed: buttonAction,
     );
   }

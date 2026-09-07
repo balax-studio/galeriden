@@ -208,7 +208,7 @@ class _RealEstateNegotiationLogBoxState extends State<RealEstateNegotiationLogBo
                           margin: const EdgeInsets.only(right: 8, top: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFEF3C7),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.black, width: 2),
                             boxShadow: const [
                               BoxShadow(
@@ -313,7 +313,7 @@ class _RealEstateNegotiationLogBoxState extends State<RealEstateNegotiationLogBo
                           margin: const EdgeInsets.only(left: 8, top: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFFDBEAFE),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.black, width: 2),
                             boxShadow: const [
                               BoxShadow(

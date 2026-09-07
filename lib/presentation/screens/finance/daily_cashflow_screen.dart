@@ -439,7 +439,8 @@ class DailyCashflowScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: adviceColor.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: adviceColor, width: 1.5),
                 ),
                 child: Icon(adviceIcon, size: 16, color: adviceColor),
               ),

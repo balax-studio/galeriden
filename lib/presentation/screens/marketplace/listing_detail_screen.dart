@@ -133,7 +133,7 @@ class ListingDetailScreen extends ConsumerWidget {
             Container(
               decoration: BoxDecoration(
                 color: p.surfaceColor,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: p.surfaceBorderColor, width: 2.0),
               ),
               child: Column(
@@ -194,14 +194,9 @@ class ListingDetailScreen extends ConsumerWidget {
                 Expanded(
                     child: Text(context.tr('listing_body_report_title'),
                         style: AppTypography.labelSmall(p.isDark))),
-                NeoBrutalButton(
+                NeoBrutalButton.info(
                   label: context.tr('listing_detailed_report_btn'),
                   icon: Icons.assignment_outlined,
-                  backgroundColor: p.primaryColor,
-                  textColor: Colors.black,
-                  borderColor: p.isDark
-                      ? const Color(0xFF333B4F)
-                      : const Color(0xFF0F172A),
                   fontSize: 11,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -251,11 +246,9 @@ class ListingDetailScreen extends ConsumerWidget {
               Border(top: BorderSide(color: p.surfaceBorderColor, width: 2)),
         ),
         child: SafeArea(
-          child: NeoBrutalButton(
+          child: NeoBrutalButton.primary(
             label: context.tr('expertise_negotiate_buy'),
             icon: Icons.handshake_rounded,
-            backgroundColor: p.primaryColor,
-            textColor: Colors.black,
             fontSize: 14,
             fontWeight: FontWeight.w900,
             fullWidth: true,

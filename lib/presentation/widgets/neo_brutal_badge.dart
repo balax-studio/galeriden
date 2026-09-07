@@ -37,6 +37,114 @@ class NeoBrutalBadge extends StatelessWidget {
   })  : text = text ?? label ?? '',
         backgroundColor = backgroundColor ?? color;
 
+  const NeoBrutalBadge.success({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor = Colors.black,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = const Color(0xFF00E575);
+
+  const NeoBrutalBadge.warning({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor = Colors.black,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = const Color(0xFFFFDE59);
+
+  const NeoBrutalBadge.danger({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor = Colors.white,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = const Color(0xFFEF4444);
+
+  const NeoBrutalBadge.info({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor = Colors.black,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = const Color(0xFF00F0FF);
+
+  const NeoBrutalBadge.luxury({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor = Colors.white,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = const Color(0xFFA855F7);
+
+  const NeoBrutalBadge.neutral({
+    super.key,
+    String? text,
+    String? label,
+    this.icon,
+    this.textColor,
+    this.borderColor,
+    this.borderWidth = 2.0,
+    this.borderRadius = 6.0,
+    this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+    this.fontSize = 11.0,
+    this.fontWeight = FontWeight.w800,
+    this.angle = 0.0,
+    this.showHardShadow = false,
+    this.shadowOffset = const Offset(2.0, 2.0),
+  })  : text = text ?? label ?? '',
+        backgroundColor = null;
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

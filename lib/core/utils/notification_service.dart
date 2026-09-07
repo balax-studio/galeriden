@@ -171,7 +171,7 @@ class NotificationService {
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(4),
                       border: Border.all(color: Colors.black, width: 1.5),
                     ),
                     child: const Icon(

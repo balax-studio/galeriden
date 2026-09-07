@@ -75,7 +75,7 @@ class _LeatherKeychainSwingWidgetState extends State<LeatherKeychainSwingWidget>
               width: widget.size * 0.45,
               height: widget.size * 0.45,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(color: Colors.black, width: 2.2),
                 color: const Color(0xFFE2E8F0),
               ),

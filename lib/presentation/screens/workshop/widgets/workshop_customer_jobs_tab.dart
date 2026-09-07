@@ -48,14 +48,14 @@ class _WorkshopCustomerJobsTabState
         padding: const EdgeInsets.all(20),
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: AppColors.brutalOrange,
-        borderRadius: 14,
+        borderRadius: 10,
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.brutalOrange.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.brutalOrange, width: 2),
               ),
               child: const Icon(Icons.build_circle_rounded,

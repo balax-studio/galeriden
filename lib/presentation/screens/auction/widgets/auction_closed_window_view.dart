@@ -47,7 +47,7 @@ class AuctionClosedWindowView extends StatelessWidget {
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor:
                 isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-            borderRadius: 16,
+            borderRadius: 10,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -57,7 +57,7 @@ class AuctionClosedWindowView extends StatelessWidget {
                     color: isDark
                         ? const Color(0xFF1E2330)
                         : const Color(0xFFE2E8F0),
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isDark
                           ? const Color(0xFF333B4F)

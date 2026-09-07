@@ -58,7 +58,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF141721) : Colors.white,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+                  const BorderRadius.vertical(top: Radius.circular(10)),
               border: Border.all(
                 color:
                     isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -339,7 +339,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                     backgroundColor:
                         isDark ? const Color(0xFF141721) : Colors.white,
                     borderColor: AppColors.brutalOrange,
-                    borderRadius: 14,
+                    borderRadius: 10,
                     child: Column(
                       children: [
                         Container(
@@ -347,7 +347,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
                           decoration: BoxDecoration(
                             color:
                                 AppColors.brutalOrange.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                                 color: AppColors.brutalOrange, width: 2),
                           ),

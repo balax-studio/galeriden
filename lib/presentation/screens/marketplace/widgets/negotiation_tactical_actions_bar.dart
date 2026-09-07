@@ -209,7 +209,7 @@ class NegotiationTacticalActionsBar extends StatelessWidget {
                         ? const Color(0xFF2A3142)
                         : const Color(0xFFCBD5E1))
                     : activeBgColor,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: isDark
                       ? const Color(0xFF333B4F)

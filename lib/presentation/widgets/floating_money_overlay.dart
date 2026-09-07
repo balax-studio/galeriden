@@ -84,7 +84,7 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay>
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.90),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
           border: Border.all(color: AppColors.laserGreen, width: 2.0),
           boxShadow: const [
             BoxShadow(

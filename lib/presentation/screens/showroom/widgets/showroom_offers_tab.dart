@@ -490,9 +490,17 @@ class ShowroomOffersTab extends ConsumerWidget {
             const Divider(height: 18),
             Row(
               children: [
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: gradeColor.withValues(alpha: 0.2),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: gradeColor.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: gradeColor,
+                      width: 1.5,
+                    ),
+                  ),
                   child: Icon(Icons.person_rounded, color: gradeColor, size: 16),
                 ),
                 const SizedBox(width: 8),

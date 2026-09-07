@@ -257,7 +257,7 @@ class _ShowroomConstructionModalState
                       height: 80,
                       decoration: BoxDecoration(
                         color: widget.accentColor,
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isDark
                               ? const Color(0xFF333B4F)

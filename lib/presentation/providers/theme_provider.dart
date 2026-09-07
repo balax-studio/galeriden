@@ -119,7 +119,7 @@ class ThemeState {
       color: activePalette.surfaceColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         side: BorderSide(color: activePalette.surfaceBorderColor, width: 1),
       ),
     );
@@ -222,7 +222,7 @@ class ThemeState {
       backgroundColor: activePalette.surfaceColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
         side: BorderSide(color: activePalette.surfaceBorderColor, width: 2.5),
       ),
     );

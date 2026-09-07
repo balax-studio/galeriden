@@ -34,7 +34,7 @@ class IpoRequestModal {
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF141721) : Colors.white,
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(20)),
+                        const BorderRadius.vertical(top: Radius.circular(10)),
                     border: Border.all(
                         color: isDark
                             ? const Color(0xFF333B4F)

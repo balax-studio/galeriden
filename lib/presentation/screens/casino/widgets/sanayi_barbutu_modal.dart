@@ -162,7 +162,7 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal>
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: const Color(0xFF0F172A), width: 3),
           boxShadow: const [
             BoxShadow(
@@ -183,7 +183,7 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal>
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: const BoxDecoration(
                   color: Color(0xFFFF7A00),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(13)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(7)),
                   border: Border(
                       bottom: BorderSide(color: Color(0xFF0F172A), width: 2.5)),
                 ),
@@ -308,16 +308,16 @@ class _SanayiBarbutuModalState extends ConsumerState<SanayiBarbutuModal>
                                       color: const Color(0xFF5C3317),
                                       borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(8),
-                                        bottom: Radius.circular(18),
+                                        bottom: Radius.circular(10),
                                       ),
                                       border: Border.all(
                                           color: const Color(0xFF0F172A),
                                           width: 2.5),
                                       boxShadow: const [
                                         BoxShadow(
-                                          color: Colors.black45,
-                                          offset: Offset(0, 4),
-                                          blurRadius: 6,
+                                          color: Color(0xFF0F172A),
+                                          offset: Offset(2, 2),
+                                          blurRadius: 0,
                                         ),
                                       ],
                                     ),

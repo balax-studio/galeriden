@@ -55,7 +55,7 @@ class RealEstateOffersSheet extends ConsumerWidget {
       ),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
         border: Border.all(color: Colors.black, width: 3),
       ),
       child: Column(

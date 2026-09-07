@@ -729,14 +729,10 @@ class _DashboardHomeTab extends ConsumerWidget {
           TutorialPulseTarget(
             isEnabled: true,
             pulseColor: AppColors.brutalYellow,
-            child: NeoBrutalButton(
+            child: NeoBrutalButton.trade(
               label: currentStepText,
               icon: Icons.touch_app_rounded,
               fullWidth: true,
-              backgroundColor: AppColors.brutalYellow,
-              textColor: Colors.black,
-              borderColor: const Color(0xFF0F172A),
-              borderWidth: 2.5,
               shadowOffset: const Offset(3.5, 3.5),
               fontSize: 13,
               padding: const EdgeInsets.symmetric(vertical: 12),
