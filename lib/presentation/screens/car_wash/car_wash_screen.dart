@@ -42,6 +42,7 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
   void initState() {
     super.initState();
     _customerWashJobs = CustomerWashJob.generateRandomJobs(count: 4);
+    AdService.instance.preloadNativeAd();
   }
 
   void _showScentSelectionSheet(BuildContext context, CarModel car) {

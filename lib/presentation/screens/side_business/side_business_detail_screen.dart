@@ -12,6 +12,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 /// Dedicated sub-page screen for side business details, upgrades, and ROI tracking.
 class SideBusinessDetailScreen extends ConsumerWidget {
@@ -397,6 +398,11 @@ class SideBusinessDetailScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+
+          const NeoBrutalNativeAdCard(
+            contextType: NativeAdContextType.sideBusiness,
+            margin: EdgeInsets.only(bottom: 16),
+          ),
 
           // 3. Level Upgrade Section with Reactive Disabled State
           Text(

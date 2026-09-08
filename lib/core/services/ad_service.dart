@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:flutter/foundation.dart';
@@ -81,10 +82,10 @@ class AdService with ChangeNotifier {
     return true;
   }
 
-  static const Duration minNativeAdInterval = Duration(milliseconds: 1500);
+  static const Duration minNativeAdInterval = Duration(milliseconds: 300);
   DateTime? _lastNativeAdRequestedAt;
 
-  static const int maxNativeAdPoolSize = 4;
+  static const int maxNativeAdPoolSize = 6;
   final List<NativeAd> _preloadedNativeAdPool = [];
   final List<DateTime> _preloadedNativeAdPoolLoadedAt = [];
   bool _isPreloadingNativeAd = false;
@@ -92,7 +93,7 @@ class AdService with ChangeNotifier {
   DateTime? _lastNativeAdFailedAt;
 
   /// Cooldown after a native ad load failure
-  static const Duration nativeAdFailureCooldown = Duration(seconds: 45);
+  static const Duration nativeAdFailureCooldown = Duration(seconds: 5);
 
   /// Purges expired native ads from the cache pool (>50 min)
   void _purgeExpiredPreloadedAds() {
@@ -154,7 +155,7 @@ class AdService with ChangeNotifier {
         DateTime.now().difference(_lastNativeAdFailedAt!) <
             nativeAdFailureCooldown) {
       debugPrint(
-          '[AdService] Native ad pool preload throttled due to failure cooldown (45s).');
+          '[AdService] Native ad pool preload throttled due to failure cooldown (5s).');
       return;
     }
 
@@ -171,9 +172,9 @@ class AdService with ChangeNotifier {
           _lastNativeAdFailedAt = null;
           notifyListeners();
 
-          // If more ads needed to fill pool to targetCount, stagger next fetch gently (600ms)
+          // If more ads needed to fill pool to targetCount, stagger next fetch gently (100ms)
           if (_preloadedNativeAdPool.length < targetCount) {
-            Future.delayed(const Duration(milliseconds: 600), () {
+            Future.delayed(const Duration(milliseconds: 100), () {
               _preloadNextInPool(targetCount);
             });
           }
@@ -186,7 +187,7 @@ class AdService with ChangeNotifier {
           _nativeAdRetryAttempt++;
           notifyListeners();
           if (_nativeAdRetryAttempt <= 2) {
-            final delay = Duration(seconds: _nativeAdRetryAttempt * 30);
+            final delay = Duration(seconds: _nativeAdRetryAttempt * 5);
             debugPrint(
                 '[AdService] Retrying native ad pool preload in ${delay.inSeconds}s (attempt $_nativeAdRetryAttempt/2)...');
             Future.delayed(delay, () {
@@ -223,8 +224,8 @@ class AdService with ChangeNotifier {
     _preloadedNativeAdPoolLoadedAt.removeAt(0);
     notifyListeners();
 
-    // Replenish pool in background with gentle stagger so subsequent ad slots stay warm
-    Future.delayed(const Duration(milliseconds: 800), () {
+    // Replenish pool immediately in background so subsequent ad slots stay warm
+    scheduleMicrotask(() {
       if (_preloadedNativeAdPool.length < maxNativeAdPoolSize &&
           !_isPreloadingNativeAd) {
         preloadNativeAdPool(targetCount: maxNativeAdPoolSize);

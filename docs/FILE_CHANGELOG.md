@@ -26,7 +26,112 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ## Kayıtlar (Log Entries)
 
+### `pubspec.yaml`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Yerel reklam performans iyileştirmeleri ve havuz optimizasyonu için derleme sürüm numarasının artırılması.
+- **Yapılan Değişiklikler**:
+  - `version: 1.0.5+26` -> `version: 1.0.5+27` olarak güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ve `flutter test` ile doğrulandı.
+
+---
+
+### `lib/presentation/screens/workshop/workshop_screen.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Ana atölye ekranına yerel gelişmiş reklam (NativeAd) kartı ve proaktif ön yükleme eklenmesi.
+- **Yapılan Değişiklikler**:
+  - `initState` metoduna `AdService.instance.preloadNativeAd()` eklendi.
+  - Atölye tamir listesinin üzerine `NeoBrutalNativeAdCard(contextType: NativeAdContextType.workshop)` yerleştirildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Ana tamir atölyesi ekranında yerel reklam alanının bulunmaması.
+- **Kök Neden**:
+  - Modifiye stüdyosunda reklam kartı varken ana tamirhane ekranında atlanmış olması.
+- **Uygulanan Çözüm**:
+  - `NeoBrutalNativeAdCard` bileşeni `NativeAdContextType.workshop` bağlamıyla eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile doğrulandı.
+
+---
+
+### `lib/presentation/screens/side_business/side_business_detail_screen.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Yan işletme detay alt sayfasına yerel gelişmiş reklam (NativeAd) kartı eklenmesi.
+- **Yapılan Değişiklikler**:
+  - Genel bakış ve kapasite yükseltme bölümleri arasına `NeoBrutalNativeAdCard(contextType: NativeAdContextType.sideBusiness)` eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yan işletme detay alt sayfasında yerel reklam bulunmaması.
+- **Kök Neden**:
+  - Ana listede reklam varken detay sayfasında yer almaması.
+- **Uygulanan Çözüm**:
+  - `NeoBrutalNativeAdCard` bileşeni sayfaya entegre edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile doğrulandı.
+
+---
+
 ### `lib/core/services/ad_service.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Reklam alanlarının boş kalmasını ve geç yüklenmesini önlemek amacıyla havuz boyutu, yenileme hızı ve hata bekleme sürelerinin optimize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `maxNativeAdPoolSize` 4'ten 6'ya çıkarıldı.
+  - `minNativeAdInterval` 1500ms'den 300ms'ye indirildi.
+  - `nativeAdFailureCooldown` 45 saniyeden 5 saniyeye düşürüldü.
+  - `consumePreloadedNativeAd` içindeki 800ms yapay gecikme kaldırılarak `scheduleMicrotask` ile anında arka plan yenilemesi sağlandı.
+  - `_preloadNextInPool` içindeki sıralı istek beklemesi 600ms'den 100ms'ye, hata tekrarı 5 saniyeye çekildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Pazar yeri kaydırması sonrası veya ekran geçişlerinde (Oto Yıkama, Finans vb.) reklam havuzunun tükenmesi ve 45 saniyelik hata kilidi nedeniyle gerçek reklamların yüklenmeyip yerel lore kartlarının kalması.
+- **Kök Neden**:
+  - Tüketim sonrası 800ms gecikmeli yenileme, 45 saniyelik aşırı uzun genel hata kilidi ve küçük havuz boyutu (4).
+- **Uygulanan Çözüm**:
+  - 6 adetlik derin havuz, 0ms anında mikrogörev yenileme ve 5s kısa hata toleransı uygulandı.
+- **Doğrulama / Test Durumu**:
+  - `test/ad_service_test.dart` birim testleri çalıştırıldı (Başarılı).
+
+---
+
+### `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Reklam kartlarının ekranda belirdiği anda gecikmesiz yüklenmesini sağlamak.
+- **Yapılan Değişiklikler**:
+  - `_scheduleDebouncedLoad` içindeki 1500ms bekleme süresi 100ms mikro bekleme seviyesine indirildi.
+  - `canRequestNativeAd` throttling kontrolündeki yeniden deneme aralığı 1500ms'den 300ms'ye çekildi.
+  - Boş havuz tetikleyicisindeki hedef sayı `AdService.maxNativeAdPoolSize` (6) ile senkronize edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Havuzda hazır reklam bulunmadığında kartın 1.5 saniye boyunca boş/fallback durumda beklemesi.
+- **Kök Neden**:
+  - 1500ms'lik uzun debounce sayacı.
+- **Uygulanan Çözüm**:
+  - 100ms mikro-debounce ile anında istek tetikleme sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `test/ad_service_test.dart` ve `flutter analyze` ile doğrulandı.
+
+---
+
+### `lib/presentation/screens/car_wash/car_wash_screen.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Ekran açılışında yerel reklam havuzunun önceden ısıtılması (preload).
+- **Yapılan Değişiklikler**:
+  - `initState` metoduna `AdService.instance.preloadNativeAd()` çağrısı eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Oto yıkama ekranına girildiğinde reklam alanının hazır olmaması.
+- **Kök Neden**:
+  - Ekrana giriş anında havuzun proaktif olarak ısıtılmaması.
+- **Uygulanan Çözüm**:
+  - `initState` içinde proaktif ön yükleme tetiklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile statik analiz doğrulandı.
+
+---
+
+### `test/ad_service_test.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Güncellenen `minNativeAdInterval` (300ms) değerine uygun birim test senkronizasyonu.
+- **Yapılan Değişiklikler**:
+  - Test beklentisi 1500ms'den 300ms'ye güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/ad_service_test.dart` çalıştırıldı (8/8 test başarılı).
+
+---
 - **Tarih**: 2026-09-08
 - **Değişiklik Amacı**: Pazar yerinde 3. ve 4. reklam alanlarının boş kalmasını önlemek amacıyla çoklu reklam havuzu (multi-slot pool) mimarisine geçiş.
 - **Yapılan Değişiklikler**:

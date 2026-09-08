@@ -14,6 +14,8 @@ import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import 'widgets/workshop_customer_jobs_tab.dart';
 import 'widgets/workshop_garage_repairs_tab.dart';
+import '../../../core/services/ad_service.dart';
+import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class WorkshopScreen extends ConsumerStatefulWidget {
   final int initialTabIndex;
@@ -32,6 +34,7 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
     super.initState();
     _activeTopTab = widget.initialTabIndex;
     _customerJobs = CustomerRepairJob.generateRandomJobs(count: 4);
+    AdService.instance.preloadNativeAd();
   }
 
   @override
@@ -200,6 +203,11 @@ class _WorkshopScreenState extends ConsumerState<WorkshopScreen> {
               ),
               const SizedBox(height: 12),
             ],
+
+            const NeoBrutalNativeAdCard(
+              contextType: NativeAdContextType.workshop,
+              margin: EdgeInsets.only(bottom: 12),
+            ),
 
             if (_activeTopTab == 1)
               WorkshopCustomerJobsTab(initialJobs: _customerJobs)

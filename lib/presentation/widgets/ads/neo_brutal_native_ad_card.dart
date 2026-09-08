@@ -654,18 +654,19 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
 
       // 2. Proactively trigger background preload if pool is currently empty
       if (!kIsWeb && !AdService.instance.hasPreloadedNativeAd) {
-        AdService.instance.preloadNativeAdPool(targetCount: 4);
+        AdService.instance
+            .preloadNativeAdPool(targetCount: AdService.maxNativeAdPoolSize);
       }
 
-      // 3. Debounced fallback load in case the card dwells in the viewport without a preloaded ad
+      // 3. Fast fallback load in case the card dwells in the viewport without a preloaded ad
       _scheduleDebouncedLoad();
     }
   }
 
   void _scheduleDebouncedLoad() {
     _cancelDebounce();
-    // 1500ms debounce prevents rapid scrolling and quick screen transitions from firing requests that are immediately disposed
-    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
+    // Fast 100ms micro-debounce prevents unnecessary requests on rapid scroll while loading immediately when settled
+    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
       if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
         _loadNativeAd();
       }
@@ -697,7 +698,11 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     }
 
     if (!AdService.instance.canRequestNativeAd) {
-      _scheduleDebouncedLoad();
+      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
+          _loadNativeAd();
+        }
+      });
       return;
     }
 
