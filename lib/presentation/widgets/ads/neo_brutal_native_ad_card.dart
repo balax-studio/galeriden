@@ -484,14 +484,22 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   }
 
   void _onAdServiceChanged() {
-    if (!mounted || kIsWeb || _nativeAd != null || _isAdLoaded) return;
+    if (!mounted || kIsWeb || _isAdLoaded) return;
     final currentDay = ref.read(gameProvider).currentDay;
     if (!AdService.shouldShowNativeAdForDay(currentDay, widget.contextType)) return;
+
+    // Invariant: Background/covered routes must NOT consume preloaded pool ads from the foreground screen
+    final route = ModalRoute.of(context);
+    final bool isRouteActive = route == null || route.isCurrent;
+    if (!isRouteActive) return;
 
     if (AdService.instance.hasPreloadedNativeAd) {
       final cachedAd = AdService.instance.consumePreloadedNativeAd();
       if (cachedAd != null) {
         _cancelDebounce();
+        if (_nativeAd != null && !_isAdLoaded) {
+          _nativeAd?.dispose();
+        }
         setState(() {
           _nativeAd = cachedAd;
           _isAdLoaded = true;
@@ -653,20 +661,20 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       }
 
       // 2. Proactively trigger background preload if pool is currently empty
-      if (!kIsWeb && !AdService.instance.hasPreloadedNativeAd) {
-        AdService.instance
-            .preloadNativeAdPool(targetCount: AdService.maxNativeAdPoolSize);
+      if (!kIsWeb &&
+          !AdService.instance.hasPreloadedNativeAd &&
+          !AdService.instance.isPreloadingNativeAd) {
+        AdService.instance.preloadNativeAd();
       }
 
-      // 3. Fast fallback load in case the card dwells in the viewport without a preloaded ad
+      // 3. Fallback debounced load if card dwells in viewport
       _scheduleDebouncedLoad();
     }
   }
 
   void _scheduleDebouncedLoad() {
     _cancelDebounce();
-    // Fast 100ms micro-debounce prevents unnecessary requests on rapid scroll while loading immediately when settled
-    _debounceTimer = Timer(const Duration(milliseconds: 100), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
         _loadNativeAd();
       }
@@ -679,11 +687,11 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
   }
 
   void _loadNativeAd() {
-    if (kIsWeb || _isAdLoading || _nativeAd != null) {
+    if (kIsWeb || _isAdLoading || _nativeAd != null || _isAdLoaded) {
       return;
     }
 
-    // Check pool one more time before firing a cold network request
+    // Check pool one more time before deciding next action
     if (AdService.instance.hasPreloadedNativeAd) {
       final cachedAd = AdService.instance.consumePreloadedNativeAd();
       if (cachedAd != null) {
@@ -697,42 +705,15 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
       }
     }
 
-    if (!AdService.instance.canRequestNativeAd) {
-      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-        if (mounted && _nativeAd == null && !_isAdLoaded && !_isAdLoading) {
-          _loadNativeAd();
-        }
-      });
+    // If pool is currently preloading an ad, wait for _onAdServiceChanged to deliver it
+    if (AdService.instance.isPreloadingNativeAd) {
       return;
     }
 
-    AdService.instance.markNativeAdRequested();
-    _isAdLoading = true;
-    _nativeAd = AdService.instance.createNativeAd(
-      onAdLoaded: (ad) {
-        if (!mounted) {
-          ad.dispose();
-          return;
-        }
-        setState(() {
-          _isAdLoaded = true;
-          _isAdLoading = false;
-        });
-        updateKeepAlive();
-      },
-      onAdFailedToLoad: (error) {
-        if (!mounted) return;
-        debugPrint(
-            '[NeoBrutalNativeAdCard] Ad failed to load: ${error.message}. Switching to in-game lore sponsor.');
-        setState(() {
-          _isAdLoaded = false;
-          _isAdLoading = false;
-          _nativeAd = null;
-        });
-      },
-    );
-
-    _nativeAd?.load();
+    // If pool is idle and has no ads, kick off preload
+    if (!AdService.instance.hasPreloadedNativeAd) {
+      AdService.instance.preloadNativeAd();
+    }
   }
 
   @override

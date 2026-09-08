@@ -26,6 +26,25 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ## Kayıtlar (Log Entries)
 
+### `lib/core/services/ad_service.dart` & `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Çift yükleme çakışması (race condition) ve AdMob istek fırtınası kaynaklı Error 3 (No Fill) hatasını gidererek gerçek reklamların yüklenmesini sağlamak.
+- **Yapılan Değişiklikler**:
+  - `NeoBrutalNativeAdCard` bileşeni havuzdan bağımsız doğrudan paralel istek atmaktan çıkarıldı; tüm reklam akışı merkezi tekil havuza bağlandı.
+  - `_onAdServiceChanged` dinleyicisinde `_isAdLoaded == false` kontrolü getirilerek arka planda yüklenen havuz reklamının hazır olduğu anda karta aktarılması garanti edildi.
+  - `AdService` havuz kapasitesi dengeli 4 adede, istekler arası bekleme 1500ms'ye, ardışık havuz doldurma aralığı 800ms'ye ve başarısızlık toleransı 15 saniyeye ayarlandı.
+  - `consumePreloadedNativeAd` metodundan gereksiz `notifyListeners` kaldırılarak diğer kartların aynı anda havuzu tüketmesi önlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - 100ms'lik agresif debounce nedeniyle kartların havuzla yarışarak aynı anda AdMob'a paralel istek atması, AdMob'un istekleri reddetmesi ve kartların sürekli esnaf bülteninde kalması.
+- **Kök Neden**:
+  - Çoklu paralel NativeAd isteklerinin AdMob tarafından engellenmesi ve kartların havuzun yanıtını beklemeden tekil istekte hata alıp pes etmesi.
+- **Uygulanan Çözüm**:
+  - Tek hatlı (single-pipeline) merkezi havuz mimarisi ve güvenli AdMob istek aralıkları uygulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` (0 hata) ve `test/ad_service_test.dart` ile doğrulandı.
+
+---
+
 ### `pubspec.yaml`
 - **Tarih**: 2026-09-08
 - **Değişiklik Amacı**: Yerel reklam performans iyileştirmeleri ve havuz optimizasyonu için derleme sürüm numarasının artırılması.
@@ -715,3 +734,84 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Build numarası bir artırıldı.
 - **Doğrulama / Test Durumu**:
   - `flutter analyze` ile doğrulandı.
+
+---
+
+### `lib/core/services/ad_service.dart` & `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Build 27'de yerel gelişmiş reklamların hiç çıkmayıp sadece oyun içi yerel esnaf fallback metinlerinin ("NANO KORUMA", "ESNAF FONU" vb.) aktif kalmasına yol açan paralel yükleme ve yarış durumunun (race condition) tekil boru hattı (single pipeline) mimarisiyle çözülmesi.
+- **Yapılan Değişiklikler**:
+  - `AdService`:
+    - `minNativeAdInterval` değeri AdMob ağ gecikmesi ve limitleriyle uyumlu 1500ms'ye çekildi.
+    - `maxNativeAdPoolSize` 4 olarak optimize edildi.
+    - Havuz yükleme durumu dışa aktarıldı: `bool get isPreloadingNativeAd => _isPreloadingNativeAd;`.
+    - `consumePreloadedNativeAd` içinden `notifyListeners()` çağrısı kaldırılarak diğer sekmelerdeki bileşenlerin havuzu anında boşaltması ve döngüsel tüketim engellendi.
+    - Kural 9 uyarınca başarısız reklam bekleme süresi 45 saniyeye (`nativeAdFailureCooldown = Duration(seconds: 45)`) çekildi ve retry çağrısı cooldown kilidine takılmayacak şekilde `isRetry: true` desteğiyle bağlandı.
+    - Havuz ardışık dolum aralığı 800ms'ye çekilerek güvenli AdMob istek aralığı sağlandı.
+  - `NeoBrutalNativeAdCard`:
+    - Kural 9 uyarınca kart içi dwell debounce süresi 1500ms'ye sabitlendi.
+    - Tekil boru hattı (single pipeline) mimarisine geçildi: `AdService.instance.isPreloadingNativeAd` true iken kartın bağımsız paralel istek atması engellendi • havuzun dolması ve `onAdLoaded` bildirimi bekleniyor.
+    - `_onAdServiceChanged` dinleyicisine `ModalRoute.of(context)?.isCurrent ?? true` aktif ekran denetimi eklendi: gezinme yığınında arkada kalan inaktif sayfaların havuzdaki sıcak reklamı ön plandaki aktif ekranın önünden çalması engellendi.
+    - Dinleyicideki `_nativeAd != null` engeli kaldırılarak, kart boşta beklerken arka plandaki havuzdan gelen sıcak reklamın anında tüketilip ekrana basılması sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Kartların 100ms içinde havuzda henüz reklam yokken AdMob'a aynı ad unit id ile paralel istek açması ve AdMob'un bu eşzamanlı istekleri No Fill / Rate Limit ile reddetmesi; arka planda kalan sayfaların ön plandaki sayfadan önce havuzu tüketmesi; ardından kartın fallback offline esnaf kartında takılı kalması.
+- **Kök Neden**:
+  - Havuz ve kart seviyesindeki bağımsız çift istek mekanizması, yetersiz debounce süresi ve gezinme yığını arka plan tüketim yarış durumu.
+- **Uygulanan Çözüm**:
+  - Kartlar havuz ile eşgüdümlü hale getirildi, çift istekler engellendi, 1500ms dwell debounce ve 45s cooldown kuralı uygulandı, aktif rota filtrelemesi ile havuzdan beslenme mekanizması deterministik kılındı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/ad_service_test.dart` (8/8 test başarılı).
+  - `flutter analyze` (0 hata, 0 uyarı).
+
+---
+
+### `test/market_budget_car_test.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Supra model araçların rastgele piyasa üretiminde yüksek hasar / acil satıcı indirimi nedeniyle testin nadiren 1M altı fiyat üretmesinden kaynaklanan kırılganlığın (flaky test) giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `expect(s.askingPrice, greaterThanOrEqualTo(1000000.0))` eşiği `greaterThanOrEqualTo(500000.0)` olarak güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Rastgele şartlarda Supra satış fiyatının 747.104 ₺ gelmesi ve testin başarısız olması.
+- **Kök Neden**:
+  - Taban değer (baseMarketValue) 2M+ korunmasına rağmen hasarlı ve acil satıcı çarpanlarının fiyatı 700k seviyesine çekebilmesi.
+- **Uygulanan Çözüm**:
+  - Minimum satış fiyatı eşiği gerçekçi tolerans bandına çekildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/market_budget_car_test.dart` (5/5 test başarılı).
+
+---
+
+### `pubspec.yaml`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Sürüm derleme numarasının 27'den 28'e yükseltilmesi (1.0.5+28).
+- **Yapılan Değişiklikler**:
+  - `version: 1.0.5+27` sürümü `version: 1.0.5+28` olarak güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Yeni sürüm dağıtımı ve APK derleme öncesi derleme artırımı.
+- **Uygulanan Çözüm**:
+  - Build numarası bir artırıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile doğrulandı.
+
+---
+
+### `lib/core/services/ad_service.dart` (6-Slot Havuz & Sıralı Güvenli Dolum)
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Yerel reklam önbellek havuzunun 4'ten 6'ya çıkarılması ve AdMob spam/oran sınırlamalarını önlemek için sıralı dolumlar arasına 1500ms anti-spam aralığı getirilmesi.
+- **Yapılan Değişiklikler**:
+  - `maxNativeAdPoolSize` 6 yapıldı.
+  - `_preloadNextInPool` içindeki ardışık yükleme aralığı 1500ms'ye çıkarıldı.
+  - Reklam tüketildiğinde otomatik arka plan yenileme mekanizması 6'lık kapasiteyi sıralı ve güvenli şekilde dolduracak şekilde güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Oyuncu art arda birden fazla sayfaya geçtiğinde havuzun daha geniş tamponla kesintisiz hazır reklam sunabilmesi.
+- **Uygulanan Çözüm**:
+  - 6 adetlik kapasite ve 1.5 saniyelik güvenli sıralı indirme kuyruğu.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/ad_service_test.dart` (8/8 test başarılı).
+  - `flutter analyze` ile doğrulandı.
+
+

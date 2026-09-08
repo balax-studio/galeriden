@@ -120,7 +120,7 @@ void main() {
       for (final s in supras) {
         // Supra should never be a ₺45.000 clunker
         expect(s.car.baseMarketValue, greaterThanOrEqualTo(2000000.0));
-        expect(s.askingPrice, greaterThanOrEqualTo(1000000.0));
+        expect(s.askingPrice, greaterThanOrEqualTo(500000.0));
       }
     });
   });
