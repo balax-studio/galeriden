@@ -454,8 +454,8 @@ class _MysteryContainerUnboxingModalState
             backgroundColor: const Color(0xFF0F172A),
             borderColor: rarityColor,
             borderRadius: 16,
-            child: SizedBox(
-              width: 320,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 320),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -489,13 +489,15 @@ class _MysteryContainerUnboxingModalState
                   ),
                   const SizedBox(height: 10),
 
-                  // Car Year, Brand & Model
+                  // Car Title
                   Text(
-                    '${car.modelYear} ${car.brand}',
-                    style: const TextStyle(
-                      fontSize: 13,
+                    car.brand,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF94A3B8),
+                      color: Colors.white.withValues(alpha: 0.7),
+                      letterSpacing: 1.0,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -511,8 +513,10 @@ class _MysteryContainerUnboxingModalState
                   const SizedBox(height: 6),
 
                   // Color and Plate badges
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       NeoBrutalBadge(
                         text: car.colorDisplayName,
@@ -520,7 +524,6 @@ class _MysteryContainerUnboxingModalState
                         textColor: Colors.white,
                         fontSize: 9,
                       ),
-                      const SizedBox(width: 6),
                       NeoBrutalBadge(
                         text: car.plateNumber,
                         backgroundColor: const Color(0xFF334155),

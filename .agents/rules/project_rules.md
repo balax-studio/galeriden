@@ -20,3 +20,8 @@
 ## 6. Simultaneous 7-Language Localization Standard
 - Every newly developed feature, UI label, dialog, toast notification, event, model key, badge, or button MUST be implemented simultaneously across all 7 supported languages (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) within `lib/core/localization/translations/` and `app_localizations.dart`.
 - Hardcoded user-facing strings or partial single-language implementations are strictly prohibited.
+
+## 7. Per-File Change and Error Tracking (Dosya Bazlı Değişiklik ve Hata Takibi)
+- All code changes, bug fixes, refactorings, and error resolutions must be logged file-by-file in `docs/FILE_CHANGELOG.md`.
+- For each modified file, maintain a structured entry containing the file path, summary of modifications, errors encountered along with their root causes, applied fixes, and verification outcomes.
+

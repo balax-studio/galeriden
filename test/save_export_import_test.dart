@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/services/ad_reward_calculator.dart';
@@ -105,19 +106,23 @@ void main() {
 
   group('Dynamic Ad Reward Scaling Tests', () {
     test('Calculates level-based progressive rewards without hardcoded caps', () {
+      final deterministicRandom = Random(42);
       final lowLevelOutcome = AdRewardCalculator.calculateDynamicReward(
         playerLevel: 1,
         totalGarageValue: 0.0,
+        random: deterministicRandom,
       );
 
       final midLevelOutcome = AdRewardCalculator.calculateDynamicReward(
         playerLevel: 5,
         totalGarageValue: 500000.0,
+        random: deterministicRandom,
       );
 
       final highLevelOutcome = AdRewardCalculator.calculateDynamicReward(
         playerLevel: 15,
         totalGarageValue: 5000000.0,
+        random: deterministicRandom,
       );
 
       expect(lowLevelOutcome.moneyAmount, greaterThanOrEqualTo(5000.0));

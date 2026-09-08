@@ -193,9 +193,9 @@ void main() {
       expect(find.text('Karşı Teklif & Gerilim Masası'), findsOneWidget);
 
       // Scroll to notary settlement card
-      await tester.scrollUntilVisible(find.text('Noter & Kâr Hesaplaşma Önizlemesi'), 200);
+      await tester.scrollUntilVisible(find.text('Noter & Kâr Hesaplaşma'), 200);
       await tester.pumpAndSettle();
-      expect(find.text('Noter & Kâr Hesaplaşma Önizlemesi'), findsOneWidget);
+      expect(find.text('Noter & Kâr Hesaplaşma'), findsOneWidget);
 
       // Verify action buttons
       expect(find.text('Karşı Teklif Gönder'), findsOneWidget);

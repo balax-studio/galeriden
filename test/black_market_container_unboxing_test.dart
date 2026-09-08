@@ -216,7 +216,7 @@ void main() {
       // Check car revealed with claim button
       expect(find.text('ARACI GARAJA ÇEK'), findsOneWidget);
       expect(find.text(result.car.modelName), findsOneWidget);
-      expect(find.text('${result.car.modelYear} ${result.car.brand}'), findsOneWidget);
+      expect(find.text(result.car.brand), findsOneWidget);
 
       // Tap Claim
       await tester.tap(find.text('ARACI GARAJA ÇEK'));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -18,6 +19,8 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+
+final vipFleetClaimedDayProvider = StateProvider<int>((ref) => -1);
 
 class RentACarScreen extends ConsumerWidget {
   const RentACarScreen({super.key});
@@ -123,6 +126,10 @@ class RentACarScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+
+          // VIP Fleet Rewarded Contract Card
+          _buildVipFleetContractCard(context, ref, game, isDark),
           const SizedBox(height: 16),
 
           // 2. Active Rentals Section
@@ -170,6 +177,126 @@ class RentACarScreen extends ConsumerWidget {
           const SizedBox(height: 10),
 
           ..._buildAvailableCarsList(context, ref, game, isDark),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVipFleetContractCard(
+    BuildContext context,
+    WidgetRef ref,
+    DealershipModel game,
+    bool isDark,
+  ) {
+    final claimedDay = ref.watch(vipFleetClaimedDayProvider);
+    final isClaimedToday = claimedDay == game.currentDay;
+    final hasNoAds = game.hasNoAdsLicense;
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(16),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: isClaimedToday
+          ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1))
+          : AppColors.brutalGreen,
+      borderWidth: 2.5,
+      borderRadius: 14,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              NeoBrutalBadge(
+                text: context.tr('rent_vip_fleet_badge'),
+                icon: Icons.verified_rounded,
+                backgroundColor: isClaimedToday
+                    ? (isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0))
+                    : AppColors.brutalGreen,
+                textColor: isClaimedToday
+                    ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                    : Colors.black,
+                fontSize: 10,
+              ),
+              if (!isClaimedToday)
+                const NeoBrutalBadge(
+                  text: '+₺35.000',
+                  icon: Icons.attach_money_rounded,
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fontSize: 10,
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            context.tr('rent_vip_fleet_title'),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr('rent_vip_fleet_desc'),
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 14),
+          NeoBrutalButton(
+            label: isClaimedToday
+                ? context.tr('rent_vip_btn_claimed')
+                : (hasNoAds
+                    ? context.tr('rent_vip_btn_instant')
+                    : context.tr('rent_vip_btn_claim_ad')),
+            icon: isClaimedToday
+                ? Icons.check_circle_rounded
+                : (hasNoAds
+                    ? Icons.flash_on_rounded
+                    : Icons.play_circle_fill_rounded),
+            backgroundColor: isClaimedToday
+                ? (isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0))
+                : AppColors.brutalGreen,
+            textColor: isClaimedToday
+                ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                : Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            onPressed: isClaimedToday
+                ? null
+                : () {
+                    HapticFeedback.heavyImpact();
+                    if (hasNoAds) {
+                      ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
+                      ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                      NotificationService.showSuccess(
+                        context,
+                        context.tr('rent_vip_toast_claimed'),
+                      );
+                    } else {
+                      AdService.instance.showRewardedAd(
+                        onRewardEarned: () {
+                          ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
+                          ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                          if (context.mounted) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('rent_vip_toast_claimed'),
+                            );
+                          }
+                        },
+                        onAdUnavailable: () {
+                          ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
+                          ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                        },
+                      );
+                    }
+                  },
+          ),
         ],
       ),
     );

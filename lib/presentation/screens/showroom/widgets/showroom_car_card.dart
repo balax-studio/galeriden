@@ -160,56 +160,109 @@ class ShowroomCarCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                 ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 360;
+                    if (isNarrow) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const LeatherKeychainSwingWidget(size: 24),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              '${car.brand} ${car.modelName}',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w900,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF0F172A),
+                          Row(
+                            children: [
+                              const LeatherKeychainSwingWidget(size: 24),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${car.brand} ${car.modelName}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              if (car.vehicleCategory != VehicleCategory.car)
+                                NeoBrutalBadge(
+                                  text: context.tr(car.vehicleCategory.localizationKey),
+                                  icon: car.vehicleCategory.icon,
+                                  backgroundColor: car.vehicleCategory.badgeColor,
+                                  textColor: Colors.black,
+                                  fontSize: 9.0,
+                                ),
+                              if (_buildContextualStampBadge(context) != null)
+                                _buildContextualStampBadge(context)!,
+                              NeoBrutalBadge(
+                                text: car.bodyType,
+                                fontSize: 9.5,
+                              ),
+                            ],
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                      );
+                    }
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (car.vehicleCategory != VehicleCategory.car) ...[
-                          NeoBrutalBadge(
-                            text: context.tr(car.vehicleCategory.localizationKey),
-                            icon: car.vehicleCategory.icon,
-                            backgroundColor: car.vehicleCategory.badgeColor,
-                            textColor: Colors.black,
-                            fontSize: 9.0,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const LeatherKeychainSwingWidget(size: 24),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  '${car.brand} ${car.modelName}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 6),
-                        ],
-                        if (_buildContextualStampBadge(context) != null) ...[
-                          _buildContextualStampBadge(context)!,
-                          const SizedBox(width: 6),
-                        ],
-                        NeoBrutalBadge(
-                          text: car.bodyType,
-                          fontSize: 9.5,
+                        ),
+                        const SizedBox(width: 8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (car.vehicleCategory != VehicleCategory.car) ...[
+                              NeoBrutalBadge(
+                                text: context.tr(car.vehicleCategory.localizationKey),
+                                icon: car.vehicleCategory.icon,
+                                backgroundColor: car.vehicleCategory.badgeColor,
+                                textColor: Colors.black,
+                                fontSize: 9.0,
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            if (_buildContextualStampBadge(context) != null) ...[
+                              _buildContextualStampBadge(context)!,
+                              const SizedBox(width: 6),
+                            ],
+                            NeoBrutalBadge(
+                              text: car.bodyType,
+                              fontSize: 9.5,
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 6),
                 SingleChildScrollView(
@@ -625,10 +678,14 @@ class ShowroomCarCard extends ConsumerWidget {
                       width: 1.0,
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -659,19 +716,24 @@ class ShowroomCarCard extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            car.colorDisplayName,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: isDark
-                                  ? Colors.white70
-                                  : const Color(0xFF475569),
+                          Flexible(
+                            child: Text(
+                              car.colorDisplayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF475569),
+                              ),
                             ),
                           ),
                         ],
                       ),
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.build_circle_rounded,
@@ -681,48 +743,50 @@ class ShowroomCarCard extends ConsumerWidget {
                                 : const Color(0xFF00E575),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            '${context.tr('engine_condition')}: %${car.expertise.engineCondition.round()}',
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? Colors.white70
-                                  : const Color(0xFF334155),
+                          Flexible(
+                            child: Text(
+                              '${context.tr('engine_condition')}: %${car.expertise.engineCondition.round()}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? Colors.white70
+                                    : const Color(0xFF334155),
+                              ),
                             ),
                           ),
-                          if (car.hasCertifiedExpertise) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 1.5),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF10B981)
-                                    .withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                    color: const Color(0xFF10B981), width: 1.0),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.verified_rounded,
-                                      size: 10, color: Color(0xFF10B981)),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    context.tr('vasita_certified_badge'),
-                                    style: const TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF10B981),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
                         ],
                       ),
+                      if (car.hasCertifiedExpertise)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 1.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981)
+                                .withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                                color: const Color(0xFF10B981), width: 1.0),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.verified_rounded,
+                                  size: 10, color: Color(0xFF10B981)),
+                              const SizedBox(width: 3),
+                              Text(
+                                context.tr('vasita_certified_badge'),
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF10B981),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -763,122 +827,154 @@ class ShowroomCarCard extends ConsumerWidget {
                       ),
                       Expanded(
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  car.maintenanceCost > 0
-                                      ? context.tr('history_receipt_total_cost')
-                                      : context.tr('purchase_cost_label'),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark
-                                        ? const Color(0xFF94A3B8)
-                                        : const Color(0xFF64748B),
-                                  ),
-                                ),
-                                AnimatedRollingCounter(
-                                  value: car.totalCost,
-                                  isShort: true,
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF0F172A),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: () {
-                                HapticFeedback.lightImpact();
-                                CarCostBreakdownSheet.show(context, car);
-                              },
-                              borderRadius: BorderRadius.circular(6),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 2),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          context.tr('net_profit_analysis'),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w700,
-                                            color: isDark
-                                                ? const Color(0xFF94A3B8)
-                                                : const Color(0xFF64748B),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Icon(
-                                          Icons.info_outline_rounded,
-                                          size: 10,
-                                          color: isDark
-                                              ? Colors.white60
-                                              : Colors.black45,
-                                        ),
-                                      ],
-                                    ),
-                                    AnimatedRollingCounter(
-                                      value: car.netEstimatedProfit,
-                                      isShort: true,
-                                      prefix: car.netEstimatedProfit >= 0
-                                          ? '+'
-                                          : '',
-                                      suffix:
-                                          ' • %${car.profitMarginPercent.round()}',
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      car.maintenanceCost > 0
+                                          ? context.tr('history_receipt_total_cost')
+                                          : context.tr('purchase_cost_label'),
                                       style: TextStyle(
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w900,
-                                        color: car.netEstimatedProfit >= 0
-                                            ? const Color(0xFF00E575)
-                                            : const Color(0xFFEF4444),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark
+                                            ? const Color(0xFF94A3B8)
+                                            : const Color(0xFF64748B),
                                       ),
                                     ),
-                                  ],
+                                  ),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: AnimatedRollingCounter(
+                                      value: car.totalCost,
+                                      isShort: true,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              flex: 4,
+                              child: InkWell(
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  CarCostBreakdownSheet.show(context, car);
+                                },
+                                borderRadius: BorderRadius.circular(6),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 2, vertical: 2),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                context.tr('net_profit_analysis'),
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: isDark
+                                                      ? const Color(0xFF94A3B8)
+                                                      : const Color(0xFF64748B),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Icon(
+                                            Icons.info_outline_rounded,
+                                            size: 10,
+                                            color: isDark
+                                                ? Colors.white60
+                                                : Colors.black45,
+                                          ),
+                                        ],
+                                      ),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: AnimatedRollingCounter(
+                                          value: car.netEstimatedProfit,
+                                          isShort: true,
+                                          prefix: car.netEstimatedProfit >= 0
+                                              ? '+'
+                                              : '',
+                                          suffix:
+                                              ' • %${car.profitMarginPercent.round()}',
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w900,
+                                            color: car.netEstimatedProfit >= 0
+                                                ? const Color(0xFF00E575)
+                                                : const Color(0xFFEF4444),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  car.isListed
-                                      ? context.tr('listing_price_label')
-                                      : context.tr('market_value'),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark
-                                        ? const Color(0xFF94A3B8)
-                                        : const Color(0xFF64748B),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      car.isListed
+                                          ? context.tr('listing_price_label')
+                                          : context.tr('market_value'),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark
+                                            ? const Color(0xFF94A3B8)
+                                            : const Color(0xFF64748B),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                AnimatedRollingCounter(
-                                  value: car.isListed
-                                      ? car.listingPrice
-                                      : car.estimatedRealValue,
-                                  isShort: true,
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w900,
-                                    color: car.isListed
-                                        ? const Color(0xFF00E575)
-                                        : (isDark
-                                            ? Colors.white
-                                            : const Color(0xFF0F172A)),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerRight,
+                                    child: AnimatedRollingCounter(
+                                      value: car.isListed
+                                          ? car.listingPrice
+                                          : car.estimatedRealValue,
+                                      isShort: true,
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: car.isListed
+                                            ? const Color(0xFF00E575)
+                                            : (isDark
+                                                ? Colors.white
+                                                : const Color(0xFF0F172A)),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),

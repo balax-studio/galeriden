@@ -1,5 +1,6 @@
 import '../../../core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,6 +17,9 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/dialogs/showroom_construction_modal.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../core/services/ad_service.dart';
+
+final branchGrantClaimedDayProvider = StateProvider<int>((ref) => -1);
 
 class BranchScreen extends ConsumerWidget {
   const BranchScreen({super.key});
@@ -89,6 +93,10 @@ class BranchScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+
+          // KOSGEB & Şube Girişimci Hibesi (Rewarded Ad Opportunity)
+          _buildBranchGrantCard(context, ref, game, isDark),
           const SizedBox(height: 12),
 
           // 2. Showroom Decor Navigation Banner
@@ -693,5 +701,125 @@ class BranchScreen extends ConsumerWidget {
       default:
         return Icons.apartment_rounded;
     }
+  }
+
+  Widget _buildBranchGrantCard(
+    BuildContext context,
+    WidgetRef ref,
+    DealershipModel game,
+    bool isDark,
+  ) {
+    final claimedDay = ref.watch(branchGrantClaimedDayProvider);
+    final isClaimedToday = claimedDay == game.currentDay;
+    final hasNoAds = game.hasNoAdsLicense;
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(16),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: isClaimedToday
+          ? (isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1))
+          : AppColors.brutalYellow,
+      borderWidth: 2.5,
+      borderRadius: 14,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              NeoBrutalBadge(
+                text: context.tr('branch_grant_badge'),
+                icon: Icons.account_balance_rounded,
+                backgroundColor: isClaimedToday
+                    ? (isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0))
+                    : AppColors.brutalYellow,
+                textColor: isClaimedToday
+                    ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
+                    : Colors.black,
+                fontSize: 10,
+              ),
+              if (!isClaimedToday)
+                const NeoBrutalBadge(
+                  text: '+₺40.000',
+                  icon: Icons.monetization_on_rounded,
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 10,
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            context.tr('branch_grant_title'),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr('branch_grant_desc'),
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 14),
+          NeoBrutalButton(
+            label: isClaimedToday
+                ? context.tr('branch_grant_btn_claimed')
+                : (hasNoAds
+                    ? context.tr('branch_grant_btn_instant')
+                    : context.tr('branch_grant_btn_claim_ad')),
+            icon: isClaimedToday
+                ? Icons.check_circle_rounded
+                : (hasNoAds
+                    ? Icons.flash_on_rounded
+                    : Icons.play_circle_fill_rounded),
+            backgroundColor: isClaimedToday
+                ? (isDark ? const Color(0xFF222938) : const Color(0xFFE2E8F0))
+                : AppColors.brutalYellow,
+            textColor: isClaimedToday
+                ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                : Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            onPressed: isClaimedToday
+                ? null
+                : () {
+                    HapticFeedback.heavyImpact();
+                    if (hasNoAds) {
+                      ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
+                      ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                      NotificationService.showSuccess(
+                        context,
+                        context.tr('branch_grant_toast_claimed'),
+                      );
+                    } else {
+                      AdService.instance.showRewardedAd(
+                        onRewardEarned: () {
+                          ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
+                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                          if (context.mounted) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('branch_grant_toast_claimed'),
+                            );
+                          }
+                        },
+                        onAdUnavailable: () {
+                          ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
+                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                        },
+                      );
+                    }
+                  },
+          ),
+        ],
+      ),
+    );
   }
 }

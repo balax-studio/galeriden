@@ -216,6 +216,8 @@ class _NeoBrutalDramaticDialogState
                 ),
                 child: Text(
                   context.tr('daily_dilemma_badge', {'day': currentDay.toString()}),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w900,
@@ -265,13 +267,17 @@ class _NeoBrutalDramaticDialogState
                 color: catTextColor,
               ),
               const SizedBox(width: 6),
-              Text(
-                _getCategoryLabel(widget.card.category),
-                style: TextStyle(
-                  color: catTextColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+              Flexible(
+                child: Text(
+                  _getCategoryLabel(widget.card.category),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: catTextColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ],

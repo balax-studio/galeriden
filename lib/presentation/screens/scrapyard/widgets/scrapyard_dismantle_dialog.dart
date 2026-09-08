@@ -5,8 +5,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/scrapyard_model.dart';
+import '../../../../domain/usecases/operation_suspense_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/dialogs/lucky_opportunity_dialog.dart';
+import '../../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../../widgets/mini_games/scrapyard_teardown_canvas.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -250,18 +252,27 @@ class ScrapyardDismantleDialog {
                               fontSize: 11,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 8),
-                              onPressed: () {
+                              onPressed: () async {
                                 Navigator.pop(ctx);
-                                final result = ref
-                                    .read(gameProvider.notifier)
-                                    .crushChassisToScrapMetal(car.id);
-                                if (result.success) {
-                                  NotificationService.showSuccess(
-                                      context, result.message);
-                                } else {
-                                  NotificationService.showError(
-                                      context, result.message);
-                                }
+                                final carName = '${car.brand} ${car.modelName}';
+                                await NeoBrutalOperationDialog.show(
+                                  context,
+                                  operationType:
+                                      OperationSuspenseType.scrapyardCrush,
+                                  carName: carName,
+                                  onComplete: () {
+                                    final result = ref
+                                        .read(gameProvider.notifier)
+                                        .crushChassisToScrapMetal(car.id);
+                                    if (result.success) {
+                                      NotificationService.showSuccess(
+                                          context, result.message);
+                                    } else {
+                                      NotificationService.showError(
+                                          context, result.message);
+                                    }
+                                  },
+                                );
                               },
                             ),
                           )

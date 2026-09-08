@@ -34,22 +34,24 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-      child: NeoBrutalCard(
-        backgroundColor: isDark ? const Color(0xFF131620) : Colors.white,
-        borderColor: isDark ? const Color(0xFF2E3748) : const Color(0xFF0F172A),
-        borderWidth: 2.8,
-        borderRadius: 18,
-        shadowOffset: const Offset(5, 5),
-        shadowColor: isDark ? Colors.black87 : const Color(0xFF0F172A),
-        padding: const EdgeInsets.all(18),
-        child: SingleChildScrollView(
+      child: SingleChildScrollView(
+        child: NeoBrutalCard(
+          backgroundColor: isDark ? const Color(0xFF131620) : Colors.white,
+          borderColor: isDark ? const Color(0xFF2E3748) : const Color(0xFF0F172A),
+          borderWidth: 2.8,
+          borderRadius: 18,
+          shadowOffset: const Offset(5, 5),
+          shadowColor: isDark ? Colors.black87 : const Color(0xFF0F172A),
+          padding: const EdgeInsets.all(18),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 1. Header Bar with Badge
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                spacing: 6,
+                runSpacing: 6,
                 children: [
                   NeoBrutalBadge(
                     text: context.tr('badge_special_encounter'),

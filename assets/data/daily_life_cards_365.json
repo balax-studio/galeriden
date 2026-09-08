@@ -1,0 +1,2922 @@
+[
+  {
+    "day": 1,
+    "category": "Sosyal Medya",
+    "title": "Yanlış Gruba Ses Kaydı",
+    "description": "Patronun taklidini yaptığın 45 saniyelik ses kaydını yanlışlıkla şirket genel grubuna yolladın.",
+    "choice1": "Telefonu hemen uçak moduna alıp gruptan sessizce çık",
+    "choice2": "Kuzenim telefonumu kurcalamış mesajı atıp özür dile"
+  },
+  {
+    "day": 2,
+    "category": "Trajikomik",
+    "title": "Eski Sevgilinin 4 Yıllık Fotoğrafı",
+    "description": "Gece yarısı eski sevgilinin profilinde gezinirken 2020 yılındaki tatil fotoğrafını yanlışlıkla beğendin.",
+    "choice1": "Hesabı hemen dondurup üç ay sosyal medyaya girme",
+    "choice2": "Beğeniyi geri çekip hiçbir şey olmamış gibi davran"
+  },
+  {
+    "day": 3,
+    "category": "Drama",
+    "title": "Akraba WhatsApp Grubu Kavgası",
+    "description": "Büyük amcan sabah saat altıda gruptan siyasi video paylaştı, dayın çok sert cevap verdi.",
+    "choice1": "Hepsini yatıştırmak için ortaya tarafsız bir çay fotoğrafı at",
+    "choice2": "Gruptan anında çıkıp tüm bildirimleri sessize al"
+  },
+  {
+    "day": 4,
+    "category": "Sosyal Medya",
+    "title": "Canlı Yayında Açık Kalan Mikrofon",
+    "description": "Online toplantı bitti sanıp yanındaki arkadaşına toplantıyı yöneten kişi hakkında sert eleştiride bulundun.",
+    "choice1": "Hemen mikrofonu kapatıp internetim koptu numarası yap",
+    "choice2": "Sözlerimin arkasındayım diyerek durumu profesyonelce açıkla"
+  },
+  {
+    "day": 5,
+    "category": "Trajikomik",
+    "title": "Yanlış Kişiye Gönderilen İtiraf",
+    "description": "Arkadaşına dedikodu yapayım derken mesajı tam olarak dedikodusunu yaptığın kişiye ilettin.",
+    "choice1": "Bunu sana başkası yazmış gibi davranıp yorumunu sor",
+    "choice2": "Açıkça dürüst ol ve yüz yüze konuşmak için randevu iste"
+  },
+  {
+    "day": 6,
+    "category": "Kült & Nostalji",
+    "title": "Matrix Kırmızı Hap İkilemi",
+    "description": "Rüyanda bir yabancı sana iki seçenek sundu; sabah alarm çalınca ya işe gideceksin ya da istifa edip Egeye yerleşeceksin.",
+    "choice1": "Kırmızı hapı seç ve rutin hayatından tamamen vazgeç",
+    "choice2": "Mavi hapı seç ve güvenli konfor alanında kalmaya devam et"
+  },
+  {
+    "day": 7,
+    "category": "Sosyal Medya",
+    "title": "Viral Olan Sokak Röportajı",
+    "description": "Kadıköy meydanında denk geldiğin sokak röportajında aşırı iddialı bir laf ettin ve video milyonlar izlendi.",
+    "choice1": "Videoyu fırsata çevirip içerik üreticiliğine soyun",
+    "choice2": "Videoyu kaldırtmak için hukuki yollara başvur"
+  },
+  {
+    "day": 8,
+    "category": "Absürt Hayat",
+    "title": "Akıllı Süpürgenin İsyanı",
+    "description": "Evdeki robot süpürge banyodaki ıslak paspası yutup motorunu kilitledi ve yardım sinyali çalıyor.",
+    "choice1": "Tornavidayı kapıp içini sökerek kendin tamir etmeye çalış",
+    "choice2": "Yetkili servise götürüp yüksek servis ücretini kabullen"
+  },
+  {
+    "day": 9,
+    "category": "Trajikomik",
+    "title": "LinkedIn Başarı Hikayesi Balonu",
+    "description": "Sıradan bir kahve alma sürecini hayat dersine çeviren ağdalı bir LinkedIn postu yazmaya niyetlendin.",
+    "choice1": "Postu paylaş ve sahte övgü dolu yorumların tadını çıkar",
+    "choice2": "Yazdıklarını sil ve gerçek dünyaya dönüp işine odaklan"
+  },
+  {
+    "day": 10,
+    "category": "İkili İlişkiler",
+    "title": "Görüldü Atılan Mesajın Gizemi",
+    "description": "Yeni tanıştığın flörtün attığın espri dolu mesaja iki gündür mavi tik attığı halde cevap vermiyor.",
+    "choice1": "Gururunu koru ve bir daha asla mesaj atma",
+    "choice2": "Komik bir video atarak sohbeti yeniden canlandırmaya çalış"
+  },
+  {
+    "day": 11,
+    "category": "Drama",
+    "title": "Ortak Hesap Şifresi Krizi",
+    "description": "Ayrıldığın ev arkadaşın senin ödediğin dijital dizi platformunun şifresini ailesine de dağıtmış.",
+    "choice1": "Tüm oturumları kapatıp şifreyi tek taraflı değiştir",
+    "choice2": "Arayıp ortak faturayı bölüşmeyi talep et"
+  },
+  {
+    "day": 12,
+    "category": "Sosyal Medya",
+    "title": "Kupon Dolandırıcılığı Tuzağı",
+    "description": "Eski bir lise arkadaşının çalınan hesabından sana yüksek kazanç vaat eden şüpheli bir yatırım linki geldi.",
+    "choice1": "Arkadaşını telefonla arayıp hesabının çalındığını haber ver",
+    "choice2": "Dolandırıcıyla dalga geçip ekran görüntülerini hikayende paylaş"
+  },
+  {
+    "day": 13,
+    "category": "Trajikomik",
+    "title": "Spotify Yıl Sonu Özeti Utancı",
+    "description": "Spotify Wrapped özetinde gizlice dinlediğin arabesk şarkılar birinci sırada çıktı ve arkadaşlar etiketliyor.",
+    "choice1": "Zevkim bu diyerek özeti gururla sosyal medyada paylaş",
+    "choice2": "Telefonu kardeşime vermiştim yalanına sığın"
+  },
+  {
+    "day": 14,
+    "category": "Absürt Hayat",
+    "title": "Gece Üçte Gelen Kargo Bildirimi",
+    "description": "Uykusuz bir gecede internetten aldığın devasa dinozor kostümü sabah kapıya teslim edildi.",
+    "choice1": "Paketi hiç açmadan anında iade talebi oluştur",
+    "choice2": "Kostümü giyip evde neşeyle tur atarak stres at"
+  },
+  {
+    "day": 15,
+    "category": "Kült & Nostalji",
+    "title": "Ezel Replikleriyle Teselli",
+    "description": "Terk edilen yakın arkadaşın sabaha kadar sana Ramiz Dayı replikleriyle dert anlatıyor.",
+    "choice1": "Rolü devam ettirip sen de bilgece bir tirat patlat",
+    "choice2": "Gerçekçi olmasını söyleyip arkadaşını kendine getir"
+  },
+  {
+    "day": 16,
+    "category": "Sosyal Medya",
+    "title": "Yanlışlıkla Açılan Canlı Yayın",
+    "description": "Cebindeyken ekran kilidi açılan telefonun Instagramda on dakika boyunca tavanı ve nefes sesini canlı yayınladı.",
+    "choice1": "Yayını silip hesabı birkaç günlüğüne dondur",
+    "choice2": "Bunu kavramsal bir sanat performansı ilan et"
+  },
+  {
+    "day": 17,
+    "category": "İş Hayatı",
+    "title": "Mesai Bitimi Gelen Acil Mail",
+    "description": "Cuma akşamı saat 17:59da yöneticinden çok acil başlığıyla pazartesiye yetişmesi gereken rapor maili düştü.",
+    "choice1": "Maili görmemiş gibi yapıp bilgisayarı anında kapat",
+    "choice2": "Mesaiye kalıp raporu bitir ve kendini vazgeçilmez kıl"
+  },
+  {
+    "day": 18,
+    "category": "Trajikomik",
+    "title": "Kulaklık Çıktı Sanılan Toplu Taşıma",
+    "description": "Otobüste kulaklığın tam takılı olmadığını fark etmeden on beş dakika son ses motivasyon podcasti dinlettin.",
+    "choice1": "İlk durakta inip sonraki otobüsü bekle",
+    "choice2": "Hiç bozuntuya vermeden etraftakilere tebessüm et"
+  },
+  {
+    "day": 19,
+    "category": "Sosyal Medya",
+    "title": "Mavi Tık Hevesi Masrafı",
+    "description": "Aylık ücret ödeyip hesabına onaylı hesap rozeti almayı düşünüyorsun ama arkadaşların dalga geçebilir.",
+    "choice1": "Parayı ödeyip havalı rozeti profiline yapıştır",
+    "choice2": "Organik kalmayı seçip parayı cebinde tut"
+  },
+  {
+    "day": 20,
+    "category": "Drama",
+    "title": "Gizli Hikaye İzleme İfşası",
+    "description": "Hoşlandığın kişinin hikayesini sahte hesaptan izlerken yanlışlıkla ana hesabınla tepki emojisi gönderdin.",
+    "choice1": "Hesabı anında silip ortadan kaybol",
+    "choice2": "Dürüstçe konuşup seni merak etmiştim de"
+  },
+  {
+    "day": 21,
+    "category": "Absürt Hayat",
+    "title": "Kendi Kendine Konuşurken Yakalanma",
+    "description": "Markette reyonlar arasında hayali bir tartışmayı canlandırırken reyon görevlisiyle göz göze geldin.",
+    "choice1": "Telefonla konuşuyormuş gibi yapıp kulağına elini götür",
+    "choice2": "Durumu kabullenip görevliye en taze peyniri sor"
+  },
+  {
+    "day": 22,
+    "category": "Kült & Nostalji",
+    "title": "Avrupa Yakası Burhan Tripleri",
+    "description": "Lüks bir restoranda arkadaş grubun hesabı aşırı kabarttı ve kimse ödemeye yanaşmıyor.",
+    "choice1": "Burhan Altıntop gibi cüzdanı evde unuttum bahanesi üret",
+    "choice2": "Masaya yumruğunu vurup hesabı adilce herkese böl"
+  },
+  {
+    "day": 23,
+    "category": "Sosyal Medya",
+    "title": "X Platformunda Linç Tehlikesi",
+    "description": "Gündemdeki popüler bir dizi hakkında yazdığın sivri eleştiri yüz binlerce etkileşim alıp fanatiklerin hedefi oldu.",
+    "choice1": "Tweeti anında silip bildirimleri kapat",
+    "choice2": "Argümanlarını savunup tartışmanın ortasına dal"
+  },
+  {
+    "day": 24,
+    "category": "İkili İlişkiler",
+    "title": "Fotoğraf Çekme Çilesi",
+    "description": "Arkadaşın kafede tam kırk beş dakikadır güzel çıkana kadar fotoğrafını çektiriyor ve kahven buz gibi oldu.",
+    "choice1": "Yeter artık deyip telefonu masaya bırak",
+    "choice2": "Sabırla on fotoğraf daha çekip kahveni tazele"
+  },
+  {
+    "day": 25,
+    "category": "Trajikomik",
+    "title": "Siri veya Asistanın Zamansız Cevabı",
+    "description": "Sessiz bir toplantının ortasında cebindeki telefon sesli asistanı tetikleyip sizi tam olarak anlayamadım dedi.",
+    "choice1": "Özür dileyip telefonu sessize al",
+    "choice2": "Şakaya vurup yapay zeka bile beni anlamıyor de"
+  },
+  {
+    "day": 26,
+    "category": "Sosyal Medya",
+    "title": "Influencer Çekilişi Hayal Kırıklığı",
+    "description": "Katıldığın dev akıllı telefon çekilişinde yedek talihli çıktın ama asıl talihli ödülü son dakikada aldı.",
+    "choice1": "Takibi bırakıp çekiliş sayfalarını engelle",
+    "choice2": "Bir sonraki çekilişe daha çok arkadaşını etiketle"
+  },
+  {
+    "day": 27,
+    "category": "Drama",
+    "title": "Dedikodu Yaparken Arkada Duran Kişi",
+    "description": "Ofis mutfağında iş arkadaşının dedikodusunu yaparken arkanda su doldurduğunu fark ettin.",
+    "choice1": "Sözü hemen çevirip aslında ne kadar çalışkan olduğunu söyle",
+    "choice2": "Gözlerinin içine bakıp durumu profesyonelce konuşalım de"
+  },
+  {
+    "day": 28,
+    "category": "Absürt Hayat",
+    "title": "Yanlış Sipariş Teslimatı",
+    "description": "Kurye senin siparişin yerine yan komşunun lüks sushi tabağını kapına bıraktı.",
+    "choice1": "Kuryeyi geri çağırıp dürüstçe siparişi teslim et",
+    "choice2": "Kaderin hediyesi sayıp sushileri afiyetle ye"
+  },
+  {
+    "day": 29,
+    "category": "Kült & Nostalji",
+    "title": "Aşkı Memnu Behlül Kaçar Anı",
+    "description": "Büyük bir aile sorumluluğunun veya hesaplaşmanın eşiğindesin ve herkes senden hamle bekliyor.",
+    "choice1": "Tüm kapıları kapatıp sessizce ortadan kaybol",
+    "choice2": "Cesaretini toplayıp herkesin yüzüne gerçekleri söyle"
+  },
+  {
+    "day": 30,
+    "category": "Varoluşsal Kriz",
+    "title": "Ekran Süresi Raporu Şoku",
+    "description": "Pazar sabahı telefonun haftalık günlük ortalama sekiz saat ekran süresi bildirimini ekrana yapıştırdı.",
+    "choice1": "Haftalık dijital detoks kararı alıp telefonu kaldır",
+    "choice2": "Bildirimi kapatıp sosyal medyada gezinmeye devam et"
+  },
+  {
+    "day": 31,
+    "category": "Aile & Akraba",
+    "title": "Pazar Kahvaltısı Zorunluluğu",
+    "description": "Haftanın tek boş gününde akrabalar sabahın sekizinde çat kapı kahvaltıya geldi.",
+    "choice1": "Güleryüzle kapıyı açıp çayı demlemeye başla",
+    "choice2": "Uyuyor numarası yapıp kapıyı açma"
+  },
+  {
+    "day": 32,
+    "category": "Trajikomik",
+    "title": "Altın Gününde Yanlış Bilgi",
+    "description": "Anneler meclisinde teyzen senin maaşını iki katı söyleyerek tüm akrabalara hava attı.",
+    "choice1": "Doğrusunu söyleyip teyzeni zor durumda bırak",
+    "choice2": "Teyzene uyum sağlayıp zengin rolü oyna"
+  },
+  {
+    "day": 33,
+    "category": "Drama",
+    "title": "Apartman Yöneticiliği Seçimi",
+    "description": "Yıllık bina toplantısında kimse yönetici olmak istemeyince tüm gözler genç ve dinamiksin diye sana çevrildi.",
+    "choice1": "Görevi kabul edip aidat peşinde koşmayı göze al",
+    "choice2": "Asla kabul etmeyip toplantıyı anında terk et"
+  },
+  {
+    "day": 34,
+    "category": "Aile & Akraba",
+    "title": "Kuzenle Kıyaslanma Sezonu",
+    "description": "Akşam yemeğinde annen teyzenin oğlunun yeni aldığı evi ve terfisini anlatmaya başladı.",
+    "choice1": "Kendi özgür hayatını ve tercihlerini savun",
+    "choice2": "Konuyu hemen değiştirip dedikodu aç"
+  },
+  {
+    "day": 35,
+    "category": "Absürt Hayat",
+    "title": "Ayakkabılığı İşgal Eden Komşu",
+    "description": "Üst kat komşusu koridora on iki çift ayakkabı ve çocuk bisikleti yığarak geçişi kapattı.",
+    "choice1": "Gidip sakince uyarıda bulun",
+    "choice2": "Ayakkabıları kenara itip kapısına kibar bir not yapıştır"
+  },
+  {
+    "day": 36,
+    "category": "Trajikomik",
+    "title": "Düğünde Sahte Takı Şüphesi",
+    "description": "Uzak bir akrabanın düğününde takı takma sırası sana geldi ama zarfta sadece iyi dilek notu var.",
+    "choice1": "Zarfı sandığa atıp hızla masana dön",
+    "choice2": "Gidip küçük bir gram altın alıp mahcup olma"
+  },
+  {
+    "day": 37,
+    "category": "Drama",
+    "title": "Miras Kalan Eski Arsa Kavgası",
+    "description": "Köydeki dededen kalma işe yaramaz tarla için üç amcan birbirine girdi ve seni arabulucu seçti.",
+    "choice1": "Tarafsız kalıp hiçbir şeye karışma",
+    "choice2": "Adil bir paylaştırma planı sunup sorumluluk al"
+  },
+  {
+    "day": 38,
+    "category": "Aile & Akraba",
+    "title": "Format Atılacak Bilgisayar Çilesi",
+    "description": "Yazılımcı olduğunu duyan uzak akraba yirmi yıllık kasayı kucağına verip bunu bir hızlandır dedi.",
+    "choice1": "Parçaları çok eski diyerek kibarca reddet",
+    "choice2": "Hafta sonunu feda edip sistemi baştan kur"
+  },
+  {
+    "day": 39,
+    "category": "Kült & Nostalji",
+    "title": "Bizimkiler Şükrü Bey Sendromu",
+    "description": "Pazar akşamı banyo sırası, kapıcı zili ve komşu gürültüsü arasında nostaljik bir cinnetin eşiğindesin.",
+    "choice1": "Balkona çıkıp derin bir nefes alarak sakinleş",
+    "choice2": "Tüm apartmana isyan eden bir bildiri yaz"
+  },
+  {
+    "day": 40,
+    "category": "Absürt Hayat",
+    "title": "Kapı Önü Paspas Savaşı",
+    "description": "Karşı komşun yeni aldığın tasarım paspasın kendi kapısının önüne kaydığını iddia edip geri itti.",
+    "choice1": "Paspası kapının içine alıp tartışmayı bitir",
+    "choice2": "İnatlaşıp paspası tam orta çizgiye sabitle"
+  },
+  {
+    "day": 41,
+    "category": "Trajikomik",
+    "title": "Görücü Usulü Fotoğraf Gösterimi",
+    "description": "Halan elinde tabletle gelip sana çok iyi huylu bir memur adayı ayarladığını söylüyor.",
+    "choice1": "Fotoğrafa bakıp kesin bir dille reddet",
+    "choice2": "Halanın hatırı için bir kahve içmeyi kabul et"
+  },
+  {
+    "day": 42,
+    "category": "Drama",
+    "title": "Balkondan Halı Çırpan Komşu",
+    "description": "Tam taze yıkadığın beyaz çamaşırları astığında üst komşu balkonundan tozlu kilim çırpmaya başladı.",
+    "choice1": "Yukarıya seslenip hakkını sertçe ara",
+    "choice2": "Çamaşırları içeri çekip yöneticiye şikayet et"
+  },
+  {
+    "day": 43,
+    "category": "Aile & Akraba",
+    "title": "Bebek Görmesi Masrafı",
+    "description": "Kuzeninin yeni doğan bebeği için bebek mevlidine çağrıldın ve hediye beklentisi çok yüksek.",
+    "choice1": "Bütçeni zorlayıp çeyrek altın tak",
+    "choice2": "Şık ve fonksiyonel bir bebek arabası oyuncağı al"
+  },
+  {
+    "day": 44,
+    "category": "Absürt Hayat",
+    "title": "Asansörde Kalan İki Komşu",
+    "description": "Apartmanda hiç sevmediğin dedikoducu komşuyla asansörde kaldın ve kurtarma ekibi yarım saat sonra gelecek.",
+    "choice1": "Kulaklığını takıp hiç konuşmadan bekle",
+    "choice2": "Sohbete girip apartmanın tüm sırlarını öğren"
+  },
+  {
+    "day": 45,
+    "category": "Kült & Nostalji",
+    "title": "Yaprak Dökümü Ali Rıza Bey Tavrı",
+    "description": "Aile meclisinde herkes birbirine girdiğinde evin büyüğü gibi ağzımızın tadı kaçmasın tiradı atmak istiyorsun.",
+    "choice1": "Oturup sakince çayını yudumla ve kavgayı izle",
+    "choice2": "Ayağa kalkıp Ali Rıza Bey gibi masayı terk et"
+  },
+  {
+    "day": 46,
+    "category": "Trajikomik",
+    "title": "Misafirlikte Terlik Seçimi",
+    "description": "Gittiğin evde sana verilen delik ve kaygan terlikle salonda artistik bir düşüş tehlikesi atlattın.",
+    "choice1": "Çorapla dolaşmayı talep et",
+    "choice2": "Düşme riskini göze alıp terliği giymeye devam et"
+  },
+  {
+    "day": 47,
+    "category": "Drama",
+    "title": "Borç İsteyen Bacanak",
+    "description": "Yeni bir iş kuracağını iddia eden bacanağın senden hiç geri ödemeyeceği kesin olan bir miktar borç istedi.",
+    "choice1": "Param vadeli hesapta diyerek kibarca geri çevir",
+    "choice2": "Küçük bir miktar verip fazlasını bekleme"
+  },
+  {
+    "day": 48,
+    "category": "Aile & Akraba",
+    "title": "Dede Yadigarı Eski Halı",
+    "description": "Evin deposunda duran dededen kalma el dokuması eski halıyı antikacıya satmakla saklamak arasında kaldın.",
+    "choice1": "Halıyı antika uzmanına gösterip nakde çevir",
+    "choice2": "Ailenin hatırası diyerek salona ser"
+  },
+  {
+    "day": 49,
+    "category": "Absürt Hayat",
+    "title": "Pazar Poşeti Yırtılması",
+    "description": "Pazardan aldığın beş kilo domates ve patates tam apartman girişinde poşetin delinmesiyle merdivenlere saçıldı.",
+    "choice1": "Domatesleri tek tek toplayıp komşulardan poşet iste",
+    "choice2": "Kalanları bırakıp koşarak yukarı çık"
+  },
+  {
+    "day": 50,
+    "category": "Trajikomik",
+    "title": "Akraba Yanında Maaş Sorusu",
+    "description": "Bayram ziyaretinde en meraklı enişten herkesin içinde tam olarak ne kadar maaş aldığını sordu.",
+    "choice1": "Asgari ücretin biraz üstü deyip geçiştir",
+    "choice2": "Kendine yetecek kadar kazanıyorum diye felsefe yap"
+  },
+  {
+    "day": 51,
+    "category": "Sosyal Medya",
+    "title": "Teyzenin Facebook Paylaşımları",
+    "description": "Teyzen her sabah çiçekli günaydın mesajlarına senin profilini etiketleyerek seni arkadaşlarının önüne atıyor.",
+    "choice1": "Etiketi kaldırıp teyzeni kırmadan uyar",
+    "choice2": "Teyzenin hevesi kırılmasın diye gönderiyi beğen"
+  },
+  {
+    "day": 52,
+    "category": "Drama",
+    "title": "Kazan Dairesi Gideri Paylaşımı",
+    "description": "Apartmanın merkezi ısıtma kazanı patladı ve daire başı yüklü bir tadilat parası toplanıyor.",
+    "choice1": "Payına düşeni hemen ödeyip ısınmayı sağla",
+    "choice2": "Tadilat faturasının şişirildiğini söyleyip itiraz et"
+  },
+  {
+    "day": 53,
+    "category": "Kült & Nostalji",
+    "title": "Kemal Sunal Kapıcılar Kralı Anı",
+    "description": "Apartman kapıcısı sana bakkaldan ekmek getirmeyi unuttuğunu söyleyip pişkince gülümsedi.",
+    "choice1": "Seyit gibi adamsın deyip gülüp geç",
+    "choice2": "İşini düzgün yapması için sert bir uyarı çek"
+  },
+  {
+    "day": 54,
+    "category": "Aile & Akraba",
+    "title": "Kardeşler Arası Eşya Paylaşımı",
+    "description": "Ayrı eve çıkan kardeşin senin en sevdiğin deri ceketi ve kahve makinesini de beraberinde götürmek istiyor.",
+    "choice1": "Kardeşindir diyerek hediye et",
+    "choice2": "Kendi eşyalarını ayırıp net bir sınır koy"
+  },
+  {
+    "day": 55,
+    "category": "Absürt Hayat",
+    "title": "Gece Yarısı Matkap Sesi",
+    "description": "Pazar gecesi saat 23:30da yan komşun duvara tablo asmak için darbeli matkap çalıştırmaya başladı.",
+    "choice1": "Gidip kapısını çal ve duvara vur",
+    "choice2": "Yastığı kafana bastırıp sabahı bekle"
+  },
+  {
+    "day": 56,
+    "category": "Trajikomik",
+    "title": "Gelin Bohçası İncelemesi",
+    "description": "Akrabanın nişanında hazırlanan gelin bohçasını teyzeler büyüteçle incelerken fikir beyan etmen istendi.",
+    "choice1": "Her şey harika görünüyor deyip politik davran",
+    "choice2": "Bu gelenekler artık çok eskide kaldı de"
+  },
+  {
+    "day": 57,
+    "category": "Drama",
+    "title": "Sokağa Park Eden Yabancı",
+    "description": "Evinin önündeki tek boş alana mahalleden olmayan biri aracını park edip üç gün boyunca ortadan kayboldu.",
+    "choice1": "Cama kibar ama tehditkar bir not yapıştır",
+    "choice2": "Belediyeyi arayıp aracı çektirmeye çalış"
+  },
+  {
+    "day": 58,
+    "category": "Aile & Akraba",
+    "title": "Yazlık Evde Toplu Tatil İşkencesi",
+    "description": "Ailenin Akçaydaki iki odalı yazlığına aynı anda on iki akraba gelip yerde yatmaya başladı.",
+    "choice1": "Valizini toplayıp ilk otobüsle şehre kaç",
+    "choice2": "Katlanıp mangalın başına geçerek ortamı idare et"
+  },
+  {
+    "day": 59,
+    "category": "Kült & Nostalji",
+    "title": "Tosun Paşa Yeşil Vadi Mücadelesi",
+    "description": "Köydeki bahçe duvarının sınırı için komşu köyle senin ailen arasında Yeşil Vadi polemiği patladı.",
+    "choice1": "Hakkımız olan bir karış toprağı vermeyiz de",
+    "choice2": "Bir parça ot için huzurumuzu bozmayalım deyip feragat et"
+  },
+  {
+    "day": 60,
+    "category": "Varoluşsal Kriz",
+    "title": "Bayram Ziyareti Dönüşü Sessizliği",
+    "description": "Tüm gün süren akraba ziyaretleri bitti, eve döndün ve mutlak bir sessizlik çöktü.",
+    "choice1": "Koltuğa uzanıp tavana bakarak hayatı sorgula",
+    "choice2": "Sıcak bir çay demleyip sessizliğin tadını çıkar"
+  },
+  {
+    "day": 61,
+    "category": "Kült & Nostalji",
+    "title": "Kurtlar Vadisi Çakır Ruhu",
+    "description": "İş yerinde haksızlığa uğrayan arkadaşını savunmak için toplantıda racon kesmeye hazırlanıyorsun.",
+    "choice1": "Sert bir çıkış yapıp adaleti sağla",
+    "choice2": "Daha diplomatik kalıp kendini tehlikeye atma"
+  },
+  {
+    "day": 62,
+    "category": "Popüler Kültür",
+    "title": "Squid Game Davetiyesi",
+    "description": "Gizemli bir arkadaş çevresinden hafta sonu için ödüllü bir hayatta kalma kutu oyunu daveti aldın.",
+    "choice1": "Heyecan arayıp daveti kabul et",
+    "choice2": "Evde dizi izleyip dinlenmeyi seç"
+  },
+  {
+    "day": 63,
+    "category": "Kült & Nostalji",
+    "title": "Hababam Sınıfı Mahmut Hoca Disiplini",
+    "description": "Kardeşinin ders çalışmadığını gören annen senden Mahmut Hoca otoritesi kurmanı istedi.",
+    "choice1": "Kardeşine sert bir disiplin nutku çek",
+    "choice2": "Onu anladığını gösterip beraber ders çalışmayı teklif et"
+  },
+  {
+    "day": 64,
+    "category": "Popüler Kültür",
+    "title": "Barbie vs Oppenheimer Kavgası",
+    "description": "Arkadaş grubun sinemada hangi filme gidileceği konusunda iki kutba ayrıldı ve oyların kilit ismi sensin.",
+    "choice1": "Renkli ve eğlenceli dünyayı seç",
+    "choice2": "Tarihi ve derin dramayı seç"
+  },
+  {
+    "day": 65,
+    "category": "Trajikomik",
+    "title": "GORA 216 Replik Yarışması",
+    "description": "Arkadaş ortamında herkes Gora replikleriyle konuşmaya başladı ve sen son repliği hatırlayamadın.",
+    "choice1": "Uydurma bir uzaylı sesi çıkarıp durumu kurtar",
+    "choice2": "Hemen internetten sahneyi açıp kopya çek"
+  },
+  {
+    "day": 66,
+    "category": "Kült & Nostalji",
+    "title": "Leyla ile Mecnun İskender Baba Çayı",
+    "description": "Hayatın tüm dertleri üst üste geldiğinde sahilde tek başına karton bardakta çay içmek istiyorsun.",
+    "choice1": "Sahile inip martılara simit atarak derdini unut",
+    "choice2": "Hemen harekete geçip sorunları çözmeye çalış"
+  },
+  {
+    "day": 67,
+    "category": "Popüler Kültür",
+    "title": "Game of Thrones Finali Tartışması",
+    "description": "Yeni tanıştığın ortamda biri dizinin finalini övmeye başladı ve ortamda buz gibi bir hava esti.",
+    "choice1": "Dizinin finalini yerin dibine sokup gerçeği haykır",
+    "choice2": "Zevkler tartışılmaz diyerek sessizce kahveni yudumla"
+  },
+  {
+    "day": 68,
+    "category": "Kült & Nostalji",
+    "title": "Geniş Aile Cevahir Tripleri",
+    "description": "Borç batağında olan arkadaşın sana akıl almaz bir köşeyi dönme planıyla geldi.",
+    "choice1": "Cevahir gibi maceraya atılmayı kabul et",
+    "choice2": "Koyu Bilal gibi mantıklı olup bu plan tutmaz de"
+  },
+  {
+    "day": 69,
+    "category": "Popüler Kültür",
+    "title": "Anime Bağımlılığı Başlangıcı",
+    "description": "Arkadaşının zoruyla başladığın yirmi sezonluk animeyi bitirmek için üç gündür uyumuyorsun.",
+    "choice1": "Uykusuzluğu göze alıp sezon finaline kadar izle",
+    "choice2": "Bilgisayarı kapatıp hemen normal hayatına dön"
+  },
+  {
+    "day": 70,
+    "category": "Trajikomik",
+    "title": "Cem Yılmaz Stand Up Taklidi",
+    "description": "Kuzenlerinin önünde Cem Yılmaz gösterisinden ezberlediğin bir espriyi yaptın ama kimse gülmedi.",
+    "choice1": "Espriyi açıklayarak durumu daha da batır",
+    "choice2": "Seyirci kalitesiz diyerek konuyu hemen değiştir"
+  },
+  {
+    "day": 71,
+    "category": "Kült & Nostalji",
+    "title": "Fight Club İlk Kuralı",
+    "description": "Yazıldığın boks salonunda ilk gün antrenör sana sert bir antrenman programı çıkardı.",
+    "choice1": "Tyler Durden gibi acıya meydan oku",
+    "choice2": "Ertesi gün kas ağrılarından dolayı sporu bırak"
+  },
+  {
+    "day": 72,
+    "category": "Popüler Kültür",
+    "title": "Marvel Evreni Yorgunluğu",
+    "description": "Vizyona giren otuz beşinci süper kahraman filmi için bilet almaya zorlanıyorsun.",
+    "choice1": "Seriyi bozmamak için bileti al ve git",
+    "choice2": "Artık süper kahraman görmek istemiyorum deyip evde kal"
+  },
+  {
+    "day": 73,
+    "category": "Kült & Nostalji",
+    "title": "Behzat Ç Ankara Ayazı Havası",
+    "description": "Hayatında her şey ters gidiyor ve yağmurlu havada parkta tek başına müzik dinlemek istiyorsun.",
+    "choice1": "Hırkanı çekip melankolinin tadını çıkar",
+    "choice2": "Arkadaşlarını arayıp kalabalık bir yere git"
+  },
+  {
+    "day": 74,
+    "category": "Popüler Kültür",
+    "title": "Eurovision Nostalji Gecesi",
+    "description": "Arkadaşlarınla 2003 Sertab Erener zaferini izlerken gecenin sonunda tüm eski şarkıları ezbere söylediniz.",
+    "choice1": "Geceyi sabahın dördüne kadar uzat",
+    "choice2": "Yarın iş var deyip erken ayrıl"
+  },
+  {
+    "day": 75,
+    "category": "Trajikomik",
+    "title": "Lord of the Rings Maratonu İşkencesi",
+    "description": "Flörtün seni on iki saatlik uzatılmış versiyon Yüzüklerin Efendisi maratonuna davet etti.",
+    "choice1": "Aşk uğruna on iki saat ekrana kilitlen",
+    "choice2": "İkinci saatte uyuya kalıp büyüyü boz"
+  },
+  {
+    "day": 76,
+    "category": "Kült & Nostalji",
+    "title": "Kardeş Payı Metin Ali İcatları",
+    "description": "Evde bozulan vantilatörü tamir etmek için motorunu söküp akıllı sisteme bağlamaya çalıştın.",
+    "choice1": "İcadı tamamlayıp mucitliğini kanıtla",
+    "choice2": "Vantilatörü tamamen bozup yenisini sipariş et"
+  },
+  {
+    "day": 77,
+    "category": "Popüler Kültür",
+    "title": "K Pop Çılgınlığına Maruz Kalma",
+    "description": "Küçük kuzenin tüm gün sana Koreli müzik grubunun dans koreografisini öğretmeye çalışıyor.",
+    "choice1": "Dansı öğrenip kuzeninin gönlünü yap",
+    "choice2": "Kulaklığını takıp odayı terk et"
+  },
+  {
+    "day": 78,
+    "category": "Kült & Nostalji",
+    "title": "Pulp Fiction Dans Sahnesi",
+    "description": "Gittiğin düğünde birden kendini John Travolta gibi dans pistinin ortasında buldun.",
+    "choice1": "Bütün figürleri sergileyip alkışları topla",
+    "choice2": "Utanıp hemen masanın arkasına saklan"
+  },
+  {
+    "day": 79,
+    "category": "Popüler Kültür",
+    "title": "Nostaljik Tetris veya Ataride Rekor",
+    "description": "Tavan arasında bulduğun eski el atarisinde tüm gün tuşlara basıp çocukluk rekorunu kırmaya çalıştın.",
+    "choice1": "Rekoru kırana kadar başından kalkma",
+    "choice2": "Gözlerin kan çanağı olunca aleti yerine kaldır"
+  },
+  {
+    "day": 80,
+    "category": "Trajikomik",
+    "title": "Yıldızlararası Kara Delik Muhabbeti",
+    "description": "Kafede oturduğun arkadaşın iki saat boyunca kuantum fiziği ve zaman bükülmesi anlatıp beynini yaktı.",
+    "choice1": "Anlıyormuş gibi yapıp kafa salla",
+    "choice2": "Ben sadece çay içmeye gelmiştim diyerek sustur"
+  },
+  {
+    "day": 81,
+    "category": "Kült & Nostalji",
+    "title": "Şahsiyet Agah Bey Hafızası",
+    "description": "Unutkanlığın arttığı bu günlerde her yere sarı yapışkanlı kağıtlar asmaya başladın.",
+    "choice1": "Not tutma sistemini hayatının merkezine koy",
+    "choice2": "Fazla evham yapıyorum diyerek kağıtları sök"
+  },
+  {
+    "day": 82,
+    "category": "Popüler Kültür",
+    "title": "Viral Dans Akımına Katılma Baskısı",
+    "description": "Ofisteki stajyerler seni TikTok dans videosuna dahil etmek için ısrar ediyor.",
+    "choice1": "Dansı yapıp ofisin en sempatik ismi ol",
+    "choice2": "Ağırbaşlılığımı bozamam diyerek reddet"
+  },
+  {
+    "day": 83,
+    "category": "Kült & Nostalji",
+    "title": "Vizontele Çeşmesi Metaforu",
+    "description": "Mahalledeki parkın suları kesilince aklına Vizonteledeki suyun geliş sahnesi geldi.",
+    "choice1": "Halka moral verip birlik çağrısı yap",
+    "choice2": "Belediyeyi arayıp arıza kaydı oluştur"
+  },
+  {
+    "day": 84,
+    "category": "Popüler Kültür",
+    "title": "Zombi İstilası Hayatta Kalma Planı",
+    "description": "Arkadaşlarınla gece sohbetinde İstanbulda zombi salgını çıksa nereye kaçacağınızı tartıştınız.",
+    "choice1": "Adalara sığınma planını hararetle savun",
+    "choice2": "Market yağmalayıp eve kapanma fikrini öne sür"
+  },
+  {
+    "day": 85,
+    "category": "Trajikomik",
+    "title": "Yeşilçam Zengin Kız Fakir Oğlan Rolü",
+    "description": "Zengin bir ailenin davetine katıldın ve çatalların sırasını şaşırıp garsona yardım etmeye kalktın.",
+    "choice1": "Doğallığını koruyup samimi davran",
+    "choice2": "Görgü kurallarını biliyormuş gibi rol kes"
+  },
+  {
+    "day": 86,
+    "category": "Kült & Nostalji",
+    "title": "Kurtlar Vadisi Pala Gözlüğü",
+    "description": "Güneş gözlüğünü kapalı mekanda çıkarmayan arkadaşına Pala muamelesi yapmaya başladın.",
+    "choice1": "Gözlüğü çıkarıp yüzüne bakmasını söyle",
+    "choice2": "Sen de gözlük takıp havaya gir"
+  },
+  {
+    "day": 87,
+    "category": "Popüler Kültür",
+    "title": "Cosplay Kostümü Cesareti",
+    "description": "Arkadaşın seni çizgi roman festivaline anime karakteri kılığında gitmeye ikna etmeye çalışıyor.",
+    "choice1": "Kostümü giyip festivale renk kat",
+    "choice2": "Sıradan kıyafetlerle izleyici olarak git"
+  },
+  {
+    "day": 88,
+    "category": "Kült & Nostalji",
+    "title": "Çiçek Abbas Atışması",
+    "description": "Trafikte kırmızı ışıkta beklerken yanındaki dolmuş şoförüyle göz göze geldin ve nostaljik maniler aklına geldi.",
+    "choice1": "Şoföre tebessüm edip yol ver",
+    "choice2": "Gaza basıp ilk sırada kalkmaya odaklan"
+  },
+  {
+    "day": 89,
+    "category": "Popüler Kültür",
+    "title": "True Detective Dedektifliği",
+    "description": "Evde kaybolan televizyon kumandasını bulmak için cinayet masası dedektifi gibi delil toplamaya başladın.",
+    "choice1": "Bütün koltuk minderlerini söküp ara",
+    "choice2": "Pes edip telefona kumanda uygulaması indir"
+  },
+  {
+    "day": 90,
+    "category": "Varoluşsal Kriz",
+    "title": "Çocukluk Çizgi Filmlerini Yeniden İzleme",
+    "description": "Pazar sabahı erkenden uyanıp nostaljik çizgi filmleri açtın ve çocukluğunun ne kadar hızlı geçtiğini hissettin.",
+    "choice1": "Gözlerini silip anıların tadını çıkar",
+    "choice2": "Kalkıp pazar temizliğine giriş"
+  },
+  {
+    "day": 91,
+    "category": "İş Hayatı",
+    "title": "Açık Ofiste Kulaklık Çıkarma Savaşları",
+    "description": "Yan masandaki iş arkadaşın sakız çiğnerken ve yüksek sesle telefonla konuşurken çalışamıyorsun.",
+    "choice1": "Kibarca uyar ve konsantre olamadığını söyle",
+    "choice2": "Gürültü önleyici kulaklığının sesini sonuna kadar aç"
+  },
+  {
+    "day": 92,
+    "category": "Trajikomik",
+    "title": "Toplantıda Herkesi CCye Ekleme Hatası",
+    "description": "Yalnızca yöneticine yazacağın şikayet mailini tüm departmanın olduğu mail grubuna gönderdin.",
+    "choice1": "İkinci bir mail atıp özür dile ve dikkate almayın de",
+    "choice2": "Bilgisayarı kapatıp öğle arasına çık"
+  },
+  {
+    "day": 93,
+    "category": "Drama",
+    "title": "Terfi Beklerken Dışarıdan Alınan Müdür",
+    "description": "Aylardır gece gündüz çalıştığın pozisyona patronun üniversiteden arkadaşı müdür olarak atandı.",
+    "choice1": "İstifa mektubunu yazıp masaya koy",
+    "choice2": "Müdürle iyi geçinip stratejik davranmayı seç"
+  },
+  {
+    "day": 94,
+    "category": "İş Hayatı",
+    "title": "Plaza Türkçesi Maruziyeti",
+    "description": "Toplantıda yöneticin sürekli assign etmek, brainstorm yapmak ve pushlamak kelimelerini kullanıyor.",
+    "choice1": "Kelimeleri Türkçe karşılıklarıyla düzelt",
+    "choice2": "Sen de plaza diliyle konuşup akıntıya kapıl"
+  },
+  {
+    "day": 95,
+    "category": "Absürt Hayat",
+    "title": "Ofis Buzdolabındaki Kayıp Yemek",
+    "description": "Sabah özenle hazırlayıp ofis dolabına koyduğun saklama kabındaki köfteler öğlen yerinde yoktu.",
+    "choice1": "Tüm ofise hırsızı arayan sert bir mail at",
+    "choice2": "Gidip dışarıdan lahmacun siparişi ver"
+  },
+  {
+    "day": 96,
+    "category": "İş Hayatı",
+    "title": "Kahve Makinesi Başında Dedikodu",
+    "description": "İnsan kaynakları uzmanı kahve alırken sana şirketle ilgili gizli bir yeniden yapılanma tüyosu verdi.",
+    "choice1": "Tüyoyu en yakın iş arkadaşınla paylaş",
+    "choice2": "Bilgiyi kendine saklayıp gelişmeleri bekle"
+  },
+  {
+    "day": 97,
+    "category": "Trajikomik",
+    "title": "Maaş Zammı Görüşmesi Gerilimi",
+    "description": "Patronun odasına yüzde elli zam istemek için girdin ama patron şirketin ekonomik darboğazını anlatmaya başladı.",
+    "choice1": "Yine de hakkın olan zammı kararlılıkla iste",
+    "choice2": "Patrona hak verip mevcut maaşına şükret"
+  },
+  {
+    "day": 98,
+    "category": "İş Hayatı",
+    "title": "Cuma Günü Happy Hour Zorunluluğu",
+    "description": "İş çıkışı herkes bir şeyler içmeye giderken sen sadece eve gidip dinlenmek istiyorsun.",
+    "choice1": "Ekip ruhu için etkinliğe katıl",
+    "choice2": "Bahane uydurup sessizce ofisten kaç"
+  },
+  {
+    "day": 99,
+    "category": "Drama",
+    "title": "Sunum Ortasında Çöken Slayt",
+    "description": "Yönetim kuruluna yapacağın kritik sunumun tam ortasında projeksiyon cihazı yandı ve ekran karardı.",
+    "choice1": "Sunumu ezberden ve güvenle anlatmaya devam et",
+    "choice2": "Teknik ekip gelene kadar ara verilmesini iste"
+  },
+  {
+    "day": 100,
+    "category": "İş Hayatı",
+    "title": "Evden Çalışırken Pijama ve Gömlek Kombini",
+    "description": "Kamera açılan online toplantıda ayağa kalkman gerekti ama altında sadece çizgili pijama altı var.",
+    "choice1": "Kamerayı anında kapatıp bağlantı koptu de",
+    "choice2": "Oturuşunu hiç bozmadan konuşmayı tamamla"
+  },
+  {
+    "day": 101,
+    "category": "Trajikomik",
+    "title": "Ofis Çekilişinde Çıkan Felaket Hediye",
+    "description": "Yılbaşı ofis çekilişinde sana kaktüs biblosu çıkarken sen arkadaşına pahalı bir parfüm almıştın.",
+    "choice1": "Hediyeyi gülerek kabul edip masana koy",
+    "choice2": "Bir dahaki sefere çekilişe katılmayacağını söyle"
+  },
+  {
+    "day": 102,
+    "category": "İş Hayatı",
+    "title": "Performans Değerlendirme Anketi",
+    "description": "Seni sürekli zorlayan yöneticini puanlayacağın anonim ankette ne kadar dürüst olacağın konusunda kararsızsın.",
+    "choice1": "Tüm gerçekleri en sert şekilde yaz",
+    "choice2": "Ortalama puanlar verip başını ağrıtma"
+  },
+  {
+    "day": 103,
+    "category": "Absürt Hayat",
+    "title": "Fotokopi Makinesinin Kağıt Sıkıştırması",
+    "description": "Acil toplantıya iki dakika kala fotokopi makinesi elli sayfalık raporu dişlilerine doladı.",
+    "choice1": "Kapağı açıp kağıtları yırtmadan çıkarmaya çalış",
+    "choice2": "Raporu dijital olarak sunacağını duyur"
+  },
+  {
+    "day": 104,
+    "category": "İş Hayatı",
+    "title": "Stajyerin Yapamadığı İşi Üstlenme",
+    "description": "Stajyere verilen görevi beceremeyince yöneticin işi senin tamamlamanı rica etti.",
+    "choice1": "Stajyeri eğiterek işi beraber yapın",
+    "choice2": "Hızlıca kendin yapıp stajyere işi bırakma"
+  },
+  {
+    "day": 105,
+    "category": "Drama",
+    "title": "Şirket İçi Fikir Hırsızlığı",
+    "description": "Toplantıda ortaya attığın parlak projeyi kıdemli uzman kendi fikriymiş gibi genel müdüre sundu.",
+    "choice1": "Söz alıp fikrin ilk sahibinin sen olduğunu kanıtla",
+    "choice2": "Sessiz kalıp intikamını doğru zamanda al"
+  },
+  {
+    "day": 106,
+    "category": "İş Hayatı",
+    "title": "Pazartesi Sabahı Motivasyon Konuşması",
+    "description": "Müdürün pazartesi sabahı sekiz buçukta tüm ekibi toplayıp aile gibiyiz konuşması yapıyor.",
+    "choice1": "Coşkuyla alkışlayıp motivasyonunu göster",
+    "choice2": "İçinden saate bakıp toplantının bitmesini bekle"
+  },
+  {
+    "day": 107,
+    "category": "Trajikomik",
+    "title": "Kart Basmayı Unutma Krizi",
+    "description": "Tüm hafta boyunca ofise vaktinde geldiğin halde turnikede kart basmadığın için devamsız göründün.",
+    "choice1": "Güvenlik kameralarının incelenmesini talep et",
+    "choice2": "İnsan kaynaklarına gidip durum bildirimi yaz"
+  },
+  {
+    "day": 108,
+    "category": "İş Hayatı",
+    "title": "Yan Masanın Doğum Günü Pastası Masrafı",
+    "description": "Haftada üç kez birinin doğum günü kutlanıyor ve sürekli para toplanmasından cüzdanın delindi.",
+    "choice1": "Parayı verip pastadan büyük bir dilim al",
+    "choice2": "Artık ortak kutlamalara bütçe ayıramam de"
+  },
+  {
+    "day": 109,
+    "category": "Absürt Hayat",
+    "title": "Toplantıda Horlayan İş Arkadaşı",
+    "description": "Üç saat süren strateji toplantısının sonunda arka sıradaki arkadaşın derin bir uykuya dalarak horlamaya başladı.",
+    "choice1": "Müdür fark etmeden arkadaşını dirseğinle dürt",
+    "choice2": "Bozuntuya vermeyip olayı kameraya çek"
+  },
+  {
+    "day": 110,
+    "category": "İş Hayatı",
+    "title": "İş Değiştirme Teklifi ve Kararsızlık",
+    "description": "Rakip şirketten yüzde kırk daha yüksek maaşlı ama daha stresli bir iş teklifi aldın.",
+    "choice1": "Maceraya atılıp yeni şirkete geç",
+    "choice2": "Mevcut rahatını ve huzurunu koru"
+  },
+  {
+    "day": 111,
+    "category": "Drama",
+    "title": "Ofis Flörtünün Sona Ermesi",
+    "description": "Aynı departmanda çalıştığın flörtünle yolları ayırdınız ama her gün yüz yüze bakmak zorundasınız.",
+    "choice1": "Profesyonelliğini koruyup işine odaklan",
+    "choice2": "Başka bir departmana transfer iste"
+  },
+  {
+    "day": 112,
+    "category": "İş Hayatı",
+    "title": "Yıllık İzin Çakışması Kavgası",
+    "description": "Bayram tatiliyle birleşen haftada aynı departmandan iki kişi aynı anda izne çıkmak istiyor.",
+    "choice1": "Kıdemini öne sürüp izni sen kap",
+    "choice2": "Fedakarlık yapıp iznini ertesi haftaya kaydır"
+  },
+  {
+    "day": 113,
+    "category": "Trajikomik",
+    "title": "Müdürün İğrenç Esprisine Gülme Zorunluluğu",
+    "description": "Müdürün yaptığı berbat soğuk espriye odadaki herkes kahkahalarla gülerken sen donup kaldın.",
+    "choice1": "Mecburen sahte bir kahkaha patlat",
+    "choice2": "Ciddiyetini koruyup tepkisiz kal"
+  },
+  {
+    "day": 114,
+    "category": "İş Hayatı",
+    "title": "İş Bilgisayarına Özel Dosya İndirme",
+    "description": "Şirket laptopuna yanlışlıkla kişisel tatil fotoğraflarını ve film indirdin ve BT denetimi başladı.",
+    "choice1": "Dosyaları hemen harici diske taşıyıp temizle",
+    "choice2": "Şirketin fark etmeyeceğini umarak bekle"
+  },
+  {
+    "day": 115,
+    "category": "Absürt Hayat",
+    "title": "Otomatın Parayı Yutması",
+    "description": "Günün en yorgun anında çikolata almak için para attığın otomat hem parayı aldı hem ürünü vermedi.",
+    "choice1": "Otomatı hafifçe sallayarak ürünü düşürmeye çalış",
+    "choice2": "Danışmaya gidip paramı makine yuttu de"
+  },
+  {
+    "day": 116,
+    "category": "İş Hayatı",
+    "title": "Masa Düzeni ve Bitki Bakımı",
+    "description": "Masana aldığın süs kaktüsü aşırı sulamaktan çürüdü ve yaprakları komşu masaya dökülüyor.",
+    "choice1": "Kaktüsü gizlice çöpe atıp yerine sahtesini koy",
+    "choice2": "Toprağını değiştirip bitkiyi kurtarmaya çalış"
+  },
+  {
+    "day": 117,
+    "category": "Drama",
+    "title": "Ekip Arkadaşının Açığını Kapatma",
+    "description": "En yakın çalışma arkadaşın büyük bir raporlama hatası yaptı ve fark edilirse işten çıkarılabilir.",
+    "choice1": "Hatayı gece mesaiye kalıp kendin düzelt",
+    "choice2": "Durumu müdüre bildirip kendini koru"
+  },
+  {
+    "day": 118,
+    "category": "İş Hayatı",
+    "title": "Ergonomik Sandalye Savaşı",
+    "description": "Ofisteki en rahat fileli sandalyeyi kapmak için sabah herkesten yarım saat önce ofise geldin.",
+    "choice1": "Sandalyeyi masana çekip yerleş",
+    "choice2": "Adil olup sandalyeyi kura ile paylaştırmayı öner"
+  },
+  {
+    "day": 119,
+    "category": "Trajikomik",
+    "title": "İstifa Konuşması Provası",
+    "description": "Aynanın karşısında patrona söyleyeceğin sert istifa cümlelerini prova ederken patron içeri girdi.",
+    "choice1": "Hemen toparlayıp sunum provası yapıyordum de",
+    "choice2": "Fırsat bu fırsat deyip istifanı yüzüne söyle"
+  },
+  {
+    "day": 120,
+    "category": "Varoluşsal Kriz",
+    "title": "Kravatı veya Kartı Çıkarma Hissi",
+    "description": "Cuma akşamı plazanın döner kapısından çıkıp kartı boynundan çıkardığın an derin bir boşluk hissettin.",
+    "choice1": "Hemen bir kafeye gidip arkadaşlarınla kafa dağıt",
+    "choice2": "Kulaklığını takıp şehri yürüyerek turlayıp hayatı düşün"
+  },
+  {
+    "day": 121,
+    "category": "Tüketim",
+    "title": "Efsane Cuma İndirimi Hipnozu",
+    "description": "Sepete attığın on iki parça kıyafetin aslında indirimden önce aynı fiyatta olduğunu fark ettin.",
+    "choice1": "Yine de hevesim kaçmasın deyip siparişi onayla",
+    "choice2": "Sepeti tamamen boşaltıp alışveriş sitesini kapat"
+  },
+  {
+    "day": 122,
+    "category": "Trajikomik",
+    "title": "Gelmeyen Kargo ve Evde Yoktunuz Notu",
+    "description": "Tüm gün kapının eşiğinde kargo bekledin ama telefonuna evde bulunamadınız mesajı düştü.",
+    "choice1": "Kargo şubesini basıp paketi elden al",
+    "choice2": "Müşteri hizmetlerine uzun bir şikayet kaydı oluştur"
+  },
+  {
+    "day": 123,
+    "category": "Absürt Hayat",
+    "title": "İnternetten Alınan Minyatür Eşya",
+    "description": "Fotoğrafta devasa görünen ahşap sehpa eve geldiğinde kibrit kutusu büyüklüğünde bir biblo çıktı.",
+    "choice1": "Ürünü gülerek masana süs olarak koy",
+    "choice2": "Fotoğrafla kandırıldım diyerek iade davası aç"
+  },
+  {
+    "day": 124,
+    "category": "Tüketim",
+    "title": "Kahve Makinesi Kapsül Masrafı",
+    "description": "Ucuz diye aldığın kahve makinesinin özel kapsüllerinin kahve dükkanından daha pahalı olduğunu öğrendin.",
+    "choice1": "Kapsülleri düzenli almaya devam et",
+    "choice2": "Doldurulabilir çelik kapsül alıp kendin doldur"
+  },
+  {
+    "day": 125,
+    "category": "Trajikomik",
+    "title": "Süpermarkette Aç Karnına Alışveriş",
+    "description": "Akşam iş çıkışı aç karnına girdiğin marketten üç sepet dolusu abur cuburla çıktın.",
+    "choice1": "Aldıklarının yarısını iade et",
+    "choice2": "Tüm paketleri açıp gece yarısına kadar atıştır"
+  },
+  {
+    "day": 126,
+    "category": "Drama",
+    "title": "Garantisi Biten Gün Bozulan Telefon",
+    "description": "İki yıllık garantisi dün dolan akıllı telefonunun ekranı sabah aniden karardı ve tepki vermiyor.",
+    "choice1": "Yetkili servise götürüp yüksek tamir ücretini öde",
+    "choice2": "Yeni bir telefon almak için kredi kartı limitini zorla"
+  },
+  {
+    "day": 127,
+    "category": "Tüketim",
+    "title": "Airfryer Çılgınlığına Kapılma",
+    "description": "Evdeki herkesin ısrarıyla aldığın sıcak hava fritözünde sadece patates kızartıp kenara kaldırdın.",
+    "choice1": "Fritözü internetten ikinci el olarak sat",
+    "choice2": "Yeni tarifler deneyip cihazı aktif kullanmaya çalış"
+  },
+  {
+    "day": 128,
+    "category": "Absürt Hayat",
+    "title": "Pazarlık Yaparken Karşı Tarafın Ağlaması",
+    "description": "Bit pazarında eski bir plak için pazarlık yaparken satıcı dedesinin hatırası olduğunu söyleyip duygulandı.",
+    "choice1": "İstediği parayı verip plağı satın al",
+    "choice2": "Pazarlıktan vazgeçip sessizce uzaklaş"
+  },
+  {
+    "day": 129,
+    "category": "Tüketim",
+    "title": "Kredi Kartı Puanı Harcama Telaşı",
+    "description": "Yıl sonunda sıfırlanacak olan elli liralık puanı harcamak için iki yüz liralık gereksiz kargo ödedin.",
+    "choice1": "Puanı kurtardım diyerek sevin",
+    "choice2": "Tüketim çılgınlığıma yenik düştüm diye hayıflan"
+  },
+  {
+    "day": 130,
+    "category": "Trajikomik",
+    "title": "Ayakkabının Ayağı Vurması Çilesi",
+    "description": "Çok beğenip indirimden aldığın şık deri ayakkabı ilk yürüyüşte ayağını fena halde su toplattı.",
+    "choice1": "Yara bandı yapıştırıp ayakkabıyı açılana kadar giy",
+    "choice2": "Ayakkabıyı dolabın en dibine fırlat"
+  },
+  {
+    "day": 131,
+    "category": "Tüketim",
+    "title": "Abonelikleri Unutup Her Ay Para Ödeme",
+    "description": "Altı ay önce ücretsiz deneme için girdiğin kartından her ay düzenli spor uygulaması parası kesildiğini gördün.",
+    "choice1": "Aboneliği anında iptal edip geçmiş paranın peşine düş",
+    "choice2": "Madem ödedim bari uygulamayı indirip spor yap"
+  },
+  {
+    "day": 132,
+    "category": "Absürt Hayat",
+    "title": "Devasa Kolinin İçinden Çıkan Minik Ruj",
+    "description": "Kapıya gelen buzdolabı büyüklüğündeki koli patpatlarla doluydu ve içinden sadece bir adet dudak kremi çıktı.",
+    "choice1": "Patpatları tek tek patlatıp stres at",
+    "choice2": "Kargo firmasını aşırı ambalaj israfı için uyar"
+  },
+  {
+    "day": 133,
+    "category": "Tüketim",
+    "title": "Akıllı Saat Takıntısı",
+    "description": "Adım sayarın hedefine ulaşmak için gece yatmadan önce odanın içinde elli tur yürüyorsun.",
+    "choice1": "Hedefe ulaşana kadar yürümeye devam et",
+    "choice2": "Saati kolundan çıkarıp rahat bir uyku çek"
+  },
+  {
+    "day": 134,
+    "category": "Trajikomik",
+    "title": "Bedava Kargo İçin Sepete Çorap Ekleme",
+    "description": "Kargo ücreti ödememek için sepetine ihtiyacın olmayan üç çift rengarenk desenli çorap ekledin.",
+    "choice1": "Siparişi verip yeni çoraplarına kavuş",
+    "choice2": "Kargo ücretini ödemeyi göze alıp çorapları çıkar"
+  },
+  {
+    "day": 135,
+    "category": "Drama",
+    "title": "İkinci El Uygulamasında Dolandırılma",
+    "description": "Satın aldığın temiz montun kollarında derin sigara yanıkları olduğunu kargo paketini açınca gördün.",
+    "choice1": "Uygulama üzerinden iade talebi oluşturup hakkını ara",
+    "choice2": "Uğraşmak istemeyip montu terziye götür"
+  },
+  {
+    "day": 136,
+    "category": "Tüketim",
+    "title": "Kitap Fuarında Taşınamayacak Kadar Kitap Alma",
+    "description": "Okuma hevesiyle doldurduğun iki devasa poşet kitabı eve taşırken kolların koptu.",
+    "choice1": "Taksiye binip ekstra masraf yap",
+    "choice2": "Metrobüste zorlana zorlana taşımayı başar"
+  },
+  {
+    "day": 137,
+    "category": "Absürt Hayat",
+    "title": "Mağazada Alarmın Sebepsiz Ötmesi",
+    "description": "Hiçbir şey almadan çıktığın mağazanın kapı dedektörü çalmaya başladı ve güvenlik üstünü aramak istedi.",
+    "choice1": "Faturanı ve çantanın içini sakince göster",
+    "choice2": "Bu muameleye tepki gösterip mağaza müdürünü çağır"
+  },
+  {
+    "day": 138,
+    "category": "Tüketim",
+    "title": "Organik Pazar Fiyatları Şoku",
+    "description": "Sağlıklı beslenmek için gittiğin organik pazarda üç elma ve bir bağ ıspanağa servet ödedin.",
+    "choice1": "Sağlığıma değer deyip afiyetle tüket",
+    "choice2": "Bir dahaki sefere mahalle manavına dön"
+  },
+  {
+    "day": 139,
+    "category": "Trajikomik",
+    "title": "Kıyafet Kabininde Sıkışıp Kalma",
+    "description": "Denediğin dar boğazlı kazağın içinde kafan sıkıştı ve kabinde nefessiz kaldın.",
+    "choice1": "Zorlayıp kazağı yırtma pahasına çıkar",
+    "choice2": "Kabinden arkadaşına seslenip yardım iste"
+  },
+  {
+    "day": 140,
+    "category": "Tüketim",
+    "title": "Teknoloji Mağazasında Satıcının Israrı",
+    "description": "Sadece kulaklık bakarken satıcı seni en pahalı televizyonu almaya ikna etmek üzere.",
+    "choice1": "Kibarca teşekkür edip mağazadan kaç",
+    "choice2": "Satıcının tüm teknik özelliklerini sabırla dinle"
+  },
+  {
+    "day": 141,
+    "category": "Absürt Hayat",
+    "title": "Pazarda Ürün Seçerken Pazarcıdan Azar",
+    "description": "Domatesleri eliyle seçtiğini gören pazarcı abla tane tane seçme hepsi bir diye bağırdı.",
+    "choice1": "Domatesleri bırakıp başka tezgaha geç",
+    "choice2": "Özür dileyip pazarcının poşete koyduklarını al"
+  },
+  {
+    "day": 142,
+    "category": "Tüketim",
+    "title": "Kapsül Dolap Girişimi",
+    "description": "Az eşya çok huzur diyerek dolabındaki tüm kıyafetleri poşetlere doldurup dağıtmaya kalktın.",
+    "choice1": "Hepsini ihtiyaç sahiplerine bağışla",
+    "choice2": "Son anda pişman olup kıyafetleri geri as"
+  },
+  {
+    "day": 143,
+    "category": "Drama",
+    "title": "Gümrüğe Takılan Yurt Dışı Kargosu",
+    "description": "Yurt dışından heyecanla beklediğin koleksiyon figürü gümrük vergisi limitine takıldı.",
+    "choice1": "Gümrük vergisini ödeyip paketi kurtar",
+    "choice2": "Paketi teslim almayıp gümrüğe terk et"
+  },
+  {
+    "day": 144,
+    "category": "Trajikomik",
+    "title": "Kasiyerin Bozuk Para Yok Israrı",
+    "description": "Market kasiyeri elli kuruş para üstü yerine sana naneli sakız vermeye çalışıyor.",
+    "choice1": "Sakızı kabul edip cebe at",
+    "choice2": "Elli kuruşumu karta iade edin diye ısrar et"
+  },
+  {
+    "day": 145,
+    "category": "Tüketim",
+    "title": "Kahve Zincirinde İsminin Yanlış Yazılması",
+    "description": "Bardağın üstüne ismin öyle alakasız yazıldı ki fotoğrafını çekip sosyal medyada paylaşmak zorunda kaldın.",
+    "choice1": "Fotoğrafı paylaşıp dalga geç",
+    "choice2": "Bardağı hiç umursamadan kahveni iç"
+  },
+  {
+    "day": 146,
+    "category": "Absürt Hayat",
+    "title": "Yürüyen Merdivende Ters Yönde Yürüme",
+    "description": "Dalgınlıkla aşağı inen yürüyen merdivenden yukarı çıkmaya çalıştın ve basamaklarda kaldın.",
+    "choice1": "Hızlanıp koşarak yukarı çıkmayı başar",
+    "choice2": "Geri dönüp doğru merdivene yönel"
+  },
+  {
+    "day": 147,
+    "category": "Tüketim",
+    "title": "Kendi Mobilyanı Kendin Kur İşkencesi",
+    "description": "Demonte aldığın gardırobu kurarken üç vida ve bir menteşe fazladan arttı ve dolap sallanıyor.",
+    "choice1": "Dolabı duvara sabitleyip olduğu gibi kullan",
+    "choice2": "Bütün parçaları söküp kılavuza göre baştan kur"
+  },
+  {
+    "day": 148,
+    "category": "Trajikomik",
+    "title": "Alışveriş Merkezinde Kaybolan Giriş Kapısı",
+    "description": "Girdiğin devasa AVMde hangi kapıdan girdiğini unuttun ve otoparkta iki saattir dönüp duruyorsun.",
+    "choice1": "Danışmaya gidip plakanı anons ettir",
+    "choice2": "Adım adım tüm katları turlayarak kapıyı bul"
+  },
+  {
+    "day": 149,
+    "category": "Tüketim",
+    "title": "Kavanoz Açacağı Aparatı Çilesi",
+    "description": "Sos kavanozunu açmak için aldığın özel aparat kavanozun kapağını kırdı ve sos tezgaha döküldü.",
+    "choice1": "Tezgahı temizleyip aparatı çöpe at",
+    "choice2": "Geleneksel bıçak ucu yöntemiyle kapağı aç"
+  },
+  {
+    "day": 150,
+    "category": "Varoluşsal Kriz",
+    "title": "Dolap Dolu Ama Giyecek Hiçbir Şey Yok",
+    "description": "Düğüne gitmeden önce tıka basa dolu dolabın karşısında oturup giyecek hiçbir şeyim yok diye dertlendin.",
+    "choice1": "Eski bir kombini yeniden uyarla",
+    "choice2": "Hemen internetten aceleyle yeni elbise siparişi ver"
+  },
+  {
+    "day": 151,
+    "category": "Yaz Sezonu",
+    "title": "Her Şey Dahil Otel Yemek Kuyruğu",
+    "description": "Tatilde akşam yemeğinde açık büfedeki ızgara köfte kuyruğunda kırk beş dakika bekledin.",
+    "choice1": "Kuyrukta bekleyip tabağı tepeleme doldur",
+    "choice2": "Sıradan vazgeçip salata ve meyveyle yetin"
+  },
+  {
+    "day": 152,
+    "category": "Trajikomik",
+    "title": "Güneş Kremi Sürmeyi Unutan Sırt",
+    "description": "Plajda uyuyakaldın ve sırtın ıstakoz gibi kıpkırmızı yandı, tişört bile giyemiyorsun.",
+    "choice1": "Yoğurt sürüp geleneksel tedaviye sığın",
+    "choice2": "Eczaneden yanık kremi alıp acıyı hafiflet"
+  },
+  {
+    "day": 153,
+    "category": "Drama",
+    "title": "Fotoğraftan Farklı Çıkan Butik Otel",
+    "description": "İnternette deniz manzaralı görünen pansiyon odası arka sokaktaki fırının bacasına bakıyor.",
+    "choice1": "Otel sahibiyle kavga edip paramı geri ver de",
+    "choice2": "Sadece uyumaya geleceğiz diyerek katlan"
+  },
+  {
+    "day": 154,
+    "category": "Absürt Hayat",
+    "title": "Plajda Şezlong Kapma Yarışı",
+    "description": "Sabah saat yedide havlusunu şezlonga atıp giden tatilcilerin havlusunu kenara itmeyi düşünüyorsun.",
+    "choice1": "Havluyu kenara atıp şezlonga kurul",
+    "choice2": "Gidip kuma kendi havlunu ser"
+  },
+  {
+    "day": 155,
+    "category": "Yaz Sezonu",
+    "title": "Sivrisineklerle Gece Avı",
+    "description": "Otel odasında kulağının dibinde vızıldayan tek bir sivrisineği yakalamak için gece üçte ışıkları yaktın.",
+    "choice1": "Terlikle sineği avlayana kadar uyuma",
+    "choice2": "Yorganı kafana çekip ter içinde sabahı bekle"
+  },
+  {
+    "day": 156,
+    "category": "Trajikomik",
+    "title": "Deniz Kestanesine Basma Talihsizliği",
+    "description": "Denize ilk adımını atar atmaz ayağına deniz kestanesi battı ve tatilin ilk günü acilde bitti.",
+    "choice1": "Zeytinyağı sürüp dikenleri çıkarmaya çalış",
+    "choice2": "Doktora gidip profesyonel müdahale iste"
+  },
+  {
+    "day": 157,
+    "category": "Yaz Sezonu",
+    "title": "Karpuz Peynir Romantizmi",
+    "description": "Plajda deniz kenarında karpuz peynir yerken aniden esen rüzgarla karpuza kum yapıştı.",
+    "choice1": "Kumları temizleyip karpuzu yemeye devam et",
+    "choice2": "Karpuzu bırakıp büfeden tost al"
+  },
+  {
+    "day": 158,
+    "category": "Absürt Hayat",
+    "title": "Deniz Yatağında Açığa Sürüklenme",
+    "description": "Deniz yatağında keyif yaparken rüzgar seni kıyıdan yüz metre açığa sürükledi ve dalgalar büyüdü.",
+    "choice1": "Can havliyle kıyıya doğru kulaç at",
+    "choice2": "Kıyıdakilere el sallayıp cankurtaran çağır"
+  },
+  {
+    "day": 159,
+    "category": "Yaz Sezonu",
+    "title": "Bodrum Lahmacun Fiyatı Şoku",
+    "description": "Plaj işletmesinde yediğin bir lahmacun ve ayrana gelen astronomik hesabı görünce gözlerin açıldı.",
+    "choice1": "Hesabı ödeyip adisyonu sosyal medyada ifşa et",
+    "choice2": "İşletme müdürünü çağırıp fiyat tarifesini sorgula"
+  },
+  {
+    "day": 160,
+    "category": "Trajikomik",
+    "title": "Valizin Fermuarının Patlaması",
+    "description": "Dönüş yolunda hediyelik eşyalarla doldurduğun valizin fermuarı tam otobüs terminalinde patladı.",
+    "choice1": "Valizi koli bandıyla çepeçevre sar",
+    "choice2": "Eşyaların bir kısmını poşetlere bölüştür"
+  },
+  {
+    "day": 161,
+    "category": "Yaz Sezonu",
+    "title": "Güneş Gözlüğü İziyle Gezme",
+    "description": "Tüm tatil boyunca gözlüğünü hiç çıkarmadığın için yüzünde devasa beyaz bir panda maskesi oluştu.",
+    "choice1": "Durumu kabullenip şakaya vur",
+    "choice2": "Eşitlemek için güneşte gözlüksüz otur"
+  },
+  {
+    "day": 162,
+    "category": "Drama",
+    "title": "Arkadaş Grubuyla Tatil Anlaşmazlığı",
+    "description": "Beş kişilik tatil grubunda herkes nereye gideceği ve ne yiyeceği konusunda birbirine girdi.",
+    "choice1": "Liderliği ele alıp ortak bir rota çiz",
+    "choice2": "Gruptan ayrılıp kendi kafana göre gez"
+  },
+  {
+    "day": 163,
+    "category": "Absürt Hayat",
+    "title": "Denize Düşen Telefon Paniği",
+    "description": "İskelede gün batımı fotoğrafı çekerken telefon parmaklarının arasından kayıp berrak sulara gömüldü.",
+    "choice1": "Hemen suya atlayıp telefonu dipten çıkar",
+    "choice2": "Cihaza veda edip pirinç mucizesini bekle"
+  },
+  {
+    "day": 164,
+    "category": "Yaz Sezonu",
+    "title": "Klima Çarpması ve Yaz Gribi",
+    "description": "Klimayı on sekiz dereceye ayarlayıp altında uyuduğun için tatilin ortasında boynun tutuldu ve sesin kısıldı.",
+    "choice1": "Sıcak ıhlamur kaynatıp yatakta dinlen",
+    "choice2": "Ağrı kesici alıp denize girmeye devam et"
+  },
+  {
+    "day": 165,
+    "category": "Trajikomik",
+    "title": "Plaj Voleybolunda Karşı Takıma Rezil Olma",
+    "description": "Hırslı bir smaç basayım derken fileye takılıp kuma kapaklandın.",
+    "choice1": "Gülerek ayağa kalkıp alkış iste",
+    "choice2": "Sakatlandım numarası yapıp oyundan çık"
+  },
+  {
+    "day": 166,
+    "category": "Yaz Sezonu",
+    "title": "Günübirlik Tekne Turu Çilesi",
+    "description": "Tekne turunda son ses çalan kulüp müzikleri ve dalgalar yüzünden deniz tutmasıyla boğuştun.",
+    "choice1": "İlk koyda tekneden inip karadan dön",
+    "choice2": "Gözlerini kapatıp turun bitmesini bekle"
+  },
+  {
+    "day": 167,
+    "category": "Absürt Hayat",
+    "title": "Pansiyonun Ortak Buzdolabı Yağması",
+    "description": "Ortak dolaba koyduğun soğuk karpuz ve dondurmanın başka bir tatilci tarafından afiyetle yenildiğini gördün.",
+    "choice1": "Dolaba sert bir uyarı notu yapıştır",
+    "choice2": "Gidip pansiyon sahibine şikayet et"
+  },
+  {
+    "day": 168,
+    "category": "Yaz Sezonu",
+    "title": "Yaz Aşkı Melankolisi",
+    "description": "Tatilde tanıştığın ve bir haftadır ayrılmadığın flörtünle tatil bitince farklı şehirlere döneceksiniz.",
+    "choice1": "Uzak mesafe ilişkisini yürütmeyi dene",
+    "choice2": "Güzel bir yaz anısı olarak bırakıp vedalaş"
+  },
+  {
+    "day": 169,
+    "category": "Trajikomik",
+    "title": "Kamp Çadırının Yağmurda Su Alması",
+    "description": "Doğayla iç içe olayım derken gece başlayan fırtınada çadırın tabanından su sızmaya başladı.",
+    "choice1": "Eşyaları toplayıp yakındaki otele sığın",
+    "choice2": "Çadırın üstüne branda çekip maceraya devam et"
+  },
+  {
+    "day": 170,
+    "category": "Yaz Sezonu",
+    "title": "Dondurmanın Ele ve Üstüne Akması",
+    "description": "Sıcakta hızla eriyen üç toplu dondurma beyaz keten gömleğine damladı.",
+    "choice1": "Hemen lavaboda gömleği soğuk suyla çitele",
+    "choice2": "Gömleği çıkarıp deniz kenarında kurut"
+  },
+  {
+    "day": 171,
+    "category": "Drama",
+    "title": "Otel Rezervasyonunun İptal Edilmesi",
+    "description": "On iki saat yol gittikten sonra resepsiyonda rezervasyonunuz sisteme düşmemiş cevabıyla karşılaştın.",
+    "choice1": "Tüketici haklarını hatırlatıp oda verilmesini sağla",
+    "choice2": "Civardaki diğer otelleri aramaya başla"
+  },
+  {
+    "day": 172,
+    "category": "Absürt Hayat",
+    "title": "Denizde Ayağa Yosun Dolanması",
+    "description": "Yüzerken ayağına dolanan yosunu köpekbalığı sanıp can havliyle çığlık atarak kıyıya koştun.",
+    "choice1": "Herkesin baktığını görünce dalga geçiyordum de",
+    "choice2": "Hızla havluna sarınıp ortadan kaybol"
+  },
+  {
+    "day": 173,
+    "category": "Yaz Sezonu",
+    "title": "Kavun İçi Dondurma Çılgınlığı",
+    "description": "Sırf sosyal medyaya fotoğraf atmak için kavun içi dondurmaya normal dondurmanın beş katı para ödedin.",
+    "choice1": "Fotoğrafı çekip afiyetle ye",
+    "choice2": "Gereksiz masraf yaptım diye dertlen"
+  },
+  {
+    "day": 174,
+    "category": "Trajikomik",
+    "title": "Havaalanında Fazla Bagaj Ücreti",
+    "description": "Aldığın hediyelik sabunlar ve zeytinyağları yüzünden bagajın üç kilo fazla çıktı.",
+    "choice1": "Ağır kıyafetleri üst üste giyip kiloyu düşür",
+    "choice2": "Fazla bagaj ücretini kredi kartıyla öde"
+  },
+  {
+    "day": 175,
+    "category": "Yaz Sezonu",
+    "title": "Güneş Doğuşunu İzleme Hayali",
+    "description": "Sabah beşte güneşin doğuşunu izlemek için alarm kurdun ama gözünü açtığında saat öğlen on ikiydi.",
+    "choice1": "Üzülmeyip gün batımını izlemeye karar ver",
+    "choice2": "Ertesi sabah için üç ayrı alarm kur"
+  },
+  {
+    "day": 176,
+    "category": "Absürt Hayat",
+    "title": "Martının Simidi Havada Kapması",
+    "description": "Vapurda tam ağzına götüreceğin simidi arkadan dalan martı pençesiyle kaptı.",
+    "choice1": "Martıya helal olsun deyip yeni simit al",
+    "choice2": "Kalan simidi sıkıca çantana sakla"
+  },
+  {
+    "day": 177,
+    "category": "Yaz Sezonu",
+    "title": "Balkonda Mangal Dumanı Gerilimi",
+    "description": "Kiraladığın yazlığın balkonunda mangal yakınca yan komşunun yeni astığı perdeler dumana boğuldu.",
+    "choice1": "Komşuya bir tabak et ikram edip gönlünü al",
+    "choice2": "Mangalı söndürüp fırında pişirmeye geç"
+  },
+  {
+    "day": 178,
+    "category": "Trajikomik",
+    "title": "Yüzme Bilmeyen Arkadaşa Ders Verme",
+    "description": "Arkadaşına yüzme öğretmeye çalışırken seni de suya batırıp ikinizi de boğulma tehlikesiyle burun buruna getirdi.",
+    "choice1": "Dersi bırakıp sığ suda top oynamaya geçin",
+    "choice2": "Kolluk ve can yeleği taktırıp devam et"
+  },
+  {
+    "day": 179,
+    "category": "Drama",
+    "title": "Tatil Dönüşü Depresyonu",
+    "description": "Bir haftalık cennet gibi tatil bitti, pazartesi sabahı alarm çaldı ve ofis yolundasın.",
+    "choice1": "İşe odaklanıp bir sonraki tatil planını yap",
+    "choice2": "Masanda oturup tatil fotoğraflarına bakarak iç çek"
+  },
+  {
+    "day": 180,
+    "category": "Varoluşsal Kriz",
+    "title": "Yaz Biterken Hayatın Geçiciliği",
+    "description": "Eylül rüzgarı ilk kez serin estiğinde yazın ne kadar çabuk bittiğini hissedip balkonda oturdun.",
+    "choice1": "Sonbahar kahveni alıp yeni hedefler belirle",
+    "choice2": "Yazlık kıyafetleri kaldırırken hüzünlen"
+  },
+  {
+    "day": 181,
+    "category": "İkili İlişkiler",
+    "title": "İlk Buluşmada Hesabı Kim Öder",
+    "description": "Harika geçen ilk akşam yemeğinin sonunda garson hesabı masanın tam ortasına bıraktı.",
+    "choice1": "Hemen davranıp hesabı tek başına öde",
+    "choice2": "Hesabı tam ortadan ikiye bölmeyi teklif et"
+  },
+  {
+    "day": 182,
+    "category": "Trajikomik",
+    "title": "Flörtün Dişinde Kalan Maydanoz",
+    "description": "Çok etkilendiğin flörtünün ön dişinde koca bir parça maydanoz duruyor ve sürekli gülümsüyor.",
+    "choice1": "Kibarca peçeteyle işaret edip durumu fark ettir",
+    "choice2": "Hiçbir şey söylemeyip gözünü kaçır"
+  },
+  {
+    "day": 183,
+    "category": "Drama",
+    "title": "Eski Sevgilinin Düğün Davetiyesi",
+    "description": "Posta kutunda üç yıl boyunca fırtınalı bir aşk yaşadığın eski sevgilinin şık düğün davetiyesini buldun.",
+    "choice1": "Düğüne en şık kıyafetinle gidip mutluluklar dile",
+    "choice2": "Davetiyeyi yırtıp çöpe at ve hayatına bak"
+  },
+  {
+    "day": 184,
+    "category": "İkili İlişkiler",
+    "title": "Tanışma Yıldönümünü Unutma Felaketi",
+    "description": "Akşam eve geldiğinde partnerin mumlar yakmış seni bekliyor ama senin elin tamamen boş.",
+    "choice1": "Hemen lavaboya gidip internetten online hediye sipariş et",
+    "choice2": "Sana en büyük hediyem sevgim deyip sarıl"
+  },
+  {
+    "day": 185,
+    "category": "Absürt Hayat",
+    "title": "Yanlışlıkla Sevgilinin Annesine Aşk Mesajı",
+    "description": "Sevgiline yazacağın romantik mesajı rehberde isim benzerliğinden müstakbel kayınvalideye gönderdin.",
+    "choice1": "Hemen arayıp yanlışlık oldu teyzecim de",
+    "choice2": "Mesajı herkesten silip telefonunu kapat"
+  },
+  {
+    "day": 186,
+    "category": "İkili İlişkiler",
+    "title": "Eski Sevgiliden Gelen Gece Araması",
+    "description": "Gece saat iki buçukta telefonun çaldı ve ekranda altı aydır konuşmadığın eski sevgilinin adı yanıp sönüyor.",
+    "choice1": "Telefonu açıp ne olduğunu dinle",
+    "choice2": "Telefonu sessize alıp uyumaya devam et"
+  },
+  {
+    "day": 187,
+    "category": "Trajikomik",
+    "title": "Sinemada Korku Filminde Rezil Olma",
+    "description": "Cesur görünmek için gittiğin korku filminde aniden çıkan canavarla çığlık atıp patlamış mısırları havaya saçtın.",
+    "choice1": "Gülerek ortamı yumuşatmaya çalış",
+    "choice2": "Salonun karanlığına sığınıp koltuğa gömül"
+  },
+  {
+    "day": 188,
+    "category": "İkili İlişkiler",
+    "title": "Sevgilinin Arkadaş Grubuyla Tanışma",
+    "description": "Partnerinin çocukluk arkadaşları seni aralarına almak yerine sürekli kendi geçmiş anılarını konuşuyor.",
+    "choice1": "Sohbete dahil olmak için espriler yap",
+    "choice2": "Sessizce yemeğini yiyip akşamın bitmesini bekle"
+  },
+  {
+    "day": 189,
+    "category": "Drama",
+    "title": "Ortak Arkadaşın Taraf Tutması",
+    "description": "Ayrılığın ardından en yakın ortak arkadaşınızın eski sevgilinle tatile gittiğini sosyal medyada gördün.",
+    "choice1": "Arkadaşını arayıp dostluğunu sorgula",
+    "choice2": "Hiçbir şey söylemeden ikisini de hayatından çıkar"
+  },
+  {
+    "day": 190,
+    "category": "İkili İlişkiler",
+    "title": "Burç Uyumu Saplantısı",
+    "description": "Yeni flörtün burcun akrep olduğu için senin güvenilmez olduğunu iddia edip ilişkiyi sorguluyor.",
+    "choice1": "Yükselen burcunun terazi olduğunu söyleyip denge kur",
+    "choice2": "Burçlara inanmadığını söyleyip konuyu kapat"
+  },
+  {
+    "day": 191,
+    "category": "Absürt Hayat",
+    "title": "Sevgilinin Yemek Yapma Çabası",
+    "description": "Partnerin senin için yaptığı yemeği fena halde yaktı ama heyecanla fikrini soruyor.",
+    "choice1": "Tadı harika olmuş deyip tabağı bitir",
+    "choice2": "Dürüst olup dışarıdan pizza söylemeyi teklif et"
+  },
+  {
+    "day": 192,
+    "category": "İkili İlişkiler",
+    "title": "Mesajdaki Nokta İşareti Krizi",
+    "description": "Attığın mesaja partnerin sadece tamam nokta şeklinde cevap verdi ve soğuk bir kriz patladı.",
+    "choice1": "Hemen arayıp bir sorun mu var diye sor",
+    "choice2": "Sen de aynı soğuklukta peki yaz"
+  },
+  {
+    "day": 193,
+    "category": "Trajikomik",
+    "title": "Romantik Yürüyüşte Düşme Tehlikesi",
+    "description": "El ele sahil kenarında yürürken kaldırım taşına takılıp artistik bir şekilde partnerinin kucağına yuvarlandın.",
+    "choice1": "Aşkından ayaklarım yerden kesildi esprisi yap",
+    "choice2": "Hızla toparlanıp hiçbir şey olmamış gibi yürü"
+  },
+  {
+    "day": 194,
+    "category": "İkili İlişkiler",
+    "title": "Eski Anıların Durduğu Kutu",
+    "description": "Ev temizliği yaparken eski sevgilinden kalan mektupları ve sinema biletlerini içeren kutuyu buldun.",
+    "choice1": "Kutuyu ateşe verip geçmişi tamamen kapat",
+    "choice2": "Kutuyu tavan arasına kaldırıp hatıraları sakla"
+  },
+  {
+    "day": 195,
+    "category": "Drama",
+    "title": "Kıskançlık Krizi ve Telefon Şifresi",
+    "description": "Partnerin güven sorunu yaşadığını söyleyip telefonunun ekran şifresini ona vermeni talep etti.",
+    "choice1": "Şifreyi verip saklayacak bir şeyim yok de",
+    "choice2": "Kişisel alanına saygı duyulmasını isteyip reddet"
+  },
+  {
+    "day": 196,
+    "category": "İkili İlişkiler",
+    "title": "Hediye Edilen Kıyafeti Beğenmeme",
+    "description": "Doğum gününde sevgilin sana asla giymeyeceğin fosforlu sarı bir kazak hediye etti.",
+    "choice1": "Onun yanındayken kazağı hevesle giy",
+    "choice2": "Kibarca tarzıma pek uymuyor deyip değiştirmeyi öner"
+  },
+  {
+    "day": 197,
+    "category": "Absürt Hayat",
+    "title": "İkiz Kardeşle Karıştırma Vakası",
+    "description": "Kafede flörtünün ikiz kardeşini görüp arkadan sarıldın ve gerçek saniyeler sonra anlaşıldı.",
+    "choice1": "Bin bir özür dileyip durumu açıkla",
+    "choice2": "Masadan hızla uzaklaşıp kahveni başka yerde iç"
+  },
+  {
+    "day": 198,
+    "category": "İkili İlişkiler",
+    "title": "Sosyal Medyada İlişki Durumu Güncellemesi",
+    "description": "İki aydır flört ettiğin kişi ilişkisini sosyal medyada ilan etmek istiyor ama sen erkenci buluyorsun.",
+    "choice1": "Profiline ekleyip sevgilini mutlu et",
+    "choice2": "Biraz daha bekleyelim diyerek durumu açıkla"
+  },
+  {
+    "day": 199,
+    "category": "Trajikomik",
+    "title": "Restoranda Eski Sevgiliyle Karşılaşma",
+    "description": "Yeni flörtünle gittiğin şık restoranda yan masada eski sevgilin oturuyor.",
+    "choice1": "Hiç ilgilenmeyip flörtüne odaklan",
+    "choice2": "Garsona masayı değiştirmek istediğini söyle"
+  },
+  {
+    "day": 200,
+    "category": "İkili İlişkiler",
+    "title": "Birlikte Dizi İzleme Sadakati",
+    "description": "Birlikte başladığınız dizinin yeni bölümünü partnerinden gizlice izledin ve akşam o bölümü izleyeceksiniz.",
+    "choice1": "Bölümü ilk kez izliyormuş gibi şaşır",
+    "choice2": "Dürüstçe dayanamayıp izlediğini itiraf et"
+  },
+  {
+    "day": 201,
+    "category": "Drama",
+    "title": "Ayrılık Konuşması Mekanı Seçimi",
+    "description": "İlişkiyi bitirmeye karar verdin ve nerede konuşacağını düşünüyorsun.",
+    "choice1": "Sakin bir parkta yüz yüze dürüstçe konuş",
+    "choice2": "Kalabalık bir kafede kısa ve net bir veda et"
+  },
+  {
+    "day": 202,
+    "category": "İkili İlişkiler",
+    "title": "Arkadaşının Sevgilisine Isınamama",
+    "description": "En yakın dostunun yeni sevgilisi aşırı kaba ve ukala biri çıktı ve sürekli birlikteler.",
+    "choice1": "Dostuna dürüstçe endişelerini anlat",
+    "choice2": "Dostunun hatırı için susup ortamda bulun"
+  },
+  {
+    "day": 203,
+    "category": "Absürt Hayat",
+    "title": "Çift Kombini Giyme Zorunluluğu",
+    "description": "Partnerin sokakta aynı renk ve model eşofman takımını giyerek gezmek istiyor.",
+    "choice1": "Sevgi fedakarlık ister deyip giy",
+    "choice2": "Asla giymem diyerek tarzını koru"
+  },
+  {
+    "day": 204,
+    "category": "İkili İlişkiler",
+    "title": "Gizli Aşk İtirafı",
+    "description": "Yıllardır sadece kanka olduğun arkadaşın sana birden uzun zamandır sana aşığım dedi.",
+    "choice1": "Arkadaşlığımızı kaybetmek istemiyorum de",
+    "choice2": "Duygularına bir şans verip denemeyi seç"
+  },
+  {
+    "day": 205,
+    "category": "Trajikomik",
+    "title": "Yemek Yerken Çatalın Uçması",
+    "description": "Romantik bir akşamda spagetti sararken çatal elinden fırlayıp karşı masadaki adamın ceketine kondu.",
+    "choice1": "Özür dileyip kuru temizleme parasını teklif et",
+    "choice2": "Masada kahkahayı basıp gerginliği dağıt"
+  },
+  {
+    "day": 206,
+    "category": "İkili İlişkiler",
+    "title": "Gelecek Planları Baskısı",
+    "description": "İlişkinin altıncı ayında partnerin evlilik, çocuklar ve emeklilik planlarını masaya yatırdı.",
+    "choice1": "Anı yaşamayı teklif edip frene bas",
+    "choice2": "Ciddi niyetini gösterip planlara dahil ol"
+  },
+  {
+    "day": 207,
+    "category": "Drama",
+    "title": "Yalan Yakalanması",
+    "description": "Evde oyun oynarken hasta olduğun için dışarı çıkamayacağını söylediğin sevgilin seni yayında yakaladı.",
+    "choice1": "Tüm dürüstlüğünle özür dileyip af dile",
+    "choice2": "Biraz yalnız kalmaya ihtiyacım vardı de"
+  },
+  {
+    "day": 208,
+    "category": "İkili İlişkiler",
+    "title": "Ortak Ev Tutma Kararı",
+    "description": "Kiralar çok arttı diye flörtünle aynı eve çıkmayı düşünüyorsunuz ama ilişki hazır mı emin değilsin.",
+    "choice1": "Aynı eve çıkıp riski göze al",
+    "choice2": "Kendi evinde kalıp ilişkiyi yavaş büyüt"
+  },
+  {
+    "day": 209,
+    "category": "Trajikomik",
+    "title": "Gözünün Önünde Başkasına Yazılma",
+    "description": "Barda partnerin lavaboya gittiğinde bir yabancı gelip sana telefon numarasını vermeye çalıştı.",
+    "choice1": "Sevgilim var diyerek hemen uzaklaştır",
+    "choice2": "Nezaketle teşekkür edip kağıdı çöpe at"
+  },
+  {
+    "day": 210,
+    "category": "Varoluşsal Kriz",
+    "title": "Doğru Kişi Mi Yanlış Zaman Mı",
+    "description": "Kafanda sürekli doğru insanla mı birlikteyim yoksa yalnız kalma korkusundan mı buradayım sorusu dönüyor.",
+    "choice1": "Kalbinin sesini dinleyip ilişkiye sarıl",
+    "choice2": "Bir süre yalnız kalıp kendini dinlemeyi seç"
+  },
+  {
+    "day": 211,
+    "category": "Mahalle Hayatı",
+    "title": "Bakkal Veresiye Defteri Nostaljisi",
+    "description": "Mahalle bakkalı kredi kartı komisyonuna kızıp sana veresiye defterini açmayı teklif etti.",
+    "choice1": "Deftere yazdırıp mahalleye güven tazele",
+    "choice2": "Nakit çekip borcunu hemen kapat"
+  },
+  {
+    "day": 212,
+    "category": "Trajikomik",
+    "title": "Berberin Saçı Felaket Kesmesi",
+    "description": "Sadece kırıkları al dediğin mahalle berberi saçını neredeyse üç numara asker tıraşı yaptı.",
+    "choice1": "Aynaya bakıp eline sağlık usta harika oldu de",
+    "choice2": "Berbere sert çıkıp fön parasını ödeme"
+  },
+  {
+    "day": 213,
+    "category": "Drama",
+    "title": "Sokak Kedilerinin Beslenmesi Kavgası",
+    "description": "Apartman girişinde sokak kedilerine mama koyduğun için zemin kat komşusu üzerine yürüdü.",
+    "choice1": "Hayvanları korumaya kararlılıkla devam et",
+    "choice2": "Mama kabını sokaktaki güvenli parka taşı"
+  },
+  {
+    "day": 214,
+    "category": "Mahalle Hayatı",
+    "title": "Terzinin Paçayı Aşırı Kısaltması",
+    "description": "Yeni aldığın pantolonun paçasını yaptırayım derken terzi pantolonu kapri boyutuna getirdi.",
+    "choice1": "Pantolonu yazlık olarak kullanmayı kabullen",
+    "choice2": "Terziden pantolonun parasını tazmin etmesini iste"
+  },
+  {
+    "day": 215,
+    "category": "Absürt Hayat",
+    "title": "Pide Sırasında Araya Kaynayan Amca",
+    "description": "Ramazan akşamı pide kuyruğunda bir amca ben sadece iki pide alıp çıkacağım diye önüne geçti.",
+    "choice1": "Amcaya sıranın arkasını göster",
+    "choice2": "Hürmet edip sıranı amcaya ver"
+  },
+  {
+    "day": 216,
+    "category": "Mahalle Hayatı",
+    "title": "Kıraathanede Okey Masasına Çırak Olma",
+    "description": "Mahalle kahvesinde eksik var diye seni dördüncü yaptılar ve ortadaki ihtiyar sana sürekli kızıyor.",
+    "choice1": "Okeyi taş çalarak bitirmeye çalış",
+    "choice2": "Oyunu bırakıp çayımı içer giderim de"
+  },
+  {
+    "day": 217,
+    "category": "Trajikomik",
+    "title": "Kuryenin Adresi Bulamaması Çilesi",
+    "description": "Kurye siparişi getiremeyip telefonda caminin karşısındaki sarı binadayım diye kırk dakikadır tarif alıyor.",
+    "choice1": "Aşağı inip kuryeyi sokak sokak ara",
+    "choice2": "Siparişi iptal edip evde makarna yap"
+  },
+  {
+    "day": 218,
+    "category": "Mahalle Hayatı",
+    "title": "Ekmek Fırınından Gelen Sıcak Koku",
+    "description": "Diyetin en katı gününde fırının önünden geçerken yeni çıkmış sıcak somunun kokusu aklını başından aldı.",
+    "choice1": "Bir sıcak ekmek alıp köşesini yolda ye",
+    "choice2": "Gözlerini kapatıp hızlı adımlarla uzaklaş"
+  },
+  {
+    "day": 219,
+    "category": "Drama",
+    "title": "Mahalle Parkındaki Gece Gürültüsü",
+    "description": "Gece saat üçte parkta toplanan gençler son ses müzik açıp bağırarak konuşuyor.",
+    "choice1": "Balkondan bağırıp mahalleyi ayağa kaldır",
+    "choice2": "Polisi arayıp devriye gönderilmesini iste"
+  },
+  {
+    "day": 220,
+    "category": "Mahalle Hayatı",
+    "title": "Çilingir Çağırma Serveti",
+    "description": "Anahtarı içeride unuttun, çilingir iki dakikada bir telle kapıyı açıp bir maaş tutarında fatura kesti.",
+    "choice1": "Pazarlık yapıp ücreti düşürmeye çalış",
+    "choice2": "Mecburen parayı ödeyip yedek anahtar yaptır"
+  },
+  {
+    "day": 221,
+    "category": "Absürt Hayat",
+    "title": "Tüpçünün Zamansız Gelişi",
+    "description": "Pazar sabahı bornozla gezerken su siparişi verdiğin damacanacı kapıyı yumrukladı.",
+    "choice1": "Bornozla kapıyı aralayıp damacanayı kap",
+    "choice2": "Kapıyı açmayıp kapının önüne bırakmasını söyle"
+  },
+  {
+    "day": 222,
+    "category": "Mahalle Hayatı",
+    "title": "Manavın Çürük Meyve Kavgası",
+    "description": "Fileye doldurduğun şeftalilerin altından çürüklerin çıktığını görünce manava geri döndün.",
+    "choice1": "Meyveleri tezgaha döküp yenilerini işte",
+    "choice2": "Boş ver diyerek çürükleri çöpe at"
+  },
+  {
+    "day": 223,
+    "category": "Trajikomik",
+    "title": "Dolmuşta Müsait Bir Yerde Diyememek",
+    "description": "Tıkabasa dolu dolmuşta ineceğin durağı kaçırdın çünkü ses tonunu bir türlü ayarlayıp kaptana seslenemedin.",
+    "choice1": "Son durakta inip yürüyerek geri dön",
+    "choice2": "Cesaretini toplayıp arka kapıdan bağır"
+  },
+  {
+    "day": 224,
+    "category": "Mahalle Hayatı",
+    "title": "Kasabın Kıymayı Fazla Çekmesi",
+    "description": "Yarım kilo kıyma istedin ama kasap yedi yüz gram çekip bundan bir şey olmaz abim dedi.",
+    "choice1": "Fazla kısmı geri bırakmasını söyle",
+    "choice2": "Tamam olsun deyip farkı öde"
+  },
+  {
+    "day": 225,
+    "category": "Drama",
+    "title": "Sokak Düğününde Çalan Davul",
+    "description": "Pazar günü evde dinlenmek isterken tam pencerelerinin altında saatlerce davul zurna çalındı.",
+    "choice1": "Aşağı inip eğlenceye katılıp oyna",
+    "choice2": "Pencereleri kapatıp kulaklıkla müzik aç"
+  },
+  {
+    "day": 226,
+    "category": "Mahalle Hayatı",
+    "title": "Kayıp Köpek İlanı Asma",
+    "description": "Mahallenin sevilen sokak köpeği kayboldu ve mahalleliyle afiş asmak için seferber oldun.",
+    "choice1": "Tüm gün sokak sokak arayıp köpeği bul",
+    "choice2": "Sosyal medyadan ilan açıp destek sağla"
+  },
+  {
+    "day": 227,
+    "category": "Absürt Hayat",
+    "title": "Camdan Sarkan Sepet Geleneği",
+    "description": "Üst kat teyzesi balkondan sarkıttığı iple bakkaldan ekmek aldırmak için sana sepeti uzattı.",
+    "choice1": "Bakkala koşup ekmeği sepete koy",
+    "choice2": "Acelen olduğunu söyleyip yola devam et"
+  },
+  {
+    "day": 228,
+    "category": "Mahalle Hayatı",
+    "title": "Kuru Temizlemenin Takım Elbiseyi Çekmesi",
+    "description": "Düğün için verdiğin takım elbise iki beden küçülmüş olarak poşetten çıktı.",
+    "choice1": "Kuru temizlemeciye zararını ödet",
+    "choice2": "Gidip acilen yeni bir takım kirala"
+  },
+  {
+    "day": 229,
+    "category": "Trajikomik",
+    "title": "Eczacının Mahalle Teşhisi",
+    "description": "Baş ağrısı için gittiğin eczacı sana tansiyon, kan şekeri ve hayat tavsiyeleriyle dolu kırk beş dakikalık nutuk çekti.",
+    "choice1": "Tüm tavsiyeleri dinleyip teşekkür et",
+    "choice2": "Sadece ilacımı alıp çıkabilir miyim de"
+  },
+  {
+    "day": 230,
+    "category": "Mahalle Hayatı",
+    "title": "Seyyar Satıcının Megafon Sesi",
+    "description": "Sabahın yedisinde hurda alan veya patates satan seyyar satıcı megafonla pencereni inletti.",
+    "choice1": "Yastığı kafana basıp uykuna devam et",
+    "choice2": "Balkona çıkıp sabah sabah bağırma diye uyar"
+  },
+  {
+    "day": 231,
+    "category": "Drama",
+    "title": "Komşu Çocuğunun Topunun Balkona Düşmesi",
+    "description": "Balkondaki saksılarını kıran futbol topunu atan çocuk kapıya gelip topumu verir misin dedi.",
+    "choice1": "Topu kesmekle tehdit edip nasihat ver",
+    "choice2": "Gülümseyip topu geri ver ve dikkatli ol de"
+  },
+  {
+    "day": 232,
+    "category": "Mahalle Hayatı",
+    "title": "Yufkacıdan Taze Yufka Alma Görevi",
+    "description": "Börek yapmak için yufkacıya gönderildin ama sıcak yufkalar yolda kırışıp yapıştı.",
+    "choice1": "Yufkacıya dönüp yenisini iste",
+    "choice2": "Evde yırtık yufkalarla börek yapmayı dene"
+  },
+  {
+    "day": 233,
+    "category": "Absürt Hayat",
+    "title": "Kaldırımda Çay İçen Esnafa Takılma",
+    "description": "Dükkanın önüne tabure atıp çay içen esnafın uzattığı ayağına takılıp çay bardağını devirdin.",
+    "choice1": "Yeni bir çay söyleyip tabureye otur",
+    "choice2": "Kaldırımı işgal ediyorsunuz diye sitem et"
+  },
+  {
+    "day": 234,
+    "category": "Mahalle Hayatı",
+    "title": "Gözlemeci Teyzenin İkramı",
+    "description": "Sokaktan geçerken sacda taze otlu gözleme yapan teyze sana sıcak bir dilim ikram etti.",
+    "choice1": "İkramı alıp hayır duası et",
+    "choice2": "Diyetteyim diyerek kibarca geri çevir"
+  },
+  {
+    "day": 235,
+    "category": "Trajikomik",
+    "title": "Halı Yıkamadan Gelen Halının Renginin Değişmesi",
+    "description": "Bordo renkli yün halın halı yıkamadan soluk pembe renkte geri geldi.",
+    "choice1": "Halı yıkama firmasını tüketici hakem heyetine ver",
+    "choice2": "Yeni rengiyle modern oldu deyip kabullen"
+  },
+  {
+    "day": 236,
+    "category": "Mahalle Hayatı",
+    "title": "Çöp Konteyneri Yeri Tartışması",
+    "description": "Belediye çöp konteynerini tam senin bina girişine taşıdı ve komşular itiraza başladı.",
+    "choice1": "Dilekçe toplayıp yerin değiştirilmesini sağla",
+    "choice2": "Konteyneri gece gizlice karşı kaldırıma it"
+  },
+  {
+    "day": 237,
+    "category": "Drama",
+    "title": "Sokakta Bulunan Cüzdan",
+    "description": "Akşam yürüyüşünde kaldırımda içinde yüklü para ve kimlik olan bir cüzdan buldun.",
+    "choice1": "Karakola götürüp polise teslim et",
+    "choice2": "Kimlikteki adrese gidip sahibini bizzat bul"
+  },
+  {
+    "day": 238,
+    "category": "Mahalle Hayatı",
+    "title": "Mahalle Maçında Hakemlik İşkencesi",
+    "description": "Mahalledeki çocukların maçında penaltı pozisyonunda seni hakem seçtiler ve iki taraf da sana kızgın.",
+    "choice1": "Gördüğünü dürüstçe çal",
+    "choice2": "Hakemliği bırakıp maçı tatil et"
+  },
+  {
+    "day": 239,
+    "category": "Absürt Hayat",
+    "title": "Pencereden Çarşaf Silkelerken Aşağıdaki Yaya",
+    "description": "Balkondan çarşaf silkerken alttan geçen takım elbiseli adamın kafasına toz yağdırdın.",
+    "choice1": "Balkondan içeri kaçıp görünmez ol",
+    "choice2": "Aşağı seslenip samimiyetle özür dile"
+  },
+  {
+    "day": 240,
+    "category": "Varoluşsal Kriz",
+    "title": "Eski Mahallenin Yıkılıp Rezidans Olması",
+    "description": "Çocukluğunun geçtiği sokaktaki tek katlı bahçeli evlerin yerinde dev kuleler yükseldiğini gördün.",
+    "choice1": "Bir köşede oturup eski günleri hatırla",
+    "choice2": "Değişimin kaçınılmaz olduğunu kabullen"
+  },
+  {
+    "day": 241,
+    "category": "Varoluşsal Kriz",
+    "title": "Otuz Yaş Doğum Günü Paniği",
+    "description": "Sabah uyandığında artık yirmili yaşların geride kaldığını ve hiçbir şey başaramadığını düşündün.",
+    "choice1": "Büyük bir parti verip yeni yaşını kutla",
+    "choice2": "Evde yalnız kalıp hayatını baştan planla"
+  },
+  {
+    "day": 242,
+    "category": "Trajikomik",
+    "title": "Gece Üçte Vikipedi Tavşan Deliği",
+    "description": "Uyumak için yatağa girdin ama kendini Antik Mısır mumyalama tekniklerini okurken buldun.",
+    "choice1": "Telefonu bırakıp gözlerini zorla kapat",
+    "choice2": "Okumaya devam edip sabaha kadar öğren"
+  },
+  {
+    "day": 243,
+    "category": "Drama",
+    "title": "Eski Okul Arkadaşlarının Başarıları",
+    "description": "Lise arkadaşının kurduğu şirketi milyon dolara sattığı haberini görünce derin bir iç çektin.",
+    "choice1": "Onu arayıp içtenlikle tebrik et",
+    "choice2": "Sosyal medya hesabını sessize alıp uzaklaş"
+  },
+  {
+    "day": 244,
+    "category": "Varoluşsal Kriz",
+    "title": "Hayatımın Amacı Ne Sorusu",
+    "description": "Pazar günü evde tek başınayken ben bu dünyaya neden geldim sorusu beynini kemirmeye başladı.",
+    "choice1": "Felsefi bir kitap açıp derin düşüncelere dal",
+    "choice2": "Kalkıp evdeki dağınıklığı toplayarak kafanı dağıt"
+  },
+  {
+    "day": 245,
+    "category": "Absürt Hayat",
+    "title": "Göz Kapağının Üç Gündür Seyirmesi",
+    "description": "Stresten sol göz kapağın sürekli titriyor ve internette araştırınca ölümcül hastalıklar çıktı.",
+    "choice1": "İnterneti kapatıp bolca su iç ve dinlen",
+    "choice2": "Hemen doktora gidip kontrol yaptır"
+  },
+  {
+    "day": 246,
+    "category": "Varoluşsal Kriz",
+    "title": "Eşyaların Kölesi Olma Hissi",
+    "description": "Evdeki gereksiz kutulara, kıyafetlere ve teknolojik aletlere bakıp sadeleşmek istedin.",
+    "choice1": "Minimalist yaşam kararı alıp eşyaları sat",
+    "choice2": "Belki bir gün lazım olur diyerek sakla"
+  },
+  {
+    "day": 247,
+    "category": "Trajikomik",
+    "title": "Kendi Kendine Cenaze Konuşması Hayali",
+    "description": "Öldüğünde arkandan kimlerin ne konuşacağını düşünüp gözlerinin dolmasına engel olamadın.",
+    "choice1": "Kendine gelip saçmalamayı bırak de",
+    "choice2": "Sevenlerine daha çok vakit ayırma kararı al"
+  },
+  {
+    "day": 248,
+    "category": "Varoluşsal Kriz",
+    "title": "Zamanda Yolculuk Hayali",
+    "description": "Keşke on yıl önceki aklım olsaydı dediğin an geçmişteki hataların zihninde canlandı.",
+    "choice1": "Geçmişe takılmayı bırakıp bugüne odaklan",
+    "choice2": "Eski hatalarından çıkardığın dersleri yaz"
+  },
+  {
+    "day": 249,
+    "category": "Drama",
+    "title": "Yalnız Yaşama Alışkanlığı ve İzolasyon",
+    "description": "Hafta sonu boyunca evden hiç çıkmadığını ve iki gündür kimseyle konuşmadığını fark ettin.",
+    "choice1": "Hemen üstünü giyinip kalabalık bir kafeye git",
+    "choice2": "Yalnızlığın lüks olduğunu düşünüp kitap oku"
+  },
+  {
+    "day": 250,
+    "category": "Varoluşsal Kriz",
+    "title": "Rüyaların Anlamını Çözme Çabası",
+    "description": "Gece rüyanda uçtuğunu ve sınavda boş kağıt verdiğini görünce internetten rüya tabirlerine baktın.",
+    "choice1": "Rüyayı ciddiye alıp hayatında tedbir al",
+    "choice2": "Rüyadır deyip geç ve gününe devam et"
+  },
+  {
+    "day": 251,
+    "category": "Absürt Hayat",
+    "title": "Tavandaki Çatlağı Bir Şeye Benzetme",
+    "description": "Yatakta yatarken tavandaki sıva çatlağını Türkiye haritasına benzetip yarım saat inceledin.",
+    "choice1": "Kalkıp boya fırçasıyla çatlağı kapat",
+    "choice2": "Çatlağa bakarak hayaller kurmaya devam et"
+  },
+  {
+    "day": 252,
+    "category": "Varoluşsal Kriz",
+    "title": "Çocukluk Hayallerinin Neresindesin",
+    "description": "Küçükken astronot ya da yazar olmak isterken şu an yaptığın işi sorgulamaya başladın.",
+    "choice1": "Çocukluk hayalini hobi olarak yapmaya başla",
+    "choice2": "Gerçekçi hayat şartlarına uyum sağla"
+  },
+  {
+    "day": 253,
+    "category": "Trajikomik",
+    "title": "Beyaz Saç Teliyle İlk Karşılaşma",
+    "description": "Aynada şakağında parlayan ilk beyaz saçı cımbızla çekip çıkarmakla bırakmak arasında kaldın.",
+    "choice1": "Teli koparıp yaşlanmayı inkar et",
+    "choice2": "Beyaz saçın karizmatik olduğunu kabullen"
+  },
+  {
+    "day": 254,
+    "category": "Varoluşsal Kriz",
+    "title": "Yapay Zeka Dünyayı Ele Geçirecek Mi",
+    "description": "İnternette gördüğün yeni yapay zeka videoları mesleğinin geleceğini sorgulamana yol açtı.",
+    "choice1": "Kendini geliştirip yeni teknolojilere adapte ol",
+    "choice2": "Geleneksel zanaat öğrenip köyde marangoz ol"
+  },
+  {
+    "day": 255,
+    "category": "Drama",
+    "title": "Eski Günlükleri Okuma Utancı",
+    "description": "On beş yaşındayken yazdığın günlüğü buldun ve içindeki ergenlik hezeyanlarını okurken utançtan kızardın.",
+    "choice1": "Günlüğü hatıra olarak sakla",
+    "choice2": "Kimse görmesin diye günlüğü imha et"
+  },
+  {
+    "day": 256,
+    "category": "Varoluşsal Kriz",
+    "title": "Evrenin Sonsuzluğunda Bir Nokta Olma",
+    "description": "Gökyüzündeki yıldızlara bakıp koskoca kainatta ne kadar önemsiz bir toz tanesi olduğunu düşündün.",
+    "choice1": "Önemsizliğin getirdiği hafiflikle rahatla",
+    "choice2": "Yine de kendi dünyamın merkezindeyim de"
+  },
+  {
+    "day": 257,
+    "category": "Absürt Hayat",
+    "title": "Günün Tarihini ve Gününü Şaşırma",
+    "description": "Çarşamba gününü pazar sanıp rahatça yatakta uzanırken aniden telefonun alarmı çaldı.",
+    "choice1": "Fırlayıp on dakikada hazırlanıp evden çık",
+    "choice2": "İş yerine rapor alıp günü gerçekten pazar yap"
+  },
+  {
+    "day": 258,
+    "category": "Varoluşsal Kriz",
+    "title": "İnsanları Memnun Etme Hastalığı",
+    "description": "Herkese evet dediğin için kendi isteklerini sürekli ertelediğini acı bir şekilde fark ettin.",
+    "choice1": "Artık hayır demeyi hayat prensibi yap",
+    "choice2": "Kırıcı olmamak için alıştığın gibi devam et"
+  },
+  {
+    "day": 259,
+    "category": "Trajikomik",
+    "title": "Depresyon Hırkasıyla Üç Gün Geçirme",
+    "description": "Aynı gri polar hırkayı üzerinden çıkarmadan üç gün boyunca koltukta yuvarlandın.",
+    "choice1": "Hırkayı çıkarıp duşa gir ve tazelen",
+    "choice2": "Hırkanın verdiği güven hissine sarıl"
+  },
+  {
+    "day": 260,
+    "category": "Varoluşsal Kriz",
+    "title": "Sosyal Medyayı Kapatıp İnzivaya Çekilme",
+    "description": "Telefonundaki tüm sosyal medya hesaplarını silip tuşlu telefona geçme isteği kabardı.",
+    "choice1": "Tüm hesapları kapatıp detoksa başla",
+    "choice2": "Sadece ekran süreni kısıtlamayı dene"
+  },
+  {
+    "day": 261,
+    "category": "Drama",
+    "title": "Kırk Yıllık Dostla İletişimin Kopması",
+    "description": "Eskiden her gün konuştuğun en yakın dostunla artık sadece bayramlarda mesajlaştığınızı gördün.",
+    "choice1": "Arayıp eskisi gibi buluşalım de",
+    "choice2": "Hayatın akışına bırakıp mesafeyi kabullen"
+  },
+  {
+    "day": 262,
+    "category": "Varoluşsal Kriz",
+    "title": "Konfor Alanının Tehlikeli Rahatlığı",
+    "description": "Hiçbir risk almadan yaşadığın bu güvenli hayatın seni körelttiğini düşünmeye başladın.",
+    "choice1": "Cesur bir adım atıp yeni bir hobiye başla",
+    "choice2": "Huzurun her şeyden değerli olduğunu savun"
+  },
+  {
+    "day": 263,
+    "category": "Absürt Hayat",
+    "title": "Dolaptaki Son Bisküviyi Yeme Suçluluğu",
+    "description": "Gece yarısı mutfakta pakette kalan son bisküviyi yedikten sonra gelen yoğun pişmanlık hissi.",
+    "choice1": "Pişmanlığı bastırmak için su içip uyu",
+    "choice2": "Kalkıp salonda elli mekik çek"
+  },
+  {
+    "day": 264,
+    "category": "Varoluşsal Kriz",
+    "title": "Kendi Kendine Yabancılaşma",
+    "description": "Aynaya uzun uzun bakarken bu beden ve bu yüz gerçekten bana mı ait hissi yaşadın.",
+    "choice1": "Yüzünü soğuk suyla yıkayıp kendine gel",
+    "choice2": "Derin bir nefes alıp varlığını kabullen"
+  },
+  {
+    "day": 265,
+    "category": "Trajikomik",
+    "title": "Hüzünlü Şarkıda Hayali Klip Çekme",
+    "description": "Kulaklıkla yürürken çalan hüzünlü şarkıyla yağmurda sanki klipteymiş gibi ağır çekim yürüdün.",
+    "choice1": "Rolü sürdürüp havanın tadını çıkar",
+    "choice2": "Etraftakilerin baktığını fark edip hızlan"
+  },
+  {
+    "day": 266,
+    "category": "Varoluşsal Kriz",
+    "title": "Maddi Güvence mi Özgürlük mü",
+    "description": "Tüm birikimini riskli bir girişim için harcamakla güvende tutmak arasında aklın gidip geliyor.",
+    "choice1": "Hayallerinin peşinden gidip riski seç",
+    "choice2": "Güvenli adımlarla birikimini koru"
+  },
+  {
+    "day": 267,
+    "category": "Drama",
+    "title": "Büyüdüğünü Ailenin Yaşlandığını Görünce Anlama",
+    "description": "Anne ve babanın adımlarının yavaşladığını ve gözlük taktıklarını fark edince boğazın düğümlendi.",
+    "choice1": "Onlara daha fazla sarılıp vakit ayır",
+    "choice2": "Kendi ayakların üzerinde durarak gururlandır"
+  },
+  {
+    "day": 268,
+    "category": "Varoluşsal Kriz",
+    "title": "Ölüm Korkusu ve Eser Bırakma İsteği",
+    "description": "Dünyadan göçüp gittiğinde arkanda adını yaşatacak bir şey bırakma arzusuyla doldun.",
+    "choice1": "Bir kitap veya proje yazmaya başla",
+    "choice2": "İyi bir insan olmanın yeterli olduğunu düşün"
+  },
+  {
+    "day": 269,
+    "category": "Absürt Hayat",
+    "title": "Pijamayla Bakkala Gitme Özgüveni",
+    "description": "Gündüz vakti çizgili pijama ve terlikle bakkala gidip hayatı ne kadar umursamadığını kanıtladın.",
+    "choice1": "Gururla ekmeğini alıp eve dön",
+    "choice2": "Yolda tanıdık görürüm korkusuyla saklan"
+  },
+  {
+    "day": 270,
+    "category": "Varoluşsal Kriz",
+    "title": "Her Şeyi Sıfırlayıp Yeni Bir Şehre Taşınma",
+    "description": "Tüm eşyalarını tek bir bavula doldurup güneyde bir sahil kasabasına taşınma dürtüsü bastırdı.",
+    "choice1": "İlanlara bakıp taşınma planları yap",
+    "choice2": "Mevcut düzenini bozmayıp hayal olarak bırak"
+  },
+  {
+    "day": 271,
+    "category": "Sağlık & Diyet",
+    "title": "Pazartesi Başlayan Diyetin Salı Akşamı Çöküşü",
+    "description": "Salata ve haşlanmış tavukla geçen iki günün ardından gece kapıya gelen lahmacun siparişi.",
+    "choice1": "Diyeti bozup lahmacunu afiyetle ye",
+    "choice2": "Nefsine hakim olup yeşil elma kemir"
+  },
+  {
+    "day": 272,
+    "category": "Trajikomik",
+    "title": "Spor Salonuna Bir Yıllık Üye Olup Gitmeme",
+    "description": "Büyük bir motivasyonla bir yıllık peşin para yatırdığın salona sadece ilk üç gün gittin.",
+    "choice1": "Yeniden başlayıp parasını çıkarmaya çalış",
+    "choice2": "Üyeliği başkasına devretmeyi dene"
+  },
+  {
+    "day": 273,
+    "category": "Sağlık & Diyet",
+    "title": "Akıllı Tartının Hakaret Etmesi",
+    "description": "Sabah aç karnına çıktığın akıllı tartı kilo aldığını ve yağ oranının arttığını gösterdi.",
+    "choice1": "Pillerini çıkarıp tartıyı dolaba kaldır",
+    "choice2": "Günde on bin adım atma kuralı koy"
+  },
+  {
+    "day": 274,
+    "category": "Absürt Hayat",
+    "title": "Avokado Olgunlaştırma Mücadelesi",
+    "description": "Taş gibi sert aldığın avokadoyu gazete kağıdına sarıp bekledin ama aniden çürüyüp karardı.",
+    "choice1": "Çürük kısımları ayıklayıp kalanını kurtar",
+    "choice2": "Avokadoyu çöpe atıp peynir ekmeğe dön"
+  },
+  {
+    "day": 275,
+    "category": "Sağlık & Diyet",
+    "title": "Yeşil Detoks Suyunun İğrenç Tadı",
+    "description": "Kereviz sapı, ıspanak ve zencefili blenderdan geçirip bardağa koydun ama tadı bataklık suyu gibi.",
+    "choice1": "Burnunu tıkayıp tek dikişte iç",
+    "choice2": "Lavaboya döküp taze sıkılmış portakal suyu yap"
+  },
+  {
+    "day": 276,
+    "category": "Trajikomik",
+    "title": "Fitness Antrenörünün İşkence Programı",
+    "description": "İlk günde hocanın yazdırdığı bacak antrenmanından sonra merdivenleri emekleyerek inmek zorunda kaldın.",
+    "choice1": "Kaslar gelişiyor diyerek acıya katlan",
+    "choice2": "Hocaya programı hafifletmesi için yalvar"
+  },
+  {
+    "day": 277,
+    "category": "Sağlık & Diyet",
+    "title": "Şekeri Bırakmanın Üçüncü Günü Agresifliği",
+    "description": "Şekeri kestiğin için herkese bağıran, tahammülsüz ve sinirli bir canavara dönüştün.",
+    "choice1": "Bir parça bitter çikolata yiyip sakinleş",
+    "choice2": "Sabredip krizin geçmesini bekle"
+  },
+  {
+    "day": 278,
+    "category": "Absürt Hayat",
+    "title": "Koşu Bandında Uçma Tehlikesi",
+    "description": "Hızını dokuza ayarladığın koşu bandında ayakkabı bağcığın çözüldü ve düşme tehlikesi atlattın.",
+    "choice1": "Acil durdurma ipini çekip bandı durdur",
+    "choice2": "Bağcığı umursamadan koşmaya devam et"
+  },
+  {
+    "day": 279,
+    "category": "Sağlık & Diyet",
+    "title": "Glutensiz Ekmek Hayal Kırıklığı",
+    "description": "Sağlık için aldığın glutensiz ekmek hem tuğla gibi sert hem de fırın ekmeğinin dört katı pahalı.",
+    "choice1": "Tost makinesinde ısıtıp yumuşatarak ye",
+    "choice2": "Normal köy ekmeğine geri dön"
+  },
+  {
+    "day": 280,
+    "category": "Trajikomik",
+    "title": "Pilates Topunun Patlama Korkusu",
+    "description": "Üzerine oturduğun devasa pilates topunun esnemesinden korkup parmak ucunda dengede durmaya çalıştın.",
+    "choice1": "Korkusuzca hareketleri yap",
+    "choice2": "Topu kenara itip mat hareketlerine geç"
+  },
+  {
+    "day": 281,
+    "category": "Sağlık & Diyet",
+    "title": "Günde İki Litre Su İçme Baskısı",
+    "description": "Telefonundaki su hatırlatıcı saat başı bipleyip sana zorla su içiriyor ve tuvaletten çıkamıyorsun.",
+    "choice1": "Bildirimleri kapatıp susadıkça iç",
+    "choice2": "Hedefe sadık kalıp iki litreyi tamamla"
+  },
+  {
+    "day": 282,
+    "category": "Drama",
+    "title": "Yıllık Check Up Tahlil Sonuçları",
+    "description": "Kan tahlili sonuçlarında kolesterol ve karaciğer yağlanması sınırda çıktı.",
+    "choice1": "Yeme alışkanlıklarını baştan aşağı değiştir",
+    "choice2": "Bir tahlille moralimi bozamam de"
+  },
+  {
+    "day": 283,
+    "category": "Sağlık & Diyet",
+    "title": "Chia Tohumu Pudingi Fiyaskosu",
+    "description": "Badem sütüyle beklettiğin chia tohumları kurbağa yumurtasına benzedi ve yemeye çekiniyorsun.",
+    "choice1": "Gözünü kapatıp kaşıklamaya başla",
+    "choice2": "Kaseyi buzdolabında unutup çöpe at"
+  },
+  {
+    "day": 284,
+    "category": "Absürt Hayat",
+    "title": "Yoga Matında Uyuyakalma",
+    "description": "Gevşeme seansında derin nefes alıp verirken horlayarak yoga salonunun ortasında uyuyakaldın.",
+    "choice1": "Eğitmen uyandırınca teşekkür edip toparlan",
+    "choice2": "Utançla matını toplayıp salondan çık"
+  },
+  {
+    "day": 285,
+    "category": "Sağlık & Diyet",
+    "title": "Karbonhidratsız Geçen Bir Günün Sonu",
+    "description": "Bütün gün ekmek yemediğin için rüyanda taze simit ve börek tezgahları görmeye başladın.",
+    "choice1": "Kalkıp mutfakta bir dilim ekmek kızart",
+    "choice2": "İradeni koruyup su içerek yatağa dön"
+  },
+  {
+    "day": 286,
+    "category": "Trajikomik",
+    "title": "Dambılın Ayağa Düşmesi Korkusu",
+    "description": "Aynanın karşısında ağırlık kaldırırken elin terledi ve beş kiloluk demir parmaklarının arasından kaydı.",
+    "choice1": "Son anda ayağını çekip kurtul",
+    "choice2": "Ağırlığı bırakıp eldiven satın al"
+  },
+  {
+    "day": 287,
+    "category": "Sağlık & Diyet",
+    "title": "Kibrit Kutusu Büyüklüğünde Peynir Yalanı",
+    "description": "Diyetisyenin listesindeki kibrit kutusu peyniri kibrit kutusunu devasa boyutta hayal ederek kestin.",
+    "choice1": "Porsiyonu küçültüp listeye uy",
+    "choice2": "Kendi kestiğin koca dilimi afiyetle ye"
+  },
+  {
+    "day": 288,
+    "category": "Absürt Hayat",
+    "title": "Boyun Düzleşmesi Yastığı Masrafı",
+    "description": "Boynun ağrıyor diye ortopedik medikal yastığa servet ödedin ama üzerinde taş gibi uyuyamadın.",
+    "choice1": "Eski pamuk yastığına geri dön",
+    "choice2": "Yastığa alışmak için bir hafta daha şans ver"
+  },
+  {
+    "day": 289,
+    "category": "Sağlık & Diyet",
+    "title": "Fast Food Önünden Koşarak Geçme",
+    "description": "Diyetin en zor akşamında kızarmış patates kokan dükkanın önünden koşarak uzaklaşmaya çalıştın.",
+    "choice1": "Kokuyu içine çekip yoluna devam et",
+    "choice2": "Teslim olup küçük bir menü sipariş et"
+  },
+  {
+    "day": 290,
+    "category": "Trajikomik",
+    "title": "Spor Kıyafetleriyle Evde Dizi İzleme",
+    "description": "Taytını ve spor ayakkabını giyip tam kapıdan çıkacakken koltuğa oturup üç bölüm dizi bitirdin.",
+    "choice1": "Kalkıp geç de olsa salona git",
+    "choice2": "Kıyafetleri çıkarıp pijama giy"
+  },
+  {
+    "day": 291,
+    "category": "Sağlık & Diyet",
+    "title": "Yulaf Lapasını Lezzetli Yapma Çabası",
+    "description": "İçine bal, muz, tarçın ve fıstık ezmesi koyduğun yulaf lapası tatlı krizini bastıramadı.",
+    "choice1": "Hepsini ye ve tok kalmaya odaklan",
+    "choice2": "Üzerine çikolata sosu döküp tadını düzelt"
+  },
+  {
+    "day": 292,
+    "category": "Drama",
+    "title": "Dişçide Kanal Tedavisi Korkusu",
+    "description": "Diş hekiminin koltuğunda otururken matkabın sesini duyunca koltuğun kollarını sıkmaktan tırnakların kırıldı.",
+    "choice1": "Gözlerini kapatıp derin nefes alarak dayan",
+    "choice2": "Hekime ara vermesi için işaret et"
+  },
+  {
+    "day": 293,
+    "category": "Sağlık & Diyet",
+    "title": "Organik Pazardan Alınan Kurtlu Elma",
+    "description": "İlaçsız diye aldığın elmanın içinden çıkan sevimli kurtla göz göze geldin.",
+    "choice1": "Doğallığın kanıtı deyip kurdu kenara koy",
+    "choice2": "Elmayı tiksinip çöpe fırlat"
+  },
+  {
+    "day": 294,
+    "category": "Absürt Hayat",
+    "title": "Gözlük Camının Maskeyle Buğulanması",
+    "description": "Soğuk havada yürürken nefesinle buğulanan gözlük camları yüzünden önündeki direğe tosladın.",
+    "choice1": "Gözlüğü çıkarıp bulanık görerek yürü",
+    "choice2": "Özel buğu önleyici sprey satın al"
+  },
+  {
+    "day": 295,
+    "category": "Sağlık & Diyet",
+    "title": "Kalori Sayma Uygulaması Takıntısı",
+    "description": "Ağzına attığın tek bir fındığın bile kalorisini girmekten yemek yeme zevkin tamamen bitti.",
+    "choice1": "Uygulamayı telefonundan sil",
+    "choice2": "Kalorileri sayarak disiplinini koru"
+  },
+  {
+    "day": 296,
+    "category": "Trajikomik",
+    "title": "Bel Tutulması ve Robot Gibi Yürüme",
+    "description": "Yerden çorap alırken aniden belin kilitlendi ve tüm gün bacaklarını bükmeden penguen gibi yürüdün.",
+    "choice1": "Sıcak su torbası koyup uzan",
+    "choice2": "Hemen doktora gidip iğne yaptır"
+  },
+  {
+    "day": 297,
+    "category": "Sağlık & Diyet",
+    "title": "Aralıklı Oruç ve Açlık Sayacı",
+    "description": "On altı saatlik açlığın son on dakikasında mutfakta saatin saniyelerini sayarak bekledin.",
+    "choice1": "Süre dolunca buzdolabına saldır",
+    "choice2": "Sakin kalıp hafif bir çorbayla aç"
+  },
+  {
+    "day": 298,
+    "category": "Absürt Hayat",
+    "title": "Bitki Çaylarının Karışımından Zehirlenme Hissi",
+    "description": "Gribe iyi gelsin diye adaçayı, ıhlamur, zencefil ve nane limonun hepsini aynı demlikte kaynattın.",
+    "choice1": "Şifadır deyip acı çayı bitir",
+    "choice2": "Demliği döküp sadece ballı ılık su iç"
+  },
+  {
+    "day": 299,
+    "category": "Sağlık & Diyet",
+    "title": "Kilo Verince Bol Gelen Pantolon",
+    "description": "Üç kilo verdin ve en sevdiğin pantolon belinden düşmeye başladı.",
+    "choice1": "Kemer takıp pantolonu giymeye devam et",
+    "choice2": "Terziye götürüp daralttır"
+  },
+  {
+    "day": 300,
+    "category": "Varoluşsal Kriz",
+    "title": "Bedenimle Barışma Kararı",
+    "description": "Kilo, kas ve diyet takıntılarını bir kenara bırakıp kendi doğal halinle mutlu olmaya karar verdin.",
+    "choice1": "Kendini olduğun gibi sev ve kucakla",
+    "choice2": "Yine de sağlıklı beslenmeyi elden bırakma"
+  },
+  {
+    "day": 301,
+    "category": "Finans & Yaşam",
+    "title": "Kredi Kartı Asgarisini Ödeme Ritüeli",
+    "description": "Maaşın yattığı gün kredi kartı borcunun sadece asgarisini ödeyip kalanı öteledin.",
+    "choice1": "Gereksiz tüm harcamaları kesip kartı kapat",
+    "choice2": "Gelecek ay hallederim diyerek rahatla"
+  },
+  {
+    "day": 302,
+    "category": "Trajikomik",
+    "title": "Bozuk Para Kumbarasını Kırma Anı",
+    "description": "Ay sonu parasız kalınca çocukluktan kalma seramik domuz kumbarasını çekiçle parçaladın.",
+    "choice1": "Çıkan bozuklukları markette tümlet",
+    "choice2": "Bozuklukları saklayıp acil durum parası yap"
+  },
+  {
+    "day": 303,
+    "category": "Drama",
+    "title": "Ev Sahibinin Yüzde İki Yüz Kira Zammı Talebi",
+    "description": "Ev sahibin telefon açıp oğlum evlenecek ya kirayı üç katına çıkarırsın ya da çıkarsın dedi.",
+    "choice1": "Yasal haklarını hatırlatıp arabulucuya git",
+    "choice2": "Ev aramaya başlayıp taşınmayı planla"
+  },
+  {
+    "day": 304,
+    "category": "Finans & Yaşam",
+    "title": "Döviz ve Altın Kurunu Sürekli Yenileme",
+    "description": "Cebindeki küçük birikimin erimemesi için telefon ekranında döviz uygulamasını dakikada bir yeniliyorsun.",
+    "choice1": "Uygulamayı kapatıp zihnini rahatlat",
+    "choice2": "Birikimini güvenli bir yatırım aracına yatır"
+  },
+  {
+    "day": 305,
+    "category": "Absürt Hayat",
+    "title": "Banka ATMsinin Kartı Yutması",
+    "description": "Hafta sonu akşamı acil nakit çekerken ATM kartını yuttu ve makine işlem yapılamıyor uyarısı verdi.",
+    "choice1": "Pazartesi banka şubesine gitmeyi bekle",
+    "choice2": "Hemen müşteri hizmetlerini arayıp kartı iptal et"
+  },
+  {
+    "day": 306,
+    "category": "Finans & Yaşam",
+    "title": "Market Fişini Satır Satır İnceleme",
+    "description": "Kasadan çıktıktan sonra fişteki rakamları tek tek kontrol edip reyondaki fiyatla karşılaştırdın.",
+    "choice1": "Fark varsa kasaya dönüp hakkını ara",
+    "choice2": "Uğraşmaya değmez deyip fişi çöpe at"
+  },
+  {
+    "day": 307,
+    "category": "Trajikomik",
+    "title": "Milli Piyango Amorti Sevinci",
+    "description": "Büyük ikramiye hayaliyle aldığın çeyrek bilete sadece amorti çıktı ve parayı kurtardım diye sevindin.",
+    "choice1": "Parayı alıp cebine koy",
+    "choice2": "Gidip o parayla yeni bir bilet al"
+  },
+  {
+    "day": 308,
+    "category": "Finans & Yaşam",
+    "title": "Dışarıda Kahve İçmeyi Bırakma Kararı",
+    "description": "Günde iki yüz lira kahveye vermemek için termosa evde filtre kahve demleyip yanına aldın.",
+    "choice1": "Tasarrufun tadını çıkarıp alışkanlık yap",
+    "choice2": "Kafede oturmanın sosyal havasını özleyip dön"
+  },
+  {
+    "day": 309,
+    "category": "Drama",
+    "title": "Kefil Olunan Arkadaşın Kaybolması",
+    "description": "Üç ay önce kredi çekerken hatır için kefil olduğun arkadaşının telefonları kapandı ve banka seni arıyor.",
+    "choice1": "Arkadaşının ailesini bulup durumu sor",
+    "choice2": "Avukat tutup hukuki süreç başlat"
+  },
+  {
+    "day": 310,
+    "category": "Finans & Yaşam",
+    "title": "Elektrik Faturasını Düşürme Tedbirleri",
+    "description": "Evdeki tüm fişleri prizden çekip karanlıkta televizyon ışığında oturma kararı aldın.",
+    "choice1": "Tasarruf tedbirlerini katı şekilde uygula",
+    "choice2": "Konforunu bozmayıp normal yaşamaya dön"
+  },
+  {
+    "day": 311,
+    "category": "Absürt Hayat",
+    "title": "Montun Cebinden Çıkan Unutulmuş Para",
+    "description": "Kışlık montunu dolaptan çıkarıp elini cebine attığında geçen yıldan kalan iki yüz lira buldun.",
+    "choice1": "Piyango kazanmış gibi sevinip tatlı ısmarla",
+    "choice2": "Parayı hemen cüzdanına koyup biriktir"
+  },
+  {
+    "day": 312,
+    "category": "Finans & Yaşam",
+    "title": "Arkadaş Grubunda Hesabı Bölüşme Savaşı",
+    "description": "Biri sadece çorba içerken diğeri bonfile yedi ve hesap eşit bölüşülsün dendiğinde kriz çıktı.",
+    "choice1": "Herkes ne yediyse onu ödesin diye diret",
+    "choice2": "Ortam bozulmasın diye eşit ödemeyi kabul et"
+  },
+  {
+    "day": 313,
+    "category": "Trajikomik",
+    "title": "Kripto Para Çöküşü ve Hissiyatı",
+    "description": "Arkadaşının tavsiyesiyle yatırdığın paranın bir gecede yarı yarıya eridiğini gördün.",
+    "choice1": "Zararına satıp kalan parayı kurtar",
+    "choice2": "Elbet bir gün yükselecek deyip sabırla bekle"
+  },
+  {
+    "day": 314,
+    "category": "Finans & Yaşam",
+    "title": "İkinci El Eşya Satışında Acımasız Pazarlık",
+    "description": "İnternete koyduğun çalışma masasına biri bedava verirsen gelip alırım teklifi yaptı.",
+    "choice1": "Mesaja cevap vermeyip kullanıcıyı engelle",
+    "choice2": "Dalga geçip üzerine kargo parası da vereyim mi de"
+  },
+  {
+    "day": 315,
+    "category": "Drama",
+    "title": "Maaş Gününden Önceki Son Yüz Lira",
+    "description": "Maaşa üç gün var ve cüzdanında sadece yüz lira kaldı, menü planlaması yapıyorsun.",
+    "choice1": "Makarna ve yumurtayla üç günü tamamla",
+    "choice2": "Yakın bir arkadaşından borç iste"
+  },
+  {
+    "day": 316,
+    "category": "Finans & Yaşam",
+    "title": "Doğalgaz Sayacının Fırıldak Gibi Dönmesi",
+    "description": "Kombiyi en düşük ayara getirdiğin halde dışarıdaki sayacın hızla döndüğünü görüp ürperdin.",
+    "choice1": "Kombiyi kapatıp battaniyelere sarıl",
+    "choice2": "Üşütüp hasta olmaktansa faturaya katlan"
+  },
+  {
+    "day": 317,
+    "category": "Absürt Hayat",
+    "title": "Peynir Alırken Gramaj Hesabı Yapma",
+    "description": "Şarküteride yüz gram kaşar peyniri tarttırırken ustanın koyduğu ekstra dilimi çıkarttırdın.",
+    "choice1": "Bütçeme sadık kalmalıyım deyip bekle",
+    "choice2": "Koy usta ziyanı yok diyerek kabul et"
+  },
+  {
+    "day": 318,
+    "category": "Finans & Yaşam",
+    "title": "Banka Kredisiyle Borç Kapatma Tuzağı",
+    "description": "Bir kartın borcunu ödemek için diğer bankadan ihtiyaç kredisi çekmeyi düşünüyorsun.",
+    "choice1": "Kredi çekip borçları tek bir yerde topla",
+    "choice2": "Kemerleri sıkıp krediye bulaşmadan öde"
+  },
+  {
+    "day": 319,
+    "category": "Trajikomik",
+    "title": "Restoranda Su İsteyip Lüks Cam Şişe Gelmesi",
+    "description": "Sadece masaya su istedin ama garson ithal cam şişede suyu açıp hesaba yüz elli lira yazdı.",
+    "choice1": "Adisyona itiraz edip normal su parası öde",
+    "choice2": "Hiç ses çıkarmadan hesabı ödeyip içini çek"
+  },
+  {
+    "day": 320,
+    "category": "Finans & Yaşam",
+    "title": "Yatırım İçin Altın Hesabı Açma",
+    "description": "Her ay kenara bir gram altın atma kararı alıp bankadan altın hesabı açtın.",
+    "choice1": "Her ay disiplinle hedefini gerçekleştir",
+    "choice2": "İlk ayda para sıkışınca altını hemen bozdur"
+  },
+  {
+    "day": 321,
+    "category": "Drama",
+    "title": "İş Yerinde Primlerin Gecikmesi",
+    "description": "Satış hedeflerini tutturduğun halde şirket nakit akışı bozuk diye primleri üç ay erteledi.",
+    "choice1": "İnsan kaynaklarına resmi şikayette bulun",
+    "choice2": "Sabredip sonraki ayı bekle"
+  },
+  {
+    "day": 322,
+    "category": "Finans & Yaşam",
+    "title": "Dolapta Kalan Malzemelerle Gurme Yemek",
+    "description": "Evde sadece yarım soğan, iki diş sarımsak ve bayat ekmek varken şef gibi yemek uydurdun.",
+    "choice1": "Yemeği afiyetle ye ve yaratıcılığına hayran kal",
+    "choice2": "Yemek kötü olunca dışarıdan tost söyle"
+  },
+  {
+    "day": 323,
+    "category": "Absürt Hayat",
+    "title": "İndirim Kuponunun Süresinin Dolması",
+    "description": "Yüzde kırk indirim sağlayan özel kuponun saat 23:59da bittiğini 00:01de fark ettin.",
+    "choice1": "Kuponsuz alışveriş yapmaktan vazgeç",
+    "choice2": "Yine de ihtiyacım var deyip siparişi ver"
+  },
+  {
+    "day": 324,
+    "category": "Finans & Yaşam",
+    "title": "Kira Sözleşmesi Yenileme Gerilimi",
+    "description": "Kira dönemi geldi ve ev sahibiyle masaya oturup zam pazarlığı yapmaya hazırlanıyorsun.",
+    "choice1": "TÜFE oranını masaya koyup hakkını savun",
+    "choice2": "Ev sahibinin teklifine yakın bir orta yol bul"
+  },
+  {
+    "day": 325,
+    "category": "Trajikomik",
+    "title": "Maaş Zammının Enflasyonun Altında Kalması",
+    "description": "Maaşına yapılan yüzde otuzluk zam marketteki süt fiyatının ikiye katlanmasıyla eridi.",
+    "choice1": "Ek gelir arayışına girip freelance iş bak",
+    "choice2": "Mevcut duruma uyum sağlayıp harcamaları kıs"
+  },
+  {
+    "day": 326,
+    "category": "Finans & Yaşam",
+    "title": "Toplu Taşımada Aktarma İndirimi Kurtarıcılığı",
+    "description": "Otobüsten metroya geçerken aktarma indiriminden yararlanmak için turnikeye depar attın.",
+    "choice1": "Deparı atıp indirimi yakala",
+    "choice2": "Yavaş yürüyüp indirimi kaçırmayı umursama"
+  },
+  {
+    "day": 327,
+    "category": "Drama",
+    "title": "Aileden Maddi Destek İsteme Mahcubiyeti",
+    "description": "Kira parasını denkleştiremeyip ailenden borç istemek için telefonu eline aldın.",
+    "choice1": "Gururunu kenara bırakıp aileni ara",
+    "choice2": "Eşyalarından birini satıp parayı kendin bul"
+  },
+  {
+    "day": 328,
+    "category": "Finans & Yaşam",
+    "title": "Pazarda Akşam Saati İndirimi Kovalama",
+    "description": "Pazarın dağılma saatinde tezgahlarda kalan sebzeleri yarı fiyatına almak için gittin.",
+    "choice1": "Taze olanları ayıklayıp karlı çık",
+    "choice2": "Yorulup ezik meyvelerle eve dön"
+  },
+  {
+    "day": 329,
+    "category": "Absürt Hayat",
+    "title": "Cüzdanı Evde Unutup Markette Kasada Kalma",
+    "description": "Kasadaki ürünler okutuldu, cüzdanının montun cebinde olmadığını anladın.",
+    "choice1": "Ürünleri kasada bırakıp hızla eve koş",
+    "choice2": "Telefondaki mobil temassız ödemeyi dene"
+  },
+  {
+    "day": 330,
+    "category": "Varoluşsal Kriz",
+    "title": "Para Kazanmak İçin Yaşamak mı Yaşamak İçin Kazanmak mı",
+    "description": "Bütün ömrünün fatura ve kira ödemekle geçeceği gerçeğiyle yüzleşip derin bir nefes aldın.",
+    "choice1": "Hayattan zevk alacak küçük anlara odaklan",
+    "choice2": "Finansal özgürlük için sıkı bir plan yap"
+  },
+  {
+    "day": 331,
+    "category": "Yıl Sonu",
+    "title": "Yıl Sonu Muhasebesi ve Pişmanlıklar",
+    "description": "Geçen koskoca bir yıla bakıp verdiğin sözlerin kaçını tuttuğunu hesapladın.",
+    "choice1": "Eksik kalanları tamamlamak için son bir hamle yap",
+    "choice2": "Hatalarınla barışıp geleceğe odaklan"
+  },
+  {
+    "day": 332,
+    "category": "Trajikomik",
+    "title": "Yeni Yıl Ağacı Kurma İşkencesi",
+    "description": "Eski yılbaşı çam ağacının plastik dallarını açarken yeşil yapraklar salona döküldü.",
+    "choice1": "Ağacı süsleyip ışıkları yak",
+    "choice2": "Sinirlenip ağacı kutusuna geri tık"
+  },
+  {
+    "day": 333,
+    "category": "Yıl Sonu",
+    "title": "Yılbaşı Çekilişinde Hediye Krizi",
+    "description": "Arkadaş grubunda hediye limiti beş yüz lira belirlendi ama ne alacağını bir türlü bulamıyorsun.",
+    "choice1": "Anlamlı ve el yapımı bir hatıra hazırla",
+    "choice2": "Şık bir kahve kupası alıp paketi tamamla"
+  },
+  {
+    "day": 334,
+    "category": "Drama",
+    "title": "Yılbaşında Neredeyiz Sorusu",
+    "description": "Arkadaşların, ailen ve sevgilin aynı anda yılbaşı akşamı kendi planlarına dahil olmanı istiyor.",
+    "choice1": "Ailenle evde sakin bir akşamı seç",
+    "choice2": "Arkadaşlarınla kalabalık bir kutlamaya katıl"
+  },
+  {
+    "day": 335,
+    "category": "Absürt Hayat",
+    "title": "Yılbaşı Işıklarının Birbirine Dolanması",
+    "description": "Kutudan çıkardığın elli metrelik renkli led ışık kördüğüm olmuş ve iki saattir çözülmüyor.",
+    "choice1": "Sabırla tek tek düğümleri çöz",
+    "choice2": "Körü körüne çekiştirip kabloyu kopar"
+  },
+  {
+    "day": 336,
+    "category": "Yıl Sonu",
+    "title": "Geleneksel Hindi mi Lahmacun mu",
+    "description": "Yılbaşı akşamı için özel hindi menüsü sipariş etmekle mahalle kebapçısından sipariş vermek arasında kaldın.",
+    "choice1": "Lüks hindi menüsünü sipariş et",
+    "choice2": "Samimi bir sofra kurup lahmacun söyle"
+  },
+  {
+    "day": 337,
+    "category": "Trajikomik",
+    "title": "Yılbaşı Gecesi Taksi Bulamama",
+    "description": "Gece yarısından sonra sokakta soğukta taksi bulmak için yüz kişiyle yarışıyorsun.",
+    "choice1": "Sabaha kadar yürümeyi göze al",
+    "choice2": "Sıcak bir kafeye sığınıp sabahı bekle"
+  },
+  {
+    "day": 338,
+    "category": "Yıl Sonu",
+    "title": "Yeni Yılda Başlanacak Kitaplar Listesi",
+    "description": "Önündeki yıl için elli kitaplık devasa bir okuma listesi hazırlamaya başladın.",
+    "choice1": "Listeyi tamamlayıp kitapları sıraya diz",
+    "choice2": "Gerçekçi olup hedefi yirmi kitaba düşür"
+  },
+  {
+    "day": 339,
+    "category": "Drama",
+    "title": "Eski Arkadaşla Yıl Sonu Helalleşmesi",
+    "description": "Yıl bitmeden aranın bozuk olduğu eski dostuna bir barışma mesajı atıp atmamakta kararsızsın.",
+    "choice1": "Zeytin dalı uzatıp mesajı gönder",
+    "choice2": "Geçmiş geçmişte kaldı deyip sessiz kal"
+  },
+  {
+    "day": 340,
+    "category": "Yıl Sonu",
+    "title": "Evde Yılbaşı Temizliği Seferberliği",
+    "description": "Yeni yıla tertemiz bir evle girmek için dip köşe bucak temizliğe giriştin.",
+    "choice1": "Tüm evi pırıl pırıl yapana kadar durma",
+    "choice2": "Sadece görünen yerleri toplayıp bırak"
+  },
+  {
+    "day": 341,
+    "category": "Absürt Hayat",
+    "title": "Geri Sayım Sırasında Saati Şaşırma",
+    "description": "Yılbaşı geri sayımını yaparken televizyonun yayını iki dakika gecikmeli çıktı ve herkes erken kutladı.",
+    "choice1": "Gülüp yeniden geri sayım yapın",
+    "choice2": "Kutlamayı olduğu gibi sürdürün"
+  },
+  {
+    "day": 342,
+    "category": "Yıl Sonu",
+    "title": "Gelecek Yıl Sigarayı Bırakma Kararı",
+    "description": "Paketi masaya koyup bu gece yarısından sonra asla ağzıma sürmeyeceğim yemini ettin.",
+    "choice1": "Kararına sadık kalıp paketi çöpe at",
+    "choice2": "Kendine bir hafta daha süre tanı"
+  },
+  {
+    "day": 343,
+    "category": "Trajikomik",
+    "title": "Yılbaşı Piyangosunda Son Rakamla Kaçırma",
+    "description": "Büyük ikramiye numarasının son rakamı senin biletinden bir sayı farkla başka bilete çıktı.",
+    "choice1": "Kaderime küserim deyip bileti yırt",
+    "choice2": "Amortiyle teselli bulup kahve iç"
+  },
+  {
+    "day": 344,
+    "category": "Yıl Sonu",
+    "title": "Takvim Yaprağını Koparma Nostaljisi",
+    "description": "Duvardaki eski tarz takvimin son yapraklarını koparırken çocukluğundaki gibi arkasındaki yazıyı okudun.",
+    "choice1": "Yazıyı sesli okuyup anıları yad et",
+    "choice2": "Takvimi yerinden çıkarıp yenisini as"
+  },
+  {
+    "day": 345,
+    "category": "Drama",
+    "title": "Yıl Sonu Performans Primi Açıklanması",
+    "description": "Şirketin açıkladığı prim miktarı beklentinin çok altında kaldı ve motivasyonun dibe vurdu.",
+    "choice1": "Yönetimle konuşup hakkını sorgula",
+    "choice2": "Yeni yılda yeni iş aramaya karar ver"
+  },
+  {
+    "day": 346,
+    "category": "Yıl Sonu",
+    "title": "Kış Ortasında Elektrik Kesintisi",
+    "description": "Yılın en soğuk gecesinde trafo patladı ve ev buz kesti, mum ışığına kaldın.",
+    "choice1": "Battaniyeleri toplayıp mum ışığında sohbet edin",
+    "choice2": "Termosu alıp açık bir kafeye sığının"
+  },
+  {
+    "day": 347,
+    "category": "Absürt Hayat",
+    "title": "Pencereye Konan Kar Tanesiyle Romantizm",
+    "description": "Yılın ilk karı yağarken cama yaslanıp şiirsel bir hüzün yaşamak istedin ama içerisi buğu yaptı.",
+    "choice1": "Camı silip karın yağışını izle",
+    "choice2": "Sokağa fırlayıp ilk kartopunu oyna"
+  },
+  {
+    "day": 348,
+    "category": "Yıl Sonu",
+    "title": "Yeni Yıl Ajandası Satın Alma",
+    "description": "Kırtasiyeden aldığın deri kapaklı pahalı ajandaya ilk gün çok güzel yazıp sonra boş bırakma ihtimalin yüksek.",
+    "choice1": "Ajandayı her gün düzenli tutmaya ant iç",
+    "choice2": "Daha ucuz sade bir defter seç"
+  },
+  {
+    "day": 349,
+    "category": "Trajikomik",
+    "title": "Yılbaşı Partisinde Kıyafet Piştisi",
+    "description": "Aylarca arayıp aldığın özel tasarım kazağın aynısını partideki başka birinin de giydiğini gördün.",
+    "choice1": "Gidip pişti olduk diye fotoğraf çekilin",
+    "choice2": "Kazağın üstüne ceket giyip kamufle ol"
+  },
+  {
+    "day": 350,
+    "category": "Yıl Sonu",
+    "title": "Sosyal Medyadaki Yıl Sonu Teşekkür Mesajları",
+    "description": "Herkesin hayatımdaki herkese teşekkür ederim paylaşımları yaparken senin içinden hiçbir şey yazmak gelmiyor.",
+    "choice1": "Sessiz kalıp kendi iç dünyana çekil",
+    "choice2": "Kısa ve samimi bir yeni yıl mesajı paylaş"
+  },
+  {
+    "day": 351,
+    "category": "Drama",
+    "title": "Yıl Bitmeden Ödenmesi Gereken Borç",
+    "description": "Arkadaşından aldığın borcun son ödeme günü geldi ve paran ancak ucu ucuna yetiyor.",
+    "choice1": "Paranın tamamını verip borcunu kapat",
+    "choice2": "Bir kısmını ödeyip kalan için süre rica et"
+  },
+  {
+    "day": 352,
+    "category": "Yıl Sonu",
+    "title": "Kardan Adam Yapma Girişimi",
+    "description": "Sokakta yağan karla kardan adam yapmaya giriştin ama kar tutmadığı için çamurlu bir heykel oldu.",
+    "choice1": "Heykele havuç ve atkı takıp sanat eseri ilan et",
+    "choice2": "Vazgeçip eve sıcak çikolata içmeye dön"
+  },
+  {
+    "day": 353,
+    "category": "Absürt Hayat",
+    "title": "Buzda Kayıp Düşmeme Mücadelesi",
+    "description": "Kaldırımdaki gizli buzlanmada düşmemek için kollarını pervane gibi çevirerek on metre kaydın.",
+    "choice1": "Düşmeden durmayı başarıp gururla yürü",
+    "choice2": "Düşüp poponun üstünde kaymayı kabullen"
+  },
+  {
+    "day": 354,
+    "category": "Yıl Sonu",
+    "title": "Yılbaşı Sepetindeki Gereksiz Şeyler",
+    "description": "İş yerinin hediye ettiği sepette son kullanma tarihi yaklaşmış konserveler ve garip soslar var.",
+    "choice1": "Hepsini dolaba yerleştirip yemek yap",
+    "choice2": "İhtiyacı olan bir komşuya hediye et"
+  },
+  {
+    "day": 355,
+    "category": "Trajikomik",
+    "title": "Geri Sayımda Dilek Tutma Paniği",
+    "description": "Son on saniyede ne dileyeceğini şaşırıp aynı anda sağlık, para, aşk ve barış dileyip dili dolandı.",
+    "choice1": "Tüm dilekleri kalbinden geçir",
+    "choice2": "Sadece huzur dileyip sadeleş"
+  },
+  {
+    "day": 356,
+    "category": "Yıl Sonu",
+    "title": "Televizyondaki Yılbaşı Özel Programları",
+    "description": "Eski yılbaşı programlarını özleyip nostaljik kanalları açtın ve Zeki Müren şarkıları dinledin.",
+    "choice1": "Ekran başında nostaljiye teslim ol",
+    "choice2": "Müziği kapatıp kendi sevdiğin şarkıları aç"
+  },
+  {
+    "day": 357,
+    "category": "Drama",
+    "title": "Yılın Son Günü Gelen Ayrılık Haberi",
+    "description": "Tam yeni yıla girerken flörtün artık bu ilişkiyi yürütemeyeceğini belirten uzun bir mesaj attı.",
+    "choice1": "Mesaja olgunlukla cevap verip konuyu kapat",
+    "choice2": "Arayıp yüz yüze hesaplaşmak iste"
+  },
+  {
+    "day": 358,
+    "category": "Yıl Sonu",
+    "title": "Yılbaşı Sabahı Bomboş Sokaklar",
+    "description": "1 Ocak sabahı erken saatte sokağa çıktın ve şehrin tamamen sana kaldığını gördün.",
+    "choice1": "Sessiz sokaklarda tek başına uzun bir yürüyüş yap",
+    "choice2": "Fırından sıcak poğaça alıp eve dön"
+  },
+  {
+    "day": 359,
+    "category": "Absürt Hayat",
+    "title": "Yeni Yılın İlk Gününde Erken Uyanma Çabası",
+    "description": "Yeni yıla zinde başlamak için sabah yedide kalktın ama saat dokuzda koltukta sızıp kaldın.",
+    "choice1": "Uykunu alıp günün geri kalanını yaşa",
+    "choice2": "Kahve üstüne kahve içip uyanık kal"
+  },
+  {
+    "day": 360,
+    "category": "Yıl Sonu",
+    "title": "Evdeki Fazlalıklardan Kurtulma Kolisi",
+    "description": "Yeni yıla hafif girme niyetiyle üç koli eski eşyayı kapının önüne koydun.",
+    "choice1": "Kolileri ihtiyaç sahiplerine ulaştır",
+    "choice2": "Son anda bir kazağı koli içinden geri al"
+  },
+  {
+    "day": 361,
+    "category": "Trajikomik",
+    "title": "Yılbaşı İndiriminde Alınan Gereksiz Süsler",
+    "description": "Yüzde yetmiş indirime girdi diye aldığın yaldızlı geyik figürünü koyacak yer bulamadın.",
+    "choice1": "Salondaki televizyonun yanına yerleştir",
+    "choice2": "Kutusuna koyup gelecek yılbaşını bekle"
+  },
+  {
+    "day": 362,
+    "category": "Yıl Sonu",
+    "title": "Yeni Yıl Kararlarını Duvara Asma",
+    "description": "Daha çok kitap, daha az sosyal medya, düzenli spor ve tasarruf maddelerini panona astın.",
+    "choice1": "Maddeleri her gün göreceğin yere yapıştır",
+    "choice2": "Pano yerine hedefleri dijital notuna yaz"
+  },
+  {
+    "day": 363,
+    "category": "Drama",
+    "title": "Geçmiş Yıldan Özür Dileme İhtiyacı",
+    "description": "Kalbinin kırıldığı veya kırdığın insanları düşünüp içsel bir af dileme ritüeli yaptın.",
+    "choice1": "Kırdığın kişilere samimi bir mesaj at",
+    "choice2": "Kendi iç dünyanda herkesi affedip hafifle"
+  },
+  {
+    "day": 364,
+    "category": "Yıl Sonu",
+    "title": "Yılın Son Gün Batımı",
+    "description": "Balkona çıkıp senenin son güneş batışını izlerken derin bir şükran duygusu hissettin.",
+    "choice1": "Gözlerini kapatıp derin bir nefes al",
+    "choice2": "Telefonu çıkarıp son gün batımını fotoğrafla"
+  },
+  {
+    "day": 365,
+    "category": "Kült & Nostalji",
+    "title": "Büyük 365 Gün Finali ve Yaşam Zaferi",
+    "description": "Tam 365 günü geride bıraktın! Tüm hüzünleri, kahkahaları, saçmalıkları ve güzellikleriyle bir yıl bitti.",
+    "choice1": "Yeni yılı coşkuyla ve umutla kucakla",
+    "choice2": "Geriye bakıp atlattığın tüm fırtınalar için kendine teşekkür et"
+  }
+]

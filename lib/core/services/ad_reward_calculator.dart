@@ -37,8 +37,9 @@ class AdRewardCalculator {
     double? playerBalance,
     double? targetCarPrice,
     int dayStreak = 1,
+    Random? random,
   }) {
-    final random = Random();
+    final rng = random ?? Random();
 
     // 1. Dynamic base scaling based on player level and garage net worth
     double baseAmount = 5000.0 + (playerLevel * 2500.0) + (totalGarageValue * 0.015);
@@ -78,7 +79,7 @@ class AdRewardCalculator {
     baseAmount = baseAmount.clamp(5000.0, effectiveMaxBaseCap);
 
     // 2. Roll variable ratio outcome
-    final roll = random.nextInt(100) + 1; // 1 to 100
+    final roll = rng.nextInt(100) + 1; // 1 to 100
 
     if (roll >= 98) {
       // 3% Legendary Jackpot

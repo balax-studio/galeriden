@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/iterable_extensions.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../data/models/dealership_model.dart';
 import '../../../data/models/stock_model.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/marquee_ticker_widget.dart';
@@ -21,6 +22,8 @@ import '../../../core/services/ad_service.dart';
 import 'widgets/forex_trade_modal.dart';
 import 'widgets/ipo_request_modal.dart';
 import 'widgets/stock_trade_modal.dart';
+
+final stockInsiderReportUnlockedDayProvider = StateProvider<int>((ref) => -1);
 
 class StockMarketScreen extends ConsumerStatefulWidget {
   const StockMarketScreen({super.key});
@@ -297,6 +300,10 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             ],
           ),
         ),
+        const SizedBox(height: 12),
+
+        // Günün Borsa Analist Raporu (Rewarded Ad Opportunity)
+        _buildInsiderReportCard(game, isDark),
         const SizedBox(height: 14),
 
         // 2. SECTOR FILTER CHIPS
@@ -520,6 +527,112 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildInsiderReportCard(DealershipModel game, bool isDark) {
+    final unlockedDay = ref.watch(stockInsiderReportUnlockedDayProvider);
+    final isUnlockedToday = unlockedDay == game.currentDay;
+    final hasNoAds = game.hasNoAdsLicense;
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(14),
+      backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+      borderColor: isUnlockedToday ? AppColors.brutalGreen : AppColors.brutalCyan,
+      borderWidth: 2.5,
+      borderRadius: 14,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              NeoBrutalBadge(
+                text: isUnlockedToday
+                    ? context.tr('stock_report_unlocked_badge')
+                    : context.tr('stock_report_locked_badge'),
+                icon: isUnlockedToday ? Icons.verified_rounded : Icons.lock_rounded,
+                backgroundColor: isUnlockedToday ? AppColors.brutalGreen : AppColors.brutalCyan,
+                textColor: Colors.black,
+                fontSize: 9.5,
+              ),
+              const NeoBrutalBadge(
+                text: '+₺15.000',
+                icon: Icons.trending_up_rounded,
+                backgroundColor: AppColors.brutalYellow,
+                textColor: Colors.black,
+                fontSize: 9.5,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isUnlockedToday
+                ? context.tr('stock_report_unlocked_title')
+                : context.tr('stock_report_locked_title'),
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w900,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isUnlockedToday
+                ? context.tr('stock_report_unlocked_body')
+                : context.tr('stock_report_locked_desc'),
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+            ),
+          ),
+          if (!isUnlockedToday) ...[
+            const SizedBox(height: 12),
+            NeoBrutalButton(
+              label: hasNoAds
+                  ? context.tr('stock_report_btn_instant')
+                  : context.tr('stock_report_btn_ad'),
+              icon: hasNoAds
+                  ? Icons.flash_on_rounded
+                  : Icons.play_circle_fill_rounded,
+              backgroundColor: AppColors.brutalCyan,
+              textColor: Colors.black,
+              fontSize: 11.5,
+              padding: const EdgeInsets.symmetric(vertical: 9),
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                if (hasNoAds) {
+                  ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
+                  ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                  NotificationService.showSuccess(
+                    context,
+                    context.tr('stock_report_toast_unlocked'),
+                  );
+                } else {
+                  AdService.instance.showRewardedAd(
+                    onRewardEarned: () {
+                      ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
+                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                      if (mounted) {
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('stock_report_toast_unlocked'),
+                        );
+                      }
+                    },
+                    onAdUnavailable: () {
+                      ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
+                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                    },
+                  );
+                }
+              },
+            ),
+          ],
+        ],
+      ),
     );
   }
 

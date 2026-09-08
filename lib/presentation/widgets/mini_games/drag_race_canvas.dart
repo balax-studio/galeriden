@@ -633,9 +633,11 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
             borderRadius: 16,
             shadowOffset: const Offset(6, 6),
             showHazardHeader: true,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 // Top Bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1007,6 +1009,7 @@ class _DragRaceMiniGameModalState extends State<DragRaceMiniGameModal>
                   ),
                 ],
               ],
+            ),
             ),
           ),
           // Geometric Confetti Overlay on Victory

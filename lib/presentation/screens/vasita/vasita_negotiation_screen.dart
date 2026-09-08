@@ -17,9 +17,11 @@ import '../../../data/models/expertise_model.dart';
 import '../../../data/models/listing_model.dart';
 import '../../../data/models/vehicle_category.dart';
 import '../../../domain/usecases/vasita_negotiation_engine.dart';
+import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/vasita_market_provider.dart';
 import '../../providers/vasita_negotiation_provider.dart';
+import '../../widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -194,6 +196,44 @@ class _VasitaNegotiationScreenState
           }
         } else {
           if (mounted) {
+            final currentBalance = ref.read(gameProvider).balance;
+            final totalRequired = offeredPrice + noterFee + regFee;
+            final shortfall = totalRequired - currentBalance;
+
+            if (shortfall > 0 && shortfall <= 150000.0) {
+              final encounter = ContextualEmergencyAdEngine.evaluateNeed(
+                game: ref.read(gameProvider),
+                purchaseShortfall: shortfall,
+              );
+              if (encounter != null) {
+                NeoBrutalContextualLifelineDialog.show(
+                  context,
+                  encounter: encounter,
+                  onAccepted: () {
+                    final retrySuccess = ref
+                        .read(vasitaMarketProvider.notifier)
+                        .buyVasitaNegotiated(
+                          listing: widget.listing,
+                          agreedPrice: offeredPrice,
+                          noterFee: noterFee,
+                          registrationFee: regFee,
+                        );
+                    if (retrySuccess && mounted) {
+                      NotificationService.showSuccess(
+                        context,
+                        context.tr('noter_buy_success_toast'),
+                      );
+                      ref
+                          .read(vasitaNegotiationProvider(widget.listing).notifier)
+                          .completeHandover();
+                      _showHandoverConfirmationDialog();
+                    }
+                  },
+                );
+                return;
+              }
+            }
+
             NotificationService.showError(
               context,
               context.tr('noter_buy_error_funds'),

@@ -11,9 +11,11 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/color_parser.dart';
 import '../../../data/models/theme_palette_model.dart';
 import '../../../data/models/listing_model.dart';
+import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../../../domain/usecases/psychology_engine.dart';
 import '../../widgets/car_damage_schema_widget.dart';
 import '../../widgets/car_icons.dart';
+import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
@@ -200,13 +202,20 @@ class ListingDetailScreen extends ConsumerWidget {
                   fontSize: 11,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (ctx) =>
-                          ExpertiseReportSheet(car: car, listing: listing),
+                  onPressed: () async {
+                    await NeoBrutalOperationDialog.show(
+                      context,
+                      operationType: OperationSuspenseType.expertiseInspection,
+                      carName: '${car.brand} ${car.modelName}',
+                      onComplete: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (ctx) =>
+                              ExpertiseReportSheet(car: car, listing: listing),
+                        );
+                      },
                     );
                   },
                 ),

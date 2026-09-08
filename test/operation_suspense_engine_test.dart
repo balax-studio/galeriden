@@ -372,5 +372,78 @@ void main() {
       // Dialog is gone
       expect(find.byType(NeoBrutalOperationDialog), findsNothing);
     });
+
+    test('7. Workshop, Scrapyard, and Expertise suspense types define valid stages and icons', () {
+      const types = [
+        OperationSuspenseType.workshopRepair,
+        OperationSuspenseType.workshopMaintenance,
+        OperationSuspenseType.scrapyardCrush,
+        OperationSuspenseType.scrapyardDismantle,
+        OperationSuspenseType.expertiseInspection,
+      ];
+
+      for (final type in types) {
+        expect(type.titleKey, isNotEmpty);
+        expect(type.stageKeys.length, equals(3));
+        expect(type.icon, isNotNull);
+        expect(type.accentColor, isNotNull);
+
+        final durations = type.generateStageDurations();
+        expect(durations.length, equals(3));
+        final total = durations.fold(0, (sum, d) => sum + d);
+        expect(total, greaterThanOrEqualTo(2500));
+        expect(total, lessThanOrEqualTo(4500));
+      }
+    });
+
+    testWidgets('8. NeoBrutalOperationDialog runs scrapyardCrush and executes onComplete', (tester) async {
+      bool completed = false;
+      final fixedRng = Random(42);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          locale: const Locale('tr'),
+          supportedLocales: const [Locale('tr'), Locale('en')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  NeoBrutalOperationDialog.show(
+                    context,
+                    operationType: OperationSuspenseType.scrapyardCrush,
+                    carName: 'Tofaş Şahin',
+                    rng: fixedRng,
+                    onComplete: () {
+                      completed = true;
+                    },
+                  );
+                },
+                child: const Text('Presle'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Presle'));
+      await tester.pump();
+
+      expect(find.byType(NeoBrutalOperationDialog), findsOneWidget);
+      expect(find.text('Tofaş Şahin'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+
+      expect(completed, isTrue);
+      expect(find.byType(NeoBrutalOperationDialog), findsNothing);
+    });
   });
 }

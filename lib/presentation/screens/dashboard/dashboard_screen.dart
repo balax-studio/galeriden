@@ -22,6 +22,8 @@ import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
 import '../../widgets/dialogs/rate_us_reward_dialog.dart';
+import '../../widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart';
+import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
 import '../marketplace/marketplace_screen.dart';
 import '../showroom/showroom_screen.dart';
 import '../../../core/theme/app_colors.dart';
@@ -102,6 +104,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       });
       return;
+    }
+
+    // Contextual Emergency Lifeline check (Unprompted intelligent detection for 7 bottleneck scenarios)
+    if (game.tutorialCompleted &&
+        ContextualEmergencyAdEngine.canTriggerUnprompted(currentDay: game.currentDay)) {
+      final encounter = ContextualEmergencyAdEngine.evaluateNeed(game: game);
+      if (encounter != null &&
+          encounter.needType != EmergencyNeedType.purchaseShortfall) {
+        _isModalShowing = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) {
+            _isModalShowing = false;
+            return;
+          }
+          await NeoBrutalContextualLifelineDialog.show(
+            context,
+            encounter: encounter,
+            onAccepted: () {
+              ContextualEmergencyAdEngine.markTriggered(currentDay: game.currentDay);
+            },
+            onDismissed: () {
+              ContextualEmergencyAdEngine.markTriggered(currentDay: game.currentDay);
+            },
+          );
+          _isModalShowing = false;
+          if (mounted) {
+            _checkAndShowPendingDialogs(ref.read(gameProvider));
+          }
+        });
+        return;
+      }
     }
   }
 

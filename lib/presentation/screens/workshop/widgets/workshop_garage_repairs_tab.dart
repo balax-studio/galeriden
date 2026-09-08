@@ -13,10 +13,12 @@ import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/part_order_model.dart';
 import '../../../../data/models/staff_model.dart';
+import '../../../../domain/usecases/operation_suspense_engine.dart';
 import '../../../../domain/usecases/psychology_engine.dart';
 import '../../../../domain/usecases/repair_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/dialogs/generic_rush_job_dialog.dart';
+import '../../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
@@ -128,8 +130,8 @@ class _WorkshopGarageRepairsTabState
     }
   }
 
-  void _executeTierRepair(
-      CarModel car, String repairType, RepairTier tier, double cost) {
+  Future<void> _executeTierRepair(
+      CarModel car, String repairType, RepairTier tier, double cost) async {
     final game = ref.read(gameProvider);
     if (game.balance < cost) {
       NotificationService.showError(
@@ -158,19 +160,6 @@ class _WorkshopGarageRepairsTabState
           return;
         }
       }
-      final result =
-          ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
-      if (result.isSuccess) {
-        NotificationService.showSuccess(context, result.message);
-        setState(() {
-          _selectedCar = ref
-              .read(gameProvider)
-              .ownedCars
-              .firstWhere((c) => c.id == car.id, orElse: () => car);
-        });
-      } else {
-        NotificationService.showError(context, result.message);
-      }
     } else if (repairType == 'transmission') {
       if (car.expertise.transmissionCondition >= 99.5) {
         NotificationService.showInfo(
@@ -189,19 +178,6 @@ class _WorkshopGarageRepairsTabState
           return;
         }
       }
-      final result =
-          ref.read(gameProvider.notifier).repairTransmissionWithTier(car, tier);
-      if (result.isSuccess) {
-        NotificationService.showSuccess(context, result.message);
-        setState(() {
-          _selectedCar = ref
-              .read(gameProvider)
-              .ownedCars
-              .firstWhere((c) => c.id == car.id, orElse: () => car);
-        });
-      } else {
-        NotificationService.showError(context, result.message);
-      }
     } else if (repairType == 'bodywork') {
       final nonOriginalParts = car.expertise.bodyParts.entries
           .where((e) => e.value != PartStatus.original)
@@ -213,76 +189,11 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('toast_body_no_damaged_parts'));
         return;
       }
-
-      final hasActiveMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
-              game.remainingWorkshopRepairsToday > 0;
-      final double successRate =
-          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
-      final isSuccess = Random().nextDouble() <= successRate;
-      if (!isSuccess) {
-        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(
-          context,
-          context.tr('workshop_paint_failed_toast',
-              {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
-        );
-        return;
-      }
-
-      final success =
-          ref.read(gameProvider.notifier).performWorkshopStationRepair(
-                car.id,
-                repairType: 'bodywork',
-                cost: cost,
-              );
-
-      if (success) {
-        NotificationService.showSuccess(
-            context, context.tr('workshop_toast_body_all_done'));
-        setState(() {
-          _selectedCar = ref
-              .read(gameProvider)
-              .ownedCars
-              .firstWhere((c) => c.id == car.id, orElse: () => car);
-        });
-      }
     } else if (repairType == 'ecu') {
       if (car.expertise.isEcuCleaned) {
         NotificationService.showInfo(
             context, context.tr('workshop_ecu_perfect_toast'));
         return;
-      }
-      final hasActiveMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
-              game.remainingWorkshopRepairsToday > 0;
-      final double successRate =
-          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
-      final isSuccess = Random().nextDouble() <= successRate;
-      if (!isSuccess) {
-        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(
-          context,
-          context.tr('workshop_ecu_failed_toast',
-              {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
-        );
-        return;
-      }
-      final success =
-          ref.read(gameProvider.notifier).performWorkshopStationRepair(
-                car.id,
-                repairType: 'ecu',
-                cost: cost,
-              );
-      if (success) {
-        NotificationService.showSuccess(
-            context, context.tr('workshop_toast_ecu_done'));
-        setState(() {
-          _selectedCar = ref
-              .read(gameProvider)
-              .ownedCars
-              .firstWhere((c) => c.id == car.id, orElse: () => car);
-        });
       }
     } else if (repairType == 'chassis') {
       if (car.expertise.isChassisAligned) {
@@ -290,38 +201,145 @@ class _WorkshopGarageRepairsTabState
             context, context.tr('workshop_chassis_perfect_toast'));
         return;
       }
-      final hasActiveMechanic =
-          game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
-              game.remainingWorkshopRepairsToday > 0;
-      final double successRate =
-          hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
-      final isSuccess = Random().nextDouble() <= successRate;
-      if (!isSuccess) {
-        ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
-        NotificationService.showError(
-          context,
-          context.tr('workshop_chassis_failed_toast',
-              {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
-        );
-        return;
-      }
-      final success =
-          ref.read(gameProvider.notifier).performWorkshopStationRepair(
-                car.id,
-                repairType: 'chassis',
-                cost: cost,
-              );
-      if (success) {
-        NotificationService.showSuccess(
-            context, context.tr('workshop_toast_chassis_done'));
-        setState(() {
-          _selectedCar = ref
-              .read(gameProvider)
-              .ownedCars
-              .firstWhere((c) => c.id == car.id, orElse: () => car);
-        });
-      }
     }
+
+    final carName = '${car.brand} ${car.modelName}';
+    await NeoBrutalOperationDialog.show(
+      context,
+      operationType: OperationSuspenseType.workshopRepair,
+      carName: carName,
+      onComplete: () {
+        if (!mounted) return;
+        if (repairType == 'engine') {
+          final result =
+              ref.read(gameProvider.notifier).repairEngineWithTier(car, tier);
+          if (result.isSuccess) {
+            NotificationService.showSuccess(context, result.message);
+            setState(() {
+              _selectedCar = ref
+                  .read(gameProvider)
+                  .ownedCars
+                  .firstWhere((c) => c.id == car.id, orElse: () => car);
+            });
+          } else {
+            NotificationService.showError(context, result.message);
+          }
+        } else if (repairType == 'transmission') {
+          final result = ref
+              .read(gameProvider.notifier)
+              .repairTransmissionWithTier(car, tier);
+          if (result.isSuccess) {
+            NotificationService.showSuccess(context, result.message);
+            setState(() {
+              _selectedCar = ref
+                  .read(gameProvider)
+                  .ownedCars
+                  .firstWhere((c) => c.id == car.id, orElse: () => car);
+            });
+          } else {
+            NotificationService.showError(context, result.message);
+          }
+        } else if (repairType == 'bodywork') {
+          final hasActiveMechanic =
+              game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+                  game.remainingWorkshopRepairsToday > 0;
+          final double successRate =
+              hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          final isSuccess = Random().nextDouble() <= successRate;
+          if (!isSuccess) {
+            ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+            NotificationService.showError(
+              context,
+              context.tr('workshop_paint_failed_toast',
+                  {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
+            );
+            return;
+          }
+
+          final success =
+              ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                    car.id,
+                    repairType: 'bodywork',
+                    cost: cost,
+                  );
+
+          if (success) {
+            NotificationService.showSuccess(
+                context, context.tr('workshop_toast_body_all_done'));
+            setState(() {
+              _selectedCar = ref
+                  .read(gameProvider)
+                  .ownedCars
+                  .firstWhere((c) => c.id == car.id, orElse: () => car);
+            });
+          }
+        } else if (repairType == 'ecu') {
+          final hasActiveMechanic =
+              game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+                  game.remainingWorkshopRepairsToday > 0;
+          final double successRate =
+              hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          final isSuccess = Random().nextDouble() <= successRate;
+          if (!isSuccess) {
+            ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+            NotificationService.showError(
+              context,
+              context.tr('workshop_ecu_failed_toast',
+                  {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
+            );
+            return;
+          }
+          final success =
+              ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                    car.id,
+                    repairType: 'ecu',
+                    cost: cost,
+                  );
+          if (success) {
+            NotificationService.showSuccess(
+                context, context.tr('workshop_toast_ecu_done'));
+            setState(() {
+              _selectedCar = ref
+                  .read(gameProvider)
+                  .ownedCars
+                  .firstWhere((c) => c.id == car.id, orElse: () => car);
+            });
+          }
+        } else if (repairType == 'chassis') {
+          final hasActiveMechanic =
+              game.hiredStaff.any((s) => s.role == StaffRole.masterMechanic) &&
+                  game.remainingWorkshopRepairsToday > 0;
+          final double successRate =
+              hasActiveMechanic ? 1.0 : RepairEngine.getSuccessRate(tier);
+          final isSuccess = Random().nextDouble() <= successRate;
+          if (!isSuccess) {
+            ref.read(gameProvider.notifier).deductBalance(cost * 0.4);
+            NotificationService.showError(
+              context,
+              context.tr('workshop_chassis_failed_toast',
+                  {'waste': CurrencyFormatter.formatShort(cost * 0.4)}),
+            );
+            return;
+          }
+          final success =
+              ref.read(gameProvider.notifier).performWorkshopStationRepair(
+                    car.id,
+                    repairType: 'chassis',
+                    cost: cost,
+                  );
+          if (success) {
+            NotificationService.showSuccess(
+                context, context.tr('workshop_toast_chassis_done'));
+            setState(() {
+              _selectedCar = ref
+                  .read(gameProvider)
+                  .ownedCars
+                  .firstWhere((c) => c.id == car.id, orElse: () => car);
+            });
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -669,7 +687,7 @@ class _WorkshopGarageRepairsTabState
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         onPressed: _selectedCar!.isPeriodicMaintained
                             ? null
-                            : () {
+                            : () async {
                                 if (game.balance < 3500) {
                                   NotificationService.showError(
                                     context,
@@ -679,25 +697,35 @@ class _WorkshopGarageRepairsTabState
                                   );
                                   return;
                                 }
-                                final success = ref
-                                    .read(gameProvider.notifier)
-                                    .performPeriodicMaintenance(
-                                        _selectedCar!.id);
-                                if (success) {
-                                  NotificationService.showSuccess(
-                                    context,
-                                    context.tr(
-                                        'workshop_10k_maintenance_toast'),
-                                  );
-                                  setState(() {
-                                    _selectedCar = ref
-                                        .read(gameProvider)
-                                        .ownedCars
-                                        .firstWhere(
-                                            (c) => c.id == _selectedCar!.id,
-                                            orElse: () => _selectedCar!);
-                                  });
-                                }
+                                final carName =
+                                    '${_selectedCar!.brand} ${_selectedCar!.modelName}';
+                                await NeoBrutalOperationDialog.show(
+                                  context,
+                                  operationType:
+                                      OperationSuspenseType.workshopMaintenance,
+                                  carName: carName,
+                                  onComplete: () {
+                                    final success = ref
+                                        .read(gameProvider.notifier)
+                                        .performPeriodicMaintenance(
+                                            _selectedCar!.id);
+                                    if (success) {
+                                      NotificationService.showSuccess(
+                                        context,
+                                        context.tr(
+                                            'workshop_10k_maintenance_toast'),
+                                      );
+                                      setState(() {
+                                        _selectedCar = ref
+                                            .read(gameProvider)
+                                            .ownedCars
+                                            .firstWhere(
+                                                (c) => c.id == _selectedCar!.id,
+                                                orElse: () => _selectedCar!);
+                                      });
+                                    }
+                                  },
+                                );
                               },
                       ),
                     ),

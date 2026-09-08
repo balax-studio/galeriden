@@ -6,8 +6,10 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/scrapyard_model.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../domain/usecases/operation_suspense_engine.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../../widgets/hydraulic_crush_wave_widget.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -499,7 +501,7 @@ class ScrapyardScrapCarsTab extends ConsumerWidget {
                             fontSize: 10.5,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 6),
-                            onPressed: () {
+                            onPressed: () async {
                               if (game.balance < car.scrapPrice) {
                                 NotificationService.showError(
                                   context,
@@ -511,18 +513,27 @@ class ScrapyardScrapCarsTab extends ConsumerWidget {
                                 );
                                 return;
                               }
-                              final res = ref
-                                  .read(gameProvider.notifier)
-                                  .buyAndDismantleScrapCar(car.id);
-                              if (res.success) {
-                                NotificationService.showSuccess(
-                                  context,
-                                  res.message,
-                                );
-                              } else {
-                                NotificationService.showError(
-                                    context, res.message);
-                              }
+                              final carName = '${car.brand} ${car.modelName}';
+                              await NeoBrutalOperationDialog.show(
+                                context,
+                                operationType:
+                                    OperationSuspenseType.scrapyardDismantle,
+                                carName: carName,
+                                onComplete: () {
+                                  final res = ref
+                                      .read(gameProvider.notifier)
+                                      .buyAndDismantleScrapCar(car.id);
+                                  if (res.success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      res.message,
+                                    );
+                                  } else {
+                                    NotificationService.showError(
+                                        context, res.message);
+                                  }
+                                },
+                              );
                             },
                           ),
                         ] else if (car.parts.isNotEmpty) ...[
@@ -548,19 +559,28 @@ class ScrapyardScrapCarsTab extends ConsumerWidget {
                             fontSize: 10.5,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 6),
-                            onPressed: () {
-                              final res = ref
-                                  .read(gameProvider.notifier)
-                                  .buyAndDismantleScrapCar(car.id);
-                              if (res.success) {
-                                NotificationService.showSuccess(
-                                  context,
-                                  res.message,
-                                );
-                              } else {
-                                NotificationService.showError(
-                                    context, res.message);
-                              }
+                            onPressed: () async {
+                              final carName = '${car.brand} ${car.modelName}';
+                              await NeoBrutalOperationDialog.show(
+                                context,
+                                operationType:
+                                    OperationSuspenseType.scrapyardDismantle,
+                                carName: carName,
+                                onComplete: () {
+                                  final res = ref
+                                      .read(gameProvider.notifier)
+                                      .buyAndDismantleScrapCar(car.id);
+                                  if (res.success) {
+                                    NotificationService.showSuccess(
+                                      context,
+                                      res.message,
+                                    );
+                                  } else {
+                                    NotificationService.showError(
+                                        context, res.message);
+                                  }
+                                },
+                              );
                             },
                           ),
                         ] else ...[

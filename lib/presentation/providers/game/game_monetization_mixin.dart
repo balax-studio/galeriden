@@ -5,6 +5,7 @@ import '../../../data/models/lucky_opportunity_model.dart';
 import '../../../data/models/scrapyard_model.dart';
 import '../../../data/models/showroom_theme_model.dart';
 import '../../../data/models/store_bundle_model.dart';
+import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
 import 'game_base_notifier.dart';
 
 mixin GameMonetizationMixin on GameBaseNotifier {
@@ -42,6 +43,99 @@ mixin GameMonetizationMixin on GameBaseNotifier {
           (state.reputationScore + opp.reputationBonus).clamp(0, 100),
       luckyOpportunityPityCounter: 0,
       lastLuckyOpportunityDay: state.currentDay,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Claims reward from an intelligent contextual emergency lifeline encounter
+  bool claimContextualLifeline(ContextualLifelineEncounter encounter) {
+    double newBalance = state.balance;
+    int newRep = state.reputationScore;
+    int newGarageSlots = state.maxGarageSlots;
+    List<SalvagedPart> newParts = List<SalvagedPart>.from(state.salvagedParts);
+    int newWorkshop = state.dailyWorkshopRepairsCount;
+    int newWash = state.dailyCarWashCount;
+    int newScrapyard = state.scrapyardSearchesToday;
+
+    if (encounter.grantAmount > 0) {
+      newBalance += encounter.grantAmount;
+    }
+    if (encounter.reputationBonus > 0) {
+      newRep = (newRep + encounter.reputationBonus).clamp(0, 100);
+    }
+    if (encounter.garageSlotBonus > 0) {
+      newGarageSlots += encounter.garageSlotBonus;
+    }
+    if (encounter.resetDailyActions) {
+      newWorkshop = 0;
+      newWash = 0;
+      newScrapyard = 0;
+    }
+    if (encounter.grantPartsCrate) {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      newParts.add(
+        SalvagedPart(
+          id: 'oem_part_engine_$now',
+          name: 'OEM Orijinal Silindir Kapağı & Conta',
+          carModelName: 'Genel Uyumlu',
+          category: 'engine',
+          conditionPercent: 100,
+          tier: PartQualityTier.pristine,
+          estimatedValue: 18000.0,
+        ),
+      );
+      newParts.add(
+        SalvagedPart(
+          id: 'oem_part_suspension_${now + 1}',
+          name: 'OEM Orijinal Amortisör & Helezon Seti',
+          carModelName: 'Genel Uyumlu',
+          category: 'suspension',
+          conditionPercent: 100,
+          tier: PartQualityTier.pristine,
+          estimatedValue: 12000.0,
+        ),
+      );
+    }
+
+    state = state.copyWith(
+      balance: newBalance,
+      reputationScore: newRep,
+      maxGarageSlots: newGarageSlots,
+      salvagedParts: newParts,
+      dailyWorkshopRepairsCount: newWorkshop,
+      dailyCarWashCount: newWash,
+      scrapyardSearchesToday: newScrapyard,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Claims VIP fleet agreement bonus cash from rewarded ad
+  bool claimVipFleetBonus(double bonusAmount) {
+    if (bonusAmount <= 0) return false;
+    state = state.copyWith(
+      balance: state.balance + bonusAmount,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Claims municipal branch expansion grant subsidy from rewarded ad
+  bool claimBranchExpansionGrant(double grantAmount) {
+    if (grantAmount <= 0) return false;
+    state = state.copyWith(
+      balance: state.balance + grantAmount,
+    );
+    saveState();
+    return true;
+  }
+
+  /// Claims emergency cash support from rewarded ad or lifeline
+  bool claimEmergencyLifelineCash(double amount) {
+    if (amount <= 0) return false;
+    state = state.copyWith(
+      balance: state.balance + amount,
     );
     saveState();
     return true;

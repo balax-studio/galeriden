@@ -46,69 +46,72 @@ class WhatsNewDialog extends ConsumerWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(18),
-          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-          borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
-          borderRadius: 16,
-          borderWidth: 2.5,
-          shadowOffset: const Offset(4, 4),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: NeoBrutalCard(
+            padding: const EdgeInsets.all(18),
+            backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+            borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            borderRadius: 16,
+            borderWidth: 2.5,
+            shadowOffset: const Offset(4, 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.brutalYellow,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF333B4F)
-                                  : const Color(0xFF0F172A),
-                              width: 2.0,
-                            ),
-                          ),
-                          child: const Icon(Icons.new_releases_rounded,
-                              color: Colors.black, size: 22),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.brutalYellow,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 2.0,
                         ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('whats_new_title'),
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w900),
-                            ),
-                            Text(
-                              context.tr('whats_new_version_subtitle',
-                                  {'version': GameConstants.appVersion}),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: isDark
-                                    ? AppColors.brutalYellow
-                                    : const Color(0xFFB45309),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
+                      child: const Icon(Icons.new_releases_rounded,
+                          color: Colors.black, size: 22),
                     ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.tr('whats_new_title'),
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w900),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            context.tr('whats_new_version_subtitle',
+                                {'version': GameConstants.appVersion}),
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: isDark
+                                  ? AppColors.brutalYellow
+                                  : const Color(0xFFB45309),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     NeoBrutalBadge(
                       text: context.tr('whats_new_badge_current'),
                       backgroundColor: AppColors.brutalGreen,
                       textColor: Colors.black,
-                      fontSize: 9.5,
+                      fontSize: 9.0,
                       fontWeight: FontWeight.w900,
                     ),
                   ],
@@ -161,92 +164,132 @@ class WhatsNewDialog extends ConsumerWidget {
                 ),
                 const SizedBox(height: 14),
 
-              // Anonymous In-App Feedback Banner
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1E2433)
-                      : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
+                // Anonymous In-App Feedback Banner
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF333B4F)
-                        : const Color(0xFFCBD5E1),
-                    width: 1.8,
+                        ? const Color(0xFF1E2433)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF333B4F)
+                          : const Color(0xFFCBD5E1),
+                      width: 1.8,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.chat_bubble_outline_rounded,
+                              size: 16, color: AppColors.brutalYellow),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              context.tr('whats_new_feedback_title'),
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.tr('whats_new_feedback_desc'),
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF475569),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Feedback action buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: NeoBrutalButton(
+                              label: context.tr('whats_new_btn_quick_vote'),
+                              icon: Icons.thumb_up_alt_rounded,
+                              backgroundColor: AppColors.brutalYellow,
+                              textColor: Colors.black,
+                              fontSize: 10.5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
+                              onPressed: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.of(context).pop();
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => const FeedbackDialog(),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: NeoBrutalButton(
+                              label: context.tr('whats_new_btn_detailed_review'),
+                              icon: Icons.rate_review_rounded,
+                              backgroundColor: isDark
+                                  ? const Color(0xFF222838)
+                                  : const Color(0xFFE2E8F0),
+                              textColor: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF1E293B),
+                              borderColor: isDark
+                                  ? const Color(0xFF384252)
+                                  : const Color(0xFFCBD5E1),
+                              fontSize: 10.5,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
+                              onPressed: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.of(context).pop();
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => const FeedbackDialog(),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.chat_bubble_outline_rounded,
-                            size: 16, color: AppColors.brutalYellow),
-                        const SizedBox(width: 6),
-                        Text(
-                          context.tr('whats_new_feedback_title'),
-                          style: TextStyle(
-                            fontSize: 10.5,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.tr('whats_new_feedback_desc'),
-                      style: TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? const Color(0xFFCBD5E1)
-                            : const Color(0xFF475569),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    NeoBrutalButton(
-                      label: context.tr('whats_new_feedback_btn'),
-                      icon: Icons.rate_review_rounded,
-                      backgroundColor:
-                          isDark ? const Color(0xFF2A3142) : Colors.white,
-                      textColor:
-                          isDark ? Colors.white : const Color(0xFF0F172A),
-                      fontSize: 10.5,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        FeedbackDialog.show(context);
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Main Confirm Button
-              NeoBrutalButton(
-                label: context.tr('whats_new_start_game_btn'),
-                icon: Icons.check_circle_rounded,
-                backgroundColor: AppColors.brutalYellow,
-                textColor: Colors.black,
-                fontSize: 12.5,
-                fullWidth: true,
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+                // Close Button
+                NeoBrutalButton(
+                  label: context.tr('btn_lets_play'),
+                  icon: Icons.rocket_launch_rounded,
+                  backgroundColor: AppColors.brutalGreen,
+                  textColor: Colors.black,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  fullWidth: true,
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildChangelogItem({

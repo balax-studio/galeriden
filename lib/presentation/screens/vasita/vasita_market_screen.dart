@@ -59,6 +59,8 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     final game = ref.watch(gameProvider);
     final allListings = ref.watch(vasitaMarketProvider);
     final activeFilter = ref.watch(vasitaMarketFilterProvider);
+    final cooldownSeconds = ref.watch(vasitaMarketRefreshCooldownProvider);
+    final isCooldownActive = cooldownSeconds > 0 && !game.hasNoAdsLicense;
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -147,13 +149,23 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                   ),
                   const SizedBox(width: 8),
                   NeoBrutalButton.neutral(
-                    icon: Icons.refresh_rounded,
-                    label: context.tr('market_refresh_tooltip'),
+                    icon: isCooldownActive ? Icons.timer_rounded : Icons.refresh_rounded,
+                    label: isCooldownActive
+                        ? '${cooldownSeconds}s'
+                        : context.tr('market_refresh_tooltip'),
                     fontSize: 11,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
                     onPressed: () {
                       HapticFeedback.mediumImpact();
-                      ref.read(vasitaMarketProvider.notifier).refreshMarket();
+                      if (isCooldownActive) {
+                        _showMarketRefreshAdDialog(context, cooldownSeconds);
+                      } else {
+                        ref.read(vasitaMarketProvider.notifier).refreshMarket(triggerCooldown: true);
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('market_toast_refreshed'),
+                        );
+                      }
                     },
                   ),
                 ],
@@ -597,6 +609,117 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showMarketRefreshAdDialog(BuildContext context, int cooldownSeconds) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: NeoBrutalCard(
+          padding: const EdgeInsets.all(20),
+          backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
+          borderColor: AppColors.brutalYellow,
+          borderWidth: 2.5,
+          borderRadius: 16,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.brutalYellow, width: 1.5),
+                    ),
+                    child: const Icon(Icons.timer_rounded, color: AppColors.brutalYellow, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('market_cooldown_dialog_title'),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                        Text(
+                          context.tr('market_cooldown_remaining', {'sec': '$cooldownSeconds'}),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.warningOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(
+                context.tr('market_cooldown_dialog_desc'),
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                ),
+              ),
+              const SizedBox(height: 18),
+              NeoBrutalButton(
+                label: context.tr('market_btn_instant_refresh_ad'),
+                icon: Icons.play_circle_fill_rounded,
+                backgroundColor: AppColors.brutalYellow,
+                textColor: Colors.black,
+                fontSize: 12.5,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  AdService.instance.showRewardedAd(
+                    onRewardEarned: () {
+                      ref.read(vasitaMarketRefreshCooldownProvider.notifier).resetCooldown();
+                      ref.read(vasitaMarketProvider.notifier).refreshMarket(triggerCooldown: true);
+                      if (mounted) {
+                        NotificationService.showSuccess(
+                          context,
+                          context.tr('market_toast_refreshed'),
+                        );
+                      }
+                    },
+                    onAdUnavailable: () {
+                      ref.read(vasitaMarketRefreshCooldownProvider.notifier).resetCooldown();
+                      ref.read(vasitaMarketProvider.notifier).refreshMarket(triggerCooldown: true);
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(
+                  context.tr('btn_dismiss_wait'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

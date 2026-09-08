@@ -52,39 +52,52 @@ void main() {
       expect(seenCardIds.length, equals(365));
     });
 
-    test('Milestone days produce expected narrative cards', () {
-      // Day 1: First customer / tea ceremony
+    test('Milestone and key days produce expected general life narrative cards', () {
+      // Day 1: Yanlış Gruba Ses Kaydı
       final day1 = DramaticCardEngine.generateDailyDilemma(1, baseState);
-      expect(day1.id, equals('milestone_day_1'));
-      expect(day1.category, equals(DramaticCategory.legacy));
-      expect(day1.choices.length, equals(3));
+      expect(day1.id, equals('life_card_day_1'));
+      expect(day1.title, equals('Yanlış Gruba Ses Kaydı'));
+      expect(day1.choices.length, greaterThanOrEqualTo(2));
 
-      // Day 7: Sanayi çırağı
-      final day7 = DramaticCardEngine.generateDailyDilemma(7, baseState);
-      expect(day7.id, equals('milestone_day_7'));
-      expect(day7.category, equals(DramaticCategory.comedy));
+      // Day 2: Eski Sevgilinin 4 Yıllık Fotoğrafı
+      final day2 = DramaticCardEngine.generateDailyDilemma(2, baseState);
+      expect(day2.id, equals('life_card_day_2'));
+      expect(day2.title, equals('Eski Sevgilinin 4 Yıllık Fotoğrafı'));
 
-      // Day 14: Vergi müfettişi
-      final day14 = DramaticCardEngine.generateDailyDilemma(14, baseState);
-      expect(day14.id, equals('milestone_day_14'));
-      expect(day14.category, equals(DramaticCategory.loss));
+      // Day 3: Akraba WhatsApp Grubu Kavgası
+      final day3 = DramaticCardEngine.generateDailyDilemma(3, baseState);
+      expect(day3.id, equals('life_card_day_3'));
+      expect(day3.title, equals('Akraba WhatsApp Grubu Kavgası'));
 
-      // Day 30: Galericiler derneği
+      // Day 6: Matrix Kırmızı Hap İkilemi
+      final day6 = DramaticCardEngine.generateDailyDilemma(6, baseState);
+      expect(day6.id, equals('life_card_day_6'));
+      expect(day6.title, equals('Matrix Kırmızı Hap İkilemi'));
+
+      // Day 15: Ezel Replikleriyle Teselli
+      final day15 = DramaticCardEngine.generateDailyDilemma(15, baseState);
+      expect(day15.id, equals('life_card_day_15'));
+      expect(day15.title, equals('Ezel Replikleriyle Teselli'));
+
+      // Day 30: Ekran Süresi Raporu Şoku
       final day30 = DramaticCardEngine.generateDailyDilemma(30, baseState);
-      expect(day30.id, equals('milestone_day_30'));
+      expect(day30.id, equals('life_card_day_30'));
+      expect(day30.title, equals('Ekran Süresi Raporu Şoku'));
 
-      // Day 50: Gizemli koleksiyoncu
-      final day50 = DramaticCardEngine.generateDailyDilemma(50, baseState);
-      expect(day50.id, equals('milestone_day_50'));
-      expect(day50.category, equals(DramaticCategory.opportunity));
+      // Day 61: Kurtlar Vadisi Çakır Ruhu
+      final day61 = DramaticCardEngine.generateDailyDilemma(61, baseState);
+      expect(day61.id, equals('life_card_day_61'));
+      expect(day61.title, equals('Kurtlar Vadisi Çakır Ruhu'));
 
-      // Day 100: Şubeleşme
-      final day100 = DramaticCardEngine.generateDailyDilemma(100, baseState);
-      expect(day100.id, equals('milestone_day_100'));
+      // Day 181: İlk Buluşmada Hesabı Kim Öder
+      final day181 = DramaticCardEngine.generateDailyDilemma(181, baseState);
+      expect(day181.id, equals('life_card_day_181'));
+      expect(day181.title, equals('İlk Buluşmada Hesabı Kim Öder'));
 
-      // Day 365: Yıl sonu esnaf balosu
+      // Day 365: Büyük 365 Gün Finali ve Yaşam Zaferi
       final day365 = DramaticCardEngine.generateDailyDilemma(365, baseState);
-      expect(day365.id, equals('milestone_day_365'));
+      expect(day365.id, equals('life_card_day_365'));
+      expect(day365.title, equals('Büyük 365 Gün Finali ve Yaşam Zaferi'));
       expect(day365.category, equals(DramaticCategory.legacy));
     });
 
@@ -186,27 +199,26 @@ void main() {
       }
     });
 
-    test('Authentic Turkish esnaf dilemma cards are accessible in procedural cycles', () {
+    test('Authentic Turkish general life dilemma cards are accessible in calendar cycles', () {
       final generatedTitles = <String>{};
-      for (int day = 1; day <= 1500; day++) {
+      for (int day = 1; day <= 365; day++) {
         final card = DramaticCardEngine.generateDailyDilemma(day, baseState);
         generatedTitles.add(card.title);
       }
 
-      expect(generatedTitles.contains('Motor Kaputunda Uyuyan Kedi'), isTrue);
-      expect(generatedTitles.contains('Habersiz Çaya Gelen Akrabalar'), isTrue);
-      expect(generatedTitles.contains('Sanayi Çaycısının Kabarık Çetelesi'), isTrue);
-      expect(generatedTitles.contains('Cuma Namazı Çıkışı Kalabalığı'), isTrue);
-      expect(generatedTitles.contains('Ani Elektrik Kesintisi ve Sıkışan Kepenk'), isTrue);
-      expect(generatedTitles.contains('Sanayide Düğün Konvoyu Baskını'), isTrue);
-      expect(generatedTitles.contains('Noterde Elektrik ve Sistem Çökmesi'), isTrue);
-      expect(generatedTitles.contains('Çırağın Ehliyet Sevinci'), isTrue);
-      expect(generatedTitles.contains('Kapı Önünde Lastik Yakan Mahalle Gençleri'), isTrue);
-      expect(generatedTitles.contains('Emekli Sandığı İkramiyesiyle Gelen Eski Dost'), isTrue);
-      expect(generatedTitles.contains('Yağmurlu Havada Galeriye Sığınan Seyyar Satıcı'), isTrue);
-      expect(generatedTitles.contains('İflas Eden Komşu Esnafın Vedası'), isTrue);
-      expect(generatedTitles.contains('Sanayi Sitesi Futbol Turnuvası'), isTrue);
-      expect(generatedTitles.contains('Nostaljik Radyo Programı Röportajı'), isTrue);
+      expect(generatedTitles.contains('Yanlış Gruba Ses Kaydı'), isTrue);
+      expect(generatedTitles.contains('LinkedIn Başarı Hikayesi Balonu'), isTrue);
+      expect(generatedTitles.contains('Apartman Yöneticiliği Seçimi'), isTrue);
+      expect(generatedTitles.contains('Avrupa Yakası Burhan Tripleri'), isTrue);
+      expect(generatedTitles.contains('Plaza Türkçesi Maruziyeti'), isTrue);
+      expect(generatedTitles.contains('Efsane Cuma İndirimi Hipnozu'), isTrue);
+      expect(generatedTitles.contains('Her Şey Dahil Otel Yemek Kuyruğu'), isTrue);
+      expect(generatedTitles.contains('İlk Buluşmada Hesabı Kim Öder'), isTrue);
+      expect(generatedTitles.contains('Dolmuşta Müsait Bir Yerde Diyememek'), isTrue);
+      expect(generatedTitles.contains('Otuz Yaş Doğum Günü Paniği'), isTrue);
+      expect(generatedTitles.contains('Pazartesi Başlayan Diyetin Salı Akşamı Çöküşü'), isTrue);
+      expect(generatedTitles.contains('Kredi Kartı Asgarisini Ödeme Ritüeli'), isTrue);
+      expect(generatedTitles.contains('Büyük 365 Gün Finali ve Yaşam Zaferi'), isTrue);
     });
   });
 }

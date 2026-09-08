@@ -12,11 +12,47 @@ final vasitaMarketSearchProvider = StateProvider<String>((ref) => '');
 
 final vasitaLockedListingsProvider = StateProvider<Set<String>>((ref) => {});
 
+final vasitaMarketRefreshCooldownProvider =
+    StateNotifierProvider<VasitaMarketCooldownNotifier, int>((ref) {
+  return VasitaMarketCooldownNotifier();
+});
+
+class VasitaMarketCooldownNotifier extends StateNotifier<int> {
+  Timer? _timer;
+
+  VasitaMarketCooldownNotifier() : super(0);
+
+  void startCooldown([int seconds = 45]) {
+    _timer?.cancel();
+    state = seconds;
+    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (state <= 1) {
+        state = 0;
+        t.cancel();
+      } else {
+        state = state - 1;
+      }
+    });
+  }
+
+  void resetCooldown() {
+    _timer?.cancel();
+    state = 0;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+}
+
 final vasitaMarketProvider =
     StateNotifierProvider<VasitaMarketNotifier, List<ListingModel>>((ref) {
   ref.listen<int>(gameProvider.select((g) => g.currentDay), (previous, next) {
     if (previous != null && next != previous) {
       ref.read(vasitaLockedListingsProvider.notifier).state = {};
+      ref.read(vasitaMarketRefreshCooldownProvider.notifier).resetCooldown();
     }
   });
   return VasitaMarketNotifier(ref);
@@ -39,9 +75,15 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
     });
   }
 
-  void refreshMarket() {
-    final playerLevel = _ref.read(gameProvider).level;
+  void refreshMarket({bool triggerCooldown = false}) {
+    final game = _ref.read(gameProvider);
+    final playerLevel = game.level;
     final categoryFilter = _ref.read(vasitaMarketFilterProvider);
+
+    if (triggerCooldown && !game.hasNoAdsLicense) {
+      _ref.read(vasitaMarketRefreshCooldownProvider.notifier).startCooldown(45);
+    }
+
     state = VasitaMarketEngine.generateListings(
       count: 24,
       categoryFilter: categoryFilter,

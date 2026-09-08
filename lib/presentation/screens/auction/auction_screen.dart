@@ -13,6 +13,8 @@ import '../../../core/utils/notification_service.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/mission_model.dart';
 import '../../../domain/usecases/auction_engine.dart';
+import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
+import '../../widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart';
 import '../../providers/auction_session_provider.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -322,6 +324,23 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
     if (game.balance < 500000) {
+      final shortfall = 500000 - game.balance;
+      if (shortfall <= 50000) {
+        final encounter = ContextualEmergencyAdEngine.evaluateNeed(
+          game: game,
+          purchaseShortfall: shortfall,
+        );
+        if (encounter != null) {
+          NeoBrutalContextualLifelineDialog.show(
+            context,
+            encounter: encounter,
+            onAccepted: () {
+              _switchToVipAuction();
+            },
+          );
+          return;
+        }
+      }
       NotificationService.showWarning(
           context, context.tr('auction_vip_deposit_warn'));
       return;

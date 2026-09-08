@@ -71,25 +71,32 @@ class NeoBrutalReceiptCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.receipt_long_rounded,
-                            size: 16, color: AppColors.brutalYellow),
-                        const SizedBox(width: 6),
-                        Text(
-                          receiptTitle!.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.8,
-                            color: isDark
-                                ? Colors.white
-                                : const Color(0xFF0F172A),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          const Icon(Icons.receipt_long_rounded,
+                              size: 16, color: AppColors.brutalYellow),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              receiptTitle!.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.8,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    if (serialNumber != null)
+                    if (serialNumber != null) ...[
+                      const SizedBox(width: 8),
                       Text(
                         serialNumber!,
                         style: const TextStyle(
@@ -99,6 +106,7 @@ class NeoBrutalReceiptCard extends StatelessWidget {
                           color: Color(0xFF64748B),
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),

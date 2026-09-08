@@ -156,9 +156,11 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
               ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
+            Flexible(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(20),
+                child: Column(
                 children: [
                   Text(
                     context.tr('double_stake_header',
@@ -309,6 +311,7 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
                   ],
                 ],
               ),
+            ),
             ),
           ],
         ),

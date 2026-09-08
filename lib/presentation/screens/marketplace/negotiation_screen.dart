@@ -19,6 +19,8 @@ import '../../../domain/usecases/psychology_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/market_provider.dart';
 import '../../widgets/dialogs/notary_transfer_dialog.dart';
+import '../../widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart';
+import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -251,6 +253,18 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
 
   void _handlePayAndBuy(ListingModel currentListing, DealershipModel game) {
     if (game.ownedCars.length >= game.maxGarageSlots) {
+      final encounter = ContextualEmergencyAdEngine.evaluateNeed(game: game);
+      if (encounter != null &&
+          encounter.needType == EmergencyNeedType.garageFull) {
+        NeoBrutalContextualLifelineDialog.show(
+          context,
+          encounter: encounter,
+          onAccepted: () {
+            _handlePayAndBuy(currentListing, ref.read(gameProvider));
+          },
+        );
+        return;
+      }
       NotificationService.showError(
         context,
         context.tr('deal_garage_full_msg', {
@@ -260,9 +274,30 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
       );
       return;
     }
+
+    final finalPayPrice = _agreedFinalPrice ?? _offeredPrice;
+    if (game.balance < finalPayPrice) {
+      final shortfall = finalPayPrice - game.balance;
+      if (shortfall <= 150000.0) {
+        final encounter = ContextualEmergencyAdEngine.evaluateNeed(
+          game: game,
+          purchaseShortfall: shortfall,
+        );
+        if (encounter != null) {
+          NeoBrutalContextualLifelineDialog.show(
+            context,
+            encounter: encounter,
+            onAccepted: () {
+              _handlePayAndBuy(currentListing, ref.read(gameProvider));
+            },
+          );
+          return;
+        }
+      }
+    }
+
     HapticFeedback.heavyImpact();
     setState(() => _isProcessing = true);
-    final finalPayPrice = _agreedFinalPrice ?? _offeredPrice;
     final outcome = ref.read(gameProvider.notifier).buyCar(
           currentListing.car,
           finalPayPrice,

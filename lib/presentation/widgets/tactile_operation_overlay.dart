@@ -168,8 +168,8 @@ class _TactileOperationOverlayState extends State<TactileOperationOverlay>
       child: Material(
         color: Colors.transparent,
         child: Container(
-          width: 360,
-          margin: const EdgeInsets.symmetric(horizontal: 24),
+          constraints: const BoxConstraints(maxWidth: 360),
+          margin: const EdgeInsets.symmetric(horizontal: 20),
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
