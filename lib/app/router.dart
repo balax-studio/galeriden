@@ -62,6 +62,8 @@ import '../data/models/home_interior_design_model.dart';
 import '../presentation/screens/real_estate/home_interior_design_screen.dart';
 import '../presentation/screens/real_estate/home_interior_category_detail_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
+import '../presentation/screens/leaderboard/leaderboard_screen.dart';
+import '../core/services/analytics_service.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
   return CupertinoPage(
@@ -74,6 +76,10 @@ Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
 final appRouter = GoRouter(
   initialLocation: '/dashboard',
   errorBuilder: (context, state) => const DashboardScreen(),
+  observers: [
+    if (AnalyticsService.instance.observer != null)
+      AnalyticsService.instance.observer!,
+  ],
   routes: [
     GoRoute(
       path: '/',
@@ -425,6 +431,11 @@ final appRouter = GoRouter(
         }
         return _buildCupertinoPage(OfferEvaluationScreen(args: args), state);
       },
+    ),
+    GoRoute(
+      path: '/leaderboard',
+      pageBuilder: (context, state) =>
+          _buildCupertinoPage(const LeaderboardScreen(), state),
     ),
   ],
 );

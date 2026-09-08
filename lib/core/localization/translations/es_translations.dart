@@ -5275,5 +5275,18 @@ const Map<String, String> esTranslations = {
     'whats_new_btn_quick_vote': 'VOTAR RÁPIDO',
     'whats_new_btn_detailed_review': 'RESEÑA DETALLADA',
     'btn_lets_play': 'VAMOS • EMPEZAR',
+
+    'leaderboard_screen_title': 'Clasificación',
+    'leaderboard_screen_slug': 'Concesionarios Más Ricos y Clasificación de Reputación',
+    'leaderboard_btn_refresh': 'Actualizar',
+    'leaderboard_tab_wealth': 'Riqueza Total',
+    'leaderboard_tab_reputation': 'Reputación y XP',
+    'leaderboard_empty_title': 'Aún No Hay Datos de Clasificación',
+    'leaderboard_empty_desc': 'Espere mientras se cargan los datos iniciales o actualice.',
+    'leaderboard_tag_me': 'TÚ',
+    'leaderboard_label_cars': 'Vehículos',
+    'leaderboard_my_standing_label': 'Estado de Tu Concesionario',
+    'leaderboard_error_fetch': 'No se pudo cargar la clasificación. Comprueba tu conexión a internet.',
+    'level_prefix': 'Nivel',
 };
 

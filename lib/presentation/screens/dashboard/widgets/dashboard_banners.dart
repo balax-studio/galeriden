@@ -1016,11 +1016,10 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
 
     return Row(
       children: [
-        // 1. Rivals Leaderboard
+        // 1. Online Leaderboard (Replaced City League / Rivals)
         Expanded(
           child: NeoBrutalCard(
-            onTap: () => DashboardRetentionModals.showRivalLeaderboardModal(
-                context, game),
+            onTap: () => context.push('/leaderboard'),
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
             borderColor:
@@ -1044,7 +1043,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        context.tr('city_league'),
+                        context.tr('leaderboard_screen_title'),
                         style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w900,
@@ -1055,7 +1054,7 @@ class DashboardRetentionHighlightsRow extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        context.tr('rivals_count', {'count': 5}),
+                        context.tr('leaderboard_tab_wealth'),
                         style: TextStyle(
                           fontSize: 9.5,
                           color: isDark

@@ -5275,4 +5275,17 @@ const Map<String, String> deTranslations = {
     'whats_new_btn_quick_vote': 'SCHNELL BEWERTEN',
     'whats_new_btn_detailed_review': 'AUSFÜHRLICHE BEWERTUNG',
     'btn_lets_play': 'LOS GEHTS • START',
+
+    'leaderboard_screen_title': 'Bestenliste',
+    'leaderboard_screen_slug': 'Reichste Autohäuser und Ruf-Rangliste',
+    'leaderboard_btn_refresh': 'Aktualisieren',
+    'leaderboard_tab_wealth': 'Gesamtvermögen',
+    'leaderboard_tab_reputation': 'Ruf und XP',
+    'leaderboard_empty_title': 'Noch keine Ranglistendaten',
+    'leaderboard_empty_desc': 'Bitte warten Sie während die Ranglistendaten geladen werden oder aktualisieren Sie.',
+    'leaderboard_tag_me': 'DU',
+    'leaderboard_label_cars': 'Fahrzeuge',
+    'leaderboard_my_standing_label': 'Status Deines Autohauses',
+    'leaderboard_error_fetch': 'Bestenliste konnte nicht geladen werden. Bitte Internetverbindung prüfen.',
+    'level_prefix': 'Stufe',
 };

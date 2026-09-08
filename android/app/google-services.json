@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1033430498827",
+    "project_id": "galeriden-game-balax",
+    "storage_bucket": "galeriden-game-balax.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1033430498827:android:3c0d99352e6a680746510e",
+        "android_client_info": {
+          "package_name": "com.balax.galeriden"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAehaenZTKiZCfE7soktfxR4P7rYNAEx70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

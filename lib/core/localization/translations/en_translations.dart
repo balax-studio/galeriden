@@ -5275,5 +5275,18 @@ const Map<String, String> enTranslations = {
     'whats_new_btn_quick_vote': 'QUICK RATE',
     'whats_new_btn_detailed_review': 'DETAILED REVIEW',
     'btn_lets_play': 'LET\'S ROLL • START',
+
+    'leaderboard_screen_title': 'Leaderboard',
+    'leaderboard_screen_slug': 'Richest Dealerships and Reputation Rankings',
+    'leaderboard_btn_refresh': 'Refresh',
+    'leaderboard_tab_wealth': 'Total Wealth',
+    'leaderboard_tab_reputation': 'Reputation and XP',
+    'leaderboard_empty_title': 'No Ranking Data Yet',
+    'leaderboard_empty_desc': 'Please wait while initial ranking data loads or refresh.',
+    'leaderboard_tag_me': 'YOU',
+    'leaderboard_label_cars': 'Cars',
+    'leaderboard_my_standing_label': 'Your Dealership Standing',
+    'leaderboard_error_fetch': 'Could not load leaderboard. Please check your internet connection.',
+    'level_prefix': 'Level',
 };
 

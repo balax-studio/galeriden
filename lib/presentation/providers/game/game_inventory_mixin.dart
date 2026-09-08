@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import '../../../core/constants/first_time_action_keys.dart';
+import '../../../core/services/analytics_service.dart';
 import '../../../data/models/mega_systems_extensions_model.dart';
 import '../../../data/models/cheque_model.dart';
 import '../../../data/models/branch_model.dart';
@@ -457,6 +458,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     addXP(saleXp.clamp(0, 220));
     checkAchievement('first_sale');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarSell);
+    AnalyticsService.instance.logCarSold(
+      brand: car.brand,
+      model: car.modelName,
+      salePrice: salePrice,
+      profit: profit,
+    );
     updateMissionProgress(MissionType.sellCars, 1);
     if (profit > 0) {
       updateMissionProgress(MissionType.earnProfit, profit.toInt());
@@ -485,6 +492,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
       balance: state.balance - price,
       ownedCars: [...state.ownedCars, finalCar],
       discoveredCarModelIds: updatedAlbum,
+    );
+    AnalyticsService.instance.logCarPurchased(
+      brand: finalCar.brand,
+      model: finalCar.modelName,
+      price: price,
+      modelYear: finalCar.modelYear,
     );
     addXP(30);
     checkAchievement('first_buy');

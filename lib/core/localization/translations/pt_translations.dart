@@ -5275,5 +5275,18 @@ const Map<String, String> ptTranslations = {
     'whats_new_btn_quick_vote': 'AVALIAÇÃO RÁPIDA',
     'whats_new_btn_detailed_review': 'AVALIAÇÃO DETALHADA',
     'btn_lets_play': 'VAMOS NESSA • COMEÇAR',
+
+    'leaderboard_screen_title': 'Classificação',
+    'leaderboard_screen_slug': 'Concessionárias Mais Ricas e Ranking de Reputação',
+    'leaderboard_btn_refresh': 'Atualizar',
+    'leaderboard_tab_wealth': 'Riqueza Total',
+    'leaderboard_tab_reputation': 'Reputação e XP',
+    'leaderboard_empty_title': 'Ainda Sem Dados de Classificação',
+    'leaderboard_empty_desc': 'Aguarde enquanto os dados iniciais são carregados ou atualize.',
+    'leaderboard_tag_me': 'VOCÊ',
+    'leaderboard_label_cars': 'Veículos',
+    'leaderboard_my_standing_label': 'Status da Sua Concessionária',
+    'leaderboard_error_fetch': 'Não foi possível carregar a classificação. Verifique sua conexão com a internet.',
+    'level_prefix': 'Nível',
 };
 

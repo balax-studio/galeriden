@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
+import 'analytics_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -73,10 +74,10 @@ class AdService with ChangeNotifier {
 
   /// Determines if a native ad or in-game sponsored window should be active on a given in-game day.
   ///
-  /// Rule: First 7 in-game days (currentDay <= 7) are completely ad-free and sponsor-free (closed).
-  /// From Day 8 onwards, native ad slots are consistently active across all game domains.
+  /// Rule: Day 1 (currentDay < 2) is completely ad-free and sponsor-free (closed).
+  /// From Day 2 onwards, native ad slots are consistently active across all game domains.
   static bool shouldShowNativeAdForDay(int currentDay, [dynamic contextType]) {
-    if (currentDay <= 7) {
+    if (currentDay < 2) {
       return false;
     }
     return true;
@@ -446,6 +447,10 @@ class AdService with ChangeNotifier {
       _rewardedAd!.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem rewardItem) {
           debugPrint('[AdService] User earned reward: ${rewardItem.amount} ${rewardItem.type}');
+          AnalyticsService.instance.logAdRewardWatched(
+            placement: 'rewarded_ad',
+            rewardAmount: rewardItem.amount.toDouble(),
+          );
           onRewardEarned();
         },
       );

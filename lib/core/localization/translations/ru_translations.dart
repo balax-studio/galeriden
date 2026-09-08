@@ -5275,5 +5275,18 @@ const Map<String, String> ruTranslations = {
     'whats_new_btn_quick_vote': 'БЫСТРАЯ ОЦЕНКА',
     'whats_new_btn_detailed_review': 'ПОДРОБНЫЙ ОТЗЫВ',
     'btn_lets_play': 'ПОЕХАЛИ • СТАРТ',
+
+    'leaderboard_screen_title': 'Таблица лидеров',
+    'leaderboard_screen_slug': 'Самые богатые автосалоны и рейтинг репутации',
+    'leaderboard_btn_refresh': 'Обновить',
+    'leaderboard_tab_wealth': 'Общее состояние',
+    'leaderboard_tab_reputation': 'Репутация и XP',
+    'leaderboard_empty_title': 'Данных рейтинга пока нет',
+    'leaderboard_empty_desc': 'Пожалуйста, подождите загрузки данных или обновите.',
+    'leaderboard_tag_me': 'ВЫ',
+    'leaderboard_label_cars': 'Авто',
+    'leaderboard_my_standing_label': 'Статус вашего автосалона',
+    'leaderboard_error_fetch': 'Не удалось загрузить таблицу лидеров. Проверьте подключение к интернету.',
+    'level_prefix': 'Уровень',
 };
 

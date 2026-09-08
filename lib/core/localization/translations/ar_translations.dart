@@ -5275,5 +5275,18 @@ const Map<String, String> arTranslations = {
     'whats_new_btn_quick_vote': 'تقييم سريع',
     'whats_new_btn_detailed_review': 'مراجعة مفصلة',
     'btn_lets_play': 'هيا بنا • ابدأ',
+
+    'leaderboard_screen_title': 'لوحة المتصدرين',
+    'leaderboard_screen_slug': 'أغنى المعارض وتصنيف السمعة',
+    'leaderboard_btn_refresh': 'تحديث',
+    'leaderboard_tab_wealth': 'إجمالي الثروة',
+    'leaderboard_tab_reputation': 'السمعة ونقاط الخبرة',
+    'leaderboard_empty_title': 'لا توجد بيانات تصنيف حتى الآن',
+    'leaderboard_empty_desc': 'يرجى الانتظار أثناء تحميل بيانات التصنيف أو قم بالتحديث.',
+    'leaderboard_tag_me': 'أنت',
+    'leaderboard_label_cars': 'سيارات',
+    'leaderboard_my_standing_label': 'وضع معرضك',
+    'leaderboard_error_fetch': 'تعذر تحميل لوحة المتصدرين. يرجى التحقق من اتصال الإنترنت.',
+    'level_prefix': 'مستوى',
 };
 

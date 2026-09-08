@@ -26,6 +26,86 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ## Kayıtlar (Log Entries)
 
+### `lib/core/services/ad_service.dart` & `test/native_ad_day_pacing_test.dart`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Yerel reklamların ve yerel bülten sponsor kartlarının aktifleşme eşiğini 7. gün yerine 2. güne çekerek test ve kullanıcı deneyimi sürecini hızlandırma.
+- **Yapılan Değişiklikler**:
+  - `AdService.shouldShowNativeAdForDay`: `currentDay <= 7` koşulu `currentDay < 2` olarak güncellendi. 1. gün başlangıç koruması sağlandı, 2. gün ve sonrasında tüm ekranlarda yerel reklamlar aktif hale getirildi.
+  - `test/native_ad_day_pacing_test.dart`: Birim ve widget testleri 2. gün eşiğine göre güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Yok.
+- **Uygulanan Çözüm**:
+  - Eşik değeri 2. güne ayarlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/native_ad_day_pacing_test.dart` (6/6 başarılı) ile doğrulandı.
+
+---
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Oyuncu ilk 50 içinde olmasa dahi (örneğin 142. veya 850. sırada) alt yapışkan barda gerçek ve anlık sırasını Firestore `count()` sorgusuyla hesaplayıp gösterme.
+- **Yapılan Değişiklikler**:
+  - `LeaderboardService.fetchPlayerExactRank`: `aggregate.count()` sorgusu eklenerek oyuncudan daha yüksek servete veya XP'ye sahip oyuncu sayısı sayıldı ve `+ 1` ile kesin sıra tespit edildi.
+  - `LeaderboardProvider`: `myExactRank` alanı eklendi; ilk 50 içindeyse liste indeksi, dışındaysa `fetchPlayerExactRank` çağrılarak güncellendi.
+  - `LeaderboardScreen`: `_buildStickyMyRank` içinde `state.myExactRank` değeri dinamik olarak rozete bağlandı (`#${state.myExactRank}`). Sekme değişimlerinde ve yenilemelerde anlık güncellenmesi sağlandı.
+  - `test/leaderboard_service_test.dart`: `myExactRank` durum güncellemesini doğrulayan birim testi eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Yok.
+- **Uygulanan Çözüm**:
+  - Firestore'un düşük maliyetli ve ultra hızlı `count()` aggregation API'si kullanılarak belge okuma maliyeti minimumda tutuldu.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/leaderboard_service_test.dart` (5/5 başarılı) ve `flutter analyze` (0 sorun) ile doğrulandı.
+
+---
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Firebase Analytics entegrasyonu ile oyuncu ekran geçişleri ve oyun içi kritik hareketlerin (araç alım-satımı, seviye atlama, ödüllü reklamlar, müzayede) canlı analitik takibinin sağlanması.
+- **Yapılan Değişiklikler**:
+  - `pubspec.yaml` dosyasına `firebase_analytics: ^12.5.0` eklendi.
+  - `lib/core/services/analytics_service.dart`: Hata toleranslı singleton analitik servisi oluşturuldu; ekran görüntüleme, araç alım/satım, seviye atlama, müzayede teklifleri ve reklam izleme metotları yazıldı.
+  - `lib/main.dart`: Başlangıçta `AnalyticsService.instance.initialize()` çağrısı bağlandı.
+  - `lib/app/router.dart`: GoRouter `observers` listesine `AnalyticsService.instance.observer` eklenerek tüm sayfa geçişleri otomatik takibe alındı.
+  - `lib/presentation/providers/game/game_core_provider.dart`: Seviye atlandığında `logLevelUp` tetiklendi.
+  - `lib/presentation/providers/game/game_market_mixin.dart` & `game_inventory_mixin.dart`: Satış ve doğrudan alımlarda `logCarSold` ve `logCarPurchased` bağlandı.
+  - `lib/core/services/ad_service.dart`: Ödüllü reklam tamamlandığında `logAdRewardWatched` çağrıldı.
+  - `lib/presentation/screens/leaderboard/leaderboard_screen.dart`: Liderlik sekmesi ziyaretlerinde `logLeaderboardViewed` çağrıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `game_market_mixin.dart` içinde `offer.offerAmount` getter hatası.
+- **Kök Neden**:
+  - `OfferModel` sınıfında doğru alan adının `offeredAmount` olması.
+- **Uygulanan Çözüm**:
+  - `offer.offeredAmount` olarak düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/analytics_service_test.dart` (2/2 başarılı), `test/leaderboard_service_test.dart` (4/4 başarılı), `test/translation_key_coverage_test.dart` (6/6 başarılı) ve `flutter analyze` (0 hata) ile doğrulandı.
+
+---
+
+### `lib/core/services/leaderboard_service.dart`, `lib/presentation/screens/leaderboard/leaderboard_screen.dart` & İlgili Modüller
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Çift sıralamalı (Toplam Servet ve İtibar/XP) Firebase tabanlı canlı liderlik tablosu (Leaderboard) sisteminin entegre edilmesi.
+- **Yapılan Değişiklikler**:
+  - Firebase CLI ile `galeriden-game-balax` projesi oluşturuldu; Android ve iOS konfigürasyonları `lib/firebase_options.dart` ile tamamlandı.
+  - `pubspec.yaml` dosyasına `firebase_core: ^4.14.0` ve `cloud_firestore: ^6.9.0` eklendi.
+  - `lib/main.dart` içinde `Firebase.initializeApp` platform korumalı olarak eklendi.
+  - `lib/data/models/leaderboard_entry_model.dart`: Oyuncu ID, galeri adı, sahip adı, toplam servet, itibar XP, seviye ve araç sayısı verilerini yöneten model yazıldı.
+  - `lib/core/services/leaderboard_service.dart`: Anonim oyuncu kimliği (UUID/Prefs), 10 dakikalık Firestore bellek önbelleği ve 6 dakikalık yazma aralığı (Spark ücretsiz kota tam koruması) sağlayan servis güncellendi.
+  - `lib/presentation/providers/leaderboard_provider.dart`: Riverpod tabanlı `LeaderboardNotifier` oluşturuldu; servet ve XP sekmeleri arasında anlık geçiş ve profil senkronizasyonu sağlandı.
+  - `lib/presentation/screens/leaderboard/leaderboard_screen.dart`: Neo-brutalist tasarıma uygun podyum rozetleri (altın, gümüş, bronz), "SEN" etiketli oyuncu vurgusu ve yapışkan alt profil çubuğuyla çift sekmeli ekran oluşturuldu.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`: Ana sayfadaki yapay "Şehir Ligi" kartı kaldırılarak yerine gerçek canlı "Liderlik Tablosu" kartı entegre edildi.
+  - `lib/app/router.dart`: `/leaderboard` rotası GoRouter'a tanımlandı.
+  - 7 dilde eşzamanlı yerelleştirme (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) yapıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `LeaderboardNotifier` içinde model tipi `GameModel` yerine repo standardı olan `DealershipModel` gereksinimi ve `fromMap` kurucusunda isimlendirilmiş `docId` argümanı uyumsuzluğu.
+- **Kök Neden**:
+  - Dosya importunda ve test çağrısında var olan `DealershipModel` ve `PlayerSkills.xp` mimarisinin kullanılması gerekliliği.
+- **Uygulanan Çözüm**:
+  - `DealershipModel` ve `game.skills.xp` tip tanımları bağlandı; test argümanı `docId:` olarak düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/leaderboard_service_test.dart` (4/4 başarılı), `flutter test test/translation_key_coverage_test.dart` (7/7 başarılı) ve `flutter analyze` (0 hata) ile doğrulandı.
+
+---
+
 ### `lib/core/services/ad_service.dart` & `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`
 - **Tarih**: 2026-09-08
 - **Değişiklik Amacı**: Çift yükleme çakışması (race condition) ve AdMob istek fırtınası kaynaklı Error 3 (No Fill) hatasını gidererek gerçek reklamların yüklenmesini sağlamak.

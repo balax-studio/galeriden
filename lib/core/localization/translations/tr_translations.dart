@@ -5275,5 +5275,18 @@ const Map<String, String> trTranslations = {
     'whats_new_btn_quick_vote': 'HIZLI OYLA',
     'whats_new_btn_detailed_review': 'DETAYLI YORUM',
     'btn_lets_play': 'HAYDİ BİSMİLLAH • BAŞLA',
+
+    'leaderboard_screen_title': 'Liderlik Tablosu',
+    'leaderboard_screen_slug': 'En Zengin Galeriler ve İtibar Sıralaması',
+    'leaderboard_btn_refresh': 'Yenile',
+    'leaderboard_tab_wealth': 'Toplam Servet',
+    'leaderboard_tab_reputation': 'İtibar ve XP',
+    'leaderboard_empty_title': 'Henüz Sıralama Verisi Yok',
+    'leaderboard_empty_desc': 'İlk sıralama verileri yüklenirken lütfen bekleyin veya yenileyin.',
+    'leaderboard_tag_me': 'SEN',
+    'leaderboard_label_cars': 'Araç',
+    'leaderboard_my_standing_label': 'Senin Galerinin Durumu',
+    'leaderboard_error_fetch': 'Sıralama tablosu yüklenemedi. İnternet bağlantınızı kontrol edin.',
+    'level_prefix': 'Seviye',
 };
 

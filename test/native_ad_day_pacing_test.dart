@@ -22,32 +22,30 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  group('Native Ad 7-Day Protection & Dynamic Day Pacing Algorithm Tests', () {
-    test('AdService.shouldShowNativeAdForDay strictly returns false for first 7 in-game days', () {
-      for (int day = 1; day <= 7; day++) {
-        expect(
-          AdService.shouldShowNativeAdForDay(day, NativeAdContextType.marketplace),
-          isFalse,
-          reason: 'Day $day must be strictly ad-free and sponsor-free',
-        );
-        expect(
-          AdService.shouldShowNativeAdForDay(day, NativeAdContextType.gossip),
-          isFalse,
-          reason: 'Day $day must be strictly ad-free in gossip screen',
-        );
-        expect(
-          AdService.shouldShowNativeAdForDay(day, NativeAdContextType.stockMarket),
-          isFalse,
-          reason: 'Day $day must be strictly ad-free in stock market screen',
-        );
-      }
+  group('Native Ad Protection & Dynamic Day Pacing Algorithm Tests', () {
+    test('AdService.shouldShowNativeAdForDay strictly returns false for Day 1', () {
+      expect(
+        AdService.shouldShowNativeAdForDay(1, NativeAdContextType.marketplace),
+        isFalse,
+        reason: 'Day 1 must be strictly ad-free and sponsor-free',
+      );
+      expect(
+        AdService.shouldShowNativeAdForDay(1, NativeAdContextType.gossip),
+        isFalse,
+        reason: 'Day 1 must be strictly ad-free in gossip screen',
+      );
+      expect(
+        AdService.shouldShowNativeAdForDay(1, NativeAdContextType.stockMarket),
+        isFalse,
+        reason: 'Day 1 must be strictly ad-free in stock market screen',
+      );
     });
 
-    test('AdService.shouldShowNativeAdForDay is consistently active for all days after Day 7', () {
-      // Sample a 30-day window (Days 8 to 37)
-      for (int day = 8; day <= 37; day++) {
+    test('AdService.shouldShowNativeAdForDay is consistently active for all days starting Day 2', () {
+      // Sample a 30-day window (Days 2 to 32)
+      for (int day = 2; day <= 32; day++) {
         final isShown = AdService.shouldShowNativeAdForDay(day, NativeAdContextType.marketplace);
-        expect(isShown, isTrue, reason: 'Day $day must be active after day 7');
+        expect(isShown, isTrue, reason: 'Day $day must be active');
       }
     });
 

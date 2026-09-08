@@ -12,6 +12,7 @@ import '../../../domain/usecases/market_engine.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/offline_progression.dart';
 import '../../../domain/usecases/psychology_engine.dart';
+import '../../../core/services/analytics_service.dart';
 
 import 'game_base_notifier.dart';
 import 'game_casino_mixin.dart';
@@ -402,6 +403,13 @@ class GameCoreNotifier extends GameBaseNotifier
     final calculatedLevel = updatedSkills.currentLevel;
     final isLevelUp = calculatedLevel > state.level;
     final newLevel = isLevelUp ? calculatedLevel : state.level;
+
+    if (isLevelUp) {
+      AnalyticsService.instance.logLevelUp(
+        newLevel: newLevel,
+        totalXp: updatedSkills.xp,
+      );
+    }
 
     // Level 3 milestone grants Streak Freeze reward (§3.3)
     final grantFreeze = newLevel >= 3 && !state.hasStreakFreeze;
