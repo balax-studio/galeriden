@@ -892,6 +892,21 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - 6 adetlik kapasite ve 1.5 saniyelik güvenli sıralı indirme kuyruğu.
 - **Doğrulama / Test Durumu**:
   - `flutter test test/ad_service_test.dart` (8/8 test başarılı).
+---
+
+### `pubspec.yaml`
+- **Tarih**: 2026-09-08
+- **Değişiklik Amacı**: Sürüm derleme numarasının 28'den 29'a yükseltilmesi (1.0.5+29).
+- **Yapılan Değişiklikler**:
+  - `version: 1.0.5+28` sürümü `version: 1.0.5+29` olarak güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Kullanıcı isteği doğrultusunda iOS/Android yeni derleme dağıtımı için build numarası artırımı.
+- **Uygulanan Çözüm**:
+  - Build numarası 1 artırılarak 29 yapıldı.
+- **Doğrulama / Test Durumu**:
   - `flutter analyze` ile doğrulandı.
+
 
 
