@@ -32,14 +32,16 @@ class VasitaMarketScreen extends ConsumerStatefulWidget {
 
 class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
   final TextEditingController _searchController = TextEditingController();
-  late final ScrollController _scrollController;
+  ScrollController? _scrollController;
+  ScrollController get _activeScrollController =>
+      _scrollController ??= (ScrollController()..addListener(_onScroll));
   String _searchQuery = '';
   bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
+    _scrollController ??= ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
@@ -52,9 +54,11 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
   }
 
   void _onScroll() {
-    if (!_isLoadingMore &&
-        _scrollController.hasClients &&
-        _scrollController.position.extentAfter < 500) {
+    final controller = _scrollController;
+    if (controller != null &&
+        !_isLoadingMore &&
+        controller.hasClients &&
+        controller.position.extentAfter < 500) {
       _loadMore();
     }
   }
@@ -75,8 +79,8 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _scrollController?.removeListener(_onScroll);
+    _scrollController?.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -313,7 +317,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                         );
                       },
                       child: ListView.separated(
-                        controller: _scrollController,
+                        controller: _activeScrollController,
                         padding: const EdgeInsets.fromLTRB(14, 4, 14, 20),
                         physics: const AlwaysScrollableScrollPhysics(
                             parent: BouncingScrollPhysics()),

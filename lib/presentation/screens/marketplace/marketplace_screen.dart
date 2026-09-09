@@ -53,7 +53,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   MarketSortOption _selectedSort = MarketSortOption.defaultSort;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-  late final ScrollController _scrollController;
+  ScrollController? _scrollController;
+  ScrollController get _activeScrollController =>
+      _scrollController ??= (ScrollController()..addListener(_onScroll));
   Timer? _debounceTimer;
   bool _isRefreshing = false;
   bool _isLoadingMore = false;
@@ -61,7 +63,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
+    _scrollController ??= ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
@@ -74,9 +76,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   }
 
   void _onScroll() {
-    if (!_isLoadingMore &&
-        _scrollController.hasClients &&
-        _scrollController.position.extentAfter < 500) {
+    final controller = _scrollController;
+    if (controller != null &&
+        !_isLoadingMore &&
+        controller.hasClients &&
+        controller.position.extentAfter < 500) {
       _loadMore();
     }
   }
@@ -97,8 +101,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
 
   @override
   void dispose() {
-    _scrollController.removeListener(_onScroll);
-    _scrollController.dispose();
+    _scrollController?.removeListener(_onScroll);
+    _scrollController?.dispose();
     _searchController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
@@ -367,7 +371,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           ],
                         )
                       : ListView.builder(
-                          controller: _scrollController,
+                          controller: _activeScrollController,
                           padding: EdgeInsets.fromLTRB(14, 8, 14, bottomPadding),
                           physics: const AlwaysScrollableScrollPhysics(
                               parent: BouncingScrollPhysics()),

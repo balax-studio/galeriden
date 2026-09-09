@@ -34,14 +34,16 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  late final ScrollController _listingsScrollController;
+  ScrollController? _listingsScrollController;
+  ScrollController get _activeListingsScrollController =>
+      _listingsScrollController ??= (ScrollController()..addListener(_onScroll));
   bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _listingsScrollController = ScrollController()..addListener(_onScroll);
+    _listingsScrollController ??= ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider).currentDay;
@@ -53,9 +55,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
   }
 
   void _onScroll() {
-    if (!_isLoadingMore &&
-        _listingsScrollController.hasClients &&
-        _listingsScrollController.position.extentAfter < 500) {
+    final controller = _listingsScrollController;
+    if (controller != null &&
+        !_isLoadingMore &&
+        controller.hasClients &&
+        controller.position.extentAfter < 500) {
       _loadMore();
     }
   }
@@ -76,8 +80,8 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
 
   @override
   void dispose() {
-    _listingsScrollController.removeListener(_onScroll);
-    _listingsScrollController.dispose();
+    _listingsScrollController?.removeListener(_onScroll);
+    _listingsScrollController?.dispose();
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -468,7 +472,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       );
                     },
                     child: ListView.builder(
-                      controller: _listingsScrollController,
+                      controller: _activeListingsScrollController,
                       physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics()),
                       padding: const EdgeInsets.all(16),
