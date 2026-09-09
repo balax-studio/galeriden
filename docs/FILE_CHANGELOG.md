@@ -24,7 +24,33 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ---
 
-## Kayıtlar (Log Entries)
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Dashboard ana sayfasındaki (Tab 0) Hızlı Hizmetler ızgarasının Showroom Bento Hero kartı ile güçlendirilmesi, 2 sütunlu hizmet kartlarına canlı telemetri rozetlerinin eklenmesi ve derleme/hot-restart güncellemelerinin 7 dilde eksiksiz senkronizasyonu.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - Showroom kilidi açıkken (`game.isFeatureUnlocked('/showroom')`) ızgaranın en üstüne vitrindeki araç adedi, galeri şube unvanı, gelen teklif adedi ve hızlı giriş butonu barındıran geniş Showroom Hero Bento kartı eklendi (`_buildShowroomHeroCard`).
+    - Hizmet kartlarında `_getLiveTelemetry` fonksiyonu üzerinden dinamik canlı telemetri rozetleri (`effectiveBadge`) entegre edildi: Oto Yıkama (kirli araç adedi), Atölye (bekleyen siparişler), Personel mevcudu, Satış geçmişi, Borsa portföyü, Gayrimenkul mülkleri, Şube sayısı, Kiralık filo durumu, İstihbarat ve Konsinye teklifleri.
+    - `_buildSpan2ServiceCard` ve `_buildServiceCard` tek sütun/çift sütun yapısına canlı telemetri rozeti desteği kazandırıldı.
+  - `lib/core/localization/translations/*`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) `telemetry_dirty_count` ve `telemetry_orders_count` anahtarları eklendi. Sıfır emoji ve sıfır parantez kurallarına tam uyuldu.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `districtDominance` ve `realEstateSubstate` getter'larının `DealershipModel` üzerinde doğrudan bulunmaması nedeniyle analiz hatası alındı.
+  - `game.currentBranchTier.title` çağrısının tip hatası vermesi (`currentBranchTier` int olduğu için).
+  - Web sunucusunun önceki oturumda arka planda eski derlemeyi servis etmesi ve değişikliklerin tarayıcıya yansımaması.
+- **Kök Neden**:
+  - `DealershipModel` üzerinde gayrimenkul listesi `ownedRealEstates`, şube unvanı ise `getLocalizedBranchName(context)` metoduyla sağlanmaktadır.
+  - Arka planda koşan `dartvm.exe` yeniden başlatılmadığı için güncel JS bundle derlenmemişti.
+- **Uygulanan Çözüm**:
+  - `game.ownedRealEstates` ve `game.getLocalizedBranchName(context)` kullanılarak kod düzeltildi.
+  - Eski işlem sonlandırılarak flutter web dev server temiz şekilde yeniden başlatıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` başarıyla tamamlandı (No issues found).
+  - `flutter test test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart` tüm testleri geçti (All 3 tests passed).
+
+---
+
+
 
 ### `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart` & `lib/core/localization/translations/*`
 - **Tarih**: 2026-09-09
@@ -1068,3 +1094,45 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - `flutter analyze` ile tüm projede 0 hata ve uyarı doğrulandı.
   - `flutter test test/staff_specialization_and_gating_test.dart` (9/9 test başarılı).
+
+---
+
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`, `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart` & `lib/core/localization/translations/*` (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`)
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Dashboard Hızlı İşlemler bölümünün tekdüze kutu ızgaralarından tamamen arındırılarak Awwwards kalibresinde, 6 özgün tematik mekansal tipolojiye (Spatial Typology) sahip yüksek konseptli Neo-Brutalist Flight Deck konsoluna dönüştürülmesi; sıfır emoji, sıfır parantez ve 7 dilde eşzamanlı lokalizasyon invaryantlarının tam sağlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Tipoloji 1 (Showroom Amiral Gemisi Hero Deck)**: 2x1 tam genişlikte blueprint bay üstlüğü (`// PLAZA // DECK-01 // LVL {level}`), `AMİRAL GEMİSİ` taktiksel durum rozeti, P1–P10 kademeli otopark doluluk matrisi (`_buildSegmentedBayMatrix`), anlık pasif gelir telemetrisi ve `GALERİ VİTRİNİ` hızlı aksiyon butonu.
+    - **Tipoloji 2 (Sanayi Endüstriyel Mega-Hangarı)**: Maslak 2. Kısım sarı-siyah endüstriyel tehlike şeritli üst bant (`// MASLAK // 2. KISIM // SANAYİ MEGA-HANGARI`), %58 asimetrik Atölye lift kulesi (`LİFTE AL`), %42 Tuning Dyno kulesi (`STAGE 3`) ve %100 tam genişlik Detailing & Oto Yıkama alt şeridi (`DETAYLANDIR`).
+    - **Tipoloji 3 (Açık Oto Pazarı & Vasıta Boulevard Dock)**: Açık gök mavisi pazar şeridi (`AÇIK OTO PAZARI • TİCARET BULVARI`), %60 Vasıta marin rıhtımı (`Yat • Karavan`) ve %40 Satış defteri taktiksel veri paneli.
+    - **Tipoloji 4 (Canlı İhale & Finans Wall Street Terminali)**: Kırmızı alarm komuta şeridi ve açılı kauçuk damga (`[ CANLI MEZAT // HAVA ETKİSİ ]`), %54 Zümrüt Kasa/Vault kulesi ve %46 Borsa/Index kulesi.
+    - **Tipoloji 5 (Holding Executive Dossier)**: İmparatorluk moru Şube Yönetimi şeridi (`HOLDING GENEL MERKEZİ • ŞUBE YÖNETİMİ`), %50 Emlak Pazarı inşaat portföyü ve %50 Personel Kadrosu operasyon kulesi.
+    - **Tipoloji 6 (Yeraltı & Karaborsa Noir Classified Folder)**: Karbon siyahı gizli klasör kartı, açılı kırmızı damga (`[ GİZLİ // SADECE VIP ]`), 3 adet taktiksel mikro pedal (Hurdalık, Müşteri Yorumları, Showroom Mimari).
+    - **Tipoloji 7 (İkincil Genişleme Sektörleri)**: Henüz açılmamış veya ikincil servisler için kompakt yatay ve ızgara bento kartları.
+    - **Tipoloji 8 (Dinamik Hedef Kartı)**: Kalp atışı animasyonlu telemetri ikonu ve yönlendirici motivasyon kartları (`_DynamicNextTargetBanner`).
+    - Dikey padding ve boşluklar 8–10px aralığına optimize edilerek 800x600 test ekranında taşma yapmadan tam görünürlük sağlandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`:
+    - Ofis ekranı başlık ve telemetri sayaçları `telemetry_*` lokalizasyon anahtarlarıyla senkronize edildi.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`):
+    - 7 dilde `deck_enter_showroom`, `deck_action_lift`, `deck_showroom_hero_title`, `deck_showroom_hero_subtitle`, `deck_showroom_badge`, `deck_hangar_header`, `deck_tuning_stage`, `deck_action_detail`, `deck_action_inspect`, `deck_action_reports`, `deck_action_bid`, `deck_action_vault`, `deck_action_stocks`, `deck_action_branches`, `deck_action_real_estate`, `deck_action_staff`, `deck_classified_stamp`, `deck_market_header`, `deck_marine_title`, `deck_marine_badge`, `deck_auction_stamp`, `deck_holding_header`, `deck_holding_badge`, `deck_pedal_scrap`, `deck_pedal_reviews`, `deck_pedal_decor` ve telemetri anahtarları eklendi.
+    - Sıfır emoji invaryantına aykırı Unicode ok karakterleri (`➔` \u2794) 7 dilden tamamen temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `test/helpers/invariant_test_helpers.dart` içerisindeki `expectZeroEmojis` kontrolü, çeviri dosyalarındaki `➔` (\u2794) Unicode karakterini emoji sayarak `translation_key_coverage_test.dart` testini düşürdü.
+  - `localization_integrity_guard_test.dart` dosyasındaki Türkçe harf koruma denetimi, kodda doğrudan `context.tr` çağrılmadan kullanılan telemetri rozet stringlerini tespit ederek hata verdi.
+  - `service_unlock_notification_dot_test.dart` 800x600 piksel boyutundaki kısıtlı widget test ekranında `Emlak Pazarı` kartı ekran sınırının altında kaldığı için kaydırma yapılmaksızın tıklanamadı.
+  - `game.dailyProfit` çağrısı `DealershipModel` üzerinde tanımlı olmadığı için analiz hatası verdi.
+- **Kök Neden**:
+  - Unicode font tablosunda \u2794 ok sembolü emoji aralığında kabul edilmektedir; UI butonlarında yön oku için metin yerine Flutter'ın yerleşik `Icon(Icons.arrow_forward_rounded)` bileşeni kullanılmalıdır.
+  - Kod içi string oluştururken `context.tr` zinciri dışına çıkıldığında Türkçe harfler regex denetimine takılmaktadır.
+  - Kart içi boşlukların (padding) 16px ve kartlar arası boşlukların 14-16px olması, dikeyde toplam yüksekliği ~90px artırmakta ve 600px test penceresine sığmamaktaydı.
+  - Pasif gelir, yan işletmelerin toplamı üzerinden `game.sideBusinesses.fold` ile hesaplanmalıdır.
+- **Uygulanan Çözüm**:
+  - 7 çeviri dosyasındaki `➔` karakterleri temizlendi; `Icon(Icons.arrow_forward_rounded)` ile neo-brutalist vektör ikon kullanımı sağlandı.
+  - Tüm dinamik rozetler `context.tr` ve kayıtlı anahtarlarla (`telemetry_*`) çağrılacak biçimde lokalize edildi.
+  - Dikey padding ve aralıklar 8-10px'e sıkılaştırılarak test görünüm alanında tüm kritik elementlerin tıklanabilirliği güvenceye alındı.
+  - Pasif gelir hesaplaması `game.sideBusinesses.fold(0, (sum, b) => sum + (b.isOwned ? b.dailyIncome : 0))` ile düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test`: 4 test süitinde 10/10 test eksiksiz geçti (`test/dynamic_next_target_banner_test.dart`, `test/service_unlock_notification_dot_test.dart`, `test/translation_key_coverage_test.dart`, `test/localization_integrity_guard_test.dart`).
+  - Chrome DevTools ve Web Browser Subagent ile canlı görsel test tamamlandı (`http://127.0.0.1:3030/#/dashboard`). Neo-brutalist asimetrik yerleşim, gölgeler, dokunsal basma efektleri, telemetriler ve 6 mekansal tipoloji başarıyla doğrulandı.
+

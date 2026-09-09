@@ -637,29 +637,200 @@ class DashboardOfficeView extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
 
-          // 4. Management Sections Header
-          Text(
-            context.tr('office_management_ops'),
-            style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.8,
-                color: Color(0xFF64748B)),
+          // 4. Categorized Neo-Brutalist Management & Expansion Hubs
+          // Hub 1: Galeri & Ticaret
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_gallery'),
+            subtitle: context.tr('office_cat_gallery_sub'),
+            color: const Color(0xFFFFDE59),
+            icon: Icons.storefront_rounded,
+            isDark: isDark,
+            counterBadge: context.tr('telemetry_cars_count', {'count': '${game.ownedCars.length}'}),
+          ),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.directions_car_rounded,
+            color: const Color(0xFFFFDE59),
+            title: context.tr('service_showroom'),
+            subtitle: context.tr('service_showroom_sub'),
+            telemetryBadge: context.tr('telemetry_cars_count', {'count': '${game.ownedCars.length}'}),
+            actionLabel: context.tr('office_btn_view'),
+            route: '/showroom',
+            isUnlocked: game.isFeatureUnlocked('/showroom'),
+            isDark: isDark,
           ),
           const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.storefront_rounded,
+            color: const Color(0xFF38BDF8),
+            title: context.tr('service_buy_car'),
+            subtitle: context.tr('service_buy_car_sub'),
+            actionLabel: context.tr('office_btn_inspect'),
+            route: '/marketplace',
+            isUnlocked: game.isFeatureUnlocked('/marketplace'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.local_car_wash_rounded,
+            color: const Color(0xFF00F0FF),
+            title: context.tr('service_car_wash'),
+            subtitle: context.tr('service_car_wash_sub'),
+            telemetryBadge: game.ownedCars.where((c) => !c.isWashed).isNotEmpty
+                ? context.tr('telemetry_dirty_count', {'count': '${game.ownedCars.where((c) => !c.isWashed).length}'})
+                : null,
+            actionLabel: game.isFeatureUnlocked('/car-wash')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/car-wash',
+            isUnlocked: game.isFeatureUnlocked('/car-wash'),
+            isDark: isDark,
+          ),
 
-          // Staff Management
+          // Hub 2: Atölye & Teknik Servis
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_workshop'),
+            subtitle: context.tr('office_cat_workshop_sub'),
+            color: const Color(0xFFFF7A00),
+            icon: Icons.build_circle_rounded,
+            isDark: isDark,
+            counterBadge: game.pendingOrders.isNotEmpty
+                ? '${game.pendingOrders.length}'
+                : null,
+          ),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.build_circle_rounded,
+            color: const Color(0xFFFF7A00),
+            title: context.tr('service_workshop'),
+            subtitle: context.tr('service_workshop_sub'),
+            telemetryBadge: game.pendingOrders.isNotEmpty
+                ? '${game.pendingOrders.length}'
+                : null,
+            actionLabel: game.isFeatureUnlocked('/workshop')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/workshop',
+            isUnlocked: game.isFeatureUnlocked('/workshop'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.speed_rounded,
+            color: const Color(0xFFA855F7),
+            title: context.tr('service_tuning'),
+            subtitle: context.tr('service_tuning_sub'),
+            actionLabel: game.isFeatureUnlocked('/tuning-studio')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/tuning-studio',
+            isUnlocked: game.isFeatureUnlocked('/tuning-studio'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.delete_outline_rounded,
+            color: const Color(0xFF64748B),
+            title: context.tr('service_scrapyard'),
+            subtitle: context.tr('service_scrapyard_sub'),
+            telemetryBadge: game.salvagedParts.isNotEmpty
+                ? context.tr('telemetry_parts_count', {'count': '${game.salvagedParts.length}'})
+                : null,
+            actionLabel: game.isFeatureUnlocked('/scrapyard')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
+            route: '/scrapyard',
+            isUnlocked: game.isFeatureUnlocked('/scrapyard'),
+            isDark: isDark,
+          ),
+
+          // Hub 3: Finans & Yatırım
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_finance'),
+            subtitle: context.tr('office_cat_finance_sub'),
+            color: const Color(0xFF00E575),
+            icon: Icons.account_balance_rounded,
+            isDark: isDark,
+            counterBadge: game.activeLoans.isNotEmpty
+                ? context.tr('telemetry_active_loans', {'count': '${game.activeLoans.length}'})
+                : null,
+          ),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.account_balance_rounded,
+            color: const Color(0xFF00E575),
+            title: context.tr('service_finance'),
+            subtitle: context.tr('service_finance_sub'),
+            telemetryBadge: game.activeLoans.isNotEmpty
+                ? '${game.activeLoans.length}'
+                : null,
+            actionLabel: game.isFeatureUnlocked('/finance')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/finance',
+            isUnlocked: game.isFeatureUnlocked('/finance'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.trending_up_rounded,
+            color: const Color(0xFF6366F1),
+            title: context.tr('service_stocks'),
+            subtitle: context.tr('service_stocks_sub'),
+            telemetryBadge: game.ownedStocks.isNotEmpty
+                ? '${game.ownedStocks.length}'
+                : null,
+            actionLabel: game.isFeatureUnlocked('/stock-market')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
+            route: '/stock-market',
+            isUnlocked: game.isFeatureUnlocked('/stock-market'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.gavel_rounded,
+            color: const Color(0xFFEF4444),
+            title: context.tr('service_auction'),
+            subtitle: context.tr('service_auction_sub'),
+            actionLabel: game.isFeatureUnlocked('/auction')
+                ? context.tr('office_btn_inspect')
+                : context.tr('office_btn_locked'),
+            route: '/auction',
+            isUnlocked: game.isFeatureUnlocked('/auction'),
+            isDark: isDark,
+          ),
+
+          // Hub 4: Yönetim & Operasyon
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_operations'),
+            subtitle: context.tr('office_cat_operations_sub'),
+            color: const Color(0xFFA855F7),
+            icon: Icons.badge_rounded,
+            isDark: isDark,
+            counterBadge: context.tr('telemetry_staff_count', {'count': '${game.hiredStaff.length}'}),
+          ),
           _buildOfficeItem(
             context: context,
             icon: Icons.people_alt_rounded,
             color: const Color(0xFFA855F7),
             title: context.tr('staff_title'),
             subtitle: game.isFeatureUnlocked('/staff')
-                ? context
-                    .tr('staff_desc', {'count': '${game.hiredStaff.length}'})
+                ? context.tr('staff_desc', {'count': '${game.hiredStaff.length}'})
                 : context.tr('office_locked_branch', {
                     'branch': DealershipModel.getRequiredBranchName('/staff', context)
                   }),
+            telemetryBadge: '${game.hiredStaff.length}',
             actionLabel: game.isFeatureUnlocked('/staff')
                 ? context.tr('office_btn_manage')
                 : context.tr('office_btn_locked'),
@@ -667,41 +838,18 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: game.isFeatureUnlocked('/staff'),
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Customer Reviews
-          _buildOfficeItem(
-            context: context,
-            icon: Icons.chat_bubble_rounded,
-            color: const Color(0xFFFFDE59),
-            title: context.tr('reviews_title'),
-            subtitle: game.isFeatureUnlocked('/reviews')
-                ? context.tr(
-                    'reviews_desc', {'count': '${game.customerReviews.length}'})
-                : context.tr('office_locked_branch', {
-                    'branch': DealershipModel.getRequiredBranchName('/reviews', context)
-                  }),
-            actionLabel: game.isFeatureUnlocked('/reviews')
-                ? context.tr('office_btn_inspect')
-                : context.tr('office_btn_locked'),
-            route: '/reviews',
-            isUnlocked: game.isFeatureUnlocked('/reviews'),
-            isDark: isDark,
-          ),
-          const SizedBox(height: 12),
-
-          // Sales History
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.receipt_long_rounded,
             color: const Color(0xFF3B82F6),
             title: context.tr('sales_history_title'),
             subtitle: game.isFeatureUnlocked('/history')
-                ? context.tr('sales_history_desc',
-                    {'count': '${game.salesHistory.length}'})
+                ? context.tr('sales_history_desc', {'count': '${game.salesHistory.length}'})
                 : context.tr('office_locked_branch', {
                     'branch': DealershipModel.getRequiredBranchName('/history', context)
                   }),
+            telemetryBadge: '${game.salesHistory.length}',
             actionLabel: game.isFeatureUnlocked('/history')
                 ? context.tr('office_btn_view')
                 : context.tr('office_btn_locked'),
@@ -709,9 +857,26 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: game.isFeatureUnlocked('/history'),
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Special License Plates (Emniyet & Noter Tescil)
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.chat_bubble_rounded,
+            color: const Color(0xFFFFDE59),
+            title: context.tr('reviews_title'),
+            subtitle: game.isFeatureUnlocked('/reviews')
+                ? context.tr('reviews_desc', {'count': '${game.customerReviews.length}'})
+                : context.tr('office_locked_branch', {
+                    'branch': DealershipModel.getRequiredBranchName('/reviews', context)
+                  }),
+            telemetryBadge: '${game.reputationScore} XP',
+            actionLabel: game.isFeatureUnlocked('/reviews')
+                ? context.tr('office_btn_inspect')
+                : context.tr('office_btn_locked'),
+            route: '/reviews',
+            isUnlocked: game.isFeatureUnlocked('/reviews'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.confirmation_number_rounded,
@@ -723,9 +888,7 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Media & Influencer PR Agency Desk
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.campaign_rounded,
@@ -734,8 +897,7 @@ class DashboardOfficeView extends ConsumerWidget {
             subtitle: game.activePrCampaign != null &&
                     game.activePrCampaign!.isActive(game.currentDay)
                 ? context.tr('media_campaign_running', {
-                    'days':
-                        '${game.activePrCampaign!.remainingDays(game.currentDay)}'
+                    'days': '${game.activePrCampaign!.remainingDays(game.currentDay)}'
                   })
                 : context.tr('media_pr_desc'),
             actionLabel: context.tr('office_btn_launch'),
@@ -743,9 +905,129 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
 
-          // Lifestyle & Wardrobe Desk
+          // Hub 5: Genişleme & Şebeke
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_expansion'),
+            subtitle: context.tr('office_cat_expansion_sub'),
+            color: const Color(0xFF00E5FF),
+            icon: Icons.hub_rounded,
+            isDark: isDark,
+            counterBadge: '${context.tr('level_prefix')} ${game.currentBranchTier}',
+          ),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.apartment_rounded,
+            color: const Color(0xFF8B5CF6),
+            title: context.tr('service_branches'),
+            subtitle: context.tr('service_branches_sub'),
+            telemetryBadge: '${context.tr('level_prefix')} ${game.currentBranchTier}',
+            actionLabel: game.isFeatureUnlocked('/branches')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/branches',
+            isUnlocked: game.isFeatureUnlocked('/branches'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.domain_rounded,
+            color: const Color(0xFF10B981),
+            title: context.tr('service_real_estate'),
+            subtitle: context.tr('service_real_estate_sub'),
+            telemetryBadge: '${game.ownedRealEstates.length}',
+            actionLabel: game.isFeatureUnlocked('/emlak')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
+            route: '/emlak',
+            isUnlocked: game.isFeatureUnlocked('/emlak'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.directions_boat_filled_rounded,
+            color: const Color(0xFF06B6D4),
+            title: context.tr('service_vasita_market'),
+            subtitle: context.tr('service_vasita_market_sub'),
+            actionLabel: game.isFeatureUnlocked('/vasita')
+                ? context.tr('office_btn_inspect')
+                : context.tr('office_btn_locked'),
+            route: '/vasita',
+            isUnlocked: game.isFeatureUnlocked('/vasita'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.car_rental_rounded,
+            color: const Color(0xFF38BDF8),
+            title: context.tr('service_rent_car'),
+            subtitle: context.tr('service_rent_car_sub'),
+            telemetryBadge: context.tr('telemetry_fleet_count', {'count': '${game.ownedCars.where((c) => c.isRented).length}'}),
+            actionLabel: game.isFeatureUnlocked('/rent-a-car')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/rent-a-car',
+            isUnlocked: game.isFeatureUnlocked('/rent-a-car'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.business_center_rounded,
+            color: const Color(0xFF10B981),
+            title: context.tr('service_side_biz'),
+            subtitle: context.tr('service_side_biz_sub'),
+            telemetryBadge: '${game.sideBusinesses.where((b) => b.isOwned).length}',
+            actionLabel: game.isFeatureUnlocked('/side-businesses')
+                ? context.tr('office_btn_manage')
+                : context.tr('office_btn_locked'),
+            route: '/side-businesses',
+            isUnlocked: game.isFeatureUnlocked('/side-businesses'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.map_rounded,
+            color: const Color(0xFF38BDF8),
+            title: context.tr('service_district'),
+            subtitle: context.tr('service_district_sub'),
+            actionLabel: game.isFeatureUnlocked('/districts')
+                ? context.tr('office_btn_inspect')
+                : context.tr('office_btn_locked'),
+            route: '/districts',
+            isUnlocked: game.isFeatureUnlocked('/districts'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.handshake_rounded,
+            color: const Color(0xFF00E575),
+            title: context.tr('service_consignment'),
+            subtitle: context.tr('service_consignment_sub'),
+            telemetryBadge: '${game.consignmentOffers.length}',
+            actionLabel: game.isFeatureUnlocked('/consignment')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
+            route: '/consignment',
+            isUnlocked: game.isFeatureUnlocked('/consignment'),
+            isDark: isDark,
+          ),
+
+          // Hub 6: Özel & Prestij
+          _buildCategoryHeader(
+            context: context,
+            title: context.tr('office_category_lifestyle'),
+            subtitle: context.tr('office_cat_lifestyle_sub'),
+            color: const Color(0xFFFF54B0),
+            icon: Icons.diamond_rounded,
+            isDark: isDark,
+          ),
           _buildOfficeItem(
             context: context,
             icon: Icons.dry_cleaning_rounded,
@@ -757,9 +1039,7 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Home Interior Design (İkametgah Evi ve İç Dizayn)
+          const SizedBox(height: 8),
           Builder(
             builder: (context) {
               final personalResidence = game.ownedRealEstates
@@ -775,6 +1055,7 @@ class DashboardOfficeView extends ConsumerWidget {
                 subtitle: isUnlocked
                     ? context.tr('home_interior_office_desc_unlocked')
                     : context.tr('home_interior_office_desc_locked'),
+                telemetryBadge: isUnlocked ? context.tr('home_interior_office_title') : null,
                 actionLabel: isUnlocked
                     ? context.tr('office_btn_manage')
                     : context.tr('office_btn_locked'),
@@ -787,24 +1068,20 @@ class DashboardOfficeView extends ConsumerWidget {
               );
             },
           ),
-          const SizedBox(height: 12),
-
-          // Character Growth
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.bolt_rounded,
             color: const Color(0xFF00E575),
             title: context.tr('talent_tree_title'),
-            subtitle:
-                context.tr('talent_tree_desc', {'level': '${game.level}'}),
+            subtitle: context.tr('talent_tree_desc', {'level': '${game.level}'}),
+            telemetryBadge: '${game.level}',
             actionLabel: context.tr('office_btn_upgrade'),
             route: '/character-growth',
             isUnlocked: true,
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Theme Store
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.palette_rounded,
@@ -816,9 +1093,7 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
-          const SizedBox(height: 12),
-
-          // Collection Album
+          const SizedBox(height: 8),
           _buildOfficeItem(
             context: context,
             icon: Icons.auto_stories_rounded,
@@ -830,8 +1105,119 @@ class DashboardOfficeView extends ConsumerWidget {
             isUnlocked: true,
             isDark: isDark,
           ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.casino_rounded,
+            color: const Color(0xFFFFDE59),
+            title: context.tr('service_casino'),
+            subtitle: context.tr('service_casino_sub'),
+            telemetryBadge: 'VIP',
+            actionLabel: game.isFeatureUnlocked('/casino')
+                ? context.tr('office_btn_view')
+                : context.tr('office_btn_locked'),
+            route: '/casino',
+            isUnlocked: game.isFeatureUnlocked('/casino'),
+            isDark: isDark,
+          ),
+          const SizedBox(height: 8),
+          _buildOfficeItem(
+            context: context,
+            icon: Icons.sports_score_rounded,
+            color: const Color(0xFFF43F5E),
+            title: context.tr('service_night_market'),
+            subtitle: context.tr('service_night_market_sub'),
+            actionLabel: context.tr('office_btn_view'),
+            route: '/night-market',
+            isUnlocked: true,
+            isDark: isDark,
+          ),
         ],
       );
+  }
+
+  Widget _buildCategoryHeader({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required IconData icon,
+    required bool isDark,
+    String? counterBadge,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 14, bottom: 8),
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        backgroundColor:
+            isDark ? const Color(0xFF181C28) : const Color(0xFFF8FAFC),
+        borderColor: isDark ? const Color(0xFF2E384D) : const Color(0xFF0F172A),
+        borderWidth: 2.2,
+        borderRadius: 10,
+        child: Row(
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isDark ? Colors.black45 : const Color(0xFF0F172A),
+                  width: 1.8,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, size: 16, color: Colors.black),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.6,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (counterBadge != null) ...[
+              const SizedBox(width: 8),
+              NeoBrutalBadge(
+                text: counterBadge,
+                backgroundColor: color,
+                textColor: Colors.black,
+                fontSize: 9.5,
+                fontWeight: FontWeight.w900,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildOfficeItem({
@@ -844,12 +1230,13 @@ class DashboardOfficeView extends ConsumerWidget {
     required String route,
     required bool isUnlocked,
     required bool isDark,
+    String? telemetryBadge,
     String? lockedToast,
   }) {
     final activeColor = isUnlocked ? color : const Color(0xFF64748B);
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       backgroundColor: isUnlocked
           ? (isDark ? const Color(0xFF141721) : Colors.white)
           : (isDark ? const Color(0xFF0F1118) : const Color(0xFFE2E8F0)),
@@ -857,39 +1244,53 @@ class DashboardOfficeView extends ConsumerWidget {
           ? (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A))
           : (isDark ? const Color(0xFF202636) : const Color(0xFF94A3B8)),
       borderRadius: 12,
+      onTap: () {
+        if (isUnlocked) {
+          context.push(route);
+        } else {
+          NotificationService.showInfo(
+            context,
+            lockedToast ??
+                context.tr('cashflow_locked_feature_toast', {
+                  'branch': DealershipModel.getRequiredBranchName(route, context)
+                }),
+          );
+        }
+      },
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: activeColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+                width: 2.0,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              isUnlocked ? icon : Icons.lock_outline_rounded,
+              size: 20,
+              color: isUnlocked ? Colors.black : Colors.white,
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: activeColor,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF333B4F)
-                          : const Color(0xFF0F172A),
-                      width: 2.0,
-                    ),
-                  ),
-                  child: Icon(
-                    isUnlocked ? icon : Icons.lock_outline_rounded,
-                    size: 20,
-                    color: isUnlocked ? Colors.black : Colors.white,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
                         title,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12.5,
                           fontWeight: FontWeight.w900,
                           color: isUnlocked
                               ? (isDark
@@ -902,25 +1303,40 @@ class DashboardOfficeView extends ConsumerWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: isUnlocked
-                              ? (isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : const Color(0xFF64748B))
-                              : (isDark
-                                  ? const Color(0xFFF87171)
-                                  : const Color(0xFFDC2626)),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    ),
+                    if (telemetryBadge != null && isUnlocked) ...[
+                      const SizedBox(width: 6),
+                      NeoBrutalBadge(
+                        text: telemetryBadge,
+                        backgroundColor: isDark
+                            ? activeColor.withValues(alpha: 0.25)
+                            : activeColor.withValues(alpha: 0.3),
+                        textColor:
+                            isDark ? activeColor : const Color(0xFF0F172A),
+                        borderColor: activeColor,
+                        fontSize: 9.0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 1.5),
                       ),
                     ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: isUnlocked
+                        ? (isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B))
+                        : (isDark
+                            ? const Color(0xFFF87171)
+                            : const Color(0xFFDC2626)),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -930,8 +1346,8 @@ class DashboardOfficeView extends ConsumerWidget {
             label: actionLabel,
             backgroundColor: activeColor,
             textColor: isUnlocked ? Colors.black : Colors.white,
-            fontSize: 11,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            fontSize: 10.5,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             onPressed: () {
               if (isUnlocked) {
                 context.push(route);
@@ -940,7 +1356,8 @@ class DashboardOfficeView extends ConsumerWidget {
                   context,
                   lockedToast ??
                       context.tr('cashflow_locked_feature_toast', {
-                        'branch': DealershipModel.getRequiredBranchName(route, context)
+                        'branch': DealershipModel.getRequiredBranchName(
+                            route, context)
                       }),
                 );
               }
