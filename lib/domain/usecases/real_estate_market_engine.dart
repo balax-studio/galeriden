@@ -309,8 +309,11 @@ class RealEstateMarketEngine {
         discrepancyKey = hiddenFlaws[_random.nextInt(hiddenFlaws.length)];
       }
 
+      final nowMicros = DateTime.now().microsecondsSinceEpoch;
+      final uniqueSuffix = '${nowMicros}_${_random.nextInt(99999)}';
+
       final realEstate = RealEstateModel(
-        id: 're_${currentDay}_${i}_${DateTime.now().millisecondsSinceEpoch}',
+        id: 're_${currentDay}_${i}_$uniqueSuffix',
         title: '${template.titlePrefix} • $city $district',
         category: template.category,
         city: city,
@@ -328,7 +331,7 @@ class RealEstateMarketEngine {
 
       listings.add(
         RealEstateListingModel(
-          id: 'list_re_${currentDay}_$i',
+          id: 'list_re_${currentDay}_${i}_$uniqueSuffix',
           realEstate: realEstate,
           askingPrice: askingPrice,
           sellerName: sellerName,

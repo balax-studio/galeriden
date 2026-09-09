@@ -9,6 +9,7 @@ import '../../data/models/market_trend_model.dart';
 
 class MarketEngine {
   static final Random _random = Random();
+  static int _idCounter = 0;
 
   /// Generate dynamic random market trends
   static MarketTrendModel generateMarketTrend() {
@@ -153,7 +154,7 @@ class MarketEngine {
         : GameConstants.carBrands.first;
 
     final modelName = brandData.models[_random.nextInt(brandData.models.length)];
-    final id = 'car_starter_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
+    final id = 'car_starter_${DateTime.now().microsecondsSinceEpoch}_${++_idCounter}_${_random.nextInt(99999)}';
     final year = 1990 + _random.nextInt(15); // 1990 - 2005 budget years
 
     // Budget friendly starter base value (₺35.000 - ₺65.000)
@@ -642,7 +643,7 @@ class MarketEngine {
     final modelName = candidateModels[_random.nextInt(candidateModels.length)];
     
     final (bodyType, year, isClassicModel) = _determineBodyTypeAndYear(modelName);
-    final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${_random.nextInt(999)}';
+    final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${++_idCounter}_${_random.nextInt(99999)}';
 
     // 28% chance of Pristine ("Hatasız & Boyasız") Vehicle
     final isPristine = !isClassicModel && (_random.nextDouble() < 0.28);

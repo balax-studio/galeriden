@@ -145,6 +145,27 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
     return false;
   }
 
+  /// Generates and appends additional listings dynamically for infinite stream scrolling
+  void loadMoreListings({int count = 6}) {
+    if (state.length >= 150) return;
+
+    final game = _ref.read(gameProvider);
+    final playerLevel = game.level;
+    final categoryFilter = _ref.read(vasitaMarketFilterProvider);
+
+    final newListings = VasitaMarketEngine.generateListings(
+      count: count,
+      categoryFilter: categoryFilter,
+      playerLevel: playerLevel,
+    );
+
+    final existingIds = state.map((l) => l.id).toSet();
+    final uniqueNew =
+        newListings.where((l) => !existingIds.contains(l.id)).toList();
+
+    state = [...state, ...uniqueNew];
+  }
+
   void removeListing(String listingId) {
     state = state.where((l) => l.id != listingId).toList();
   }

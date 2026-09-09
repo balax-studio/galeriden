@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +17,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_listing_thumbnail.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
 import 'widgets/real_estate_offers_sheet.dart';
@@ -34,11 +34,14 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  late final ScrollController _listingsScrollController;
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _listingsScrollController = ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider).currentDay;
@@ -49,8 +52,32 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     });
   }
 
+  void _onScroll() {
+    if (!_isLoadingMore &&
+        _listingsScrollController.hasClients &&
+        _listingsScrollController.position.extentAfter < 500) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || !mounted) return;
+    setState(() {
+      _isLoadingMore = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (mounted) {
+      ref.read(realEstateMarketProvider.notifier).loadMoreListings(count: 6);
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _listingsScrollController.removeListener(_onScroll);
+    _listingsScrollController.dispose();
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -387,14 +414,6 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
         // Listings List
         Expanded(
           child: () {
-            final adIndices = <int>{};
-            final rng = Random(game.currentDay * 23 + listings.length);
-            int currentTarget = 2 + rng.nextInt(3);
-            while (currentTarget < listings.length) {
-              adIndices.add(currentTarget);
-              currentTarget += (3 + rng.nextInt(2));
-            }
-
             return listings.isEmpty
                 ? RefreshIndicator(
                     color: Colors.black,
@@ -449,15 +468,49 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       );
                     },
                     child: ListView.builder(
+                      controller: _listingsScrollController,
                       physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics()),
                       padding: const EdgeInsets.all(16),
-                      itemCount: listings.length,
+                      itemCount: listings.length + (_isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
+                        if (index >= listings.length) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Center(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.black),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    context.l10n.get('feed_loading_more'),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF64748B),
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
                         final showNativeAd = AdService.shouldShowNativeAdForDay(
                                 game.currentDay,
                                 NativeAdContextType.realEstate) &&
-                            adIndices.contains(index);
+                            index > 0 &&
+                            index % 4 == 0;
 
                         final listing = listings[index];
                         final card = _buildListingCard(theme, listing, game);
@@ -465,6 +518,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                         if (showNativeAd) {
                           return Column(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               const NeoBrutalNativeAdCard(
                                 contextType: NativeAdContextType.realEstate,
@@ -589,17 +643,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: re.category.accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: re.category.accentColor, width: 2),
-                ),
-                child: Icon(re.category.icon,
-                    color: re.category.accentColor, size: 24),
+              RealEstateListingThumbnail(
+                category: re.category,
+                isDark: theme.brightness == Brightness.dark,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -912,18 +960,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: property.category.accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: property.category.accentColor, width: 2),
-                ),
-                child: Icon(property.category.icon,
-                    color: property.category.accentColor, size: 24),
+              RealEstateListingThumbnail(
+                category: property.category,
+                isDark: theme.brightness == Brightness.dark,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

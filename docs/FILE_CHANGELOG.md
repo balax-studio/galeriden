@@ -22,6 +22,204 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Vasıta & Emlak İlanları Neo-Brutalist Görsel Küçük Resim Sistemi (NeoBrutalListingThumbnail)`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Kullanıcı isteği doğrultusunda hem Vasıta Pazarı (`VasitaMarketScreen`) hem de Emlak Pazarı (`RealEstateMarketScreen`) ilan kartlarına, Araç Pazarı'ndaki sıcak sarımsı neo-brutalist araç silüeti kutusu estetiğine uygun, ilan tipine göre özelleştirilmiş, gözü yormayan ve rahatsız etmeyen (`0xFFFEF9C3` krem-parşömen tabanlı, 2.0px kenarlıklı, 0-blur gölgeli) vektörel görsel küçük resim bileşeni entegre etmek.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/neo_brutal_listing_thumbnail.dart`:
+    - `VasitaListingThumbnail`: 12 vasıta kategorisinin tümü (`minivan`, `motorcycle`, `commercial`, `marine`, `caravan`, `aircraft`, `atv`, `utv`, `classic`, `rentalFleet`, `car`, `damaged`) için özel `CustomPainter` 2D vektörel blueprint illüstrasyonları geliştirildi. Minivan için sürgülü raylı gövde, motosiklet için çatallı şasi ve çift tekerlek, deniz araçları için yelkenli omurga ve dalga çizgileri, hava araçları için pervane ve kanatlar, karavan için pencereli yaşam kabini çizildi.
+    - `RealEstateListingThumbnail`: 5 emlak kategorisinin tümü (`housing`, `commercial`, `land`, `housingProjects`, `building`) için neo-brutalist mimari illüstrasyonlar geliştirildi. Konut için eğimli çatılı ve bacalı villa; iş yeri için çizgili tenteli dükkan; arsa için izometrik kadastro parseli ve aplikasyon kazıkları; konut projeleri için gökyüzü köprülü ikiz gökdelenler; bina için 4 katlı silme kornişli kentsel apartman blokları çizildi.
+    - Göz konforu için neon renk patlamaları yerine yumuşak sarımsı parşömen tabanı (`0xFFFEF9C3`) ile kategori renginin hafif %12 karışımı (`alphaBlend`) kullanıldı. Karanlık modda derin slate (`0xFF181C26`) taban uygulandı.
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - `_buildListingCard` başlık ve teknik özellikler bloğu, sol tarafına `VasitaListingThumbnail` yerleştirilerek Araç Pazarı ile tam bir görsel uyum kazandırıldı.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - `_buildListingCard` ve `_buildPortfolioTab` içerisinde daha önce boş/soluk kalan ham kategori ikon kutuları yerine `RealEstateListingThumbnail` entegre edildi.
+  - `test/neo_brutal_listing_thumbnail_test.dart`:
+    - Vasıta ve emlak bileşenlerinin tüm kategoriler, aydınlık/karanlık temalar ve CustomPaint çizimleri için widget testleri yazılarak doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `neo_brutal_listing_thumbnail.dart` içinde `import 'dart:math'` kullanılmadığı için uyarı ve `VehicleCategory` enum'ı tüm durumları kapsadığı için `unreachable_switch_default` uyarısı alındı.
+  - Test dosyasında paket import adı `galerisinden` yerine `galeriden` olmalıydı.
+- **Kök Neden**: Kapsayıcı enum switch yapısında gereksiz default dalı ve proje paket isminin `galeriden` olması.
+- **Uygulanan Çözüm**: Uyarılar temizlendi, import `galeriden` olarak düzeltildi ve testler başarıyla geçirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/neo_brutal_listing_thumbnail_test.dart`: 4 testin 4'ü de başarıyla geçti (`All tests passed!`).
+  - `flutter test test/vasita_market_test.dart test/real_estate_market_test.dart`: 42 testin 42'si de başarıyla geçti (`All tests passed!`).
+
+---
+
+### `lib/presentation/screens/marketplace/marketplace_screen.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Kullanıcının talebi doğrultusunda Araç Pazarı ekranının üst kısmındaki "İkinci El Piyasasında Durgunluk — Kelepir Araç Fırsatları Artıyor" piyasa trendi ve içgörü bilgi kartını arayüzden kaldırmak, arama kutusu ve filtreler arasındaki ekran alanını rahatlatmak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/marketplace/marketplace_screen.dart`:
+    - `build()` fonksiyonu içerisindeki kullanılmayan `marketSenseLevel` ve `trend` Riverpod dinleyicileri kaldırıldı.
+    - Arama kutusunun altındaki `NeoBrutalCard` piyasa trendi bannerı (`Padding(padding: const EdgeInsets.fromLTRB(14, 6, 14, 4), child: NeoBrutalCard(...))`) tamamen kaldırıldı.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: Kullanıcı arayüz sadeleştirme isteği.
+- **Uygulanan Çözüm**: İlgili bileşen ve kullanılmayan bağımlılıkları temizlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/marketplace/marketplace_screen.dart test/`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test`: 7 testin 7'si de başarıyla geçti.
+
+---
+
+### `Araç Pazarı, Vasıta Pazarı & Emlak Borsası Sonsuz Kaydırma (Infinite Stream) & Yerel Reklam Ritim Sistemi`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Kullanıcı isteği doğrultusunda Twitter/X tarzı aşağı kaydırdıkça (`ScrollController` ile `extentAfter < 500`) kesintisiz yeni ilanlar türeten sonsuz kaydırma akışı kurmak; her 4 ilanda bir (`index > 0 && index % 4 == 0`) doğal sponsor / AdMob yerel reklam kartı (`NeoBrutalNativeAdCard`) ritmi eklemek; bellek şişmesini önleyen tavan mekanizması ve eşzamanlı 7 dilli yerelleştirme sağlamak.
+- **Yapılan Değişiklikler**:
+  - `lib/core/localization/translations/`:
+    - `tr_translations.dart`, `en_translations.dart`, `de_translations.dart`, `pt_translations.dart`, `es_translations.dart`, `ru_translations.dart`, `ar_translations.dart` dosyalarına `feed_loading_more` anahtarı sıfır emoji ve sıfır parantez kuralına uygun şekilde eklendi.
+  - `lib/presentation/providers/market_provider.dart`:
+    - `MarketNotifier` içerisine `loadMoreListings({int count = 6})` metodu eklendi. Benzersiz ID koruması ve 150 öğelik bellek tavanı sağlandı.
+  - `lib/presentation/providers/vasita_market_provider.dart`:
+    - `VasitaMarketNotifier` içerisine `loadMoreListings({int count = 6})` metodu eklendi. Kategori filtresini koruyarak yeni vasıtalar türetme sağlandı.
+  - `lib/presentation/providers/real_estate_market_provider.dart`:
+    - `RealEstateMarketNotifier` içerisine `loadMoreListings({int count = 6})` metodu eklendi.
+  - `lib/domain/usecases/market_engine.dart` & `lib/domain/usecases/real_estate_market_engine.dart`:
+    - Döngüsel hızlı üretimde mikrosaniye çakışmalarını sıfırlamak için `_idCounter` ve mikrosaniye artırımlı benzersiz ID şeması uygulandı.
+  - `lib/presentation/screens/marketplace/marketplace_screen.dart`:
+    - `_scrollController` eklendi, `extentAfter < 500` eşiğinde `_loadMore()` tetikleyicisi bağlandı, alt tarafa neo-brutalist stream spinnerı (`feed_loading_more`) yerleştirildi, reklam kapsayıcısı kural 10 gereği `CrossAxisAlignment.stretch` olarak güncellendi.
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - `_scrollController` eklendi, `extentAfter < 500` akış dinleyicisi kuruldu, alt spinner eklendi, her 4 ilanda bir `showAdBefore` ritmi sağlandı.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - `_listingsScrollController` bağlandı, sonsuz akış dinleyicisi ve alt spinner eklendi, her 4 ilanda bir yerel reklam şablonu yerleştirildi.
+  - `test/infinite_scroll_market_feed_test.dart`:
+    - Her 3 pazar için dinamik ilan ekleme, kategori koruma, `index % 4 == 0` reklam ritmi ve 7 dilli yerelleştirme (parantezsiz/emojisiz) testleri yazılarak doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `real_estate_market_engine.dart` dosyasında `id: 'list_re_${currentDay}_$i'` statik döngü indeksi kullanıldığı için `loadMoreListings` çağrısında aynı ID'lerin üretilip elenmesi (`Expected: <30>, Actual: <24>`).
+  - `market_engine.dart` içinde senkron döngüde `DateTime.now().microsecondsSinceEpoch` değerinin aynı mikrosaniyeye denk gelerek 1/1000 rastgele çakışma ihtimali üretmesi.
+  - `real_estate_market_screen.dart` ve `vasita_market_screen.dart` dosyalarında kullanılmayan `dart:math` import uyarıları.
+- **Kök Neden**:
+  - ID türetiminde mikrosaniyeye ek olarak atomik sıra sayacı kullanılmaması ve emlak motorunda gün/indeks tabanlı ID üretimi.
+- **Uygulanan Çözüm**:
+  - ID türetimlerine atomik `_idCounter` ve mikrosaniye eklenerek tam benzersizlik sağlandı, kullanılmayan importlar temizlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/ test/`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/infinite_scroll_market_feed_test.dart test/city_operations_hub_and_marketplace_redesign_test.dart`: 7 testin 7'si de başarıyla geçti (`All tests passed!`).
+
+---
+
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` & `test/city_operations_hub_and_marketplace_redesign_test.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Şehir & Yan Sektörler kutusu içerisindeki 10 ikincil genişleme servisinin diğer ana bölümlerin (Showroom Flight-Deck, Maslak Sanayi Mega-Hangar, Finans Terminali) yanında "sönük" (soluk, beyaz/gri ve tekdüze) kalmasını tamamen ortadan kaldırmak; her bir servise kendi tematik alanına özel doygun arka plan rengi (`bgLight` & `bgDark`), 2.2px+ canlı renkli neo-brutalist kenarlık, sert 0-blur gölge (`Offset(2.5, 2.5)`), mikro-ikonlu canlı telemetri kutuları ve en altta tam genişlikli VIP Gold/Noir Casino şeridi kazandırmak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `_ServiceItem` modeline `bgLight`, `bgDark`, `telemetryIcon` alanları eklendi.
+    - Tüm 10 servis tekdüze beyaz arka plandan kurtarılarak tematik renk tonlarına kavuşturuldu:
+      - Rent-a-Car: Okyanus Mavisi (`0xFFF0F9FF` / `0xFF082236`, `0xFF0284C7`), Kontak anahtarı telemetrisi (`X Kirada`).
+      - Gece Sanayisi: Nitro Kırmızı (`0xFFFFF1F2` / `0xFF2B0A14`, `0xFFF43F5E`), Ateş/Yarış telemetrisi.
+      - Hurdalık & Parça: Endüstriyel Çelik (`0xFFF1F5F9` / `0xFF151E2B`, `0xFF64748B`), İngiliz anahtarı & çıkma parça sayacı.
+      - Semt Hakimiyeti: Siber Turkuaz (`0xFFF0FDF9` / `0xFF0A2422`, `0xFF0284C7`), Pasta grafik pazar kontrol telemetrisi.
+      - Dedikodu Hattı: Siber Sarı (`0xFFFEF9C3` / `0xFF262005`, `0xFFEAB308`), Megafon & kulis fısıltı telemetrisi.
+      - Konsinye & Emanet: Nane Yeşili (`0xFFECFDF5` / `0xFF07261C`, `0xFF059669`), El sıkışma & sıfır sermaye vitrin telemetrisi.
+      - Müşteri Yorumları: Sıcak Altın (`0xFFFFFBEB` / `0xFF261D07`, `0xFFF59E0B`), Yıldız & itibar telemetrisi.
+      - Showroom Mimari: Kraliyet Moru (`0xFFF5F3FF` / `0xFF1E1535`, `0xFF8B5CF6`), Palet & mimari prestij telemetrisi.
+      - Yan İşletmeler: Zehir Yeşili (`0xFFF0FDF4` / `0xFF072418`, `0xFF10B981`), 11 tesis nokta matrisi ve günlük nakit akışı.
+      - Yeraltı Casino: VIP Gold & Noir (`0xFFFEFCE8` / `0xFF261D04`, `0xFFFFD700`), Zar ikonu ve yüksek kazanç telemetrisi.
+    - **Mikro-Telemetri Kutuları**: Her bento karosunun içerisine yarı saydam arka planlı, kenarlıklı, canlı ikon ve durum metni içeren telemetri çubuğu eklendi.
+    - **Yeraltı Casino VIP Şeridi (`_buildHubCasinoStrip`)**: Casino açık olduğunda kutunun en tabanında tam genişlikli, altın kenarlıklı, "MASAYA GEÇ" butonlu VIP şerit olarak konumlandırıldı.
+    - **Tesis Gösterge Matrisi**: `_buildHubHeroCard` içerisinde Yan İşletmeler'in 11 tesisinin sahip olunma durumunu gösteren interaktif görsel çipler (Showroom otopark slotları gibi) yerleştirildi.
+    - `service_districts` yerelleştirme anahtarı `service_district` olarak düzeltildi.
+  - `test/city_operations_hub_and_marketplace_redesign_test.dart`:
+    - 10 servisin tamamının açık olduğu Seviye 5 durumu için bento karoları, telemetri kutuları ve VIP Casino şeridini doğrulayan ikinci kapsamlı test eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `service_districts` anahtarındaki çoğul 's' takısı sebebiyle testte "Semt Hakimiyeti" metninin bulunamaması.
+  - Test içinde Casino buton metninin `MASAYA GEÇ` yerine `MASALARA OTUR` olarak aranması.
+- **Kök Neden**:
+  - `tr_translations.dart` dosyasındaki mevcut anahtar isimlerinin sırasıyla `service_district` ve `deck_action_casino: MASAYA GEÇ` olması.
+- **Uygulanan Çözüm**:
+  - Anahtar ve test beklentileri mevcut lokalizasyon anahtarlarıyla tam uyumlu hale getirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart`: 2 testin 2'si de başarıyla geçti.
+
+---
+
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`, `lib/core/localization/translations/*` & `test/city_operations_hub_and_marketplace_redesign_test.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: İkincil ve yan genişleme servislerinin (Hurdalık & Parça, Müşteri Yorumları, Showroom Mimari, Rent-a-Car, Yan İşletmeler, Semt Hakimiyeti, Dedikodu Hattı, Konsinye & Emanet, Gece Sanayisi, Yeraltı Casino) uzun, tekdüze yatay şeritler yerine tek bir özel kapsayıcı kutu ("Şehir & Yan Sektörler") içinde toplanması; oyuncu seviyesine göre dinamik olarak en verimli pasif gelir motorunu (örn. Seviye 2+ için Yan İşletmeler, Seviye 1 için Müşteri İtibarı) öne çıkarıp büyüten Hero vitrini, 2 sütunlu orantılı kare bento kartları ve henüz açılmamış servisler için tek satırlık kilit açılma hedefi (teaser) ile bilişsel yükün azaltılması. Ayrıca bağımsız Açık Oto Pazarı (Marketplace) kartının metin kesilmelerini ve boşluklarını gideren flight-deck hero tasarımına kavuşturulması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Tekil Kapsayıcı Kutu (`_buildCityOperationsHubBox`)**: Tüm 10 yan sektör tek bir 2.5px Neo-Brutalist kenarlıklı taktiksel kutu içine alındı. Üst başlıkta radyo frekans/şehir şebekesi ikonu, dinamik `{count}/10 AKTİF SEKTÖR` rozeti ve operasyonel açıklama konumlandırıldı.
+    - **Dinamik Seviyeye Göre Büyüyen Hero Yuvası ("Büyüt")**: Açık servisler arasından en kritik ve oyuncunun seviyesine en uygun ana pasif gelir kaynağı (Seviye 2+ için Yan İşletmeler tesis gelir telemetrisiyle; Seviye 1 için Müşteri Yorumları 5.0 itibar puanıyla) üstte genişletilmiş Hero kartı olarak ölçeklendirildi.
+    - **2 Sütunlu Orantılı Bento Izgara**: Geriye kalan açık sektörler, uzun yatay şeritler yerine kompakt, eşit yükseklikli (`IntrinsicHeight`) 2 sütunlu kare bento karoları olarak dizildi. Butonlar `MainAxisAlignment.spaceBetween` ile tabana kilitlendi.
+    - **Bilişsel Yükü Azaltan Kademeli Açılış & Hedef İpucu**: Henüz seviyesi yetmeyen kapalı servisler ekranı kalabalıklaştırmadan gizlendi; kutunun en altına tek satırlık zarif bir sonraki kilit açılma ipucu (`Sonraki Seviye {level}: {name}`) yerleştirildi.
+    - **Bağımsız Açık Oto Pazarı Kartı (`_buildMarketplaceCard(isStandalone: true)`)**: Vasıta servisi henüz açılmadığında veya tek başına görüntülendiğinde kartın metin kesintisi yaşamaması için tam genişlikli Flight-Deck Hero mimarisi uygulandı: Store ikonu, başlık, alt başlık, canlı ilan sayısı matrisi, sıcak kelepir & takas fırsat rozeti ve tam genişlikli dokunsal buton eklendi.
+    - Kullanılmayan 11 eski şerit metodu ve değişken temizlenerek kod yalınlaştırıldı.
+  - `lib/core/localization/translations/*`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) `hub_city_operations_title`, `hub_city_operations_sub`, `hub_active_badge`, `hub_next_unlock_teaser`, `deck_action_go_market`, `deck_market_opportunity_tag` anahtarları sıfır emoji ve sıfır parantez kurallarıyla eksiksiz senkronize edildi.
+  - `test/city_operations_hub_and_marketplace_redesign_test.dart`:
+    - Şehir & Yan Sektörler kapsayıcı kutusunun mount olduğunu, seviye 2'de Yan İşletmeler'in büyütülmüş Hero olarak yerleştiğini, bento karolarını ve bağımsız Açık Oto Pazarı kartını doğrulayan widget testleri yazıldı; test sonlarında zamanlayıcı hijyeni (`stopPeriodicOrganicOfferTimer`) sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Kartlara dokunulduğunda tetiklenen `markFeatureSeen` metodunun `DealershipModel` içinde 350ms'lik bir kayıt zamanlayıcısı başlatması sebebiyle widget testinde bekleyen zamanlayıcı (`A Timer is still pending`) uyarısı.
+- **Kök Neden**:
+  - `markFeatureSeen` arayüzdeki bildirim noktasını temizlerken durumun kaydedilmesi için 350 milisaniyelik debounce zamanlayıcısı kurmaktadır.
+- **Uygulanan Çözüm**:
+  - Widget testlerinde dokunma işleminden sonra `await tester.pump(const Duration(milliseconds: 500));` çalıştırılarak zamanlayıcının tamamlanması sağlandı ve `tearDown` aşamasında `stopPeriodicOrganicOfferTimer()` çağrıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart test/city_operations_hub_and_marketplace_redesign_test.dart`: 4 testin 4'ü de başarıyla geçti.
+
+---
+
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Dashboard ana sayfasındaki ikincil ve genişleme servislerinin (Deck 3: Holding & Ticari Filo — Yan İşletmeler, Rent-a-Car, Konsinye & Emanet; Deck 4: Yeraltı & Gece Devresi — Gece Sanayisi, Dedikodu Hattı, Semt Hakimiyeti, Hurdalık & Parça, Yeraltı VIP Casino, Müşteri Yorumları, Showroom Mimari) tekdüze 2 sütunlu basit liste tasarımından asimetrik ama orantılı, eşit yükseklik mimarili (`IntrinsicHeight`), canlı oyun durumu telemetrileri ve seviye bazlı kademeli açılış (progressive disclosure) sunan Neo-Brutalist Bento Grid mimarisine dönüştürülmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Deck 3 (Holding & Kurumsal Filo)**: Yan İşletmeler (%55) ve Rent-a-Car (%45) asimetrik eşit yükseklik çifti ile Konsinye & Emanet (%100 tam genişlik şerit kartı) entegre edildi.
+    - **Deck 4 (Yeraltı & Gece Operasyonları)**: Gece Sanayisi (%58) & Dedikodu Hattı (%42) asimetrik çifti, Semt Hakimiyeti (%52) & Hurdalık (%48) asimetrik çifti, Yeraltı VIP Casino (%100 tam genişlik Gold/Noir şeridi) ve Müşteri İtibarı (%50) & Showroom Mimari (%50) eşit yükseklik ikilisi konumlandırıldı.
+    - **Dinamik Telemetri ve Zanaat**: Hurdalıkta parça sayısı, yan işletmelerde aktif tesis ve günlük pasif gelir, Rent-a-Car'da kiralanan araç sayısı ve ciro, konsinyede emanet vitrin sayısı, gece sanayisinde drag şampiyonası durumu, dedikoduda istihbarat frekansı, semt hakimiyetinde kontrol oranı, casinoda VIP masa katsayısı, yorumlarda 5.0 itibar puanı, mimaride showroom prestij seviyesi canlı olarak kartlara yansıtıldı.
+    - **Kademeli Açılış (Progressive Disclosure)**: İlgili servisin kilit açılma seviyesi henüz gelmemişse o güverte tamamen gizlenerek erken seviyedeki oyuncunun bilişsel yorgunluğu önlendi.
+    - **Buton Taban Hizalama**: Kart gövdesinde `Column(mainAxisAlignment: MainAxisAlignment.spaceBetween)` kullanılarak `IntrinsicHeight` altındaki butonlar piksel hassasiyetinde en alt seviyeye kilitlendi.
+    - `handledRoutes` listesi 7 genişleme servisi eklenerek eksiksiz güncellendi; tekdüze yedek liste görünümü tamamen kaldırıldı.
+  - `lib/core/localization/translations/*`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) 12 yeni aksiyon butonu ve telemetri metni (`deck_action_businesses`, `deck_action_rent`, `deck_action_consignment`, `deck_action_night_market`, `deck_action_gossip`, `deck_action_districts`, `deck_action_salvage`, `deck_action_casino`, `deck_action_reviews`, `deck_action_decor`, `deck_biz_passive`, `deck_rent_status`, `deck_consignment_strip_title`, `deck_consignment_strip_sub`, `deck_consignment_badge`, `deck_night_drag_telemetry`, `deck_gossip_telemetry`, `deck_districts_telemetry`, `deck_scrapyard_telemetry`, `deck_casino_telemetry`, `deck_reviews_telemetry`, `deck_decor_telemetry`) sıfır emoji ve sıfır parantez kurallarına tam uyumla senkronize edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `context.languageCode` derleyici hatası (`undefined_getter`).
+  - Widget testlerinde varsayılan 800x600 sanal ekran boyutunun alt güvertedeki dokunma hedeflerini ekran dışı bırakması.
+- **Kök Neden**:
+  - `CurrencyFormatter.formatShort` metodu yerel dil kodunu parametresiz olarak `CurrencyFormatter.currentLanguageCode` üzerinden çekmektedir.
+  - Flutter test ortamının varsayılan sanal ekran sınırları.
+- **Uygulanan Çözüm**:
+  - `CurrencyFormatter.formatShort(amount)` doğrudan parametresiz çağrıldı.
+  - Testlerde `tester.view.physicalSize = const Size(1000, 3000)` ve `devicePixelRatio = 1.0` ayarlanıp `addTearDown` ile temizlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart lib/core/localization/`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart test/auction_screen_widget_test.dart`: Tüm testler başarıyla geçti (4/4).
+
+---
+
+### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Dashboard ana sayfasındaki (Tab 0) operasyonel servislerin etki alanlarına göre mantıksal ızgaralarda (Grid 1: Galeri & Araç Operasyonları, Grid 2: Finans & Terminal, Grid 3: Mülk & Holding, Grid 4: Yeraltı & Fırsatlar) toplanması; asimetrik kart çiftlerinde (Atölye vs Tuning, Oto Pazarı vs Vasıta, Finans vs Borsa, Emlak vs Personel) yükseklik ve buton taban hizalama dengesizliklerinin `IntrinsicHeight` mimarisiyle giderilmesi; kart içi zanaatın (canlı telemetri hapları, rozetler, dokunsal butonlar) güçlendirilmesi ve 7 dilde eşzamanlı lokalizasyonunun yapılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Grid 1 (Galeri & Araç Operasyonları)**: Showroom Flight-Deck Hero kartı ile başlayıp; Sanayi Mega-Hangar (Atölye %58 & Tuning %42 eşit yükseklik + Oto Yıkama & Detailing tam genişlik şeridi) ve Açık Oto Pazarı & Vasıta Boulevard Dock (Pazar Yeri %56 & Vasıta %44 eşit yükseklik) ile tek bir operasyonel merkezde birleştirildi.
+    - **Grid 2 (Finans, Borsa & Müzayede)**: Canlı İhale Hero kartı, Finans (%52) & Borsa (%48) eşit yükseklik çifti ve Satış & Ciro Raporları tam genişlik analitik şeridi oluşturuldu.
+    - **Grid 3 (Mülk & Holding Yönetimi)**: Şube Yönetimi Hero kartı ve Emlak Pazarı (%50) & Personel Kadrosu (%50) eşit yükseklik çifti konumlandırıldı.
+    - **Grid 4 (Yeraltı & Fırsatlar)**: Karaborsa Noir Hero kartı ve Hurdalık, Yorumlar, Showroom Dekoru 3'lü eşit yükseklik pedalları ile tamamlandı.
+    - **Eşit Yükseklik & Alt Buton Hizalama Mimarisi**: Yan yana gelen asimetrik kartlar `IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, ...))` içine alındı; kart gövdesinde `const Spacer()` yerine `mainAxisAlignment: MainAxisAlignment.spaceBetween` kullanılarak butonlar en alt hizaya kilitlendi.
+    - Web derlemesiyle uyumsuz olan `Icons.directions_boat_filled_rounded` ikonu `Icons.directions_boat_rounded` ile değiştirildi.
+  - `lib/core/localization/translations/*`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) `bento_badge_fresh`, `deck_action_portfolio`, `section_core_operations`, `section_core_operations_sub`, `section_finance_terminal`, `section_finance_terminal_sub`, `section_holding_estate`, `section_holding_estate_sub` ve niteliksel telemetri anahtarları (`deck_finance_cashflow_positive`, `deck_stocks_bist_trend`, `deck_staff_efficiency`, `deck_real_estate_income`) eksiksiz senkronize edildi. Sıfır emoji ve sıfır parantez kurallarına harfiyen uyuldu.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `RenderFlex children have non-zero flex but incoming height constraints are unbounded`: `IntrinsicHeight` altındaki `Column` içinde `Spacer()` kullanılması sonsuz yükseklik çökmesine yol açtı.
+  - Web platformunda `Icons.directions_boat_filled_rounded` ikon tanımlayıcısının bulunamaması nedeniyle derleme uyarısı.
+  - `deck_finance_cashflow_positive` gibi anahtarların parametresiz çağrıldığında arayüzde ham `+₺{amount} / gün` metni göstermesi.
+- **Kök Neden**:
+  - `IntrinsicHeight` çocuklarının `maxIntrinsicHeight` değerini sorgularken `Expanded` veya `Spacer` içeren esnek sütunların intrinsik yüksekliği tanımsız kalmaktadır.
+  - Parametreli şablon metinlerinin argümansız çağrılması.
+- **Uygulanan Çözüm**:
+  - `Spacer()` kaldırılıp `Column(mainAxisAlignment: MainAxisAlignment.spaceBetween)` mimarisine geçilerek butonlar ve içerik birbirinden güvenle ayrıldı.
+  - İkon web uyumlu `Icons.directions_boat_rounded` olarak güncellendi.
+  - Telemetri anahtarları parametresiz, net ve niteliksel durum ifadelerine dönüştürüldü.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/` çalıştırıldı: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart` ile widget testleri doğrulandı.
+  - Chrome DevTools üzerinden localhost:8080 üzerinde görsel doğrulaması ve piksel mükemmel yükseklik hizalaması yapıldı.
+
 ---
 
 ### `lib/presentation/screens/auction/auction_screen.dart` & `test/auction_screen_widget_test.dart`

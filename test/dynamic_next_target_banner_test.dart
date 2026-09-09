@@ -10,6 +10,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('DashboardServicesGrid renders dynamic rotating next target banner with motivating benefits', (tester) async {
+    tester.view.physicalSize = const Size(1000, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     final game = DealershipModel.initial();
     final palette = ThemePaletteModel.defaultPalettes.first;
 

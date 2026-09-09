@@ -50,6 +50,26 @@ class RealEstateMarketNotifier
     refreshMarket();
   }
 
+  /// Generates and appends additional listings dynamically for infinite stream scrolling
+  void loadMoreListings({int count = 6}) {
+    if (state.length >= 150) return;
+
+    final currentDay = _ref.read(gameProvider).currentDay;
+    final categoryFilter = _ref.read(realEstateMarketFilterProvider);
+
+    final newListings = RealEstateMarketEngine.generateListings(
+      count: count,
+      categoryFilter: categoryFilter,
+      currentDay: currentDay,
+    );
+
+    final existingIds = state.map((l) => l.id).toSet();
+    final uniqueNew =
+        newListings.where((l) => !existingIds.contains(l.id)).toList();
+
+    state = [...state, ...uniqueNew];
+  }
+
   void removeListing(String listingId) {
     state = state.where((l) => l.id != listingId).toList();
   }

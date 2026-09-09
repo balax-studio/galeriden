@@ -42,6 +42,13 @@ void main() {
     });
 
     testWidgets('DashboardServicesGrid shows notification dot instead of LVL badges, clears on tap', (tester) async {
+      tester.view.physicalSize = const Size(1000, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
       // Create a level 4 game where /vasita and /emlak are newly unlocked (not in seenFeatureRoutes)
       final initialGame = DealershipModel.initial();
       final lvl4Game = initialGame.copyWith(

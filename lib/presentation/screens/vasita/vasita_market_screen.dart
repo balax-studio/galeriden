@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,6 +18,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/neo_brutal_listing_thumbnail.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import 'vasita_expertise_screen.dart';
 import 'vasita_negotiation_screen.dart';
@@ -32,11 +32,14 @@ class VasitaMarketScreen extends ConsumerStatefulWidget {
 
 class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late final ScrollController _scrollController;
   String _searchQuery = '';
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
@@ -48,8 +51,32 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     });
   }
 
+  void _onScroll() {
+    if (!_isLoadingMore &&
+        _scrollController.hasClients &&
+        _scrollController.position.extentAfter < 500) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || !mounted) return;
+    setState(() {
+      _isLoadingMore = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (mounted) {
+      ref.read(vasitaMarketProvider.notifier).loadMoreListings(count: 6);
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -76,14 +103,6 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
       return titleMatch || brandMatch || modelMatch || cityMatch;
     }).toList();
 
-    // Generate random ad positions
-    final Random adRandom = Random(game.currentDay);
-    final Set<int> adIndices = {};
-    int nextAd = adRandom.nextInt(3) + 2; // 2-4 interval
-    while (nextAd < filteredListings.length) {
-      adIndices.add(nextAd);
-      nextAd += adRandom.nextInt(3) + 2;
-    }
     return Scaffold(
       appBar: NeoBrutalAppBar(
         title: context.tr('vasita_market_title'),
@@ -294,17 +313,52 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                         );
                       },
                       child: ListView.separated(
+                        controller: _scrollController,
                         padding: const EdgeInsets.fromLTRB(14, 4, 14, 20),
                         physics: const AlwaysScrollableScrollPhysics(
                             parent: BouncingScrollPhysics()),
-                        itemCount: filteredListings.length,
+                        itemCount: filteredListings.length + (_isLoadingMore ? 1 : 0),
                         separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (ctx, index) {
+                          if (index >= filteredListings.length) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Center(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      context.l10n.get('feed_loading_more'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
                           final listing = filteredListings[index];
                           final showAdBefore = AdService.shouldShowNativeAdForDay(
                                   game.currentDay,
                                   NativeAdContextType.marketplace) &&
-                              adIndices.contains(index);
+                              index > 0 &&
+                              index % 4 == 0;
 
                           final listingWidget = _buildListingCard(
                             context: context,
@@ -317,7 +371,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                           if (showAdBefore) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 const NeoBrutalNativeAdCard(
                                   contextType: NativeAdContextType.marketplace,
@@ -470,21 +524,44 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
           ],
           const SizedBox(height: 10),
 
-          // Title & Year
-          Text(
-            '${car.brand} ${car.modelName}',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+          // Title & Year with Neo-Brutalist Visual Thumbnail
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              VasitaListingThumbnail(
+                category: cat,
+                bodyType: car.bodyType,
+                colorHex: car.colorHex,
+                isDark: isDark,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${car.brand} ${car.modelName}',
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${context.tr('car_spec_year')}: ${car.modelYear} • ${car.bodyType} • ${car.expertise.mileage} ${cat == VehicleCategory.aircraft ? 'Saat' : 'KM'}',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 3),
-          Text(
-            '${context.tr('car_spec_year')}: ${car.modelYear} • ${car.bodyType} • ${car.expertise.mileage} ${cat == VehicleCategory.aircraft ? 'Saat' : 'KM'}',
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // Condition Bars Row
           Container(

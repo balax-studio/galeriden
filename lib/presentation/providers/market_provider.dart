@@ -109,6 +109,30 @@ class MarketNotifier extends StateNotifier<List<ListingModel>> {
     }).toList();
   }
 
+  /// Generates and appends additional listings dynamically for infinite stream scrolling
+  void loadMoreListings({int count = 6}) {
+    if (state.length >= 150) return;
+
+    final game = _ref.read(gameProvider);
+    final trend = game.marketTrend;
+    final balance = game.balance;
+    final hasNecati = game.hasHighNpcTrust('necati');
+
+    final newListings = MarketEngine.generateRandomListings(
+      count: count,
+      playerLevel: playerLevel,
+      trend: trend,
+      playerBalance: balance,
+      hasHighNecatiTrust: hasNecati,
+    );
+
+    final existingIds = state.map((l) => l.id).toSet();
+    final uniqueNew =
+        newListings.where((l) => !existingIds.contains(l.id)).toList();
+
+    state = [...state, ...uniqueNew];
+  }
+
   void removeListing(String listingId) {
     state = state.where((l) => l.id != listingId).toList();
   }

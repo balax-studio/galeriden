@@ -53,12 +53,15 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
   MarketSortOption _selectedSort = MarketSortOption.defaultSort;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  late final ScrollController _scrollController;
   Timer? _debounceTimer;
   bool _isRefreshing = false;
+  bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final currentDay = ref.read(gameProvider.select((g) => g.currentDay));
@@ -70,8 +73,32 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     });
   }
 
+  void _onScroll() {
+    if (!_isLoadingMore &&
+        _scrollController.hasClients &&
+        _scrollController.position.extentAfter < 500) {
+      _loadMore();
+    }
+  }
+
+  Future<void> _loadMore() async {
+    if (_isLoadingMore || !mounted) return;
+    setState(() {
+      _isLoadingMore = true;
+    });
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (mounted) {
+      ref.read(marketProvider.notifier).loadMoreListings(count: 6);
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     _searchController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
@@ -93,9 +120,6 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
     final allListings = ref.watch(marketProvider);
     final balance = ref.watch(gameProvider.select((g) => g.balance));
     final currentDay = ref.watch(gameProvider.select((g) => g.currentDay));
-    final marketSenseLevel =
-        ref.watch(gameProvider.select((g) => g.skills.marketSense));
-    final trend = ref.watch(gameProvider.select((g) => g.marketTrend));
     final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
     final p = themeExt.palette;
     final isDark = p.isDark;
@@ -237,77 +261,6 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
             ),
           ),
 
-          // Market Trend & Skill Intel Banner (Neo-Brutal Card)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
-            child: NeoBrutalCard(
-              padding: const EdgeInsets.all(12),
-              backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-              borderColor:
-                  isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-              borderRadius: 12,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: p.primaryColor,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF333B4F)
-                            : const Color(0xFF0F172A),
-                        width: 2.0,
-                      ),
-                    ),
-                    child: const Icon(Icons.insights_rounded,
-                        color: Colors.black, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          trend.headline,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w900,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        if (marketSenseLevel >= 3)
-                          Text(
-                            context.tr('dashboard_market_trend', {
-                              'trend':
-                                  'Lv $marketSenseLevel: SUV x${trend.bodyTypeMultipliers['SUV']} • Spor x${trend.bodyTypeMultipliers['Spor']}'
-                            }),
-                            style: TextStyle(
-                              color: p.primaryColor,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        else
-                          Text(
-                            context.tr('market_insight_lv3_hint'),
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              color: isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : const Color(0xFF64748B),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
           // Quick Filter Chips Bar (Monolithic Buttons)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -414,11 +367,42 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           ],
                         )
                       : ListView.builder(
+                          controller: _scrollController,
                           padding: EdgeInsets.fromLTRB(14, 8, 14, bottomPadding),
                           physics: const AlwaysScrollableScrollPhysics(
                               parent: BouncingScrollPhysics()),
-                          itemCount: listings.length,
+                          itemCount: listings.length + (_isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index >= listings.length) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            isDark ? const Color(0xFFE2E8F0) : const Color(0xFF0F172A),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        context.l10n.get('feed_loading_more'),
+                                        style: AppTypography.bodySmall(isDark).copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
                             final lang =
                                 Localizations.localeOf(context).languageCode;
                             final item = listings[index];
@@ -935,7 +919,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                             if (showAdBefore) {
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   const NeoBrutalNativeAdCard(
                                       contextType:
