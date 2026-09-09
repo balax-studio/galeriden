@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
+import '../../../core/services/ad_reward_calculator.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -192,6 +193,14 @@ class RentACarScreen extends ConsumerWidget {
     final isClaimedToday = claimedDay == game.currentDay;
     final hasNoAds = game.hasNoAdsLicense;
 
+    final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final vipFleetBonus = AdRewardCalculator.calculateVipFleetGrant(
+      playerLevel: game.level,
+      playerBalance: game.balance,
+      totalGarageValue: garageTotal,
+      fleetCount: game.ownedCars.where((c) => c.isRented).length,
+    );
+
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -218,8 +227,8 @@ class RentACarScreen extends ConsumerWidget {
                 fontSize: 10,
               ),
               if (!isClaimedToday)
-                const NeoBrutalBadge(
-                  text: '+₺35.000',
+                NeoBrutalBadge(
+                  text: '+${CurrencyFormatter.formatShort(vipFleetBonus)}',
                   icon: Icons.attach_money_rounded,
                   backgroundColor: AppColors.brutalYellow,
                   textColor: Colors.black,
@@ -272,26 +281,30 @@ class RentACarScreen extends ConsumerWidget {
                     HapticFeedback.heavyImpact();
                     if (hasNoAds) {
                       ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
-                      ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                      ref.read(gameProvider.notifier).claimVipFleetBonus(vipFleetBonus);
                       NotificationService.showSuccess(
                         context,
-                        context.tr('rent_vip_toast_claimed'),
+                        context.tr('rent_vip_toast_claimed', {
+                          'amount': CurrencyFormatter.format(vipFleetBonus),
+                        }),
                       );
                     } else {
                       AdService.instance.showRewardedAd(
                         onRewardEarned: () {
                           ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
-                          ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                          ref.read(gameProvider.notifier).claimVipFleetBonus(vipFleetBonus);
                           if (context.mounted) {
                             NotificationService.showSuccess(
                               context,
-                              context.tr('rent_vip_toast_claimed'),
+                              context.tr('rent_vip_toast_claimed', {
+                                'amount': CurrencyFormatter.format(vipFleetBonus),
+                              }),
                             );
                           }
                         },
                         onAdUnavailable: () {
                           ref.read(vipFleetClaimedDayProvider.notifier).state = game.currentDay;
-                          ref.read(gameProvider.notifier).claimVipFleetBonus(35000.0);
+                          ref.read(gameProvider.notifier).claimVipFleetBonus(vipFleetBonus);
                         },
                       );
                     }

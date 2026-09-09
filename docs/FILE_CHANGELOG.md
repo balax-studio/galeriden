@@ -26,6 +26,121 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ## Kayıtlar (Log Entries)
 
+### `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Ofis ekranındaki hizmetler ve yan işler listesinin dikeyde okunurluğunu ve takibini kolaylaştırmak için 6 mantıksal kategoriye (Galeri & Ticaret, Atölye & Servis, Finans & Yatırım, Yönetim & Operasyon, Genişleme & Şebeke, Özel & Yeraltı) ayrılması ve her hizmet kartına canlı oyun durumu telemetri rozetleri (personel mevcudu, itibar puanı, mülk/şube sayıları, kiralık araç durumu, konsinye hacmi, hurda parça stoku, ele geçirilen bölgeler, karaborsa/gece yarışları vb.) eklenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`: `ServiceCategory` enum yapısı ve kategori başlıkları genişletildi. 18 adet modül kartı ilgi alanına göre sınıflandırıldı. Kartların alt kısmına mevcut oyun durumunu yansıtan canlı telemetri sayaçları ve durum rozetleri bağlandı.
+  - `lib/core/localization/translations/*`: 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı olarak kategori başlıkları ve tüm telemetri durum anahtarları eklendi. Sıfır emoji ve sıfır parantez kurallarına harfiyen uyuldu.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Hizmetler sekmesinin tek bir uzun karışık liste olması ve oyuncunun hangi serviste ne durumda olduğunu kartı açmadan görememesi.
+- **Uygulanan Çözüm**:
+  - Mantıksal gruplandırma ve anlık durum rozetleri getirilerek neo-brutalist bilgi hiyerarşisi güçlendirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ve `flutter test` ile doğrulandı.
+
+---
+
+### `lib/core/services/ad_reward_calculator.dart`, `lib/domain/usecases/*`, `lib/presentation/screens/*` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Reklam izleme ödüllerinin ve hibe desteklerinin (ofis kasası, şube genişleme, filo kiralama, borsa analizi, acil durum yardımı ve şanslı fırsatlar) oyuncunun toplam servetiyle (nakit bakiye + galeri filo değeri + seviye) dinamik olarak ölçeklenmesi; yüksek servete sahip oyuncuların (örneğin 66.5M+ TL) 20.000 TL gibi demotive edici düşük tutarlar yerine milyonluk gerçekçi teşvik ödülleri (~1.8M - 4.5M+ TL) alabilmesinin sağlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/ad_reward_calculator.dart`: `calculateDynamicReward` formülü toplam servet katmanlarına göre kademeli ölçeklenecek şekilde revize edildi (<=500k %6.0, <=5M %4.5, <=25M %3.5, >25M %2.75). Eski katı tavanlar (`125.000 TL` ve `500.000 TL`) kaldırılarak seviye ve servete duyarlı dinamik koruma getirildi. Şube hibesi (`calculateBranchGrant`), VIP filo prim desteği (`calculateVipFleetGrant`), borsa içeriden rapor fonu (`calculateStockInsiderGrant`) ve acil durum hibesi (`calculateEmergencyGrant`) fonksiyonları eklendi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`: Reklam ödül hesaplamasında `playerBalance: game.balance` argümanı eklenerek ofisteki çifte kazanç / büyük ikramiye kasasının oyuncu servetine duyarlı olması sağlandı.
+  - `lib/presentation/screens/branch/branch_screen.dart`: Sabit 40.000 TL hibe rozeti ve ödülü kaldırılarak `calculateBranchGrant` entegre edildi.
+  - `lib/presentation/screens/rent_a_car/rent_a_car_screen.dart`: Sabit 35.000 TL rozeti ve ödülü kaldırılarak `calculateVipFleetGrant` entegre edildi.
+  - `lib/presentation/screens/stock_market/stock_market_screen.dart`: Sabit 15.000 TL rozeti ve ödülü kaldırılarak `calculateStockInsiderGrant` entegre edildi.
+  - `lib/domain/usecases/contextual_emergency_ad_engine.dart`: Kriz telafisi, noter eksik alım desteği, ihale depozitosu ve nakit darboğazı hibeleri `calculateEmergencyGrant` ile dinamik hale getirildi.
+  - `lib/domain/usecases/smart_office_hook_engine.dart` & `lib/presentation/providers/game/game_inventory_mixin.dart`: Çıkmacı İbo Dayı acil zula fonu (`lowBalanceGrant`) sabit 35.000 TL yerine dinamik can suyu hibesi verecek şekilde güncellendi.
+  - `lib/presentation/providers/game/game_monetization_mixin.dart` & `lib/data/models/lucky_opportunity_model.dart`: Çark ve şanslı fırsat nakit ödülleri dinamik olarak hesaplanacak şekilde `copyWith` entegrasyonuyla güncellendi.
+  - `lib/core/localization/translations/*`: 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) sabit tutar içeren `lifeline_disaster_perk`, `rent_vip_fleet_title`, `rent_vip_toast_claimed`, `stock_report_locked_desc`, `stock_report_toast_unlocked`, `branch_grant_toast_claimed` anahtarları `{amount}` yer tutucusuyla dinamikleştirildi, parantez ve emojilerden arındırıldı.
+  - `test/ad_service_test.dart`, `test/contextual_emergency_ad_engine_test.dart`, `test/theme_and_office_ad_hooks_test.dart`: Testler güncellendi; 66M+ TL bakiyeli patronların milyonluk ödül aldığı, invariant kurallarının (sıfır parantez, sıfır emoji) korunduğu doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `save_export_import_test.dart` içerisinde deterministik `Random(42)` tohumu ile seviye 1 jackpot ödülü (2x/4x) ile seviye 5 standart ödülünün çakışması.
+  - `contextual_emergency_ad_engine_test.dart` ve `theme_and_office_ad_hooks_test.dart` dosyalarındaki eski sabit 20.000 TL ve 35.000 TL beklentileri.
+- **Kök Neden**:
+  - Ödül tavanları ve sabit hibe sayıları erken aşama ekonomisine göre sabit kodlanmıştı; servet çarpanı temel seviye bonusuyla toplamsal bağlanmadığında deterministik tohumlarda seviye eşitsizliği oluşuyordu.
+- **Uygulanan Çözüm**:
+  - Temel seviye ödülü ile servet oranlı katkı toplamsal ve aşamalı yüzdelerle birleştirildi, düşük seviyeler için enflasyon önleyici tavanlar korunurken zengin oyuncuların servetiyle doğru orantılı ödül alması sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/ad_service_test.dart test/economy_test.dart test/save_export_import_test.dart test/contextual_emergency_ad_engine_test.dart test/rewarded_ad_integrations_test.dart test/theme_and_office_ad_hooks_test.dart` başarıyla geçti.
+  - `flutter analyze`: Sıfır hata, sıfır uyarı (`No issues found!`).
+
+### `lib/presentation/screens/staff/staff_screen.dart`, `lib/data/models/staff_model.dart` & `lib/core/localization/translations/*`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Personel eğitim ve akademi kartlarındaki aşırı uzun, kurumsal klişe (slop) metinlerin sadeleştirilmesi, gereksiz açıklamaların kaldırılarak saf istatistik, rozet ve net etki odaklı neo-brutalist oyun tasarımına kavuşturulması.
+- **Yapılan Değişiklikler**:
+  - `lib/core/localization/translations/`: 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı olarak `staff_training_desc` anahtarı hantal kurumsal ifadeden arındırılıp yalın, doğrudan bir ifadeye dönüştürüldü (`Kalıcı rol uzmanlıkları ve performans bonusları.`).
+  - `lib/data/models/staff_model.dart`: 14 eğitim kursunun açıklamaları gereksiz edebiyattan arındırılarak eylem ve net etki bildiren anti-slop cümlelere dönüştürüldü.
+  - `lib/presentation/screens/staff/staff_screen.dart`: `_showRoleTrainingSheet` kurs kartlarındaki yinelenen ve ekranı dikeyde şişiren `course.description` metni kaldırılarak başlık, kazanım çipleri (bonusSummary) ve süre etiketlerinin doğrudan öne çıkması sağlandı. Kart boyutu optimize edilerek dar ekranlarda buton erişimi rahatlatıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Kurs başlığı ve bonus çipleri kursun ne yaptığını zaten eksiksiz özetlerken arada yer alan 2 satırlık dolgu metnin kart yüksekliğini gereksiz artırması ve bilişsel yük yaratması.
+- **Uygulanan Çözüm**:
+  - Dolgu metinler temizlendi, modal kartları hafifletildi ve 7 dil çevirileri eşitlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile 0 hata/uyarı, `staff_specialization_and_gating_test.dart` (9/9 başarılı), `staff_team_management_test.dart` ve `rush_training_dialog_test.dart` (22/22 başarılı) ile tam doğrulandı.
+
+---
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Arsa üzerinde öz sermaye ile inşaat yapılırken veya KAKS mimari tipoloji stüdyosunda proje onaylandığında, onay butonunun kilitlenerek "Proje Onaylandı" durumuna geçmesi ve daire dağılımı/optimizasyon kontrollerinin reaktif olarak kilitlenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/localization/translations/`: 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı olarak `real_estate_kaks_btn_approved` anahtarı eklendi. Sıfır emoji ve sıfır parantez kurallarına uyuldu.
+  - `game_real_estate_mixin.dart`: `saveUnitMix` fonksiyonunda `isArchitecturalApproved: true` olarak işaretlendi. Öz sermaye 1. aşama mimari çizim sürecinde ise `isConstructionWorking: false`, `constructionDaysRemaining: 0` ve `preConstructionStep: 'draftingCompleted'` güncellenerek belediye ruhsatı adımına geçiş sağlandı.
+  - `real_estate_construction_screen.dart`: `_buildKaksTypologyStudio` içinde `isProjectApproved` reaktif durumu hesaplandı. Onay butonuna `isApplied: isProjectApproved`, `appliedLabel: context.tr('real_estate_kaks_btn_approved')` ve `onPressed: (isExceeded || isProjectApproved) ? null : () { ... }` bağlandı. Proje onaylandığında buton kilitlendi. Tipoloji artır/azalt stepper butonları, akıllı emsal optimize et ve sıfırla butonları `isProjectApproved` olduğunda devre dışı (`null`) bırakıldı.
+  - `test/zoning_and_construction_test.dart` & `test/real_estate_construction_test.dart`: `saveUnitMix` ile mimari projenin onaylanması ve Tab 1 arayüzünde "Proje Onaylandı" butonunun kilitli duruma geçişini doğrulayan birim ve widget testleri eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `_buildTypologySelectorCard` içinde kapatma parantezi kopyalama fazlalığı.
+- **Kök Neden**:
+  - Çoklu blok düzenlemesi sırasında widget ağacının kapanış süslü parantezlerinin yinelenmesi.
+- **Uygulanan Çözüm**:
+  - Fazla parantez bloğu temizlenerek widget ağacı düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile 0 hata, `translation_key_coverage_test.dart` (6/6 başarılı), `zoning_and_construction_test.dart` (12/12 başarılı) ve `real_estate_construction_test.dart` (19/19 başarılı) ile doğrulandı.
+
+---
+
+### `lib/domain/usecases/daily_life_cards_data.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: 365 günlük rastgele dramatik olay kartlarının yapay zeka klişelerinden (slop) arındırılarak gerçekçi, trajikomik, viral ve Twitter/Instagram kült trendlerine uygun esnaf hikayeleriyle baştan aşağı yenilenmesi.
+- **Yapılan Değişiklikler**:
+  - 365 günün tamamı için yapay genel metinler kaldırıldı. Yerine Çırak Emre, Çaycı Mahmut, Noter Sevim Hanım, Hacı Hilmi Bey, Fenomen Berkecan, Müfettiş Orhan gibi otantik karakterler, dükkan ve sokak hayatı, sosyal medya krizleri ve gün ilerlemesine göre artan dinamik maliyet/itibar dengeleri entegre edildi.
+  - Seçenekler ve sonuç mesajları ("profesyonel refleksin takdir topladı" vb.) tamamen kaldırılarak somut, esprili ve mantıklı esnaf sonuçlarıyla değiştirildi.
+  - Sıfır emoji ve sıfır parantez kurallarına harfiyen uyuldu.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `DramaticCategory` içinde `dilemma` enum değerinin bulunmaması nedeniyle geçici analiz hatası.
+- **Kök Neden**:
+  - `dramatic_card_model.dart` içinde ilgili kategorinin `conscience` olarak tanımlı olması.
+- **Uygulanan Çözüm**:
+  - İlgili kartlar `DramaticCategory.conscience` olarak güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` (0 sorun) ve test paketi (14/14 başarılı) ile doğrulandı.
+
+---
+
+### `lib/core/services/analytics_service.dart`, `lib/presentation/providers/game/game_time_mixin.dart`, `game_market_mixin.dart`, `game_inventory_mixin.dart` & `test/analytics_service_test.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Firebase Analytics için ücretsiz Spark sınırları dahilinde oyuncu segmentasyonu (User Properties) ve derinlemesine oyun içi döngü etkinliklerinin (gün geçişi, tamirler, yan işletmeler, sürpriz seçimler, onboarding hunisi ve iflas) entegre edilmesi.
+- **Yapılan Değişiklikler**:
+  - `AnalyticsService`: `syncUserProperties` (seviye, gün, servet dilimi, araç sayısı), `logDayPassed`, `logCarRepaired`, `logSideBusinessPurchased`, `logRandomEventChoice`, `logFirstCarAction` (ilk alım ve ilk satış dönüşüm hunisi), `logBankruptcy` metotları eklendi.
+  - `game_time_mixin.dart`: `advanceGameDay` sonuna `logDayPassed` ve `syncUserProperties` bağlandı, bakiye eksiye düştüğünde `logBankruptcy` eklendi, `resolveRandomEvent` içine `logRandomEventChoice` bağlandı.
+  - `game_market_mixin.dart`: `buySideBusiness` içine `logSideBusinessPurchased`, ilk araç satışında `logFirstCarAction(isBuy: false)` eklendi.
+  - `game_inventory_mixin.dart`: `buyCarDirectly` içine ilk alım hunisi `logFirstCarAction(isBuy: true)`, kaporta/motor/şanzıman tamirlerinde `logCarRepaired` eklendi.
+  - `test/analytics_service_test.dart`: Eklenen tüm analitik metotlarının hata fırlatmadan güvenle çalıştığını doğrulayan birim testleri güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `game_time_mixin.dart` içinde `choice.id` getter hatası (undefined getter).
+- **Kök Neden**:
+  - `GameEventChoice` modelinde tanımlayıcı alanın `id` değil `label` olması.
+- **Uygulanan Çözüm**:
+  - `choice.label` olarak güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/analytics_service_test.dart` (2/2 başarılı), regresyon testleri (17/17 başarılı) ve `flutter analyze` (0 sorun) ile doğrulandı.
+
+---
+
 ### `lib/core/services/ad_service.dart` & `test/native_ad_day_pacing_test.dart`
 - **Tarih**: 2026-09-08
 - **Değişiklik Amacı**: Yerel reklamların ve yerel bülten sponsor kartlarının aktifleşme eşiğini 7. gün yerine 2. güne çekerek test ve kullanıcı deneyimi sürecini hızlandırma.
@@ -908,5 +1023,48 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - `flutter analyze` ile doğrulandı.
 
+---
 
+### `lib/presentation/screens/staff/staff_screen.dart` & `lib/presentation/widgets/neo_brutal_locked_feature_view.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Personel ekranındaki rol eğitim modalında yer alan "EĞİTİM VER" butonunun dar ekranlarda ekran dışına taşarak tıklanamaz hale gelmesi sorununun ve kilitli özellik rozetlerindeki olası taşmaların giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `staff_screen.dart`: `_showRoleTrainingSheet` modalı içerisinde her eğitim kursu kartının alt satırındaki iç içe `Row` düzeni kaldırıldı. Bonus ve süre rozetleri `Wrap` bileşeni ile taşma yapmayacak şekilde esnetildi; kurs başlığı `Expanded` ile sınırlandırıldı. Kurs başlatma butonu (`btn_train_staff` / `staff_btn_rush_training`) kartın altına tam genişlikte (`fullWidth: true`) ve belirgin bir şekilde yerleştirilerek tüm ekran boyutlarında (%100) erişilebilir ve basılabilir hale getirildi. Modal alt güvenli alan (`SafeArea` / `bottomInset`) mesafesi güçlendirildi. Personel kartlarındaki aksiyon butonlarına `fullWidth: true` desteği verildi.
+  - `neo_brutal_locked_feature_view.dart`: Kilitli özellik görünümündeki seviye ve mülk rozetleri `Row` yerine `Wrap(alignment: WrapAlignment.center)` ile sarılarak 320-360px ekranlarda taşma riski sıfırlandı.
+  - `test/staff_specialization_and_gating_test.dart`: 360px ekran genişliğinde eğitim modalının açılması, kurs kartlarının ve "EĞİTİM VER" butonlarının taşma olmaksızın render edilmesi ve butona basılarak eğitimin başlatılmasını doğrulayan regresyon testi eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `_showRoleTrainingSheet` içerisindeki kurs kartında bonus metni (`course.bonusSummary`) ve süre etiketinin sınırlandırılmamış bir `Row` içinde olması nedeniyle yaklaşık 140 piksellik `RenderFlex overflowed by X pixels on the right` taşması oluşması ve "EĞİTİM VER" butonunun ekran dışına itilmesi.
+- **Kök Neden**:
+  - Dar mobil ekranlarda yatay genişliğin (~290px), kurs bonusu metinleri ile butonun yan yana sığması için gereken genişlikten (~450px) çok daha dar olması.
+- **Uygulanan Çözüm**:
+  - Kurs rozetleri `Wrap` ile alt satıra geçebilecek şekilde ayrıldı, eğitim başlatma butonu kurs kartının alt kısmına tam genişlikte (`fullWidth: true`) bağımsız bir aksiyon olarak yerleştirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/staff_specialization_and_gating_test.dart test/staff_team_management_test.dart test/rush_training_dialog_test.dart test/small_screen_overflow_audit_test.dart` (37/37 test 0 hata ile başarılı).
+  - `flutter analyze` ile tam doğrulama sağlandı.
 
+---
+
+### `lib/presentation/screens/staff/staff_screen.dart` & `lib/core/localization/translations/` (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`)
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Oyun genelinde ve personel ekranında aşırı yoğun, kurumsal ve hantal metinlerin oyun dinamizmine uygun, sade ve doğrudan (anti-slop) bir dille yeniden yazılması; gereksiz kart içi açıklamaların kaldırılarak görsel karmaşanın giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `staff_screen.dart`: Rol eğitimi modalındaki (`_showRoleTrainingSheet`) kurs kartları içerisinde kurs başlığı ve rozetleriyle (%100) çakışan, dikey yüksekliği artıran ve görsel gürültü oluşturan `course.description` metin bloğu kaldırıldı. Kurs kartları yalın, kompakt ve doğrudan bonus çipleri ile fiyatı öne çıkaracak şekilde temizlendi.
+  - `tr_translations.dart` & Tüm 7 Dil Dosyaları (`en`, `de`, `pt`, `es`, `ru`, `ar`):
+    - `staff_training_desc`: "Personelinize role özel uzmanlık modülleri aldırarak verimliliğini, hızını ve kârlılığını kalıcı olarak yükseltin." şeklindeki hantal kurumsal metin sadeleştirildi.
+    - `branch_deed_buy_desc` & `branch_congrats_desc`: Şube tapusu ve taşınma metinlerindeki kalabalık kelimeler arındırıldı.
+    - `rent_empty_desc`: Boşta bekleyen araç kiralama açıklaması doğrudan ve net bir ifadeye kavuşturuldu.
+    - `district_banner_desc`: İlçe hakimiyeti başlık altındaki metin dinamikleştirildi.
+    - `custom_paint_hint`: Boya atölyesi açıklaması yalınlaştırıldı.
+    - `auction_lost_desc`: İhale kaybetme bildirimi daha kısa ve canlı hale getirildi.
+    - `media_active_pr_desc` & `media_info_card_text`: Medya ve reklam ajansı açıklamalarındaki kurumsal bürokratik jargon silindi, oyuncu odaklı özlü bilgilendirmeye dönüştürüldü.
+    - `wash_scent_hint`: Oto yıkama ayna kokusu ipucu kısaltıldı.
+    - `workshop_eq_*` & `car_wash_eq_*`: Atölye ve yıkama ekipmanlarının açıklamaları lüzumsuz dolgu kelimelerden arındırıldı, doğrudan sağladıkları fayda ve yüzdeler öne çıkarıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Modal ve arayüz kartlarında uzun açıklamaların ekranı kaplaması, oyuncunun dikkatini dağıtması ve dar ekranlarda gereksiz kaydırma ihtiyacı doğurması.
+- **Kök Neden**:
+  - Kurumsal ve aşırı detaylı cümle yapılarının oyun bağlamında görsel yük ve kafa karışıklığı (slop) oluşturması.
+- **Uygulanan Çözüm**:
+  - İnvaryant kurallarına (sıfır emoji, sıfır parantez, eşzamanlı 7 dil senkronizasyonu) tam uyularak tüm anahtar cümleler vurucu ve net bir dille güncellendi; redundant açıklamalar UI katmanından çıkarıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile tüm projede 0 hata ve uyarı doğrulandı.
+  - `flutter test test/staff_specialization_and_gating_test.dart` (9/9 test başarılı).

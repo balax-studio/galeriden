@@ -75,30 +75,48 @@ void main() {
         totalGarageValue: 4000000.0,
       );
 
-      expect(outcome.moneyAmount, greaterThanOrEqualTo(100000.0));
-      expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0));
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(150000.0));
     });
 
-    test('Respects maximum economic cap of 500.000 TL base', () {
+    test('Scales into multi-millions for late-game tycoon with 66M+ TL balance', () {
+      const tycoonBalance = 66466563.0; // User example: ~66.5M TL
       final outcome = AdRewardCalculator.calculateDynamicReward(
-        playerLevel: 100,
-        totalGarageValue: 100000000.0,
+        playerLevel: 25,
+        playerBalance: tycoonBalance,
+        totalGarageValue: 10000000.0,
       );
 
-      expect(outcome.moneyAmount, lessThanOrEqualTo(500000.0)); // 500k max jackpot
+      // Tycoon total wealth is ~76.5M TL. Payout should be in millions (at least 1.8M TL)
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(1800000.0));
+      // Invariant check: Zero parentheses in badge and title
+      expect(outcome.badgeText.contains('(') || outcome.badgeText.contains(')'), isFalse);
+      expect(outcome.title.contains('(') || outcome.title.contains(')'), isFalse);
     });
 
-    test('Dynamically calculates at least 10% of player cash balance when provided', () {
-      const balance = 2000000.0; // 2 Million TL
-      final outcome = AdRewardCalculator.calculateDynamicReward(
-        playerLevel: 5,
-        totalGarageValue: 500000.0,
-        playerBalance: balance,
+    test('Specialized grants scale dynamically with tycoon wealth', () {
+      const tycoonBalance = 66466563.0;
+
+      final branchGrant = AdRewardCalculator.calculateBranchGrant(
+        playerLevel: 25,
+        playerBalance: tycoonBalance,
+      );
+      final vipFleetBonus = AdRewardCalculator.calculateVipFleetGrant(
+        playerLevel: 25,
+        playerBalance: tycoonBalance,
+      );
+      final stockInsiderBonus = AdRewardCalculator.calculateStockInsiderGrant(
+        playerLevel: 25,
+        playerBalance: tycoonBalance,
+      );
+      final emergencyGrant = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: 25,
+        playerBalance: tycoonBalance,
       );
 
-      // 10% of 2M TL is 200.000 TL (multiplier 1x, 2x, or 4x)
-      expect(outcome.moneyAmount, greaterThanOrEqualTo(200000.0));
-      expect(outcome.moneyAmount % 200000.0, equals(0.0));
+      expect(branchGrant, greaterThanOrEqualTo(500000.0));
+      expect(vipFleetBonus, greaterThanOrEqualTo(400000.0));
+      expect(stockInsiderBonus, greaterThanOrEqualTo(250000.0));
+      expect(emergencyGrant, greaterThanOrEqualTo(1000000.0));
     });
   });
 }

@@ -18,6 +18,7 @@ import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/dialogs/showroom_construction_modal.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../core/services/ad_service.dart';
+import '../../../core/services/ad_reward_calculator.dart';
 
 final branchGrantClaimedDayProvider = StateProvider<int>((ref) => -1);
 
@@ -713,6 +714,14 @@ class BranchScreen extends ConsumerWidget {
     final isClaimedToday = claimedDay == game.currentDay;
     final hasNoAds = game.hasNoAdsLicense;
 
+    final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final grantAmount = AdRewardCalculator.calculateBranchGrant(
+      playerLevel: game.level,
+      playerBalance: game.balance,
+      totalGarageValue: garageTotal,
+      branchTier: game.currentBranchTier,
+    );
+
     return NeoBrutalCard(
       padding: const EdgeInsets.all(16),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -739,8 +748,8 @@ class BranchScreen extends ConsumerWidget {
                 fontSize: 10,
               ),
               if (!isClaimedToday)
-                const NeoBrutalBadge(
-                  text: '+₺40.000',
+                NeoBrutalBadge(
+                  text: '+${CurrencyFormatter.formatShort(grantAmount)}',
                   icon: Icons.monetization_on_rounded,
                   backgroundColor: AppColors.brutalGreen,
                   textColor: Colors.black,
@@ -793,26 +802,30 @@ class BranchScreen extends ConsumerWidget {
                     HapticFeedback.heavyImpact();
                     if (hasNoAds) {
                       ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
-                      ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                      ref.read(gameProvider.notifier).claimBranchExpansionGrant(grantAmount);
                       NotificationService.showSuccess(
                         context,
-                        context.tr('branch_grant_toast_claimed'),
+                        context.tr('branch_grant_toast_claimed', {
+                          'amount': CurrencyFormatter.format(grantAmount),
+                        }),
                       );
                     } else {
                       AdService.instance.showRewardedAd(
                         onRewardEarned: () {
                           ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
-                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(grantAmount);
                           if (context.mounted) {
                             NotificationService.showSuccess(
                               context,
-                              context.tr('branch_grant_toast_claimed'),
+                              context.tr('branch_grant_toast_claimed', {
+                                'amount': CurrencyFormatter.format(grantAmount),
+                              }),
                             );
                           }
                         },
                         onAdUnavailable: () {
                           ref.read(branchGrantClaimedDayProvider.notifier).state = game.currentDay;
-                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(40000.0);
+                          ref.read(gameProvider.notifier).claimBranchExpansionGrant(grantAmount);
                         },
                       );
                     }

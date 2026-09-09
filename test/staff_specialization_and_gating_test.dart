@@ -300,5 +300,84 @@ void main() {
       expect(mealBtn.onPressed, isNull);
       expect(bonusBtn.onPressed, isNull);
     });
+
+    testWidgets('9. Staff training bottom sheet opens and renders action button without overflow on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final staff = StaffModel(
+        id: 'st_washer_1',
+        name: 'Deniz Yıkama',
+        role: StaffRole.washer,
+        hiredAt: DateTime.now(),
+      );
+
+      final initialDealership = DealershipModel.initial().copyWith(
+        balance: 100000.0,
+        unlockedBuildings: {'/staff', '/car-wash'},
+        hiredStaff: [staff],
+      );
+
+      SharedPreferences.setMockInitialValues({
+        'dealership_state_v2': jsonEncode(initialDealership.toJson()),
+      });
+
+      final container = ProviderContainer(
+        overrides: [
+          gameProvider.overrideWith((ref) => GameNotifier()),
+        ],
+      );
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.dispose();
+      });
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            locale: Locale('tr'),
+            supportedLocales: [Locale('tr'), Locale('en')],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: StaffScreen(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Find and tap the EĞİTİM VER button on the staff card
+      final trainCardBtn = find.widgetWithText(NeoBrutalButton, 'EĞİTİM VER');
+      expect(trainCardBtn, findsOneWidget);
+      await tester.tap(trainCardBtn);
+      await tester.pumpAndSettle();
+
+      // Modal sheet should now be open
+      expect(find.text('Deniz Yıkama • Uzmanlık Eğitimi'), findsOneWidget);
+
+      // Training action buttons should be visible inside course cards within the bottom sheet
+      final sheetCourseBtn = find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.widgetWithText(NeoBrutalButton, 'EĞİTİM VER'),
+      );
+      expect(sheetCourseBtn, findsWidgets);
+
+      // Tap first training course button inside the bottom sheet
+      await tester.tap(sheetCourseBtn.first);
+      await tester.pumpAndSettle();
+
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+      await tester.pump(const Duration(seconds: 3));
+
+      // Training should have started for Deniz Yıkama
+      final state = container.read(gameProvider);
+      final updatedStaff = state.hiredStaff.firstWhere((s) => s.id == staff.id);
+      expect(updatedStaff.isUnderTraining, isTrue);
+    });
   });
 }

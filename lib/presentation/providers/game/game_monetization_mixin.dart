@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import '../../../core/services/ad_reward_calculator.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
 import '../../../data/models/lucky_opportunity_model.dart';
@@ -15,24 +16,36 @@ mixin GameMonetizationMixin on GameBaseNotifier {
   LuckyOpportunityModel? checkAndRollLuckyOpportunity({bool force = false}) {
     final nextPity = state.luckyOpportunityPityCounter + 1;
 
+    final LuckyOpportunityModel? rawOpp;
     if (force) {
       final list = LuckyOpportunityModel.getAllOpportunities();
-      final opp = list[_monetizationRandom.nextInt(list.length)];
-      state = state.copyWith(luckyOpportunityPityCounter: nextPity);
-      saveState();
-      return opp;
+      rawOpp = list[_monetizationRandom.nextInt(list.length)];
+    } else {
+      rawOpp = LuckyOpportunityModel.evaluateLuckyOpportunityRoll(
+        pityCounter: nextPity,
+        currentDay: state.currentDay,
+        lastTriggerDay: state.lastLuckyOpportunityDay,
+        random: _monetizationRandom,
+      );
     }
-
-    final opp = LuckyOpportunityModel.evaluateLuckyOpportunityRoll(
-      pityCounter: nextPity,
-      currentDay: state.currentDay,
-      lastTriggerDay: state.lastLuckyOpportunityDay,
-      random: _monetizationRandom,
-    );
 
     state = state.copyWith(luckyOpportunityPityCounter: nextPity);
     saveState();
-    return opp;
+    if (rawOpp == null) return null;
+
+    if (rawOpp.cashReward > 0) {
+      final garageTotal = state.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+      final dynamicBase = AdRewardCalculator.calculateDynamicReward(
+        playerLevel: state.level,
+        totalGarageValue: garageTotal,
+        playerBalance: state.balance,
+      ).moneyAmount;
+      final ratio = rawOpp.cashReward / 75000.0;
+      final scaledCash = math.max(rawOpp.cashReward, (dynamicBase * ratio).roundToDouble());
+      return rawOpp.copyWith(cashReward: scaledCash);
+    }
+
+    return rawOpp;
   }
 
   /// Claims reward from a triggered lucky opportunity

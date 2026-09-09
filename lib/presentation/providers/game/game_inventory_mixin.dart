@@ -21,6 +21,7 @@ import '../../../data/models/daily_login_reward_model.dart';
 import '../../../data/models/stock_model.dart';
 import '../../../data/models/game_event_model.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/services/ad_reward_calculator.dart';
 import '../../../data/models/offer_model.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/night_market_engine.dart';
@@ -499,6 +500,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
       price: price,
       modelYear: finalCar.modelYear,
     );
+    if (state.ownedCars.isEmpty) {
+      AnalyticsService.instance.logFirstCarAction(isBuy: true);
+    }
     addXP(30);
     checkAchievement('first_buy');
     updateMissionProgress(MissionType.buyCars, 1);
@@ -1057,6 +1061,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
         balance: state.balance - result.costPaid,
         ownedCars: updatedCars,
       );
+      AnalyticsService.instance.logCarRepaired(
+        brand: car.brand,
+        model: car.modelName,
+        cost: result.costPaid,
+        repairType: 'body_part_$partName',
+      );
       if (result.isSuccess) {
         addXP(20);
         checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
@@ -1088,6 +1098,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
         dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
         lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
       );
+      AnalyticsService.instance.logCarRepaired(
+        brand: car.brand,
+        model: car.modelName,
+        cost: result.costPaid,
+        repairType: 'engine_${tier.name}',
+      );
       if (result.isSuccess) {
         addXP(30);
         checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstPartRepair);
@@ -1118,6 +1134,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
         ownedCars: updatedCars,
         dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
         lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
+      );
+      AnalyticsService.instance.logCarRepaired(
+        brand: car.brand,
+        model: car.modelName,
+        cost: result.costPaid,
+        repairType: 'transmission_${tier.name}',
       );
       if (result.isSuccess) {
         addXP(30);
@@ -1531,9 +1553,18 @@ mixin GameInventoryMixin on GameBaseNotifier {
         return true;
 
       case SmartHookType.lowBalanceGrant:
-        // Çıkmacı İbo Dayı acil nakit hibesi (+₺35.000)
+        // Çıkmacı İbo Dayı acil nakit hibesi (Dinamik Can Suyu)
+        final totalGarageValue = state.ownedCars.fold<double>(
+          0.0,
+          (sum, car) => sum + car.baseMarketValue,
+        );
+        final dynamicGrant = AdRewardCalculator.calculateEmergencyGrant(
+          playerLevel: state.level,
+          playerBalance: state.balance,
+          totalGarageValue: totalGarageValue,
+        );
         state = state.copyWith(
-          balance: state.balance + 35000.0,
+          balance: state.balance + dynamicGrant,
           lastSmartHookUsedDay: state.currentDay,
         );
         addXP(50);

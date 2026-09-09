@@ -17,6 +17,7 @@ import 'package:galeriden/domain/usecases/construction_timeline_engine.dart';
 import 'package:galeriden/domain/usecases/real_estate_chat_negotiation_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/screens/real_estate/real_estate_construction_screen.dart';
+import 'package:galeriden/presentation/widgets/neo_brutal_button.dart';
 
 class FixedRandom implements Random {
   final double val;
@@ -426,6 +427,70 @@ void main() {
       expect(find.textContaining('Duvar Örme, Çatı'), findsOneWidget);
 
       // Clean up timer and container
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
+
+    testWidgets('5b. Widget Test: Tab 1 (KAKS & Tipoloji) locks confirm button and shows Proje Onaylandı when approved', (tester) async {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final land = RealEstateModel(
+        id: 'land_kaks_approval_widget_test',
+        title: 'Beykoz Çavuşbaşı Arsa',
+        category: RealEstateCategory.land,
+        city: 'İstanbul',
+        district: 'Beykoz',
+        squareMeters: 600,
+        roomCount: '-',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 4000000,
+        currentPurchasePrice: 4000000,
+        constructionMode: 'selfBuild',
+        isArchitecturalApproved: true,
+      );
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [land],
+        balance: 5000000,
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            locale: Locale('tr'),
+            supportedLocales: [
+              Locale('tr'),
+              Locale('en'),
+            ],
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: RealEstateConstructionScreen(landId: 'land_kaks_approval_widget_test'),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Switch to Tab 1: KAKS & Tipoloji
+      await tester.tap(find.text('KAKS & Tipoloji'));
+      await tester.pumpAndSettle();
+
+      // Verify that the confirm button displays 'Proje Onaylandı'
+      expect(find.text('Proje Onaylandı'), findsWidgets);
+
+      // Verify NeoBrutalButton is applied and locked
+      final confirmBtn = tester.widget<NeoBrutalButton>(find.widgetWithText(NeoBrutalButton, 'Proje Onaylandı').last);
+      expect(confirmBtn.onPressed, isNull);
+      expect(confirmBtn.isApplied, isTrue);
+
       notifier.stopPeriodicOrganicOfferTimer();
       container.dispose();
     });

@@ -139,6 +139,7 @@ class DashboardOfficeView extends ConsumerWidget {
               final outcome = AdRewardCalculator.calculateDynamicReward(
                 playerLevel: game.level,
                 totalGarageValue: garageTotal,
+                playerBalance: game.balance,
               );
 
               return NeoBrutalCard(

@@ -1,3 +1,5 @@
+import '../../core/services/ad_reward_calculator.dart';
+import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 
 enum SmartHookType {
@@ -134,10 +136,20 @@ class SmartOfficeHookEngine {
 
     // 3. Check if player balance is low (< ₺50.000)
     if (game.balance < 50000) {
+      final garageTotal = game.ownedCars.fold<double>(
+        0.0,
+        (sum, car) => sum + car.baseMarketValue,
+      );
+      final emergencyGrant = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: game.level,
+        playerBalance: game.balance,
+        totalGarageValue: garageTotal,
+      );
+      final formattedGrant = CurrencyFormatter.format(emergencyGrant);
       final dialogues = [
-        'Kasa tamtakır kalmış be koçum! Piyasada nakitsiz durulmaz, al şu hurdalık altın fonundan ₺35.000 acil sermaye can suyunu, hemen ilk kelepir arabayı kap gel!',
+        'Kasa tamtakır kalmış be koçum! Piyasada nakitsiz durulmaz, al şu hurdalık altın fonundan $formattedGrant acil sermaye can suyunu, hemen ilk kelepir arabayı kap gel!',
         'Sanayide parasız kalan esnafın eli kolu bağlanır yeğenim. Al şu acil hibe sermayesini kasana koy, pazardan ilk fırsat arabasını galerine çek!',
-        'Dükkanın nakit akışı sıkışmış ustam. Ticaret durmasın diye yedek zulamdan ₺35.000 nakit can suyu ayarladım, hemen kasana aktaralım!',
+        'Dükkanın nakit akışı sıkışmış ustam. Ticaret durmasın diye yedek zulamdan $formattedGrant nakit can suyu ayarladım, hemen kasana aktaralım!',
       ];
       final callers = [
         ('Çıkmacı İbo', 'Hurdalık Ağası'),
@@ -154,8 +166,8 @@ class SmartOfficeHookEngine {
         callerRole: chosenCaller.$2,
         characterAvatar: 'deal',
         storyDialogue: chosenDialogue,
-        rewardDescription: 'Galeri kasasına karşılıksız +₺35.000 ekstra nakit can suyu sermayesi eklenir.',
-        rewardBadgeText: '+₺35.000 CAN SUYU',
+        rewardDescription: 'Galeri kasasına karşılıksız +$formattedGrant ekstra nakit can suyu sermayesi eklenir.',
+        rewardBadgeText: '+$formattedGrant CAN SUYU',
         actionButtonLabel: 'ZULAYI KASAYA ÇEK',
         accentColorValue: 0xFF10B981, // Emerald green
       );

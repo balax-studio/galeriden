@@ -885,8 +885,16 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (index == -1) return false;
 
     final land = state.ownedRealEstates[index];
+    final isDraftingSelfBuild = land.constructionMode == 'selfBuild' &&
+        land.constructionStage == 1 &&
+        land.preConstructionStep == 'drafting';
+
     final updatedLand = land.copyWith(
       customUnitMix: unitMix,
+      isArchitecturalApproved: true,
+      isConstructionWorking: isDraftingSelfBuild ? false : land.isConstructionWorking,
+      constructionDaysRemaining: isDraftingSelfBuild ? 0 : land.constructionDaysRemaining,
+      preConstructionStep: isDraftingSelfBuild ? 'draftingCompleted' : land.preConstructionStep,
     );
 
     final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);

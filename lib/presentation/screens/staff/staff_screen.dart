@@ -33,23 +33,38 @@ class StaffScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
+        final bottomInset = MediaQuery.of(ctx).padding.bottom;
         return Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.fromLTRB(
+              16, 16, 16, bottomInset > 0 ? bottomInset + 12 : 20),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF141721) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             border: Border.all(
               color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
               width: 2.5,
             ),
           ),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF333B4F)
+                        : const Color(0xFFCBD5E1),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -60,6 +75,7 @@ class StaffScreen extends ConsumerWidget {
                           fontSize: 16, fontWeight: FontWeight.w900),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   NeoBrutalBadge(
                     text: staff.role.getLocalizedTitle(lang),
                     backgroundColor: const Color(0xFFA855F7),
@@ -76,180 +92,218 @@ class StaffScreen extends ConsumerWidget {
                     color: Color(0xFF64748B),
                     fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 16),
-              ...courses.map((course) {
-                final isCompleted =
-                    staff.completedCourseIds.contains(course.id);
-                final isCurrentTraining =
-                    staff.isUnderTraining && staff.currentTrainingCourseId == course.id;
-                final canAfford = game.balance >= course.cost;
+              const SizedBox(height: 14),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    ...courses.map((course) {
+                      final isCompleted =
+                          staff.completedCourseIds.contains(course.id);
+                      final isCurrentTraining = staff.isUnderTraining &&
+                          staff.currentTrainingCourseId == course.id;
+                      final canAfford = game.balance >= course.cost;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: NeoBrutalCard(
-                    padding: const EdgeInsets.all(12),
-                    backgroundColor: isDark
-                        ? const Color(0xFF0F121C)
-                        : const Color(0xFFF8FAFC),
-                    borderColor: isCompleted
-                        ? AppColors.brutalGreen
-                        : (isCurrentTraining
-                            ? AppColors.brutalYellow
-                            : (isDark
-                                ? const Color(0xFF2A3142)
-                                : const Color(0xFFCBD5E1))),
-                    borderRadius: 12,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(course.icon,
-                                    color: course.color, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  course.getLocalizedTitle(lang),
-                                  style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w900),
-                                ),
-                              ],
-                            ),
-                            if (isCompleted)
-                              NeoBrutalBadge(
-                                text: context.tr('academy_graduated'),
-                                backgroundColor: AppColors.brutalGreen,
-                                textColor: Colors.black,
-                                fontSize: 9.5,
-                              )
-                            else if (isCurrentTraining)
-                              NeoBrutalBadge(
-                                text: context.tr('staff_status_training'),
-                                backgroundColor: AppColors.brutalYellow,
-                                textColor: Colors.black,
-                                fontSize: 9.5,
-                              )
-                            else
-                              Text(
-                                CurrencyFormatter.format(course.cost),
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.brutalGreen),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          course.description,
-                          style: const TextStyle(
-                              fontSize: 11.5,
-                              color: Color(0xFF64748B),
-                              fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: course.color.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: NeoBrutalCard(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor: isDark
+                              ? const Color(0xFF0F121C)
+                              : const Color(0xFFF8FAFC),
+                          borderColor: isCompleted
+                              ? AppColors.brutalGreen
+                              : (isCurrentTraining
+                                  ? AppColors.brutalYellow
+                                  : (isDark
+                                      ? const Color(0xFF2A3142)
+                                      : const Color(0xFFCBD5E1))),
+                          borderRadius: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          course.color.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: course.color, width: 1.5),
+                                    ),
+                                    child: Icon(course.icon,
+                                        color: course.color, size: 18),
                                   ),
-                                  child: Text(
-                                    course.bonusSummary,
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: course.color),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? const Color(0xFF1E2330)
-                                        : const Color(0xFFE2E8F0),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    context.tr('staff_training_duration_badge',
-                                        {'days': '${course.durationDays}'}),
-                                    style: const TextStyle(
-                                      fontSize: 9.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF64748B),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      course.getLocalizedTitle(lang),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
+                                  if (isCompleted)
+                                    NeoBrutalBadge(
+                                      text: context.tr('academy_graduated'),
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 9.5,
+                                    )
+                                  else if (isCurrentTraining)
+                                    NeoBrutalBadge(
+                                      text: context.tr('staff_status_training'),
+                                      backgroundColor: AppColors.brutalYellow,
+                                      textColor: Colors.black,
+                                      fontSize: 9.5,
+                                    )
+                                  else
+                                    Text(
+                                      CurrencyFormatter.format(course.cost),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.brutalGreen),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          course.color.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      course.bonusSummary,
+                                      style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          color: course.color),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFE2E8F0),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.timer_outlined,
+                                            size: 11, color: Color(0xFF64748B)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          context.tr(
+                                              'staff_training_duration_badge',
+                                              {'days': '${course.durationDays}'}),
+                                          style: const TextStyle(
+                                            fontSize: 9.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (!isCompleted && !isCurrentTraining) ...[
+                                const SizedBox(height: 10),
+                                NeoBrutalButton(
+                                  fullWidth: true,
+                                  label: !canAfford
+                                      ? context.tr('insufficient_balance')
+                                      : (staff.isUnderTraining
+                                          ? context.tr('staff_status_training')
+                                          : context.tr('btn_train_staff')),
+                                  icon: !canAfford
+                                      ? Icons.lock_outline_rounded
+                                      : (staff.isUnderTraining
+                                          ? Icons.hourglass_top_rounded
+                                          : Icons.school_rounded),
+                                  backgroundColor: canAfford &&
+                                          !staff.isUnderTraining
+                                      ? AppColors.brutalGreen
+                                      : (isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFE2E8F0)),
+                                  textColor: canAfford && !staff.isUnderTraining
+                                      ? Colors.black
+                                      : (isDark
+                                          ? Colors.white38
+                                          : Colors.black38),
+                                  fontSize: 11,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  onPressed: canAfford && !staff.isUnderTraining
+                                      ? () {
+                                          final success = ref
+                                              .read(gameProvider.notifier)
+                                              .trainStaffMember(
+                                                  staff.id, course);
+                                          Navigator.of(ctx).pop();
+                                          if (success) {
+                                            NotificationService.showSuccess(
+                                              context,
+                                              context.tr(
+                                                  'academy_training_started_toast',
+                                                  {
+                                                    'name': staff.name,
+                                                    'course': course
+                                                        .getLocalizedTitle(lang),
+                                                    'days':
+                                                        '${course.durationDays}'
+                                                  }),
+                                            );
+                                          }
+                                        }
+                                      : null,
+                                ),
+                              ] else if (isCurrentTraining) ...[
+                                const SizedBox(height: 10),
+                                NeoBrutalButton(
+                                  fullWidth: true,
+                                  label: context.tr('staff_btn_rush_training'),
+                                  icon: Icons.bolt_rounded,
+                                  backgroundColor: AppColors.brutalYellow,
+                                  textColor: Colors.black,
+                                  fontSize: 11,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  onPressed: () {
+                                    Navigator.of(ctx).pop();
+                                    RushTrainingConfirmationDialog.show(context,
+                                        staff: staff);
+                                  },
                                 ),
                               ],
-                            ),
-                            if (!isCompleted && !isCurrentTraining)
-                              NeoBrutalButton(
-                                label: context.tr('btn_train_staff'),
-                                backgroundColor: canAfford && !staff.isUnderTraining
-                                    ? AppColors.brutalGreen
-                                    : (isDark
-                                        ? const Color(0xFF1E2330)
-                                        : const Color(0xFFE2E8F0)),
-                                textColor: canAfford && !staff.isUnderTraining
-                                    ? Colors.black
-                                    : (isDark
-                                        ? Colors.white38
-                                        : Colors.black38),
-                                fontSize: 10,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                onPressed: canAfford && !staff.isUnderTraining
-                                    ? () {
-                                        final success = ref
-                                            .read(gameProvider.notifier)
-                                            .trainStaffMember(staff.id, course);
-                                        Navigator.of(ctx).pop();
-                                        if (success) {
-                                          NotificationService.showSuccess(
-                                            context,
-                                            context.tr('academy_training_started_toast', {
-                                              'name': staff.name,
-                                              'course': course.getLocalizedTitle(lang),
-                                              'days': '${course.durationDays}'
-                                            }),
-                                          );
-                                        }
-                                      }
-                                    : null,
-                              )
-                            else if (isCurrentTraining)
-                              NeoBrutalButton(
-                                label: context.tr('staff_btn_rush_training'),
-                                icon: Icons.bolt_rounded,
-                                backgroundColor: AppColors.brutalYellow,
-                                textColor: Colors.black,
-                                fontSize: 10,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
-                                onPressed: () {
-                                  Navigator.of(ctx).pop();
-                                  RushTrainingConfirmationDialog.show(context,
-                                      staff: staff);
-                                },
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ],
           ),
         );
@@ -1076,6 +1130,7 @@ class StaffScreen extends ConsumerWidget {
                                     textColor: Colors.white,
                                     fontSize: 10.5,
                                     padding: const EdgeInsets.symmetric(vertical: 7),
+                                    fullWidth: true,
                                     onPressed: () {
                                       ref
                                           .read(gameProvider.notifier)
@@ -1096,6 +1151,7 @@ class StaffScreen extends ConsumerWidget {
                                         isDark ? Colors.white : Colors.black,
                                     fontSize: 10.5,
                                     padding: const EdgeInsets.symmetric(vertical: 7),
+                                    fullWidth: true,
                                     onPressed: hired.isUnderTraining
                                         ? null
                                         : () {
@@ -1122,6 +1178,7 @@ class StaffScreen extends ConsumerWidget {
                                     textColor: Colors.black,
                                     fontSize: 10.5,
                                     padding: const EdgeInsets.symmetric(vertical: 7),
+                                    fullWidth: true,
                                     onPressed: () {
                                       RushTrainingConfirmationDialog.show(context,
                                           staff: hired);
@@ -1134,6 +1191,7 @@ class StaffScreen extends ConsumerWidget {
                                     textColor: Colors.white,
                                     fontSize: 10.5,
                                     padding: const EdgeInsets.symmetric(vertical: 7),
+                                    fullWidth: true,
                                     onPressed: hired.isOnLeave
                                         ? null
                                         : () => _showRoleTrainingSheet(

@@ -68,8 +68,10 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
                 children: [
                   NeoBrutalBadge(
                     text:
@@ -78,7 +80,6 @@ class NeoBrutalLockedFeatureView extends StatelessWidget {
                     textColor: Colors.white,
                     fontSize: 11,
                   ),
-                  const SizedBox(width: 8),
                   NeoBrutalBadge(
                     text: context.tr('special_property_badge'),
                     backgroundColor: AppColors.brutalYellow,

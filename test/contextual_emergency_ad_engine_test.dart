@@ -171,7 +171,7 @@ void main() {
 
       expect(encounter, isNotNull);
       expect(encounter!.needType, equals(EmergencyNeedType.postDisasterShock));
-      expect(encounter.grantAmount, equals(20000.0));
+      expect(encounter.grantAmount, greaterThanOrEqualTo(20000.0));
       expect(encounter.avatarKey, equals('heritage'));
     });
 

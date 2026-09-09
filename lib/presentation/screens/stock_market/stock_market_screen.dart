@@ -19,6 +19,7 @@ import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../core/services/ad_service.dart';
+import '../../../core/services/ad_reward_calculator.dart';
 import 'widgets/forex_trade_modal.dart';
 import 'widgets/ipo_request_modal.dart';
 import 'widgets/stock_trade_modal.dart';
@@ -535,6 +536,13 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
     final isUnlockedToday = unlockedDay == game.currentDay;
     final hasNoAds = game.hasNoAdsLicense;
 
+    final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final insiderBonus = AdRewardCalculator.calculateStockInsiderGrant(
+      playerLevel: game.level,
+      playerBalance: game.balance,
+      totalGarageValue: garageTotal,
+    );
+
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
@@ -556,8 +564,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
                 textColor: Colors.black,
                 fontSize: 9.5,
               ),
-              const NeoBrutalBadge(
-                text: '+₺15.000',
+              NeoBrutalBadge(
+                text: '+${CurrencyFormatter.formatShort(insiderBonus)}',
                 icon: Icons.trending_up_rounded,
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,
@@ -580,7 +588,9 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
           Text(
             isUnlockedToday
                 ? context.tr('stock_report_unlocked_body')
-                : context.tr('stock_report_locked_desc'),
+                : context.tr('stock_report_locked_desc', {
+                    'amount': CurrencyFormatter.format(insiderBonus),
+                  }),
             style: TextStyle(
               fontSize: 11.5,
               height: 1.4,
@@ -605,26 +615,30 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
                 HapticFeedback.heavyImpact();
                 if (hasNoAds) {
                   ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
-                  ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                  ref.read(gameProvider.notifier).claimEmergencyLifelineCash(insiderBonus);
                   NotificationService.showSuccess(
                     context,
-                    context.tr('stock_report_toast_unlocked'),
+                    context.tr('stock_report_toast_unlocked', {
+                      'amount': CurrencyFormatter.format(insiderBonus),
+                    }),
                   );
                 } else {
                   AdService.instance.showRewardedAd(
                     onRewardEarned: () {
                       ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
-                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(insiderBonus);
                       if (mounted) {
                         NotificationService.showSuccess(
                           context,
-                          context.tr('stock_report_toast_unlocked'),
+                          context.tr('stock_report_toast_unlocked', {
+                            'amount': CurrencyFormatter.format(insiderBonus),
+                          }),
                         );
                       }
                     },
                     onAdUnavailable: () {
                       ref.read(stockInsiderReportUnlockedDayProvider.notifier).state = game.currentDay;
-                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(15000.0);
+                      ref.read(gameProvider.notifier).claimEmergencyLifelineCash(insiderBonus);
                     },
                   );
                 }

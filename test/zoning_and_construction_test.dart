@@ -470,5 +470,44 @@ void main() {
       notifier.stopPeriodicOrganicOfferTimer();
       container.dispose();
     });
+
+    test('12. saveUnitMix approves architectural blueprint and locks state in self-build', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final testLand = basePreconLand.copyWith(
+        constructionMode: 'selfBuild',
+        constructionStage: 1,
+        isConstructionWorking: true,
+        constructionDaysRemaining: 1,
+        preConstructionStep: 'drafting',
+        isArchitecturalApproved: false,
+      );
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [testLand],
+        balance: 10000000.0,
+      );
+
+      const customMix = ZoningUnitMix(
+        units1Plus1: 2,
+        units2Plus1: 2,
+        units3Plus1: 1,
+      );
+
+      final success = notifier.saveUnitMix(testLand.id, customMix.toMap());
+      expect(success, isTrue);
+
+      final updatedLand = notifier.state.ownedRealEstates.firstWhere((r) => r.id == testLand.id);
+      expect(updatedLand.isArchitecturalApproved, isTrue);
+      expect(updatedLand.isConstructionWorking, isFalse);
+      expect(updatedLand.constructionDaysRemaining, equals(0));
+      expect(updatedLand.preConstructionStep, equals('draftingCompleted'));
+      expect(updatedLand.customUnitMix, equals(customMix.toMap()));
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
   });
 }

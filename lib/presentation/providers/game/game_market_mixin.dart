@@ -71,6 +71,11 @@ mixin GameMarketMixin on GameBaseNotifier {
       balance: state.balance - business.cost,
       sideBusinesses: updatedBusinesses,
     );
+    AnalyticsService.instance.logSideBusinessPurchased(
+      businessId: business.id,
+      businessName: business.name,
+      price: business.cost,
+    );
 
     addXP(150);
     updateMissionProgress(MissionType.sideBusinessCollect, 1);
@@ -1037,6 +1042,9 @@ mixin GameMarketMixin on GameBaseNotifier {
       salePrice: offer.offeredAmount,
       profit: profit,
     );
+    if (state.salesHistory.isEmpty) {
+      AnalyticsService.instance.logFirstCarAction(isBuy: false);
+    }
     updateMissionProgress(MissionType.sellCars, 1);
     if (profit > 0) {
       updateMissionProgress(MissionType.earnProfit, profit.round());

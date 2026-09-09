@@ -1,3 +1,6 @@
+import 'dart:math';
+import '../../core/services/ad_reward_calculator.dart';
+import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/game_event_model.dart';
@@ -106,7 +109,7 @@ class ContextualEmergencyAdEngine {
   }) {
     // 1. Direct Purchase Shortfall: Player clicked buy but is missing funds
     if (purchaseShortfall != null && purchaseShortfall > 0) {
-      final grant = purchaseShortfall.clamp(5000.0, 150000.0);
+      final grant = purchaseShortfall.clamp(10000.0, max(500000.0, purchaseShortfall)).toDouble();
       return ContextualLifelineEncounter(
         needType: EmergencyNeedType.purchaseShortfall,
         titleKey: 'lifeline_shortfall_title',
@@ -126,9 +129,15 @@ class ContextualEmergencyAdEngine {
       );
     }
 
-    // 2. Critical Cash Crisis: Dealership running out of working capital (< ₺20,000)
-    if (game.balance < 20000.0) {
-      final grant = (25000.0 + (game.level * 5000.0)).clamp(25000.0, 75000.0);
+    // 2. Critical Cash Crisis: Dealership running low on operating capital relative to level & fleet
+    final garageTotal = game.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final crisisThreshold = max(25000.0, (game.level * 25000.0) + (garageTotal > 0 ? garageTotal * 0.015 : 0.0));
+    if (game.balance < crisisThreshold) {
+      final grant = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: game.level,
+        playerBalance: game.balance,
+        totalGarageValue: garageTotal,
+      );
       return ContextualLifelineEncounter(
         needType: EmergencyNeedType.cashCrisis,
         titleKey: 'lifeline_cash_crisis_title',
@@ -136,7 +145,7 @@ class ContextualEmergencyAdEngine {
         storyDialogueKey: 'lifeline_cash_crisis_story',
         perkSummaryKey: 'lifeline_cash_crisis_perk',
         translationArgs: {
-          'amount': grant.toStringAsFixed(0),
+          'amount': CurrencyFormatter.formatShort(grant),
         },
         callerNameKey: 'lifeline_cash_crisis_caller_name',
         callerRoleKey: 'lifeline_cash_crisis_caller_role',
@@ -211,16 +220,21 @@ class ContextualEmergencyAdEngine {
     }
 
     // 6. Auction Deposit Shortage: Insufficient cash for high-tier auction bidding
-    if (game.balance < 40000.0 && game.level >= 2) {
-      const depositGrant = 30000.0;
-      return const ContextualLifelineEncounter(
+    final depositThreshold = max(50000.0, (game.level * 30000.0));
+    if (game.balance < depositThreshold && game.level >= 2) {
+      final depositGrant = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: game.level,
+        playerBalance: game.balance,
+        totalGarageValue: garageTotal,
+      );
+      return ContextualLifelineEncounter(
         needType: EmergencyNeedType.auctionDepositShortage,
         titleKey: 'lifeline_auction_title',
         subtitleKey: 'lifeline_auction_subtitle',
         storyDialogueKey: 'lifeline_auction_story',
         perkSummaryKey: 'lifeline_auction_perk',
         translationArgs: {
-          'deposit': '30000',
+          'deposit': CurrencyFormatter.formatShort(depositGrant),
         },
         callerNameKey: 'lifeline_auction_caller_name',
         callerRoleKey: 'lifeline_auction_caller_role',
@@ -255,13 +269,24 @@ class ContextualEmergencyAdEngine {
         e.type == GameEventType.badEvent ||
         (e.type == GameEventType.expense && e.amount > 15000.0));
     if (hasRecentCrisis) {
-      const reliefGrant = 20000.0;
-      return const ContextualLifelineEncounter(
+      final recentCrisisAmount = game.recentEvents
+          .where((e) => e.type == GameEventType.badEvent || (e.type == GameEventType.expense && e.amount > 15000.0))
+          .fold<double>(0.0, (sum, e) => sum + e.amount);
+      final reliefGrant = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: game.level,
+        playerBalance: game.balance,
+        totalGarageValue: garageTotal,
+        recentLoss: recentCrisisAmount > 0 ? recentCrisisAmount : null,
+      );
+      return ContextualLifelineEncounter(
         needType: EmergencyNeedType.postDisasterShock,
         titleKey: 'lifeline_disaster_title',
         subtitleKey: 'lifeline_disaster_subtitle',
         storyDialogueKey: 'lifeline_disaster_story',
         perkSummaryKey: 'lifeline_disaster_perk',
+        translationArgs: {
+          'amount': CurrencyFormatter.formatShort(reliefGrant),
+        },
         callerNameKey: 'lifeline_disaster_caller_name',
         callerRoleKey: 'lifeline_disaster_caller_role',
         avatarKey: 'heritage',

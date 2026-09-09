@@ -48,6 +48,7 @@ import '../../../data/models/gossip_item_model.dart';
 import '../../../domain/services/daily_loan_processor.dart';
 import '../../../domain/services/daily_rental_processor.dart';
 import '../../../domain/services/daily_staff_processor.dart';
+import '../../../core/services/analytics_service.dart';
 
 import 'game_base_notifier.dart';
 
@@ -135,6 +136,12 @@ mixin GameTimeMixin on GameBaseNotifier {
     final activeLoansAfterBk = bkResult.$3;
     final updatedDynastyHistory = bkResult.$4;
     newEvents = bkResult.$5;
+    if (newBalance < 0) {
+      AnalyticsService.instance.logBankruptcy(
+        day: nextDay,
+        balance: newBalance,
+      );
+    }
 
     final bizResult = _processSideBusinesses(
         newBalance, currentCars, List.from(state.sideBusinesses));
@@ -394,6 +401,19 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     _lastDayAdvanceTime = DateTime.now();
     refreshMarketTrends();
+
+    AnalyticsService.instance.logDayPassed(
+      day: nextDay,
+      balance: newBalance,
+      carCount: currentCars.length,
+      reputation: currentReputation,
+    );
+    AnalyticsService.instance.syncUserProperties(
+      level: state.level,
+      day: nextDay,
+      balance: newBalance,
+      carCount: currentCars.length,
+    );
   }
 
   // --- Helper Methods ---
@@ -2015,6 +2035,14 @@ mixin GameTimeMixin on GameBaseNotifier {
         return s.copyWith(morale: newMorale);
       }).toList();
     }
+
+    final currentEventId = state.pendingRandomEvent?.id ?? 'random_event';
+    AnalyticsService.instance.logRandomEventChoice(
+      eventId: currentEventId,
+      choiceId: choice.label,
+      balanceChange: choice.balanceChange.toInt(),
+      reputationChange: choice.reputationChange,
+    );
 
     state = state.copyWith(
       balance: newBalance,

@@ -28,6 +28,9 @@ class AdRewardOutcome {
 
 /// Dynamic reward calculator that scales payouts with player progress and rolls
 /// dopamine-stimulating variable ratio jackpot outcomes (80% Standard, 17% Double, 3% Legendary).
+///
+/// Ensures late-game tycoons (e.g. 66M+ TL) receive motivating million-scale payouts
+/// while early-game newcomers receive helpful, progression-safe capital.
 class AdRewardCalculator {
   AdRewardCalculator._();
 
@@ -41,49 +44,65 @@ class AdRewardCalculator {
   }) {
     final rng = random ?? Random();
 
-    // 1. Dynamic base scaling based on player level and garage net worth
-    double baseAmount = 5000.0 + (playerLevel * 2500.0) + (totalGarageValue * 0.015);
+    // 1. Total economic wealth evaluation (liquid balance + fleet value)
+    final effectiveBalance = max(0.0, playerBalance ?? 0.0);
+    final effectiveGarage = max(0.0, totalGarageValue);
+    final totalWealth = effectiveBalance + effectiveGarage;
 
-    // Kasa / balance scaling (dynamically 10% of player balance when provided)
-    if (playerBalance != null && playerBalance > 0) {
-      final balanceRatioAmount = playerBalance * 0.10;
-      baseAmount = max(baseAmount, balanceRatioAmount);
+    // 2. Base scaling based on player level
+    final double baseLevelAmount = 5000.0 + (playerLevel * 3000.0);
+
+    // 3. Dynamic wealth percentage scaling:
+    // - Low wealth (<= 500k TL): 6.0% (gives up to 30k TL)
+    // - Mid wealth (<= 5M TL): 4.5% (gives up to 225k TL)
+    // - Upper-mid wealth (<= 25M TL): 3.5% (gives up to 875k TL)
+    // - Tycoon / late-game wealth (> 25M TL, e.g. 66M+ TL): 2.75% (gives 1.8M - 3.5M+ TL)
+    double wealthRatioAmount = 0.0;
+    if (totalWealth > 0) {
+      final double wealthRate;
+      if (totalWealth <= 500000.0) {
+        wealthRate = 0.06;
+      } else if (totalWealth <= 5000000.0) {
+        wealthRate = 0.045;
+      } else if (totalWealth <= 25000000.0) {
+        wealthRate = 0.035;
+      } else {
+        wealthRate = 0.0275;
+      }
+      wealthRatioAmount = totalWealth * wealthRate;
     }
+
+    double baseAmount = baseLevelAmount + wealthRatioAmount;
 
     if (targetCarPrice != null && targetCarPrice > 0) {
-      // If tied to a specific car context, factor 3% of car value
-      baseAmount = max(baseAmount, targetCarPrice * 0.03);
+      baseAmount = max(baseAmount, targetCarPrice * 0.04);
     }
 
-    // Dynamic level-gated clamps to protect early-game progression from instant skips
+    // Dynamic level & wealth gated clamps
     final double maxBaseCap;
     final double maxJackpotCap;
     if (playerLevel <= 3) {
-      maxBaseCap = 25000.0;
-      maxJackpotCap = 100000.0;
+      maxBaseCap = max(25000.0, totalWealth * 0.10);
+      maxJackpotCap = min(100000.0, maxBaseCap * 4.0);
     } else if (playerLevel <= 6) {
-      maxBaseCap = 60000.0;
-      maxJackpotCap = 250000.0;
+      maxBaseCap = max(60000.0, totalWealth * 0.08);
+      maxJackpotCap = min(250000.0, maxBaseCap * 4.0);
     } else {
-      maxBaseCap = 125000.0;
-      maxJackpotCap = 500000.0;
+      maxBaseCap = max(125000.0, totalWealth * 0.06);
+      maxJackpotCap = maxBaseCap * 4.0;
     }
 
-    final effectiveMaxBaseCap = (playerBalance != null && playerBalance > 0)
-        ? max(maxBaseCap, playerBalance * 0.10)
-        : maxBaseCap;
-    final effectiveMaxJackpotCap = (playerBalance != null && playerBalance > 0)
-        ? max(maxJackpotCap, effectiveMaxBaseCap * 4.0)
-        : maxJackpotCap;
+    baseAmount = baseAmount.clamp(7500.0, maxBaseCap);
 
-    baseAmount = baseAmount.clamp(5000.0, effectiveMaxBaseCap);
+    // Round nicely to clean game numbers
+    baseAmount = _roundToCleanNumber(baseAmount);
 
-    // 2. Roll variable ratio outcome
+    // 4. Roll variable ratio outcome
     final roll = rng.nextInt(100) + 1; // 1 to 100
 
     if (roll >= 98) {
       // 3% Legendary Jackpot
-      final total = (baseAmount * 4.0).clamp(0.0, effectiveMaxJackpotCap);
+      final total = _roundToCleanNumber((baseAmount * 4.0).clamp(0.0, maxJackpotCap));
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.legendaryJackpot,
@@ -95,7 +114,7 @@ class AdRewardCalculator {
       );
     } else if (roll >= 81) {
       // 17% Double Luck
-      final total = (baseAmount * 2.0).clamp(0.0, effectiveMaxJackpotCap);
+      final total = _roundToCleanNumber((baseAmount * 2.0).clamp(0.0, maxJackpotCap));
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.doubleLuck,
@@ -114,6 +133,83 @@ class AdRewardCalculator {
         title: 'STANDART ESNAF DESTEĞİ TANIMLANDI',
         message: 'Galericiler birliği destek fonundan hesabına nakit akışı sağlandı.',
       );
+    }
+  }
+
+  /// Calculates dynamic municipal & KOSGEB expansion grant for branch screen
+  static double calculateBranchGrant({
+    required int playerLevel,
+    required double playerBalance,
+    double totalGarageValue = 0.0,
+    int branchTier = 1,
+  }) {
+    final base = calculateDynamicReward(
+      playerLevel: playerLevel,
+      totalGarageValue: totalGarageValue,
+      playerBalance: playerBalance,
+    ).moneyAmount;
+    final tierMultiplier = 1.0 + (branchTier * 0.15);
+    return _roundToCleanNumber(max(40000.0, base * 1.20 * tierMultiplier));
+  }
+
+  /// Calculates dynamic VIP corporate fleet contract grant for rent-a-car screen
+  static double calculateVipFleetGrant({
+    required int playerLevel,
+    required double playerBalance,
+    double totalGarageValue = 0.0,
+    int fleetCount = 0,
+  }) {
+    final base = calculateDynamicReward(
+      playerLevel: playerLevel,
+      totalGarageValue: totalGarageValue,
+      playerBalance: playerBalance,
+    ).moneyAmount;
+    final fleetBonus = 1.0 + (fleetCount * 0.05);
+    return _roundToCleanNumber(max(35000.0, base * 1.10 * fleetBonus));
+  }
+
+  /// Calculates dynamic stock insider market report cash grant for stock market screen
+  static double calculateStockInsiderGrant({
+    required int playerLevel,
+    required double playerBalance,
+    double totalGarageValue = 0.0,
+  }) {
+    final base = calculateDynamicReward(
+      playerLevel: playerLevel,
+      totalGarageValue: totalGarageValue,
+      playerBalance: playerBalance,
+    ).moneyAmount;
+    return _roundToCleanNumber(max(25000.0, base * 0.90));
+  }
+
+  /// Calculates dynamic emergency cash grant for lifeline dialogs
+  static double calculateEmergencyGrant({
+    required int playerLevel,
+    required double playerBalance,
+    double totalGarageValue = 0.0,
+    double? recentLoss,
+  }) {
+    final base = calculateDynamicReward(
+      playerLevel: playerLevel,
+      totalGarageValue: totalGarageValue,
+      playerBalance: playerBalance,
+    ).moneyAmount;
+    if (recentLoss != null && recentLoss > base) {
+      return _roundToCleanNumber(max(base, recentLoss * 0.60));
+    }
+    return _roundToCleanNumber(max(30000.0, base));
+  }
+
+  /// Rounds reward to clean presentable game figures (e.g. 25.000, 1.850.000)
+  static double _roundToCleanNumber(double val) {
+    if (val >= 1000000.0) {
+      return (val / 50000.0).round() * 50000.0;
+    } else if (val >= 100000.0) {
+      return (val / 5000.0).round() * 5000.0;
+    } else if (val >= 10000.0) {
+      return (val / 1000.0).round() * 1000.0;
+    } else {
+      return (val / 500.0).round() * 500.0;
     }
   }
 }

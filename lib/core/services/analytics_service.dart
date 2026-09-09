@@ -195,4 +195,177 @@ class AnalyticsService {
       debugPrint('[AnalyticsService] logLeaderboardViewed error: $e');
     }
   }
+
+  /// Synchronizes high-level player segments as Firebase User Properties.
+  Future<void> syncUserProperties({
+    required int level,
+    required int day,
+    required double balance,
+    required int carCount,
+  }) async {
+    try {
+      final wealthBracket = balance < 50000
+          ? 'under_50k'
+          : balance < 250000
+              ? '50k_250k'
+              : balance < 1000000
+                  ? '250k_1m'
+                  : '1m_plus';
+
+      await _analytics?.setUserProperty(
+        name: 'dealership_level',
+        value: level.toString(),
+      );
+      await _analytics?.setUserProperty(
+        name: 'game_day',
+        value: day.toString(),
+      );
+      await _analytics?.setUserProperty(
+        name: 'wealth_bracket',
+        value: wealthBracket,
+      );
+      await _analytics?.setUserProperty(
+        name: 'owned_cars_count',
+        value: carCount.toString(),
+      );
+
+      if (kDebugMode) {
+        debugPrint('[Analytics] UserProperties synced: Lvl $level, Day $day, $wealthBracket, $carCount cars');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] syncUserProperties error: $e');
+    }
+  }
+
+  /// Logs daily progression and key dealership metrics.
+  Future<void> logDayPassed({
+    required int day,
+    required double balance,
+    required int carCount,
+    required int reputation,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'day_passed',
+        parameters: {
+          'day': day,
+          'balance': balance,
+          'car_count': carCount,
+          'reputation': reputation,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] day_passed: Day $day, Balance: $balance');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logDayPassed error: $e');
+    }
+  }
+
+  /// Logs vehicle repair and maintenance actions.
+  Future<void> logCarRepaired({
+    required String brand,
+    required String model,
+    required double cost,
+    required String repairType,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'car_repaired',
+        parameters: {
+          'brand': brand,
+          'model': model,
+          'cost': cost,
+          'repair_type': repairType,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] car_repaired: $brand $model ($repairType) for ₺$cost');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logCarRepaired error: $e');
+    }
+  }
+
+  /// Logs acquisition of side facilities (e.g. car wash, detailing, expertise).
+  Future<void> logSideBusinessPurchased({
+    required String businessId,
+    required String businessName,
+    required double price,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'side_business_purchased',
+        parameters: {
+          'business_id': businessId,
+          'business_name': businessName,
+          'price': price,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] side_business_purchased: $businessName ($price)');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logSideBusinessPurchased error: $e');
+    }
+  }
+
+  /// Logs player choice in random narrative events.
+  Future<void> logRandomEventChoice({
+    required String eventId,
+    required String choiceId,
+    int? balanceChange,
+    int? reputationChange,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'random_event_choice',
+        parameters: {
+          'event_id': eventId,
+          'choice_id': choiceId,
+          if (balanceChange != null) 'balance_change': balanceChange,
+          if (reputationChange != null) 'reputation_change': reputationChange,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] random_event_choice: Event $eventId Choice $choiceId');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logRandomEventChoice error: $e');
+    }
+  }
+
+  /// Logs first vehicle acquisition or sale for onboarding funnel tracking.
+  Future<void> logFirstCarAction({required bool isBuy}) async {
+    try {
+      final eventName = isBuy ? 'first_car_purchased' : 'first_car_sold';
+      await _analytics?.logEvent(name: eventName);
+      if (kDebugMode) {
+        debugPrint('[Analytics] Funnel Event: $eventName');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logFirstCarAction error: $e');
+    }
+  }
+
+  /// Logs critical financial distress or bankruptcy.
+  Future<void> logBankruptcy({
+    required int day,
+    required double balance,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'game_bankruptcy',
+        parameters: {
+          'day': day,
+          'balance': balance,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] game_bankruptcy: Day $day, Balance: $balance');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logBankruptcy error: $e');
+    }
+  }
 }

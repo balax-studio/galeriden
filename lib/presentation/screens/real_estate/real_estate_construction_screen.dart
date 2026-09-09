@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -517,6 +518,14 @@ class _RealEstateConstructionScreenState
     final usageRatio = zoning.emsalUtilizationRatio;
     final isExceeded = zoning.isEmsalExceeded;
 
+    final bool isMixSaved = land.customUnitMix != null &&
+        _workingMix != null &&
+        mapEquals(land.customUnitMix, _workingMix!.toMap());
+    final bool isProjectApproved = land.isArchitecturalApproved ||
+        (land.isConstructionActive && (land.customUnitMix != null || land.constructionMode != null)) ||
+        (land.constructionMode == 'selfBuild' && (land.isArchitecturalApproved || isMixSaved)) ||
+        isMixSaved;
+
     Color gaugeColor;
     if (isExceeded) {
       gaugeColor = const Color(0xFFEF4444); // Red
@@ -557,13 +566,19 @@ class _RealEstateConstructionScreenState
                   NeoBrutalBadge(
                     text: isExceeded
                         ? 'EMSAL AŞILDI'
-                        : '%${(usageRatio * 100).toStringAsFixed(0)} DOLU',
+                        : (isProjectApproved
+                            ? context.tr('real_estate_kaks_btn_approved')
+                            : '%${(usageRatio * 100).toStringAsFixed(0)} DOLU'),
                     backgroundColor: isExceeded
                         ? const Color(0xFFFEE2E2)
-                        : const Color(0xFFDBEAFE),
+                        : (isProjectApproved
+                            ? const Color(0xFFD1FAE5)
+                            : const Color(0xFFDBEAFE)),
                     textColor: isExceeded
                         ? const Color(0xFFDC2626)
-                        : const Color(0xFF1D4ED8),
+                        : (isProjectApproved
+                            ? const Color(0xFF065F46)
+                            : const Color(0xFF1D4ED8)),
                   ),
                 ],
               ),
@@ -649,8 +664,6 @@ class _RealEstateConstructionScreenState
             ],
           ),
         ),
-        const SizedBox(height: 14),
-
         // Typology Selector Cards
         _buildTypologySelectorCard(
           context: context,
@@ -658,8 +671,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_1plus0_desc'),
           grossM2: ZoningUnitMix.grossArea1Plus0,
           count: _workingMix?.units1Plus0 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units1Plus0: m.units1Plus0 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units1Plus0: (m.units1Plus0 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units1Plus0: m.units1Plus0 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units1Plus0: (m.units1Plus0 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 8),
@@ -670,8 +687,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_1plus1_desc'),
           grossM2: ZoningUnitMix.grossArea1Plus1,
           count: _workingMix?.units1Plus1 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units1Plus1: m.units1Plus1 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units1Plus1: (m.units1Plus1 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units1Plus1: m.units1Plus1 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units1Plus1: (m.units1Plus1 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 8),
@@ -682,8 +703,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_2plus0_desc'),
           grossM2: ZoningUnitMix.grossArea2Plus0,
           count: _workingMix?.units2Plus0 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units2Plus0: m.units2Plus0 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units2Plus0: (m.units2Plus0 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units2Plus0: m.units2Plus0 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units2Plus0: (m.units2Plus0 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 8),
@@ -694,8 +719,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_2plus1_desc'),
           grossM2: ZoningUnitMix.grossArea2Plus1,
           count: _workingMix?.units2Plus1 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units2Plus1: m.units2Plus1 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units2Plus1: (m.units2Plus1 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units2Plus1: m.units2Plus1 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units2Plus1: (m.units2Plus1 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 8),
@@ -706,8 +735,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_3plus1_desc'),
           grossM2: ZoningUnitMix.grossArea3Plus1,
           count: _workingMix?.units3Plus1 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units3Plus1: m.units3Plus1 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units3Plus1: (m.units3Plus1 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units3Plus1: m.units3Plus1 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units3Plus1: (m.units3Plus1 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 8),
@@ -718,8 +751,12 @@ class _RealEstateConstructionScreenState
           desc: context.tr('real_estate_typology_4plus1_desc'),
           grossM2: ZoningUnitMix.grossArea4Plus1,
           count: _workingMix?.units4Plus1 ?? 0,
-          onIncrement: () => _updateMix((m) => m.copyWith(units4Plus1: m.units4Plus1 + 1)),
-          onDecrement: () => _updateMix((m) => m.copyWith(units4Plus1: (m.units4Plus1 - 1).clamp(0, 99))),
+          onIncrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units4Plus1: m.units4Plus1 + 1)),
+          onDecrement: isProjectApproved
+              ? null
+              : () => _updateMix((m) => m.copyWith(units4Plus1: (m.units4Plus1 - 1).clamp(0, 99))),
           isDark: isDark,
         ),
         const SizedBox(height: 14),
@@ -731,44 +768,60 @@ class _RealEstateConstructionScreenState
               child: NeoBrutalButton(
                 label: context.tr('real_estate_kaks_btn_auto_optimize'),
                 icon: Icons.auto_awesome_rounded,
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  setState(() {
-                    _workingMix =
-                        ZoningEngine.optimizeUnitMix(zoning.netResidentialArea);
-                  });
-                },
-                backgroundColor: const Color(0xFFFEF3C7),
-                textColor: const Color(0xFF92400E),
+                onPressed: isProjectApproved
+                    ? null
+                    : () {
+                        HapticFeedback.mediumImpact();
+                        setState(() {
+                          _workingMix =
+                              ZoningEngine.optimizeUnitMix(zoning.netResidentialArea);
+                        });
+                      },
+                backgroundColor: isProjectApproved
+                    ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                    : const Color(0xFFFEF3C7),
+                textColor: isProjectApproved
+                    ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                    : const Color(0xFF92400E),
               ),
             ),
             const SizedBox(width: 8),
             NeoBrutalButton(
               label: context.tr('real_estate_kaks_reset_btn'),
               icon: Icons.refresh_rounded,
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                setState(() {
-                  _workingMix = const ZoningUnitMix(
-                    units1Plus1: 1,
-                    units2Plus1: 1,
-                    units3Plus1: 1,
-                  );
-                });
-              },
-              backgroundColor: const Color(0xFFF1F5F9),
-              textColor: Colors.black,
+              onPressed: isProjectApproved
+                  ? null
+                  : () {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _workingMix = const ZoningUnitMix(
+                          units1Plus1: 1,
+                          units2Plus1: 1,
+                          units3Plus1: 1,
+                        );
+                      });
+                    },
+              backgroundColor: isProjectApproved
+                  ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                  : const Color(0xFFF1F5F9),
+              textColor: isProjectApproved
+                  ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                  : Colors.black,
             ),
           ],
         ),
         const SizedBox(height: 10),
 
         NeoBrutalButton(
+          isApplied: isProjectApproved,
+          appliedLabel: context.tr('real_estate_kaks_btn_approved'),
           label: isExceeded
               ? context.tr('real_estate_kaks_warning_exceeded')
-              : context.tr('real_estate_kaks_btn_confirm_mix'),
+              : (isProjectApproved
+                  ? context.tr('real_estate_kaks_btn_approved')
+                  : context.tr('real_estate_kaks_btn_confirm_mix')),
           icon: Icons.check_circle_rounded,
-          onPressed: isExceeded
+          onPressed: (isExceeded || isProjectApproved)
               ? null
               : () {
                   HapticFeedback.mediumImpact();
@@ -779,13 +832,10 @@ class _RealEstateConstructionScreenState
                     context,
                     context.tr('real_estate_kaks_confirmed_toast'),
                   );
-                  setState(() {
-                    _selectedTabIndex = 0; // Return to stages tab
-                  });
                 },
           backgroundColor: isExceeded
               ? const Color(0xFF94A3B8)
-              : const Color(0xFF10B981),
+              : (isProjectApproved ? const Color(0xFF059669) : const Color(0xFF10B981)),
           textColor: Colors.white,
         ),
       ],
@@ -807,8 +857,8 @@ class _RealEstateConstructionScreenState
     required String desc,
     required double grossM2,
     required int count,
-    required VoidCallback onIncrement,
-    required VoidCallback onDecrement,
+    required VoidCallback? onIncrement,
+    required VoidCallback? onDecrement,
     required bool isDark,
   }) {
     return NeoBrutalCard(
@@ -851,12 +901,25 @@ class _RealEstateConstructionScreenState
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+                    color: onDecrement == null
+                        ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                        : (isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9)),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: onDecrement == null
+                          ? (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))
+                          : Colors.black,
+                      width: 1.5,
+                    ),
                   ),
-                  child: const Center(
-                    child: Icon(Icons.remove, size: 16),
+                  child: Center(
+                    child: Icon(
+                      Icons.remove,
+                      size: 16,
+                      color: onDecrement == null
+                          ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                          : (isDark ? Colors.white : Colors.black),
+                    ),
                   ),
                 ),
               ),
@@ -877,12 +940,25 @@ class _RealEstateConstructionScreenState
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2563EB),
+                    color: onIncrement == null
+                        ? (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0))
+                        : const Color(0xFF2563EB),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    border: Border.all(
+                      color: onIncrement == null
+                          ? (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1))
+                          : Colors.black,
+                      width: 1.5,
+                    ),
                   ),
-                  child: const Center(
-                    child: Icon(Icons.add, size: 16, color: Colors.white),
+                  child: Center(
+                    child: Icon(
+                      Icons.add,
+                      size: 16,
+                      color: onIncrement == null
+                          ? (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8))
+                          : Colors.white,
+                    ),
                   ),
                 ),
               ),

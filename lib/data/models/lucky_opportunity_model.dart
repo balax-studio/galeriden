@@ -33,6 +33,30 @@ class LuckyOpportunityModel {
     this.reputationBonus = 0,
   });
 
+  LuckyOpportunityModel copyWith({
+    String? id,
+    LuckyOpportunityType? type,
+    String? titleKey,
+    String? descriptionKey,
+    String? perkSummaryKey,
+    IconData? icon,
+    Color? accentColor,
+    double? cashReward,
+    int? reputationBonus,
+  }) {
+    return LuckyOpportunityModel(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      titleKey: titleKey ?? this.titleKey,
+      descriptionKey: descriptionKey ?? this.descriptionKey,
+      perkSummaryKey: perkSummaryKey ?? this.perkSummaryKey,
+      icon: icon ?? this.icon,
+      accentColor: accentColor ?? this.accentColor,
+      cashReward: cashReward ?? this.cashReward,
+      reputationBonus: reputationBonus ?? this.reputationBonus,
+    );
+  }
+
   static List<LuckyOpportunityModel> getAllOpportunities() {
     return const [
       LuckyOpportunityModel(
