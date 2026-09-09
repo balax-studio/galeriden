@@ -5432,5 +5432,13 @@ const Map<String, String> trTranslations = {
     'deck_action_go_market': 'AÇIK OTO PAZARINA GİR',
     'deck_market_opportunity_tag': 'Sıcak Kelepir & Takas',
     'feed_loading_more': 'Yeni İlanlar Taranıyor...',
+    'section_hero_dealership': 'Galeri & Satış Üssü Hero',
+    'section_hero_dealership_sub': 'Vitrin stoğu, müşteri teklifleri ve açık oto pazarı',
+    'section_sanayi_hangar': 'Maslak Sanayi Mega Hangar',
+    'section_sanayi_hangar_sub': 'Oto yıkama, mekanik onarım ve performans tuning peronları',
+    'deck_action_showroom': 'SHOWROOM',
+    'deck_wash_boost_telemetry': '+%15 Kâr Çarpanı',
+    'deck_workshop_lift_telemetry': 'Kapasite • 2 Araç',
+    'deck_tuning_dyno_telemetry': 'Dyno Test & Stage',
   };
 

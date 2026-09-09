@@ -6,6 +6,8 @@ enum BlueprintPatternType {
   blueprintGrid,
   cyberGrid,
   technicalCrosses,
+  diagonalHatch,
+  isometricBlueprint,
 }
 
 /// Dynamic Neo-Brutalist Background Canvas Widget
@@ -136,6 +138,30 @@ class _BlueprintPatternPainter extends CustomPainter {
                 Offset(x, y - crossSize), Offset(x, y + crossSize), paint);
           }
         }
+        break;
+
+      case BlueprintPatternType.diagonalHatch:
+        canvas.save();
+        canvas.clipRect(Offset.zero & size);
+        for (double d = -size.height; d <= size.width + size.height; d += spacing) {
+          canvas.drawLine(Offset(d, 0), Offset(d + size.height, size.height), paint);
+        }
+        canvas.restore();
+        break;
+
+      case BlueprintPatternType.isometricBlueprint:
+        canvas.save();
+        canvas.clipRect(Offset.zero & size);
+        for (double y = 0; y <= size.height; y += spacing) {
+          canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+        }
+        const double tan30 = 0.57735;
+        final double dx = size.height / tan30;
+        for (double x = -dx; x <= size.width + dx; x += spacing * 1.5) {
+          canvas.drawLine(Offset(x, 0), Offset(x + dx, size.height), paint);
+          canvas.drawLine(Offset(x, 0), Offset(x - dx, size.height), paint);
+        }
+        canvas.restore();
         break;
     }
   }

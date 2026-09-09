@@ -23,6 +23,7 @@ class NeoBrutalCard extends StatefulWidget {
   final bool showBlueprintGrid;
   final BlueprintPatternType patternType;
   final Clip? clipBehavior;
+  final BorderRadiusGeometry? customBorderRadius;
 
   const NeoBrutalCard({
     super.key,
@@ -33,6 +34,7 @@ class NeoBrutalCard extends StatefulWidget {
     this.borderColor,
     this.borderWidth = 2.5,
     this.borderRadius = 10.0,
+    this.customBorderRadius,
     this.shadowOffset = const Offset(4.0, 4.0),
     this.shadowColor,
     this.onTap,
@@ -92,7 +94,8 @@ class _NeoBrutalCardState extends State<NeoBrutalCard> {
               (widget.showHazardHeader ? Clip.antiAlias : Clip.none),
           decoration: BoxDecoration(
             color: effectiveBg,
-            borderRadius: BorderRadius.circular(widget.borderRadius),
+            borderRadius: widget.customBorderRadius ??
+                BorderRadius.circular(widget.borderRadius),
             border: Border.all(
               color: effectiveBorder,
               width: widget.borderWidth,

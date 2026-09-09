@@ -442,50 +442,9 @@ class _DashboardHomeTab extends ConsumerWidget {
         DashboardProfileBanner(game: game, palette: p),
         const SizedBox(height: 10),
 
-        // 1.05 Daily Critical Dilemma Banner (if pending)
-        if (game.pendingDramaticCard != null) ...[
-          DashboardDramaticCardBanner(
-            card: game.pendingDramaticCard!,
-            palette: p,
-          ),
-          const SizedBox(height: 10),
-        ],
-
-        // 1.06 Daily Random Event Banner (if pending)
-        if (game.pendingRandomEvent != null) ...[
-          DashboardRandomEventBanner(
-            event: game.pendingRandomEvent!,
-            palette: p,
-          ),
-          const SizedBox(height: 10),
-        ],
-
-        // 1.1 Weekly Dynamic Event Bulletin
-        DashboardWeeklyEventBanner(game: game, palette: p),
+        // 1.05 Unified Priority Action / Announcement Slot (Dilemma > Rescue > Event > Advisor)
+        _buildPriorityActionBanner(context, game, p),
         const SizedBox(height: 10),
-
-        // 1.2 First-Day Quest Guide Banner (if player has not completed their first sale)
-        if (game.carsSold == 0) ...[
-          DashboardFirstDayQuestBanner(
-            game: game,
-            onGoToShowroom: () => context.push('/showroom'),
-          ),
-          const SizedBox(height: 10),
-        ] else ...[
-          // 1.3 Persistent Next Action / Advisor Advice (if carsSold > 0)
-          DashboardAdvisorGuidanceBanner(
-            game: game,
-            palette: p,
-            onGoToShowroom: () => context.push('/showroom'),
-          ),
-          const SizedBox(height: 10),
-        ],
-
-        // 1.4 Emergency Bailout / Scrapyard Rescue Banner (if low balance)
-        if (game.balance < 20000) ...[
-          DashboardEmergencyRescueBanner(game: game, palette: p),
-          const SizedBox(height: 10),
-        ],
 
         // 2. Retention Hub: Rivals Leaderboard, Album, Prestige
         DashboardRetentionHighlightsRow(game: game, palette: p, ref: ref),
@@ -540,6 +499,45 @@ class _DashboardHomeTab extends ConsumerWidget {
         // 8. Hızlı Finansal Durum Kartı
         DashboardQuickFinanceCard(game: game, palette: p),
       ],
+    );
+  }
+
+  /// Consolidated Priority Action / Announcement Banner (Dilemma > Rescue > Random Event > Quest/Advisor)
+  Widget _buildPriorityActionBanner(
+    BuildContext context,
+    DealershipModel game,
+    ThemePaletteModel p,
+  ) {
+    // 1. Critical Financial Emergency
+    if (game.balance < 20000) {
+      return DashboardEmergencyRescueBanner(game: game, palette: p);
+    }
+    // 2. Pending Interactive Dilemma Card
+    if (game.pendingDramaticCard != null) {
+      return DashboardDramaticCardBanner(
+        card: game.pendingDramaticCard!,
+        palette: p,
+      );
+    }
+    // 3. Pending Random Event
+    if (game.pendingRandomEvent != null) {
+      return DashboardRandomEventBanner(
+        event: game.pendingRandomEvent!,
+        palette: p,
+      );
+    }
+    // 4. First Day Quest Guide (if fresh player with 0 sales)
+    if (game.carsSold == 0) {
+      return DashboardFirstDayQuestBanner(
+        game: game,
+        onGoToShowroom: () => context.push('/showroom'),
+      );
+    }
+    // 5. Strategic Advisor Guidance
+    return DashboardAdvisorGuidanceBanner(
+      game: game,
+      palette: p,
+      onGoToShowroom: () => context.push('/showroom'),
     );
   }
 

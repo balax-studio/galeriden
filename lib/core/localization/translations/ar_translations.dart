@@ -5432,5 +5432,13 @@ const Map<String, String> arTranslations = {
     'deck_action_go_market': 'دخول سوق السيارات',
     'deck_market_opportunity_tag': 'صفقات مميزة وتبادل',
     'feed_loading_more': 'جارٍ مسح المزيد من الإعلانات...',
+    'section_hero_dealership': 'قاعدة المعرض والمبيعات الرئيسية',
+    'section_hero_dealership_sub': 'مخزون المعرض وعروض العملاء وسوق السيارات المفتوح',
+    'section_sanayi_hangar': 'حظيرة مسلك الصناعية الكبرى',
+    'section_sanayi_hangar_sub': 'غسيل السيارات والإصلاح الميكانيكي ومنصات التعديل',
+    'deck_action_showroom': 'المعرض',
+    'deck_wash_boost_telemetry': '+15% مضاعف الأرباح',
+    'deck_workshop_lift_telemetry': 'السعة • سيارتان',
+    'deck_tuning_dyno_telemetry': 'اختبار الداينو والتعديل',
   };
 

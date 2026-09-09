@@ -5432,5 +5432,13 @@ const Map<String, String> ruTranslations = {
     'deck_action_go_market': 'ВОЙТИ НА АВТОРЫНОК',
     'deck_market_opportunity_tag': 'Выгодные сделки & Обмен',
     'feed_loading_more': 'Сканирование новых объявлений...',
+    'section_hero_dealership': 'Шоурум и Торговая База Hero',
+    'section_hero_dealership_sub': 'Склад шоурума, предложения покупателей и авторынок',
+    'section_sanayi_hangar': 'Промышленный мега-ангар Маслак',
+    'section_sanayi_hangar_sub': 'Автомойка, механический ремонт и боксы тюнинга',
+    'deck_action_showroom': 'ШОУРУМ',
+    'deck_wash_boost_telemetry': '+15% Множитель прибыли',
+    'deck_workshop_lift_telemetry': 'Вместимость • 2 авто',
+    'deck_tuning_dyno_telemetry': 'Дино-тест и Stage',
   };
 

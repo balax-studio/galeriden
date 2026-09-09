@@ -22,6 +22,154 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Dashboard Services • Kapsayıcı Deck Kutuları (Enclosing Deck Containers) & Göz Dinlendirici Nötr Palet`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı geribildirimleri doğrultusunda ("servisler çok renkli göz yoruyor buna bir çözüm bul ve uygula, ayrıca üst kutu bu kutuları içine alsın deckler yani altındakini dinamik şekilde") 2 ana görsel/yapısal problem çözüldü:
+  1. **Göz Yorulmasını Önleme (Calmed Neutral Palette)**: Pastel/neon kart zeminleri (`#E0F7FA`, `#FFF7ED`, `#FAF5FF`, `#FEF2F2`, `#ECFDF5`, `#EEF2FF`) yerine açık modda saf beyaz (`Colors.white`), koyu modda derin arduvaz (`#182030`) ve net 2.0-2.2px sınır (`#0F172A` / `#2E3D56`) uygulandı. Canlı neo-brutalist renkler (sarı, mavi, camgöbeği, turuncu, mor, yeşil, kırmızı) yalnızca odak noktası olan 32x32 ikon kutularında, durum rozetlerinde ve telemetri çiplerinde kullanıldı.
+  2. **Dinamik Kapsayıcı Deck Kutuları (_buildDeckContainer)**: Deck-01 (Galeri & Araç Ticareti Hero), Deck-02 (Maslak Sanayi Mega Hangar), Deck-03 (Finans, Borsa & Müzayede Terminali), Deck-04 (Mülk & Holding İmparatorluğu) ve Karaborsa bölümleri; tıpkı Deck-05 (Şehir Hub Kutusu) gibi, başlık, alt başlık ve durum rozetini içeren dış neo-brutalist kapsayıcı bir kutu (`_buildDeckContainer`) içine alındı. İç kartlar bu kutunun içinde dinamik olarak yuvalandı.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `_buildDeckContainer` reusable widget şablonu eklendi (`margin: 4px`, `padding: 12px`, `borderRadius: 16`, `border: 2.5px`, `shadow: 3.5px blur: 0`).
+    - Deck 1, Deck 2, Deck 3, Deck 4 ve Karaborsa `_buildDeckContainer` içine alındı; başlık şeritleri kutu başlığına entegre edildi.
+    - Tüm kartların (`Showroom`, `Pazar Yeri`, `Vasıta Pazarı`, `Oto Yıkama Tall & Strip`, `Tamir & Atölye`, `Tuning Stüdyosu`, `Canlı İhale`, `Finans & Banka`, `Borsa & Yatırım`, `Satış Geçmişi`, `Şube Yönetimi`, `Gayrimenkul Emlak`, `Personel Kadrosu`, `Hub Hero`, `Hub Bento Tile`, `VIP Casino Strip`) arka planları nötr beyaza / arduvaza, kenarlıkları net siyah / arduvaz kontura çekildi.
+    - Kullanılmayan `_buildCategoryBanner` fonksiyonu temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `flutter analyze` sırasında unreferenced `_buildCategoryBanner` ve kullanılmayan `subtitle` parametresi uyarısı tespit edildi.
+- **Kök Neden**: `_buildCategoryBanner` yerine `_buildDeckContainer` kullanılmaya başlandığı için eski fonksiyon atıl kaldı.
+- **Uygulanan Çözüm**: Atıl `_buildCategoryBanner` fonksiyonu silindi; `flutter analyze` 0 hata/uyarı ile doğrulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`: No issues found (0 issues).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart test/localization_integrity_guard_test.dart`: 6/6 test başarıyla geçti.
+
+### `Dashboard Services Grid • Deterministik Master Bento Yeniden Tasarımı`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi doğrultusunda referans bento wireframe ve mobil süper uygulama görsellerine uygun olarak servisler alanının deterministik (her seviyede hangi servisin nereye geleceği önceden sabit bento ızgarasında belirli), showroom ve satış yerlerini (Açık Oto Pazarı & Vasıta) en üstte Hero olarak konumlandıran, sık kullanılan operasyonel servisleri (Showroom, Pazar Yeri, Oto Yıkama tall pod, Tamir, Tuning) daha büyük bento kartlarıyla öne çıkaran ve neo-brutalist kuralları (0-blur sert gölgeler, 2.3px konturlar, sıfır emoji, sıfır parantez) koruyan mimariye geçirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Deck-01 (Galeri & Araç Ticareti Hero)**: Showroom Uçuş Güvertesi (`_buildShowroomFlightDeckHero`) ve Açık Oto Pazarı & Vasıta Rıhtımı (`_buildMarketBoulevardVasitaDock`) en üst güverteye konumlandırıldı. Seviye 1-2'de tekil pazar yeri kartı (`Araç Satın Al`, `AÇIK OTO PAZARINA GİR`, `YENİ İLANLAR`), Seviye 3+'te Vasıta Pazarı ile yan yana deterministik 56%-44% bento eşleşmesi sağlandı.
+    - **Deck-02 (Maslak Sanayi Endüstriyel Mega Hangar)**: Referans görseldeki 9:16 dikey bento oranına sadık kalarak, sol tarafta yüksek *Oto Yıkama* kartı (`_buildCarWashTallCard` - su damlası ikonu, kirli araç durumu, +%15 kâr çarpanı telemetrisi), sağ tarafta üst üste konumlandırılmış *Tamir & Atölye* (`_buildWorkshopCard` - lift durumu, hasarlı araç telemetrisi) ve *Tuning Stüdyosu* (`_buildTuningCard` - dyno test ve stage telemetrisi) bento podu inşa edildi.
+    - **Deck-03 (Mülk & Holding İmparatorluğu)**: Şube Yönetimi Hero (`_buildBranchNetworkHero`), Emlak Pazarı (`_buildRealEstateCard`) ve Personel Kadrosu (`_buildStaffCard`) korundu.
+    - **Deck-04 (Finans, Borsa & Müzayede Terminali)**: Canlı Açık Artırma, Finans & Kasa, Borsa & Portföy, Satış Geçmişi.
+    - **Deck-05 (Şehir & Yan Sektörler Operasyonel Hub)**: Büyütülmüş Yan İşletmeler Hero yuvası (`TESİSLER`), 8'li deterministik bento matrisi (`Rent-a-Car`, `Hurdalık & Parça`, `Gece Sanayisi`, `Dedikodu Hattı`, `Konsinye & Emanet`, `Semt Hakimiyeti`, `Showroom Mimari`, `Müşteri Yorumları`), sonraki seviye hedef fısıltısı ve VIP Yeraltı Casino şeridi (`MASAYA GEÇ`).
+    - **Dinamik Sıradaki Hedef Bannerı**: Kilitli binalar için dönen animasyonlu motivasyon bannerı (`_DynamicNextTargetBanner`).
+  - `lib/core/localization/translations/*.dart` (7 Dil: `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`):
+    - `section_hero_dealership`, `section_hero_dealership_sub`, `section_sanayi_hangar`, `section_sanayi_hangar_sub`, `deck_action_showroom`, `deck_wash_boost_telemetry`, `deck_workshop_lift_telemetry`, `deck_tuning_dyno_telemetry` anahtarları 7 dilde eşzamanlı olarak eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `localization_integrity_guard_test.dart` çalıştığında, kategori başlığı rozetindeki `"SANAYİ"` metnindeki Türkçe `İ` harfi nedeniyle koruma testi hata verdi.
+- **Kök Neden**: Kategori başlık rozetlerinde dil bağımsız evrensel kodlar (örn. `HERO DECK`, `WALL STREET`, `EXECUTIVE`, `CLASSIFIED`) kullanılırken Türkçe karakter içeren literal kullanılması.
+- **Uygulanan Çözüm**: `badgeText: 'SANAYİ'` değeri `badgeText: 'HANGAR'` olarak güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`: No issues found (0 hata).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart test/localization_integrity_guard_test.dart`: 6/6 test başarıyla geçti.
+
+### `Dashboard Sadeleştirme & Neo-Brutalist Minimalist Rahatlatma`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi üzerine Dashboard'un aşırı yoğun ve kutu içinde kutu görsel karmaşasını ("bu dashboard iyi ama çok yoğun biraz bunu rahatlat... servislerin içindeki fazllarında kurtul neo-brutalist ama birazda minimalist olsun") sadeleştirmek, bilişsel yükü azaltmak ve neo-brutalist tactile tasarım dilini minimalist bir ferahlıkla birleştirmek.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - Üst üste yığılan 5-6 farklı banner (Acil Kurtarma, Dramatik İkilem, Rastgele Olay, İlk Gün Görevi, Stratejik Danışman) yerine tek bir önceliklendirilmiş duyuru/aksiyon yuvası (`_buildPriorityActionBanner`) oluşturuldu. Öncelik sırası: 1) Acil Kurtarma (bakiye < 20k), 2) Dramatik İkilem Kartı, 3) Rastgele Olay, 4) İlk Gün Görevi (satılan araç == 0), 5) Stratejik Danışman Tavsiyesi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `_buildCategoryBanner`: Kalabalık çift rozetli ve alt başlıklı karmaşık şerit yerine, temiz tek satırlı ve zarif neo-brutalist taktik başlık şeridine dönüştürüldü.
+    - `_buildShowroomFlightDeckHero`: 10 adet küçük park kutusu ve karmaşık blueprint ızgarası kaldırılarak, modern kapasite doluluk çubuğu (`$carsCount / $maxSlots`) ve pasif gelir telemetrisi yerleştirildi; kart içi gereksiz buton kaldırıldı (tüm kart `onTap` ile çalışır).
+    - `_buildSanayiMegaHangar`: Aşırı uyarı renkli turuncu başlık ve kart içi mükerrer butonlar ("LİFTE AL", "STAGE YAZ", "YIKAMAYA AL") kaldırılarak, temiz tipografi, canlı durum hapları ve tam kart tıklanabilirliği uygulandı.
+    - `_buildMarketBoulevardVasitaDock`: İkili bölücü ve tekrarlanan mikro-etiketler temizlendi; Standalone Marketplace Hero (`Araç Satın Al`, `AÇIK OTO PAZARINA GİR`, `YENİ İLANLAR`) korundu.
+    - `_buildAuctionFinanceTerminal`: Açık Artırma, Finans, Borsa ve Geçmiş kartlarındaki mükerrer iç butonlar (`PEY SÜR`, `KASAYI AÇ`, `PORTFÖYÜ AÇ`, `RAPORLARI GÖR`) ve mikro alt başlıklar kaldırılarak minimalist telemetri satırları ve zarif ok göstergeleri yerleştirildi.
+    - `_buildHoldingExecutiveDossier`: Şube Yönetimi, Emlak Pazarı ve Personel Kadrosu kartlarındaki iç butonlar (`ŞUBEYİ YÖNET`, `MÜLKLERİ YÖNET`, `KADROYU YÖNET`) ve alt başlıklar kaldırıldı; tüm kart neo-brutalist tıklama tepkisiyle çalışır hale getirildi.
+    - `_buildCityOperationsHubBox`: `_buildHubHeroCard` içindeki 11 mini tesis kutusu kaldırılarak ferahlatıldı (`TESİSLER` butonu korundu). `_buildHubBentoTile` yapısından mükerrer `item.subtitle` ve her kutucuktaki `İNCELE` butonu kaldırılarak, yüksek kontrastlı rozetler, ikonlar ve canlı telemetri hapları öne çıkarıldı. VIP Casino şeridi ve `MASAYA GEÇ` butonu korundu.
+    - Kullanılmayan `dart:math` importu temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `replace_file_content` sırasında `_buildHubHeroCard` telemetri konteynerinde tekrarlı `Row` etiketi oluştu ve `flutter analyze` ile tespit edildi.
+- **Kök Neden**: Kod parçası değiştirme esnasında şablon örtüşmesi.
+- **Uygulanan Çözüm**: Telemetri kutusu tek satırlı `Row` yapısına cerrahi olarak çekildi ve `flutter analyze` hatasız (0 issues) doğrulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/`: 0 issue (No issues found).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart`: 5/5 test başarıyla geçti.
+
+### `Önceki Dashboard Tasarımına Geri Dönüş (Git HEAD Restorasyonu)`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcının referans videosundaki önceki yerleşik dashboard düzenine (bento flight deck deneyinden önceki kararlı 2 sütunlu "Hızlı İşlemler & Servisler" ızgarası, kritik karar kartları, haftalık etkinlik bülteni, danışman tavsiyesi, devret/lig/albüm butonları, günlük nakit akışı ve piyasa bülteni akışına) tam dönüş yapılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`, `dashboard_services_grid.dart`, `dashboard_banners.dart`, `dashboard_office_view.dart`, `dashboard_quick_finance_card.dart`, `dashboard_retention_modals.dart` ve ilgili test dosyaları Git HEAD (`b00140f`) kararlı durumuna geri yüklendi.
+  - Bento flight deck deneyi için eklenen geçici untracked dosyalar (`dashboard_bento_tile.dart`, `dashboard_branch_radar_card.dart`, `dashboard_brutal_decor.dart`, `dashboard_decision_slot.dart`, `dashboard_module_tile.dart`, `dashboard_next_target_banner.dart`, `dashboard_scoreboard.dart`, `turkish_case.dart`, `dashboard_density_rules_test.dart`) temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: Kullanıcının WhatsApp videosundaki orijinal dashboard tasarımını tercih etmesi.
+- **Uygulanan Çözüm**: Git çalışma dizini HEAD sürümüne geri getirildi, sunucuya Hot Restart uygulandı.
+- **Doğrulama / Test Durumu**: `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart` (Tüm testler geçti), `flutter analyze lib/presentation/screens/dashboard/` (No issues found).
+
+### `Dashboard Net Değer Kartı Kaldırılması`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı isteği doğrultusunda Dashboard üzerindeki "NET DEĞER" skorbord kartının (`DashboardScoreboard`) dashboard akışından kaldırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `DashboardScoreboard` widget çağrısı ve `const SizedBox(height: 10)` dikey boşluğu kaldırıldı.
+    - Kullanılmayan `widgets/dashboard_scoreboard.dart` import bildirimi temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: Kullanıcı arayüzü sadeleştirme isteği.
+- **Uygulanan Çözüm**: İlgili widget çağrısı ve importu kaldırıldı.
+- **Doğrulama / Test Durumu**: `flutter test test/dashboard_density_rules_test.dart` (9/9 test başarılı), `flutter analyze lib/presentation/screens/dashboard/` (No issues found).
+
+### `Dashboard Bento Izgara & Şube Radarı Buton Geometrisi Uyarlaması`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Bento hücrelerini (`DashboardBentoTile`), Showroom hero kartını (`DashboardModuleTile`) ve Şube Radarı kartını (`DashboardBranchRadarCard`) projenin yerleşik buton stilindeki (`NeoBrutalButton` / `ShowroomCarCard`) 10px köşe yarıçapı, 2.5px kontur, 3.5px sert 0-blur gölge ve Title Case tipografik diline uyarlamak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_bento_tile.dart`:
+    - `BorderRadius.circular(10.0)` dış köşe yuvarlaması ve `Border.all(color: ink, width: 2.5)` kenarlık korundu.
+    - Sert gölge `Offset(3.5, 3.5)` ve basış anında `Offset(1.0, 1.0)` olarak butonlarla tam senkronize edildi.
+    - İç ikon yuvaları `BorderRadius.circular(8.0)`, 2.0px kenarlık ve açık modda yumuşak arduvaz gri `0xFFE2E8F0` / koyu modda `0xFF272C38` dolgusu ile güncellendi.
+    - Kart zemin rengi açık modda parlak beyaz `Colors.white`, koyu modda `0xFF1E2330` yapıldı.
+    - Kart başlıkları ve seviye gereksinimleri Title Case formatına geçirildi; `brutalUpper` zorlaması kaldırıldı.
+    - Seviye kilit bildirim SnackBar'ı 8.0px yuvarlatılmış köşeler ve 2.5px siyah kenarlıkla tasarlandı.
+    - `wideHero` ve `compact` görünümlerinde kilitli modüller için `NeoBrutalBadge` (`Color(0xFFFFDE59)`) entegre edildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_branch_radar_card.dart`:
+    - Kapanış parantez ve köşeli parantezlerindeki sözdizimi hatası giderildi.
+    - Dış kart `BorderRadius.circular(10.0)`, `width: 2.5` kontur, `Offset(3.5, 3.5)` 0-blur gölge ve basış anında `Offset(1.0, 1.0)` mekanik çöküş ile buton geometrisine tam bağlandı.
+    - İç aktif ve hedef şube panelleri `BorderRadius.circular(8.0)`, `width: 2.0` kenarlık ile güncellendi.
+    - Yönlendirme butonu `BorderRadius.circular(8.0)` ve `0xFFFFDE59` dolgu ile revize edildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_module_tile.dart`:
+    - Showroom Hero kartının köşe sınırlaması `Clip.antiAlias` olarak güçlendirildi, 10.0px radius ve 3.5px gölge ile bento hücreleriyle tam görsel uyum sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `dashboard_branch_radar_card.dart` satır 318-325 arasında fazladan kapanış parantezleri derleme hatasına yol açmıştı.
+- **Kök Neden**: Önceki refactor sırasında Transform widget'ı eklenirken kapanış bloğunun mükerrer kalması.
+- **Uygulanan Çözüm**: Fazla parantezler temizlendi ve widget ağacı doğru kapatıldı.
+- **Doğrulama / Test Durumu**: `flutter test test/dashboard_density_rules_test.dart` (9/9 test geçti), `flutter analyze lib/presentation/screens/dashboard/` (Sıfır hata, sıfır uyarı).
+
+### `Dashboard Asimetrik Bento Izgara & Şube Radarı Refactor`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Dashboard üzerindeki eski hantal akordiyon sistemini kaldırıp, 24 modülün tamamını kullanım sıklığı ve oyuncu seviyesine göre 4 asimetrik taktiksel Bento bloğuna ve alt kısımdaki dinamik Şube Radarı teaser kartına dönüştürmek.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_bento_tile.dart` (YENİ):
+    - 1x3 dikey, 2:1 asimetrik ve kompakt form faktörlerini destekleyen taktiksel Neo-Brutalist karo widget'ı oluşturuldu.
+    - 2.5px siyah kontur (`brutalInk`), 0-blur 3.5px sert gölge, basış anında `Transform.translate` mekanik çöküş tepkisi ve haptik titreşim eklendi.
+    - Kilitli modüller için `BrutalHatch` 45 derece endüstriyel çapraz tarama deseni, `SEVİYE X` damgası ve dokunulduğunda seviye bildirimi veren dokunsal geri bildirim sağlandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_branch_radar_card.dart` (YENİ):
+    - `BranchModel.getAllBranches(...)` üzerinden oyuncunun mevcut aktif şubesini ve bir sonraki kilitli hedef şubeyi (çarpan, slot vaatleri ve merak unsuru ile) sergileyen dinamik radar kartı geliştirildi.
+    - Karta dokunulduğunda doğrudan `/branches` rotasına yönlendirme sağlandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `_CategoryGroup` (akordiyon) sistemi tamamen temizlendi.
+    - 4 asimetrik Bento bloğu kuruldu:
+      - Blok 1: 1x1 Showroom Hero + 2:1 İkinci El & Vasıta Pazarı + 1x3 Operasyon (Yıkama, Tamir, Tuning).
+      - Blok 2: Finans Asimetrik Bento (Banka büyük karo, Müzayede & Personel istifi, Borsa & Muhasebe şeridi).
+      - Blok 3: Holding (Emlak geniş kart, Yan İşletmeler & Rent a Car, İtibar & Dekorasyon).
+      - Blok 4: Yeraltı & Fırsat Pazarı (Hurdalık, Konsinye, Dedikodu, Kara Borsa, Gece Pazarı, Bölgeler, Casino).
+      - Blok 5: Dinamik Şube Radarı Kartı.
+  - Yerelleştirme (7 Dil Eş Zamanlı):
+    - `lib/core/localization/translations/tr_translations.dart`
+    - `lib/core/localization/translations/en_translations.dart`
+    - `lib/core/localization/translations/de_translations.dart`
+    - `lib/core/localization/translations/pt_translations.dart`
+    - `lib/core/localization/translations/es_translations.dart`
+    - `lib/core/localization/translations/ru_translations.dart`
+    - `lib/core/localization/translations/ar_translations.dart`
+    - Blok başlıkları (`dash_block_core`, `dash_block_finance`, `dash_block_holding`, `dash_block_underworld`), şube radarı anahtarları ve `{level}` kilit şablonları eklendi.
+  - `test/dashboard_density_rules_test.dart`:
+    - Yeni asimetrik Bento ızgara kuralları, blok başlıkları ve kilit seviye doğrulamaları güncellendi (22 Bento karo + 1 Hero Showroom + 1 Şube Radarı = 24 modül).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `DealershipModel` üzerinde `ownedDeeds` bulunamadı hatası alındı. Kök neden: Modeldeki gerçek alan adının `ownedBranchDeeds` olması. Çözüm: Alan adı `ownedBranchDeeds` olarak düzeltildi.
+  - `dash_level_required` şablonundaki `%{level}` yer tutucusu, `AppLocalizations` sınıfının `{paramKey}` kuralı nedeniyle eşleşmedi. Çözüm: 7 dilde `{level}` formatına çekildi.
+- **Kök Neden**: Arayüz modernizasyonu ve taktiksel anti-slop bento ızgarası mimarisi.
+- **Uygulanan Çözüm**: Asimetrik Bento karoları, şube radarı ve 7 dil senkronizasyonu tamamlandı.
+- **Doğrulama / Test Durumu**: `flutter test test/dashboard_density_rules_test.dart` (9/9 test geçti), `flutter analyze` (No issues found - sıfır hata, sıfır uyarı).
+
 ### `NeoBrutalListingThumbnail Genişleme Paketi (45+ Çeşitlendirilmiş Vektörel Görsel & Dinamik Gövde Rengi)`
 - **Tarih**: 2026-09-09
 - **Değişiklik Amacı**: Kullanıcı talebi doğrultusunda her ilanda aynı görselin çıkmasını engelleyen kapsamlı bir görsel çeşitlendirme genişleme paketi geliştirmek. Her vasıta kategorisi için 3-4 farklı şasi/gövde tipi ve araç gerçek boya rengi (`colorHex`) harmanlaması; her emlak kategorisi için 3-4 farklı mimari tarz (villa, penthouse, ikiz ev, cadde apartmanı, tarihi konak, vb.) oluşturmak.
@@ -1397,4 +1545,33 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - `flutter analyze lib/`: 0 hata, 0 uyarı (`No issues found!`).
   - `flutter test`: 4 test süitinde 10/10 test eksiksiz geçti (`test/dynamic_next_target_banner_test.dart`, `test/service_unlock_notification_dot_test.dart`, `test/translation_key_coverage_test.dart`, `test/localization_integrity_guard_test.dart`).
   - Chrome DevTools ve Web Browser Subagent ile canlı görsel test tamamlandı (`http://127.0.0.1:3030/#/dashboard`). Neo-brutalist asimetrik yerleşim, gölgeler, dokunsal basma efektleri, telemetriler ve 6 mekansal tipoloji başarıyla doğrulandı.
+
+---
+
+### `lib/presentation/widgets/neo_brutal_card.dart`, `lib/presentation/widgets/blueprint_grid_background.dart` & `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: "Galeriden" mobil referans tasarımındaki gibi kutuların standart dikdörtgen yapısından çıkarılarak puzzle şeklinde birbirine bağlanan asimetrik köşe kavislerine (`customBorderRadius`), odak kartlarında koyu ters kontrasta (inverted contrast), teknik blueprint/çizim arka planlarına (45° diagonal hatch, 30°/60° izometrik CAD) ve dutch açılı açılı taktiksel rozetlere kavuşturulması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/neo_brutal_card.dart`:
+    - `NeoBrutalCard` bileşenine isteğe bağlı `BorderRadiusGeometry? customBorderRadius` desteği eklendi; tanımlandığında varsayılan tekdüze `borderRadius` yerine asimetrik köşe kavislerini uygulayabilmesi sağlandı.
+  - `lib/presentation/widgets/blueprint_grid_background.dart`:
+    - `BlueprintPatternType` enumuna `diagonalHatch` (45° açılı teknik tarama çizgileri) ve `isometricBlueprint` (30°/60° mimari/endüstriyel CAD ızgarası) eklendi.
+    - `_BlueprintPatternPainter` içinde `canvas.clipRect` sınırları dahilinde verimli çizgi çizim algoritmaları uygulandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - Referans tasarımdaki dairesel yön okları (`_buildDirectionalPill`) ve açılı damgalar (`_buildDutchAngleBadge`, `Transform.rotate`) eklendi.
+    - **Deck 1 (Showroom & Pazar/Vasıta)**: Standalone ve Docked Açık Pazar kartlarına koyu ters kontrast (`#0F172A`), sol puzzle köşe kavisleri (`20, 8, 20, 8`) ve dutch açılı rozet verildi. Vasıta kartına izometrik blueprint ve tamamlayıcı sağ puzzle kavisleri (`8, 20, 8, 20`) uygulandı.
+    - **Deck 2 (Maslak Sanayi)**: Sol Oto Yıkama sütununa izometrik blueprint ve sol puzzle kavisleri (`22, 8, 22, 8`); üst sağ Atölye'ye (`8, 22, 8, 8`); alt sağ Tuning Stüdyosu'na yarış moru koyu ters kontrast (`#1E1338`), 45° teknik tarama (`diagonalHatch`), dutch açılı `STAGE-3 // SPEC` rozeti ve alt-sağ puzzle kavisi (`8, 8, 8, 22`) verildi.
+    - **Deck 3 (Finans & Borsa)**: Canlı İhale kartına üst puzzle kavisleri (`20, 20, 8, 8`); Borsa kartına Wall-Street zümrüt yeşili ters kontrast (`#0A2218`), teknik artı deseni ve sağ-alt puzzle kavisi (`8, 8, 8, 20`); Kasa ve Satış Defteri kartlarına tamamlayıcı kavisler entegre edildi.
+    - **Deck 4 (Holding & Mülk)**: Emlak Pazarı kartına derin pişmiş toprak/mahogany ters kontrast (`#2D1217`, referanstaki Kiralama hissi), mimari blueprint ve sol-alt puzzle kavisi (`8, 8, 20, 8`); Personel kulesine sağ-alt kavis (`8, 8, 8, 20`) verildi.
+    - **Deck 5 (Şehir Operasyonları Hub)**: Hub kutusu üst kavisleri (`20, 20, 8, 8`), bento karoları ve VIP Casino şeridine diagonal hatch deseni ile tamamlayıcı alt kavisler (`8, 8, 16, 16`) işlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok. Tüm test bulucuları (`'Araç Satın Al'`, `'AÇIK OTO PAZARINA GİR'`, `'YENİ İLANLAR'`, `'MASAYA GEÇ'`) ve lokalizasyon gereksinimleri tam korundu.
+- **Kök Neden**:
+  - Mevcut kutuların tüm köşelerinin simetrik (10-14px) olması, ekranın tekdüze görünmesine ve kartlar arası organik puzzle bağlantı hissinin oluşmamasına yol açıyordu.
+- **Uygulanan Çözüm**:
+  - Dış hatlarda 20-22px kavis, yan yana veya üst üste gelen ortak temas yüzeylerinde ise 8px kavis kullanılarak bento-puzzle kenetlenmesi sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı.
+  - `flutter test`: `test/city_operations_hub_and_marketplace_redesign_test.dart`, `test/dynamic_next_target_banner_test.dart`, `test/service_unlock_notification_dot_test.dart`, `test/localization_integrity_guard_test.dart` (6/6 test başarılı).
+
 

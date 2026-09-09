@@ -5432,5 +5432,13 @@ const Map<String, String> esTranslations = {
     'deck_action_go_market': 'ENTRAR AL MERCADO',
     'deck_market_opportunity_tag': 'Ofertas & Permutas',
     'feed_loading_more': 'Buscando Más Anuncios...',
+    'section_hero_dealership': 'Base Hero de Concesionario y Ventas',
+    'section_hero_dealership_sub': 'Stock de showroom, ofertas de clientes y mercado abierto',
+    'section_sanayi_hangar': 'Mega Hangar Industrial Maslak',
+    'section_sanayi_hangar_sub': 'Lavado de autos, reparación mecánica y boxes de tuning',
+    'deck_action_showroom': 'SHOWROOM',
+    'deck_wash_boost_telemetry': '+15% Multiplicador de Ganancia',
+    'deck_workshop_lift_telemetry': 'Capacidad • 2 Autos',
+    'deck_tuning_dyno_telemetry': 'Prueba Dyno y Stage',
   };
 

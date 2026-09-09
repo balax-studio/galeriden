@@ -5432,4 +5432,12 @@ const Map<String, String> deTranslations = {
     'deck_action_go_market': 'AUTOMARKT BETRETEN',
     'deck_market_opportunity_tag': 'Schnäppchen & Tausch',
     'feed_loading_more': 'Scanne weitere Angebote...',
+    'section_hero_dealership': 'Autohaus & Verkaufs-Hero-Basis',
+    'section_hero_dealership_sub': 'Showroom-Bestand, Kundenangebote und offener Automarkt',
+    'section_sanayi_hangar': 'Maslak Industrie-Megahangars',
+    'section_sanayi_hangar_sub': 'Autowäsche, mechanische Reparatur und Tuning-Stationen',
+    'deck_action_showroom': 'SHOWROOM',
+    'deck_wash_boost_telemetry': '+15% Gewinn-Multiplikator',
+    'deck_workshop_lift_telemetry': 'Kapazität • 2 Autos',
+    'deck_tuning_dyno_telemetry': 'Dyno-Test & Stage',
   };

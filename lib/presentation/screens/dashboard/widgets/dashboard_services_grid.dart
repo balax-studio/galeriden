@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -14,6 +13,7 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/blueprint_grid_background.dart';
 
 class _ServiceItem {
   final IconData icon;
@@ -303,44 +303,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     final List<Widget> gridRows = [];
 
     // =========================================================================
-    // GRİD 1: ÜST GRİD • GALERİ & OPERASYONEL ARAÇ YÖNETİMİ
-    // (Showroom, Maslak Sanayi Mega Hangar, Açık Oto Pazarı & Vasıta)
+    // DECK 1: GALERİ & ARAÇ TİCARETİ HERO (Deck-01)
+    // (Showroom Flight-Deck Hero & Market Boulevard Dock)
     // =========================================================================
-    final bool useCoreOps = isShowroomUnlocked || useHangar || useBoulevard;
-    if (useCoreOps) {
-      gridRows.add(_buildCategoryBanner(
-        title: context.tr('section_core_operations'),
-        subtitle: context.tr('section_core_operations_sub'),
-        badgeText: 'DECK-01',
-        badgeColor: const Color(0xFFFFDE59),
-        isDark: isDark,
-      ));
-      gridRows.add(const SizedBox(height: 8));
-
-      // 1. Showroom Flight-Deck Hero
+    final bool useHeroOps = isShowroomUnlocked || useBoulevard;
+    if (useHeroOps) {
+      final List<Widget> deck1Cards = [];
       if (isShowroomUnlocked) {
-        gridRows.add(_buildShowroomFlightDeckHero(context, ref, game, palette, isDark));
-        gridRows.add(const SizedBox(height: 8));
+        deck1Cards.add(_buildShowroomFlightDeckHero(context, ref, game, palette, isDark));
       }
-
-      // 2. Sanayi Endüstriyel Mega-Hangarı (Lift + Tuning + Oto Yıkama)
-      if (useHangar) {
-        gridRows.add(_buildSanayiMegaHangar(
-          context: context,
-          ref: ref,
-          game: game,
-          palette: palette,
-          isDark: isDark,
-          isWorkshopUnlocked: isWorkshopUnlocked,
-          isWashUnlocked: isWashUnlocked,
-          isTuningUnlocked: isTuningUnlocked,
-        ));
-        gridRows.add(const SizedBox(height: 8));
-      }
-
-      // 3. Açık Oto Pazarı & Vasıta Boulevard Dock (Pazar Yeri + Vasıta)
       if (useBoulevard) {
-        gridRows.add(_buildMarketBoulevardVasitaDock(
+        if (deck1Cards.isNotEmpty) deck1Cards.add(const SizedBox(height: 8));
+        deck1Cards.add(_buildMarketBoulevardVasitaDock(
           context: context,
           ref: ref,
           game: game,
@@ -349,79 +323,131 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           isMarketplaceUnlocked: isMarketplaceUnlocked,
           isVasitaUnlocked: isVasitaUnlocked,
         ));
-        gridRows.add(const SizedBox(height: 12));
       }
+
+      gridRows.add(_buildDeckContainer(
+        context: context,
+        isDark: isDark,
+        icon: Icons.directions_car_rounded,
+        iconBgColor: const Color(0xFFFFDE59),
+        title: context.tr('section_core_operations'),
+        subtitle: context.tr('section_hero_dealership_sub'),
+        badgeText: 'HERO DECK',
+        badgeColor: const Color(0xFFFFDE59),
+        children: deck1Cards,
+      ));
+      gridRows.add(const SizedBox(height: 10));
     }
 
     // =========================================================================
-    // GRİD 2: FİNANS, BORSA & MÜZAYEDE TERMİNALİ
+    // DECK 2: MASLAK SANAYİ ENDÜSTRİYEL MEGA HANGAR (Deck-02)
+    // (Oto Yıkama Tall Bento Pod, Tamir & Atölye, Tuning Stüdyosu)
+    // =========================================================================
+    if (useHangar) {
+      gridRows.add(_buildDeckContainer(
+        context: context,
+        isDark: isDark,
+        icon: Icons.build_circle_rounded,
+        iconBgColor: const Color(0xFFFF7A00),
+        title: context.tr('section_sanayi_hangar'),
+        subtitle: context.tr('section_sanayi_hangar_sub'),
+        badgeText: 'HANGAR',
+        badgeColor: const Color(0xFFFF7A00),
+        children: [
+          _buildSanayiMegaHangar(
+            context: context,
+            ref: ref,
+            game: game,
+            palette: palette,
+            isDark: isDark,
+            isWorkshopUnlocked: isWorkshopUnlocked,
+            isWashUnlocked: isWashUnlocked,
+            isTuningUnlocked: isTuningUnlocked,
+          ),
+        ],
+      ));
+      gridRows.add(const SizedBox(height: 10));
+    }
+
+    // =========================================================================
+    // DECK 3: FİNANS, BORSA & MÜZAYEDE TERMİNALİ (Deck-03)
     // (Canlı İhale, Finans & Kasa, Borsa & Yatırım, Satış & Ciro Raporları)
     // =========================================================================
     if (useAuctionFinance) {
-      gridRows.add(_buildCategoryBanner(
+      gridRows.add(_buildDeckContainer(
+        context: context,
+        isDark: isDark,
+        icon: Icons.account_balance_rounded,
+        iconBgColor: const Color(0xFF00E575),
         title: context.tr('section_finance_terminal'),
         subtitle: context.tr('section_finance_terminal_sub'),
         badgeText: 'WALL STREET',
         badgeColor: const Color(0xFF00E575),
-        isDark: isDark,
+        children: [
+          _buildAuctionFinanceTerminal(
+            context: context,
+            ref: ref,
+            game: game,
+            palette: palette,
+            isDark: isDark,
+            isAuctionUnlocked: isAuctionUnlocked,
+            isFinanceUnlocked: isFinanceUnlocked,
+            isStocksUnlocked: isStocksUnlocked,
+            isHistoryUnlocked: isHistoryUnlocked,
+          ),
+        ],
       ));
-      gridRows.add(const SizedBox(height: 8));
-
-      gridRows.add(_buildAuctionFinanceTerminal(
-        context: context,
-        ref: ref,
-        game: game,
-        palette: palette,
-        isDark: isDark,
-        isAuctionUnlocked: isAuctionUnlocked,
-        isFinanceUnlocked: isFinanceUnlocked,
-        isStocksUnlocked: isStocksUnlocked,
-        isHistoryUnlocked: isHistoryUnlocked,
-      ));
-      gridRows.add(const SizedBox(height: 12));
+      gridRows.add(const SizedBox(height: 10));
     }
 
     // =========================================================================
-    // GRİD 3: MÜLK & HOLDİNG İMPARATORLUĞU
+    // DECK 4: MÜLK & HOLDİNG İMPARATORLUĞU (Deck-04)
     // (Şubeler, Gayrimenkul Emlak, Personel Kadrosu)
     // =========================================================================
     if (useExecutiveDossier) {
-      gridRows.add(_buildCategoryBanner(
+      gridRows.add(_buildDeckContainer(
+        context: context,
+        isDark: isDark,
+        icon: Icons.domain_rounded,
+        iconBgColor: const Color(0xFF8B5CF6),
         title: context.tr('section_holding_estate'),
         subtitle: context.tr('section_holding_estate_sub'),
         badgeText: 'EXECUTIVE',
         badgeColor: const Color(0xFF8B5CF6),
-        isDark: isDark,
+        children: [
+          _buildHoldingExecutiveDossier(
+            context: context,
+            ref: ref,
+            game: game,
+            palette: palette,
+            isDark: isDark,
+            isBranchesUnlocked: isBranchesUnlocked,
+            isRealEstateUnlocked: isRealEstateUnlocked,
+            isStaffUnlocked: isStaffUnlocked,
+          ),
+        ],
       ));
-      gridRows.add(const SizedBox(height: 8));
-
-      gridRows.add(_buildHoldingExecutiveDossier(
-        context: context,
-        ref: ref,
-        game: game,
-        palette: palette,
-        isDark: isDark,
-        isBranchesUnlocked: isBranchesUnlocked,
-        isRealEstateUnlocked: isRealEstateUnlocked,
-        isStaffUnlocked: isStaffUnlocked,
-      ));
-      gridRows.add(const SizedBox(height: 12));
+      gridRows.add(const SizedBox(height: 10));
     }
 
     // =========================================================================
-    // GRİD 4: KARABORSA NOIR HERO (Özel Kelepir Kaçak Fırsatlar)
+    // DECK: KARABORSA NOIR HERO (Özel Kelepir Kaçak Fırsatlar)
     // =========================================================================
     if (isBlackMarketUnlocked) {
-      gridRows.add(_buildCategoryBanner(
+      gridRows.add(_buildDeckContainer(
+        context: context,
+        isDark: isDark,
+        icon: Icons.masks_rounded,
+        iconBgColor: const Color(0xFFDC2626),
         title: context.tr('service_black_market'),
         subtitle: context.tr('service_black_market_sub'),
         badgeText: 'CLASSIFIED',
         badgeColor: const Color(0xFFEF4444),
-        isDark: isDark,
+        children: [
+          _buildBlackMarketNoirHero(context, ref, game, isDark),
+        ],
       ));
-      gridRows.add(const SizedBox(height: 8));
-      gridRows.add(_buildBlackMarketNoirHero(context, ref, game, isDark));
-      gridRows.add(const SizedBox(height: 12));
+      gridRows.add(const SizedBox(height: 10));
     }
 
     // =========================================================================
@@ -470,75 +496,161 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     );
   }
 
-  Widget _buildCategoryBanner({
-    required String title,
-    required String subtitle,
-    required String badgeText,
-    required Color badgeColor,
+  // ===========================================================================
+  // TACTICAL DESIGN HELPERS: DUTCH ANGLE BADGE & DIRECTIONAL PILL
+  // ===========================================================================
+  Widget _buildDutchAngleBadge({
+    required String text,
+    required Color backgroundColor,
+    required Color textColor,
+    double angle = -0.06, // ~ -3.5 degrees
+    double fontSize = 8.5,
+  }) {
+    return Transform.rotate(
+      angle: angle,
+      child: NeoBrutalBadge(
+        text: text,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        fontSize: fontSize,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+      ),
+    );
+  }
+
+  Widget _buildDirectionalPill({
     required bool isDark,
+    Color? arrowColor,
+    Color? bgColor,
+    double size = 26,
+    double iconSize = 15,
   }) {
     return Container(
-      margin: const EdgeInsets.only(top: 4, bottom: 2),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131722) : const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(10),
+        color: bgColor ?? (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+        shape: BoxShape.circle,
         border: Border.all(
-          color: isDark ? const Color(0xFF263248) : const Color(0xFFCBD5E1),
-          width: 1.6,
+          color: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+          width: 1.5,
         ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 18,
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          NeoBrutalBadge(
-            text: badgeText,
-            backgroundColor: badgeColor,
-            textColor: Colors.black,
-            fontSize: 8.5,
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          ),
-        ],
+      child: Center(
+        child: Icon(
+          Icons.arrow_forward_rounded,
+          size: iconSize,
+          color: arrowColor ?? (isDark ? Colors.white : const Color(0xFF0F172A)),
+        ),
       ),
     );
   }
 
   // ===========================================================================
-  // TYPOLOGY 1: SHOWROOM FLIGHT-DECK HERO (Blueprint Bay & Tactical Matrix)
+  // REUSABLE NEO-BRUTALIST DECK CONTAINER BOX
+  // ===========================================================================
+  Widget _buildDeckContainer({
+    required BuildContext context,
+    required bool isDark,
+    required IconData icon,
+    required Color iconBgColor,
+    required String title,
+    String? subtitle,
+    required String badgeText,
+    required Color badgeColor,
+    required List<Widget> children,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF101726) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+          width: 2.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black45 : const Color(0xFF0F172A),
+            offset: const Offset(3.5, 3.5),
+            blurRadius: 0,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Deck Header Row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(icon, size: 18, color: Colors.black),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        letterSpacing: 0.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle != null && subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 1),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              NeoBrutalBadge(
+                text: badgeText,
+                backgroundColor: badgeColor,
+                textColor: Colors.black,
+                fontSize: 8.5,
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+
+
+  // ===========================================================================
+  // TYPOLOGY 1: SHOWROOM FLIGHT-DECK HERO (Sleek Minimalist Capacity Deck)
   // ===========================================================================
   Widget _buildShowroomFlightDeckHero(
     BuildContext context,
@@ -552,14 +664,22 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     final hasOffers = game.incomingOffers.isNotEmpty;
     final offersCount = game.incomingOffers.length;
     final branchName = game.getLocalizedBranchName(context);
-    final displaySlots = math.min(maxSlots, 10);
+    final capacityRatio = maxSlots > 0 ? (carsCount / maxSlots).clamp(0.0, 1.0) : 0.0;
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(10),
-      backgroundColor: isDark ? const Color(0xFF141926) : const Color(0xFFFFFDEB),
-      borderColor: isDark ? const Color(0xFF384358) : const Color(0xFF0F172A),
-      borderWidth: 2.5,
-      borderRadius: 16,
+      padding: const EdgeInsets.all(12),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(22),
+        bottomRight: Radius.circular(22),
+        topRight: Radius.circular(10),
+        bottomLeft: Radius.circular(10),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/showroom');
         context.push('/showroom');
@@ -567,97 +687,61 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Technical Blueprint Hatch Header
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E2638) : const Color(0xFFEDE9FE),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF475569) : const Color(0xFF0F172A),
-                    width: 1.5,
-                  ),
-                ),
-                child: Text(
-                  '${context.tr("deck_showroom_hatch")} // LVL ${game.level}',
-                  style: TextStyle(
-                    fontSize: 9.5,
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.6,
-                    color: isDark ? const Color(0xFFA5B4FC) : const Color(0xFF4338CA),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Transform.rotate(
-                angle: -0.035,
-                child: NeoBrutalBadge(
-                  text: context.tr('deck_showroom_flagship'),
-                  backgroundColor: const Color(0xFFFFDE59),
-                  textColor: const Color(0xFF0F172A),
-                  borderWidth: 1.8,
-                  fontSize: 9,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                ),
-              ),
-              if (game.isFeatureNew('/showroom')) ...[
-                const SizedBox(width: 6),
-                _buildNotificationDot(isDark),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
-
           // Main Showroom Title & Identity Row
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFDE59),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: const Color(0xFF0F172A),
-                    width: 2.2,
+                    width: 2.0,
                   ),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0xFF0F172A),
-                      offset: Offset(2.5, 2.5),
+                      offset: Offset(2, 2),
                       blurRadius: 0,
                     ),
                   ],
                 ),
                 child: const Icon(
                   Icons.directions_car_rounded,
-                  size: 26,
+                  size: 24,
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      context.tr('service_showroom'),
-                      style: TextStyle(
-                        fontSize: 16.5,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.3,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          context.tr('service_showroom'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.3,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                        if (game.isFeatureNew('/showroom')) ...[
+                          const SizedBox(width: 6),
+                          _buildNotificationDot(isDark),
+                        ],
+                      ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1),
                     Text(
                       branchName,
                       style: TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
                       ),
@@ -665,211 +749,111 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   ],
                 ),
               ),
-              // Live Revenue Telemetry
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00E575).withValues(alpha: isDark ? 0.2 : 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFF00E575),
-                    width: 1.6,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF00E575),
-                        shape: BoxShape.circle,
+              if (hasOffers)
+                NeoBrutalBadge(
+                  text: context.tr('telemetry_offers_count', {'count': '$offersCount'}),
+                  backgroundColor: const Color(0xFFEF4444),
+                  textColor: Colors.white,
+                  fontSize: 9.5,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                )
+              else
+                Builder(
+                  builder: (context) {
+                    final totalPassiveDaily = game.sideBusinesses.fold<double>(
+                      0.0,
+                      (sum, b) => sum + (b.isOwned && !b.isUnderConstruction ? b.effectiveDailyIncome : 0.0),
+                    );
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00E575).withValues(alpha: isDark ? 0.2 : 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: const Color(0xFF00E575),
+                          width: 1.4,
+                        ),
                       ),
-                    ),
-                    Builder(
-                      builder: (context) {
-                        final totalPassiveDaily = game.sideBusinesses.fold<double>(
-                          0.0,
-                          (sum, b) => sum + (b.isOwned && !b.isUnderConstruction ? b.effectiveDailyIncome : 0.0),
-                        );
-                        return Text(
-                          totalPassiveDaily > 0
-                              ? '+₺${totalPassiveDaily.toStringAsFixed(0)} / d'
-                              : '₺${game.balance.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? const Color(0xFF00E575) : const Color(0xFF047857),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                      child: Text(
+                        totalPassiveDaily > 0
+                            ? '+₺${totalPassiveDaily.toStringAsFixed(0)} / d'
+                            : '₺${game.balance.toStringAsFixed(0)}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? const Color(0xFF00E575) : const Color(0xFF047857),
+                        ),
+                      ),
+                    );
+                  },
                 ),
+              const SizedBox(width: 8),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.black,
+                bgColor: const Color(0xFFFFDE59),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          // Tactical Visual Parking Matrix
+          // Minimalist Capacity Track Bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: isDark ? const Color(0xFF0D111A) : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isDark ? const Color(0xFF263248) : const Color(0xFFCBD5E1),
-                width: 1.8,
+                width: 1.4,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      context.tr('deck_parking_matrix'),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                      ),
-                    ),
-                    Text(
-                      '$carsCount / $maxSlots ${context.tr("bento_capacity_track").toUpperCase()}',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: carsCount >= maxSlots
-                            ? const Color(0xFFEF4444)
-                            : (isDark ? const Color(0xFFFFDE59) : const Color(0xFFB45309)),
-                      ),
-                    ),
-                  ],
+                Icon(
+                  Icons.local_parking_rounded,
+                  size: 14,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                 ),
-                const SizedBox(height: 5),
-                // Parking Bay Slots
-                Wrap(
-                  spacing: 5,
-                  runSpacing: 5,
-                  children: [
-                    for (int i = 0; i < displaySlots; i++)
-                      Container(
-                        width: 28,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: i < carsCount
-                              ? (isDark ? const Color(0xFF1E3A8A) : const Color(0xFFBFDBFE))
-                              : (isDark ? const Color(0xFF1E2536) : Colors.white),
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: i < carsCount
-                                ? const Color(0xFF3B82F6)
-                                : (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
-                            width: 1.4,
-                          ),
-                        ),
-                        child: Center(
-                          child: i < carsCount
-                              ? Icon(
-                                  Icons.directions_car_rounded,
-                                  size: 13,
-                                  color: isDark ? Colors.white : const Color(0xFF1D4ED8),
-                                )
-                              : Text(
-                                  'P${i + 1}',
-                                  style: TextStyle(
-                                    fontSize: 8,
-                                    fontFamily: 'monospace',
-                                    fontWeight: FontWeight.w800,
-                                    color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
-                                  ),
-                                ),
-                        ),
+                const SizedBox(width: 6),
+                Text(
+                  context.tr('deck_parking_matrix'),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: capacityRatio,
+                      minHeight: 7,
+                      backgroundColor: isDark ? const Color(0xFF1E2536) : const Color(0xFFE2E8F0),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        capacityRatio >= 1.0
+                            ? const Color(0xFFEF4444)
+                            : (isDark ? const Color(0xFFFFDE59) : const Color(0xFFF59E0B)),
                       ),
-                    if (maxSlots > 10)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF1E2536) : Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
-                            width: 1.4,
-                          ),
-                        ),
-                        child: Text(
-                          '+${maxSlots - 10}',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                          ),
-                        ),
-                      ),
-                  ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  '$carsCount / $maxSlots',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'monospace',
+                    color: carsCount >= maxSlots
+                        ? const Color(0xFFEF4444)
+                        : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-
-          // Action Strip & Incoming Offers
-          Row(
-            children: [
-              if (hasOffers)
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444).withValues(alpha: isDark ? 0.25 : 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: const Color(0xFFEF4444),
-                        width: 1.8,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.local_fire_department_rounded,
-                          size: 16,
-                          color: Color(0xFFEF4444),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            context.tr('telemetry_offers_count', {'count': '$offersCount'}),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? const Color(0xFFFCA5A5) : const Color(0xFFB91C1C),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              NeoBrutalButton(
-                label: context.tr('deck_enter_showroom'),
-                backgroundColor: const Color(0xFFFFDE59),
-                textColor: const Color(0xFF0F172A),
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                onPressed: () {
-                  ref.read(gameProvider.notifier).markFeatureSeen('/showroom');
-                  context.push('/showroom');
-                },
-              ),
-            ],
           ),
         ],
       ),
@@ -877,7 +861,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   }
 
   // ===========================================================================
-  // TYPOLOGY 2: SANAYİ ENDÜSTRİYEL MEGA-HANGARI (Unified 3-Zone Deck)
+  // TYPOLOGY 2: SANAYİ ENDÜSTRİYEL MEGA-HANGARI (Bento 9:16 Vertical Pod Deck)
   // ===========================================================================
   Widget _buildSanayiMegaHangar({
     required BuildContext context,
@@ -894,426 +878,549 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         .length;
     final dirtyCars = game.ownedCars.where((c) => !c.isWashed).length;
 
-    return NeoBrutalCard(
-      padding: EdgeInsets.zero,
-      backgroundColor: isDark ? const Color(0xFF131722) : const Color(0xFFF8FAFC),
-      borderColor: isDark ? const Color(0xFF384358) : const Color(0xFF0F172A),
-      borderWidth: 2.5,
-      borderRadius: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Industrial Hazard Warning Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFF7A00),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
-              border: Border(
-                bottom: BorderSide(
-                  color: isDark ? const Color(0xFF384358) : const Color(0xFF0F172A),
-                  width: 2.2,
-                ),
+    // Asymmetric Bento Architecture (Reference Image 1 & 2):
+    // Left Tall Pod: Oto Yıkama (46%)
+    // Right Stacked Column: Tamir & Atölye (Top) + Tuning Stüdyosu (Bottom) (54%)
+    if (isWashUnlocked && (isWorkshopUnlocked || isTuningUnlocked)) {
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left Tall Bento Pod: Oto Yıkama (46%)
+            Expanded(
+              flex: 46,
+              child: _buildCarWashTallCard(
+                context: context,
+                ref: ref,
+                game: game,
+                isDark: isDark,
+                dirtyCars: dirtyCars,
               ),
             ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  size: 15,
+            const SizedBox(width: 8),
+            // Right Stacked Column: Atölye & Tuning (54%)
+            Expanded(
+              flex: 54,
+              child: Column(
+                children: [
+                  if (isWorkshopUnlocked)
+                    Expanded(
+                      child: _buildWorkshopCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        damagedCars: damagedCars,
+                      ),
+                    ),
+                  if (isWorkshopUnlocked && isTuningUnlocked)
+                    const SizedBox(height: 8),
+                  if (isTuningUnlocked)
+                    Expanded(
+                      child: _buildTuningCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Fallback: If wash is not unlocked or only wash is unlocked
+    final List<Widget> hangarCards = [];
+    if (isWorkshopUnlocked || isTuningUnlocked) {
+      hangarCards.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (isWorkshopUnlocked)
+                Expanded(
+                  child: _buildWorkshopCard(
+                    context: context,
+                    ref: ref,
+                    game: game,
+                    isDark: isDark,
+                    damagedCars: damagedCars,
+                  ),
+                ),
+              if (isWorkshopUnlocked && isTuningUnlocked)
+                const SizedBox(width: 8),
+              if (isTuningUnlocked)
+                Expanded(
+                  child: _buildTuningCard(
+                    context: context,
+                    ref: ref,
+                    game: game,
+                    isDark: isDark,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (isWashUnlocked) {
+      if (hangarCards.isNotEmpty) hangarCards.add(const SizedBox(height: 8));
+      hangarCards.add(
+        _buildCarWashStripCard(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          dirtyCars: dirtyCars,
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: hangarCards,
+    );
+  }
+
+  Widget _buildCarWashTallCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required int dirtyCars,
+  }) {
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(12),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(22),
+        bottomLeft: Radius.circular(22),
+        topRight: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.isometricBlueprint,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen('/car-wash');
+        context.push('/car-wash');
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00F0FF),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.6,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.local_car_wash_rounded,
+                  size: 19,
                   color: Colors.black,
                 ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    context.tr('deck_hangar_header'),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.8,
-                      color: Colors.black,
+              ),
+              if (game.isFeatureNew('/car-wash')) ...[
+                const SizedBox(width: 5),
+                _buildNotificationDot(isDark),
+              ],
+              const Spacer(),
+              NeoBrutalBadge(
+                text: dirtyCars > 0
+                    ? context.tr('telemetry_dirty_count', {'count': '$dirtyCars'})
+                    : context.tr('deck_wash_foam_ready'),
+                backgroundColor: dirtyCars > 0
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFF00F0FF),
+                textColor: dirtyCars > 0 ? Colors.white : Colors.black,
+                fontSize: 8.5,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.tr('service_car_wash'),
+                style: TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                context.tr('service_car_wash_sub'),
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? const Color(0xFF67E8F9) : const Color(0xFF0E7490),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.35)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF2E3D56) : const Color(0xFFCBD5E1),
+                      width: 1.2,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 12,
+                        color: Color(0xFF00F0FF),
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          context.tr('deck_wash_boost_telemetry'),
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? const Color(0xFF67E8F9) : const Color(0xFF0E7490),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
+              const SizedBox(width: 6),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.black,
+                bgColor: const Color(0xFF00F0FF),
+                size: 24,
+                iconSize: 14,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkshopCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required int damagedCars,
+  }) {
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(10),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(22),
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen('/workshop');
+        context.push('/workshop');
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF7A00),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.build_circle_rounded,
+                  size: 15,
+                  color: Colors.white,
+                ),
+              ),
+              if (game.isFeatureNew('/workshop')) ...[
+                const SizedBox(width: 5),
+                _buildNotificationDot(isDark),
               ],
+              const Spacer(),
+              NeoBrutalBadge(
+                text: damagedCars > 0
+                    ? context.tr('telemetry_damaged_count', {'count': '$damagedCars'})
+                    : context.tr('deck_lift_ready'),
+                backgroundColor: damagedCars > 0
+                    ? const Color(0xFFEF4444)
+                    : const Color(0xFF00E575),
+                textColor: damagedCars > 0 ? Colors.white : Colors.black,
+                fontSize: 8,
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('service_workshop'),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      context.tr('deck_workshop_lift_telemetry'),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? const Color(0xFFFDBA74) : const Color(0xFFC2410C),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: const Color(0xFFFF7A00),
+                size: 22,
+                iconSize: 13,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTuningCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+  }) {
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(10),
+      backgroundColor: isDark ? const Color(0xFF140D24) : const Color(0xFF1E1338),
+      borderColor: isDark ? const Color(0xFF432A6D) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(22),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.diagonalHatch,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen('/tuning-studio');
+        context.push('/tuning-studio');
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFA855F7),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.speed_rounded,
+                  size: 15,
+                  color: Colors.white,
+                ),
+              ),
+              if (game.isFeatureNew('/tuning-studio')) ...[
+                const SizedBox(width: 5),
+                _buildNotificationDot(isDark),
+              ],
+              const Spacer(),
+              _buildDutchAngleBadge(
+                text: context.tr('deck_tuning_stage_active'),
+                backgroundColor: const Color(0xFFA855F7),
+                textColor: Colors.white,
+                angle: -0.06,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('service_tuning'),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      context.tr('deck_tuning_dyno_telemetry'),
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFD8B4FE),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: const Color(0xFFA855F7),
+                size: 22,
+                iconSize: 13,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCarWashStripCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required int dirtyCars,
+  }) {
+    return NeoBrutalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+        bottomLeft: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.isometricBlueprint,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen('/car-wash');
+        context.push('/car-wash');
+      },
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00F0FF),
+              borderRadius: BorderRadius.circular(7),
+              border: Border.all(
+                color: const Color(0xFF0F172A),
+                width: 1.5,
+              ),
+            ),
+            child: const Icon(
+              Icons.local_car_wash_rounded,
+              size: 16,
+              color: Colors.black,
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
+          const SizedBox(width: 9),
+          Expanded(
+            child: Row(
               children: [
-                // Middle Equal-Height Asymmetric Split: 58% Lift Bay vs 42% Tuning Stage
-                if (isWorkshopUnlocked || isTuningUnlocked)
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // ZONE A: Lift & Tamir Atölyesi (58%)
-                        if (isWorkshopUnlocked)
-                          Expanded(
-                            flex: 58,
-                            child: InkWell(
-                              onTap: () {
-                                ref.read(gameProvider.notifier).markFeatureSeen('/workshop');
-                                context.push('/workshop');
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF1E2536) : const Color(0xFFFFF7ED),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFFF7A00),
-                                    width: 2,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0xFF0F172A),
-                                      offset: Offset(2.5, 2.5),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFFF7A00),
-                                                borderRadius: BorderRadius.circular(7),
-                                              ),
-                                              child: const Icon(
-                                                Icons.build_circle_rounded,
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            if (game.isFeatureNew('/workshop'))
-                                              _buildNotificationDot(isDark),
-                                            const Spacer(),
-                                            NeoBrutalBadge(
-                                              text: damagedCars > 0
-                                                  ? context.tr('telemetry_damaged_count', {'count': '$damagedCars'})
-                                                  : context.tr('deck_lift_ready'),
-                                              backgroundColor: damagedCars > 0
-                                                  ? const Color(0xFFEF4444)
-                                                  : const Color(0xFF00E575),
-                                              textColor: damagedCars > 0 ? Colors.white : Colors.black,
-                                              fontSize: 8,
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          context.tr('service_workshop'),
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w900,
-                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          context.tr('service_workshop_sub'),
-                                          style: TextStyle(
-                                            fontSize: 9.5,
-                                            fontWeight: FontWeight.w600,
-                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        // Custom Workshop Telemetry Pill
-                                        Row(
-                                          children: [
-                                            Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: damagedCars > 0
-                                                    ? const Color(0xFFEF4444)
-                                                    : const Color(0xFF00E575),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                damagedCars > 0
-                                                    ? context.tr('deck_workshop_lift_active')
-                                                    : context.tr('deck_workshop_lift_empty'),
-                                                style: TextStyle(
-                                                  fontSize: 8.5,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: damagedCars > 0
-                                                      ? const Color(0xFFEF4444)
-                                                      : const Color(0xFF00E575),
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    NeoBrutalButton(
-                                      label: context.tr('deck_action_lift'),
-                                      fontSize: 9.5,
-                                      backgroundColor: const Color(0xFFFF7A00),
-                                      textColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                      onPressed: () {
-                                        ref.read(gameProvider.notifier).markFeatureSeen('/workshop');
-                                        context.push('/workshop');
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (isWorkshopUnlocked && isTuningUnlocked)
-                          const SizedBox(width: 8),
-
-                        // ZONE B: Dyno & Tuning Stage (42%)
-                        if (isTuningUnlocked)
-                          Expanded(
-                            flex: 42,
-                            child: InkWell(
-                              onTap: () {
-                                ref.read(gameProvider.notifier).markFeatureSeen('/tuning-studio');
-                                context.push('/tuning-studio');
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF261938) : const Color(0xFFFAF5FF),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: const Color(0xFFA855F7),
-                                    width: 2,
-                                  ),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Color(0xFF0F172A),
-                                      offset: Offset(2.5, 2.5),
-                                      blurRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFFA855F7),
-                                                borderRadius: BorderRadius.circular(7),
-                                              ),
-                                              child: const Icon(
-                                                Icons.speed_rounded,
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            if (game.isFeatureNew('/tuning-studio'))
-                                              _buildNotificationDot(isDark),
-                                            const Spacer(),
-                                            NeoBrutalBadge(
-                                              text: context.tr('deck_tuning_stage_active'),
-                                              backgroundColor: const Color(0xFFA855F7),
-                                              textColor: Colors.white,
-                                              fontSize: 8,
-                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          context.tr('service_tuning'),
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w900,
-                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          context.tr('service_tuning_sub'),
-                                          style: TextStyle(
-                                            fontSize: 9.5,
-                                            fontWeight: FontWeight.w600,
-                                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        // Custom Tuning Telemetry Pill
-                                        Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.bolt_rounded,
-                                              size: 11,
-                                              color: Color(0xFFA855F7),
-                                            ),
-                                            const SizedBox(width: 3),
-                                            Expanded(
-                                              child: Text(
-                                                context.tr('deck_tuning_hp_boost'),
-                                                style: const TextStyle(
-                                                  fontSize: 8.5,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: Color(0xFFA855F7),
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    NeoBrutalButton(
-                                      label: context.tr('deck_action_tuning'),
-                                      fontSize: 9.5,
-                                      backgroundColor: const Color(0xFFA855F7),
-                                      textColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                                      onPressed: () {
-                                        ref.read(gameProvider.notifier).markFeatureSeen('/tuning-studio');
-                                        context.push('/tuning-studio');
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+                Text(
+                  context.tr('service_car_wash'),
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
-
-                // ZONE C: Detailing & Oto Yıkama (Full Width Bottom Ribbon)
-                if (isWashUnlocked) ...[
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () {
-                      ref.read(gameProvider.notifier).markFeatureSeen('/car-wash');
-                      context.push('/car-wash');
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF0C2A3A) : const Color(0xFFE0F7FA),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color(0xFF00F0FF),
-                          width: 2,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0xFF0F172A),
-                            offset: Offset(2, 2),
-                            blurRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00F0FF),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Icon(
-                              Icons.local_car_wash_rounded,
-                              size: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      context.tr('service_car_wash'),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w900,
-                                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                      ),
-                                    ),
-                                    if (game.isFeatureNew('/car-wash')) ...[
-                                      const SizedBox(width: 6),
-                                      _buildNotificationDot(isDark),
-                                    ],
-                                  ],
-                                ),
-                                Text(
-                                  dirtyCars > 0
-                                      ? context.tr('telemetry_dirty_count', {'count': '$dirtyCars'})
-                                      : context.tr('deck_wash_foam_ready'),
-                                  style: TextStyle(
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: dirtyCars > 0
-                                        ? const Color(0xFFEF4444)
-                                        : (isDark ? const Color(0xFF00F0FF) : const Color(0xFF0369A1)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          NeoBrutalButton(
-                            label: context.tr('deck_action_detail'),
-                            fontSize: 9.5,
-                            backgroundColor: const Color(0xFF00F0FF),
-                            textColor: const Color(0xFF0F172A),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            onPressed: () {
-                              ref.read(gameProvider.notifier).markFeatureSeen('/car-wash');
-                              context.push('/car-wash');
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                ),
+                if (game.isFeatureNew('/car-wash')) ...[
+                  const SizedBox(width: 6),
+                  _buildNotificationDot(isDark),
                 ],
               ],
             ),
+          ),
+          NeoBrutalBadge(
+            text: dirtyCars > 0
+                ? context.tr('telemetry_dirty_count', {'count': '$dirtyCars'})
+                : context.tr('deck_wash_foam_ready'),
+            backgroundColor: dirtyCars > 0
+                ? const Color(0xFFEF4444)
+                : const Color(0xFF00F0FF),
+            textColor: dirtyCars > 0 ? Colors.white : Colors.black,
+            fontSize: 8.5,
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           ),
         ],
       ),
@@ -1379,18 +1486,23 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     required bool isDark,
     required bool isStandalone,
   }) {
-    final freshBadgeText = context.tr('bento_badge_fresh');
-    final safeFreshBadge =
-        freshBadgeText == 'bento_badge_fresh' ? 'YENİ İLANLAR' : freshBadgeText;
+    final safeFreshBadge = context.tr('bento_badge_fresh');
 
     if (isStandalone) {
       return NeoBrutalCard(
         padding: const EdgeInsets.all(12),
-        backgroundColor:
-            isDark ? const Color(0xFF0F2338) : const Color(0xFFF0F9FF),
-        borderColor: const Color(0xFF38BDF8),
-        borderWidth: 2.4,
+        backgroundColor: const Color(0xFF0F172A),
+        borderColor: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+        borderWidth: 2.2,
         borderRadius: 14,
+        customBorderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(22),
+          bottomRight: Radius.circular(22),
+          topRight: Radius.circular(10),
+          bottomLeft: Radius.circular(10),
+        ),
+        showBlueprintGrid: true,
+        patternType: BlueprintPatternType.blueprintGrid,
         onTap: () {
           ref.read(gameProvider.notifier).markFeatureSeen('/marketplace');
           context.push('/marketplace');
@@ -1418,125 +1530,30 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            context.tr('service_buy_car'),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF0F172A),
-                            ),
-                          ),
-                          if (game.isFeatureNew('/marketplace')) ...[
-                            const SizedBox(width: 6),
-                            _buildNotificationDot(isDark),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 2),
                       Text(
-                        context.tr('deck_market_boulevard'),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? const Color(0xFF7DD3FC)
-                              : const Color(0xFF0369A1),
+                        context.tr('service_buy_car'),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
                         ),
                       ),
+                      if (game.isFeatureNew('/marketplace')) ...[
+                        const SizedBox(width: 6),
+                        _buildNotificationDot(isDark),
+                      ],
                     ],
                   ),
                 ),
-                NeoBrutalBadge(
+                _buildDutchAngleBadge(
                   text: safeFreshBadge,
                   backgroundColor: const Color(0xFF38BDF8),
                   textColor: const Color(0xFF0F172A),
-                  fontSize: 9,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  angle: -0.05,
                 ),
               ],
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-              decoration: BoxDecoration(
-                color:
-                    isDark ? const Color(0xFF081827) : const Color(0xFFE0F2FE),
-                borderRadius: BorderRadius.circular(9),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF1E3A5F)
-                      : const Color(0xFFBAE6FD),
-                  width: 1.4,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.directions_car_filled_rounded,
-                          size: 13,
-                          color: Color(0xFF38BDF8),
-                        ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            context.tr('deck_market_live_ads'),
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w800,
-                              color: isDark
-                                  ? const Color(0xFFBAE6FD)
-                                  : const Color(0xFF0369A1),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 14,
-                    color: isDark
-                        ? const Color(0xFF1E3A5F)
-                        : const Color(0xFFBAE6FD),
-                  ),
-                  const SizedBox(width: 8),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.local_offer_rounded,
-                        size: 12,
-                        color: Color(0xFF38BDF8),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        context.tr('deck_market_opportunity_tag'),
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w700,
-                          color: isDark
-                              ? const Color(0xFF7DD3FC)
-                              : const Color(0xFF0284C7),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 10),
             NeoBrutalButton(
@@ -1557,115 +1574,81 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     }
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(9),
-      backgroundColor:
-          isDark ? const Color(0xFF0F2338) : const Color(0xFFF0F9FF),
-      borderColor: const Color(0xFF38BDF8),
+      padding: const EdgeInsets.all(11),
+      backgroundColor: isDark ? const Color(0xFF0B132B) : const Color(0xFF0F172A),
+      borderColor: isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
       borderWidth: 2.2,
-      borderRadius: 14,
+      borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(20),
+        bottomLeft: Radius.circular(20),
+        topRight: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/marketplace');
         context.push('/marketplace');
       },
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF38BDF8),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: const Color(0xFF0F172A),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.storefront_rounded,
-                      size: 16,
-                      color: Colors.black,
-                    ),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF38BDF8),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
                   ),
-                  const SizedBox(width: 5),
-                  if (game.isFeatureNew('/marketplace'))
-                    _buildNotificationDot(isDark),
-                  const Spacer(),
-                  NeoBrutalBadge(
-                    text: safeFreshBadge,
-                    backgroundColor: const Color(0xFF38BDF8),
-                    textColor: const Color(0xFF0F172A),
-                    fontSize: 8,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('service_buy_car'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                child: const Icon(
+                  Icons.storefront_rounded,
+                  size: 16,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                context.tr('deck_market_boulevard'),
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? const Color(0xFF7DD3FC)
-                      : const Color(0xFF0369A1),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.directions_car_filled_rounded,
-                    size: 11,
-                    color: Color(0xFF38BDF8),
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: Text(
-                      context.tr('deck_market_live_ads'),
-                      style: TextStyle(
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? const Color(0xFF7DD3FC)
-                            : const Color(0xFF0284C7),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 5),
+              if (game.isFeatureNew('/marketplace'))
+                _buildNotificationDot(isDark),
+              const Spacer(),
+              _buildDutchAngleBadge(
+                text: safeFreshBadge,
+                backgroundColor: const Color(0xFF38BDF8),
+                textColor: const Color(0xFF0F172A),
+                angle: -0.05,
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          NeoBrutalButton(
-            label: context.tr('bento_action_market'),
-            fontSize: 9.5,
-            backgroundColor: const Color(0xFF38BDF8),
-            textColor: const Color(0xFF0F172A),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen('/marketplace');
-              context.push('/marketplace');
-            },
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.tr('service_buy_car'),
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: const Color(0xFF0F172A),
+                bgColor: const Color(0xFF38BDF8),
+                size: 22,
+                iconSize: 13,
+              ),
+            ],
           ),
         ],
       ),
@@ -1674,11 +1657,19 @@ class _DashboardServicesGridContent extends ConsumerWidget {
 
   Widget _buildVasitaCard(BuildContext context, WidgetRef ref, DealershipModel game, bool isDark) {
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(9),
-      backgroundColor: isDark ? const Color(0xFF0E2833) : const Color(0xFFE0F7FA),
-      borderColor: const Color(0xFF06B6D4),
+      padding: const EdgeInsets.all(11),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
       borderWidth: 2.2,
-      borderRadius: 14,
+      borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        bottomLeft: Radius.circular(8),
+        topRight: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.isometricBlueprint,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/vasita');
         context.push('/vasita');
@@ -1687,96 +1678,61 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF06B6D4),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: const Color(0xFF0F172A),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.directions_boat_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF06B6D4),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
                   ),
-                  const SizedBox(width: 5),
-                  if (game.isFeatureNew('/vasita'))
-                    _buildNotificationDot(isDark),
-                  const Spacer(),
-                  NeoBrutalBadge(
-                    text: context.tr('deck_vasita_luxury_badge'),
-                    backgroundColor: const Color(0xFF06B6D4),
-                    textColor: Colors.white,
-                    fontSize: 8,
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('service_vasita_market'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                child: const Icon(
+                  Icons.directions_boat_rounded,
+                  size: 16,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                context.tr('service_vasita_market_sub'),
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.sailing_rounded,
-                    size: 11,
-                    color: Color(0xFF06B6D4),
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: Text(
-                      context.tr('deck_vasita_luxury_badge'),
-                      style: TextStyle(
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? const Color(0xFF67E8F9) : const Color(0xFF0891B2),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 5),
+              if (game.isFeatureNew('/vasita'))
+                _buildNotificationDot(isDark),
+              const Spacer(),
+              NeoBrutalBadge(
+                text: context.tr('deck_vasita_luxury_badge'),
+                backgroundColor: const Color(0xFF06B6D4),
+                textColor: Colors.white,
+                fontSize: 8.5,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          NeoBrutalButton(
-            label: context.tr('deck_action_vasita'),
-            fontSize: 9.5,
-            backgroundColor: const Color(0xFF06B6D4),
-            textColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen('/vasita');
-              context.push('/vasita');
-            },
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.tr('service_vasita_market'),
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 4),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: const Color(0xFF06B6D4),
+                size: 22,
+                iconSize: 13,
+              ),
+            ],
           ),
         ],
       ),
@@ -1804,10 +1760,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         if (isAuctionUnlocked)
           NeoBrutalCard(
             padding: const EdgeInsets.all(11),
-            backgroundColor: isDark ? const Color(0xFF2D1515) : const Color(0xFFFEF2F2),
-            borderColor: const Color(0xFFEF4444),
-            borderWidth: 2.4,
+            backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+            borderWidth: 2.2,
             borderRadius: 14,
+            customBorderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(8),
+              bottomRight: Radius.circular(8),
+            ),
+            showBlueprintGrid: true,
+            patternType: BlueprintPatternType.blueprintGrid,
             onTap: () {
               ref.read(gameProvider.notifier).markFeatureSeen('/auction');
               context.push('/auction');
@@ -1852,30 +1816,19 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 2),
-                      Transform.rotate(
-                        angle: -0.02,
-                        alignment: Alignment.centerLeft,
-                        child: NeoBrutalBadge(
-                          text: context.tr('deck_auction_ticker'),
-                          backgroundColor: const Color(0xFFEF4444),
-                          textColor: Colors.white,
-                          fontSize: 8.5,
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        ),
+                      _buildDutchAngleBadge(
+                        text: context.tr('deck_auction_ticker'),
+                        backgroundColor: const Color(0xFFEF4444),
+                        textColor: Colors.white,
+                        angle: -0.03,
                       ),
                     ],
                   ),
                 ),
-                NeoBrutalButton(
-                  label: context.tr('bento_action_bid'),
-                  fontSize: 10,
-                  backgroundColor: const Color(0xFFEF4444),
-                  textColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  onPressed: () {
-                    ref.read(gameProvider.notifier).markFeatureSeen('/auction');
-                    context.push('/auction');
-                  },
+                _buildDirectionalPill(
+                  isDark: isDark,
+                  arrowColor: Colors.white,
+                  bgColor: const Color(0xFFEF4444),
                 ),
               ],
             ),
@@ -1894,108 +1847,103 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                     flex: 52,
                     child: NeoBrutalCard(
                       padding: const EdgeInsets.all(9),
-                      backgroundColor: isDark ? const Color(0xFF0F261B) : const Color(0xFFECFDF5),
-                      borderColor: const Color(0xFF00E575),
+                      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+                      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
                       borderWidth: 2.2,
                       borderRadius: 12,
+                      customBorderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        bottomLeft: Radius.circular(20),
+                        topRight: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                      showBlueprintGrid: true,
+                      patternType: BlueprintPatternType.blueprintGrid,
                       onTap: () {
                         ref.read(gameProvider.notifier).markFeatureSeen('/finance');
                         context.push('/finance');
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF00E575),
-                                      borderRadius: BorderRadius.circular(7),
-                                      border: Border.all(
-                                        color: const Color(0xFF0F172A),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.account_balance_rounded,
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00E575),
+                                  borderRadius: BorderRadius.circular(7),
+                                  border: Border.all(
+                                    color: const Color(0xFF0F172A),
+                                    width: 1.5,
                                   ),
-                                  const SizedBox(width: 5),
-                                  if (game.isFeatureNew('/finance'))
-                                    _buildNotificationDot(isDark),
-                                  const Spacer(),
-                                  NeoBrutalBadge(
-                                    text: context.tr('bento_badge_debt_clean'),
-                                    backgroundColor: const Color(0xFF00E575),
-                                    textColor: Colors.black,
-                                    fontSize: 8,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                context.tr('service_finance'),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                                child: const Icon(
+                                  Icons.account_balance_rounded,
+                                  size: 16,
+                                  color: Colors.black,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                context.tr('service_finance_sub'),
-                                style: TextStyle(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle_rounded,
-                                    size: 11,
-                                    color: Color(0xFF00E575),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Expanded(
-                                    child: Text(
-                                      context.tr('deck_finance_cashflow_positive'),
-                                      style: TextStyle(
-                                        fontSize: 8.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 5),
+                              if (game.isFeatureNew('/finance'))
+                                _buildNotificationDot(isDark),
+                              const Spacer(),
+                              NeoBrutalBadge(
+                                text: context.tr('bento_badge_debt_clean'),
+                                backgroundColor: const Color(0xFF00E575),
+                                textColor: Colors.black,
+                                fontSize: 8,
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                               ),
                             ],
                           ),
                           const SizedBox(height: 6),
-                          NeoBrutalButton(
-                            label: context.tr('bento_action_bank'),
-                            fontSize: 9.5,
-                            backgroundColor: const Color(0xFF00E575),
-                            textColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                            onPressed: () {
-                              ref.read(gameProvider.notifier).markFeatureSeen('/finance');
-                              context.push('/finance');
-                            },
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  context.tr('service_finance'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              _buildDirectionalPill(
+                                isDark: isDark,
+                                arrowColor: Colors.black,
+                                bgColor: const Color(0xFF00E575),
+                                size: 20,
+                                iconSize: 12,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.check_circle_rounded,
+                                size: 11,
+                                color: Color(0xFF00E575),
+                              ),
+                              const SizedBox(width: 3),
+                              Expanded(
+                                child: Text(
+                                  context.tr('deck_finance_cashflow_positive'),
+                                  style: TextStyle(
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark ? const Color(0xFF86EFAC) : const Color(0xFF15803D),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -2004,114 +1952,108 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 if (isFinanceUnlocked && isStocksUnlocked)
                   const SizedBox(width: 8),
 
-                // Borsa Portföyü Pod (48%)
+                // Borsa Portföyü Pod (48%) - INVERTED WALL STREET CONTRAST
                 if (isStocksUnlocked)
                   Expanded(
                     flex: 48,
                     child: NeoBrutalCard(
                       padding: const EdgeInsets.all(9),
-                      backgroundColor: isDark ? const Color(0xFF181B38) : const Color(0xFFEEF2FF),
-                      borderColor: const Color(0xFF6366F1),
+                      backgroundColor: isDark ? const Color(0xFF061A14) : const Color(0xFF0A2218),
+                      borderColor: isDark ? const Color(0xFF1E3D30) : const Color(0xFF0F172A),
                       borderWidth: 2.2,
                       borderRadius: 12,
+                      customBorderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                        bottomRight: Radius.circular(20),
+                      ),
+                      showBlueprintGrid: true,
+                      patternType: BlueprintPatternType.technicalCrosses,
                       onTap: () {
                         ref.read(gameProvider.notifier).markFeatureSeen('/stock-market');
                         context.push('/stock-market');
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF6366F1),
-                                      borderRadius: BorderRadius.circular(7),
-                                      border: Border.all(
-                                        color: const Color(0xFF0F172A),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.trending_up_rounded,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
+                              Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6366F1),
+                                  borderRadius: BorderRadius.circular(7),
+                                  border: Border.all(
+                                    color: const Color(0xFF0F172A),
+                                    width: 1.5,
                                   ),
-                                  const SizedBox(width: 5),
-                                  if (game.isFeatureNew('/stock-market'))
-                                    _buildNotificationDot(isDark),
-                                  const Spacer(),
-                                  NeoBrutalBadge(
-                                    text: '${game.ownedStocks.length} Hisse',
-                                    backgroundColor: const Color(0xFF6366F1),
-                                    textColor: Colors.white,
-                                    fontSize: 8,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                context.tr('service_stocks'),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                ),
+                                child: const Icon(
+                                  Icons.trending_up_rounded,
+                                  size: 16,
+                                  color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                context.tr('service_stocks_sub'),
-                                style: TextStyle(
-                                  fontSize: 9.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.query_stats_rounded,
-                                    size: 11,
-                                    color: Color(0xFF6366F1),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Expanded(
-                                    child: Text(
-                                      context.tr('deck_stocks_bist_trend'),
-                                      style: TextStyle(
-                                        fontSize: 8.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: isDark ? const Color(0xFFA5B4FC) : const Color(0xFF4338CA),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 5),
+                              if (game.isFeatureNew('/stock-market'))
+                                _buildNotificationDot(isDark),
+                              const Spacer(),
+                              _buildDutchAngleBadge(
+                                text: '${game.ownedStocks.length} Hisse',
+                                backgroundColor: const Color(0xFF00E575),
+                                textColor: Colors.black,
+                                angle: 0.05,
                               ),
                             ],
                           ),
                           const SizedBox(height: 6),
-                          NeoBrutalButton(
-                            label: context.tr('deck_action_portfolio'),
-                            fontSize: 9.5,
-                            backgroundColor: const Color(0xFF6366F1),
-                            textColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                            onPressed: () {
-                              ref.read(gameProvider.notifier).markFeatureSeen('/stock-market');
-                              context.push('/stock-market');
-                            },
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  context.tr('service_stocks'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              _buildDirectionalPill(
+                                isDark: isDark,
+                                arrowColor: Colors.black,
+                                bgColor: const Color(0xFF00E575),
+                                size: 20,
+                                iconSize: 12,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.query_stats_rounded,
+                                size: 11,
+                                color: Color(0xFF00E575),
+                              ),
+                              const SizedBox(width: 3),
+                              Expanded(
+                                child: Text(
+                                  context.tr('deck_stocks_bist_trend'),
+                                  style: const TextStyle(
+                                    fontSize: 8.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF86EFAC),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -2127,10 +2069,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           const SizedBox(height: 8),
           NeoBrutalCard(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            backgroundColor: isDark ? const Color(0xFF282312) : const Color(0xFFFFFBEB),
-            borderColor: const Color(0xFFF59E0B),
+            backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+            borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
             borderWidth: 2.2,
             borderRadius: 12,
+            customBorderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            showBlueprintGrid: true,
+            patternType: BlueprintPatternType.blueprintGrid,
             onTap: () {
               ref.read(gameProvider.notifier).markFeatureSeen('/history');
               context.push('/history');
@@ -2196,16 +2146,10 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                     ],
                   ),
                 ),
-                NeoBrutalButton(
-                  label: context.tr('deck_action_history'),
-                  fontSize: 9.5,
-                  backgroundColor: const Color(0xFFF59E0B),
-                  textColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                  onPressed: () {
-                    ref.read(gameProvider.notifier).markFeatureSeen('/history');
-                    context.push('/history');
-                  },
+                Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 18,
+                  color: isDark ? const Color(0xFFFCD34D) : const Color(0xFFB45309),
                 ),
               ],
             ),
@@ -2271,11 +2215,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   ) {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(11),
-      backgroundColor:
-          isDark ? const Color(0xFF23143B) : const Color(0xFFF5F3FF),
-      borderColor: const Color(0xFF8B5CF6),
-      borderWidth: 2.4,
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
       borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/branches');
         context.push('/branches');
@@ -2333,16 +2284,10 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               ],
             ),
           ),
-          NeoBrutalButton(
-            label: context.tr('bento_action_branches'),
-            fontSize: 10,
-            backgroundColor: const Color(0xFF8B5CF6),
-            textColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen('/branches');
-              context.push('/branches');
-            },
+          _buildDirectionalPill(
+            isDark: isDark,
+            arrowColor: Colors.white,
+            bgColor: const Color(0xFF8B5CF6),
           ),
         ],
       ),
@@ -2357,114 +2302,103 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   ) {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(9),
-      backgroundColor:
-          isDark ? const Color(0xFF102B21) : const Color(0xFFECFDF5),
-      borderColor: const Color(0xFF10B981),
+      backgroundColor: isDark ? const Color(0xFF220F12) : const Color(0xFF2D1217),
+      borderColor: isDark ? const Color(0xFF4A252B) : const Color(0xFF0F172A),
       borderWidth: 2.2,
       borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        bottomLeft: Radius.circular(20),
+        topRight: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/emlak');
         context.push('/emlak');
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: const Color(0xFF0F172A),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.domain_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
                   ),
-                  const SizedBox(width: 5),
-                  if (game.isFeatureNew('/emlak'))
-                    _buildNotificationDot(isDark),
-                  const Spacer(),
-                  NeoBrutalBadge(
-                    text: '${game.ownedRealEstates.length} Mülk',
-                    backgroundColor: const Color(0xFF10B981),
-                    textColor: Colors.white,
-                    fontSize: 8,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('service_real_estate'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                child: const Icon(
+                  Icons.domain_rounded,
+                  size: 16,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                context.tr('service_real_estate_sub'),
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.real_estate_agent_rounded,
-                    size: 11,
-                    color: Color(0xFF10B981),
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: Text(
-                      context.tr('deck_real_estate_income'),
-                      style: TextStyle(
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? const Color(0xFF6EE7B7)
-                            : const Color(0xFF047857),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 5),
+              if (game.isFeatureNew('/emlak'))
+                _buildNotificationDot(isDark),
+              const Spacer(),
+              _buildDutchAngleBadge(
+                text: context.tr('telemetry_real_estate_count',
+                    {'count': '${game.ownedRealEstates.length}'}),
+                backgroundColor: const Color(0xFFEF4444),
+                textColor: Colors.white,
+                angle: -0.05,
               ),
             ],
           ),
           const SizedBox(height: 6),
-          NeoBrutalButton(
-            label: context.tr('deck_action_real_estate'),
-            fontSize: 9.5,
-            backgroundColor: const Color(0xFF10B981),
-            textColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen('/emlak');
-              context.push('/emlak');
-            },
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.tr('service_real_estate'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 3),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: const Color(0xFFEF4444),
+                size: 20,
+                iconSize: 12,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(
+                Icons.real_estate_agent_rounded,
+                size: 11,
+                color: Color(0xFFFCA5A5),
+              ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Text(
+                  context.tr('deck_real_estate_income'),
+                  style: const TextStyle(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFFCA5A5),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -2479,115 +2413,107 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   ) {
     return NeoBrutalCard(
       padding: const EdgeInsets.all(9),
-      backgroundColor:
-          isDark ? const Color(0xFF2C1425) : const Color(0xFFFDF2F8),
-      borderColor: const Color(0xFFEC4899),
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
       borderWidth: 2.2,
       borderRadius: 12,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        bottomLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+        bottomRight: Radius.circular(20),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/staff');
         context.push('/staff');
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEC4899),
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: const Color(0xFF0F172A),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.people_alt_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEC4899),
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
                   ),
-                  const SizedBox(width: 5),
-                  if (game.isFeatureNew('/staff'))
-                    _buildNotificationDot(isDark),
-                  const Spacer(),
-                  NeoBrutalBadge(
-                    text: '${game.hiredStaff.length} Personel',
-                    backgroundColor: const Color(0xFFEC4899),
-                    textColor: Colors.white,
-                    fontSize: 8,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('service_staff'),
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+                child: const Icon(
+                  Icons.people_alt_rounded,
+                  size: 16,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                context.tr('service_staff_sub',
-                    {'count': game.hiredStaff.length}),
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.workspace_premium_rounded,
-                    size: 11,
-                    color: Color(0xFFEC4899),
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: Text(
-                      context.tr('deck_staff_efficiency'),
-                      style: TextStyle(
-                        fontSize: 8.5,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? const Color(0xFFF472B6)
-                            : const Color(0xFFDB2777),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 5),
+              if (game.isFeatureNew('/staff'))
+                _buildNotificationDot(isDark),
+              const Spacer(),
+              NeoBrutalBadge(
+                text: context.tr('telemetry_staff_count',
+                    {'count': '${game.hiredStaff.length}'}),
+                backgroundColor: const Color(0xFFEC4899),
+                textColor: Colors.white,
+                fontSize: 8,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          NeoBrutalButton(
-            label: context.tr('deck_action_staff'),
-            fontSize: 9.5,
-            backgroundColor: const Color(0xFFEC4899),
-            textColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen('/staff');
-              context.push('/staff');
-            },
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.tr('service_staff'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 3),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: const Color(0xFFEC4899),
+                size: 20,
+                iconSize: 12,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(
+                Icons.workspace_premium_rounded,
+                size: 11,
+                color: Color(0xFFEC4899),
+              ),
+              const SizedBox(width: 3),
+              Expanded(
+                child: Text(
+                  context.tr('deck_staff_efficiency'),
+                  style: TextStyle(
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.w800,
+                    color: isDark
+                        ? const Color(0xFFF472B6)
+                        : const Color(0xFFDB2777),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -2628,7 +2554,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           telemetryIcon: Icons.star_rounded,
           actionLabel: context.tr('deck_action_reviews'),
           route: '/reviews',
-          badge: '${game.reputationScore} İtibar',
+          badge: context.tr('service_reviews_sub',
+              {'rep': '${game.reputationScore}'}),
         ),
       if (isSideBizUnlocked)
         _ServiceItem(
@@ -2671,7 +2598,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           telemetryIcon: Icons.build_rounded,
           actionLabel: context.tr('deck_action_salvage'),
           route: '/scrapyard',
-          badge: '${game.salvagedParts.length} Parça',
+          badge: context.tr('telemetry_parts_count',
+              {'count': '${game.salvagedParts.length}'}),
         ),
       if (isDecorUnlocked)
         _ServiceItem(
@@ -2727,7 +2655,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           telemetryIcon: Icons.campaign_rounded,
           actionLabel: context.tr('deck_action_gossip'),
           route: '/gossip',
-          badge: '${game.activeGossips.length} Fısıltı',
+          badge: context.tr('telemetry_gossips_count',
+              {'count': '${game.activeGossips.length}'}),
         ),
       if (isDistrictsUnlocked)
         _ServiceItem(
@@ -2885,7 +2814,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               ),
               if (totalPassive > 0) ...[
                 NeoBrutalBadge(
-                  text: '+${CurrencyFormatter.formatShort(totalPassive)} / gün',
+                  text:
+                      '+${CurrencyFormatter.formatShort(totalPassive)} ${context.tr('cashflow_per_day')}',
                   backgroundColor: const Color(0xFF00E575),
                   textColor: Colors.black,
                   fontSize: 8.5,
@@ -3028,10 +2958,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(11),
-      backgroundColor: isDark ? item.bgDark : item.bgLight,
-      borderColor: item.color,
-      borderWidth: 2.5,
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
       borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(8),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen(item.route);
         context.push(item.route);
@@ -3097,6 +3035,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                 ),
+              const SizedBox(width: 6),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.white,
+                bgColor: item.color,
+                size: 24,
+                iconSize: 14,
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -3106,98 +3052,46 @@ class _DashboardServicesGridContent extends ConsumerWidget {
             decoration: BoxDecoration(
               color: isDark
                   ? Colors.black.withValues(alpha: 0.35)
-                  : Colors.white.withValues(alpha: 0.85),
+                  : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: item.color.withValues(alpha: isDark ? 0.6 : 0.4),
+                color: isDark ? const Color(0xFF2E3D56) : const Color(0xFFCBD5E1),
                 width: 1.3,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      item.telemetryIcon ?? Icons.auto_graph_rounded,
-                      size: 14,
-                      color: item.color,
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        item.telemetry ?? context.tr('deck_biz_passive'),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (isSideBiz && passiveIncome > 0)
-                      Text(
-                        '+${CurrencyFormatter.formatShort(passiveIncome)} / gün',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          color: isDark
-                              ? const Color(0xFF6EE7B7)
-                              : const Color(0xFF047857),
-                        ),
-                      ),
-                  ],
+                Icon(
+                  item.telemetryIcon ?? Icons.auto_graph_rounded,
+                  size: 14,
+                  color: item.color,
                 ),
-                if (isSideBiz) ...[
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: [
-                      for (int i = 0; i < game.sideBusinesses.length; i++)
-                        Container(
-                          width: 20,
-                          height: 15,
-                          decoration: BoxDecoration(
-                            color: game.sideBusinesses[i].isOwned
-                                ? (isDark
-                                    ? const Color(0xFF065F46)
-                                    : const Color(0xFF86EFAC))
-                                : (isDark
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFFE2E8F0)),
-                            borderRadius: BorderRadius.circular(3.5),
-                            border: Border.all(
-                              color: game.sideBusinesses[i].isOwned
-                                  ? const Color(0xFF10B981)
-                                  : (isDark
-                                      ? const Color(0xFF334155)
-                                      : const Color(0xFFCBD5E1)),
-                              width: 1.1,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              game.sideBusinesses[i].isOwned
-                                  ? Icons.check_rounded
-                                  : Icons.domain_rounded,
-                              size: 9,
-                              color: game.sideBusinesses[i].isOwned
-                                  ? (isDark
-                                      ? Colors.white
-                                      : const Color(0xFF047857))
-                                  : (isDark
-                                      ? const Color(0xFF64748B)
-                                      : const Color(0xFF94A3B8)),
-                            ),
-                          ),
-                        ),
-                    ],
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    item.telemetry ?? context.tr('deck_biz_passive'),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: isDark
+                          ? Colors.white
+                          : const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
+                ),
+                if (isSideBiz && passiveIncome > 0)
+                  Text(
+                    '+${CurrencyFormatter.formatShort(passiveIncome)} ${context.tr('cashflow_per_day')}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: isDark
+                          ? const Color(0xFF6EE7B7)
+                          : const Color(0xFF047857),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -3229,126 +3123,111 @@ class _DashboardServicesGridContent extends ConsumerWidget {
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(9),
-      backgroundColor: isDark ? item.bgDark : item.bgLight,
-      borderColor: item.color,
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
       borderWidth: 2.2,
       borderRadius: 12,
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen(item.route);
         context.push(item.route);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: item.color,
-                      borderRadius: BorderRadius.circular(7),
-                      border: Border.all(
-                        color: const Color(0xFF0F172A),
-                        width: 1.4,
-                      ),
-                    ),
-                    child: Icon(item.icon, size: 15, color: Colors.black),
-                  ),
-                  const SizedBox(width: 5),
-                  if (isNew) _buildNotificationDot(isDark),
-                  const Spacer(),
-                  if (item.badge != null && item.badge!.isNotEmpty)
-                    NeoBrutalBadge(
-                      text: item.badge!,
-                      backgroundColor: item.color,
-                      textColor: Colors.black,
-                      fontSize: 7.5,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 2),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 7),
-              Text(
-                item.title,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 1),
-              Text(
-                item.subtitle,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 6),
-              // Dedicated Live Telemetry Box (eliminates "sönük" feel)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3.5),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? Colors.black.withValues(alpha: 0.35)
-                      : Colors.white.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(6),
+                  color: item.color,
+                  borderRadius: BorderRadius.circular(7),
                   border: Border.all(
-                    color: item.color.withValues(alpha: isDark ? 0.5 : 0.4),
-                    width: 1.2,
+                    color: const Color(0xFF0F172A),
+                    width: 1.4,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      item.telemetryIcon ?? Icons.bolt_rounded,
-                      size: 11,
-                      color: item.color,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        item.telemetry ?? item.subtitle,
-                        style: TextStyle(
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.w800,
-                          color: isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
+                child: Icon(item.icon, size: 15, color: Colors.black),
               ),
+              const SizedBox(width: 5),
+              if (isNew) _buildNotificationDot(isDark),
+              const Spacer(),
+              if (item.badge != null && item.badge!.isNotEmpty)
+                NeoBrutalBadge(
+                  text: item.badge!,
+                  backgroundColor: item.color,
+                  textColor: Colors.black,
+                  fontSize: 7.5,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 2),
+                ),
             ],
           ),
           const SizedBox(height: 7),
-          NeoBrutalButton(
-            label: item.actionLabel ?? 'İNCELE',
-            fontSize: 9.5,
-            backgroundColor: item.color,
-            textColor: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen(item.route);
-              context.push(item.route);
-            },
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  item.title,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w900,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 3),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: Colors.black,
+                bgColor: item.color,
+                size: 18,
+                iconSize: 11,
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          // Dedicated Live Telemetry Box
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 6, vertical: 3.5),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.35)
+                  : const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isDark ? const Color(0xFF2E3D56) : const Color(0xFFCBD5E1),
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  item.telemetryIcon ?? Icons.bolt_rounded,
+                  size: 11,
+                  color: item.color,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    item.telemetry ?? item.subtitle,
+                    style: TextStyle(
+                      fontSize: 8.5,
+                      fontWeight: FontWeight.w800,
+                      color: isDark
+                          ? Colors.white
+                          : const Color(0xFF0F172A),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -3366,11 +3245,18 @@ class _DashboardServicesGridContent extends ConsumerWidget {
 
     return NeoBrutalCard(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
-      backgroundColor:
-          isDark ? const Color(0xFF261D04) : const Color(0xFFFEFCE8),
-      borderColor: const Color(0xFFFFD700),
-      borderWidth: 2.4,
+      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
       borderRadius: 13,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(16),
+        bottomRight: Radius.circular(16),
+      ),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.diagonalHatch,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen(item.route);
         context.push(item.route);
