@@ -649,6 +649,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
             children: [
               RealEstateListingThumbnail(
                 category: re.category,
+                seed: '${re.title}_${re.city}_${re.squareMeters}_${listing.id}',
+                squareMeters: re.squareMeters,
+                roomCount: re.roomCount,
                 isDark: theme.brightness == Brightness.dark,
               ),
               const SizedBox(width: 12),
@@ -966,6 +969,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
             children: [
               RealEstateListingThumbnail(
                 category: property.category,
+                seed: '${property.title}_${property.city}_${property.squareMeters}_${property.id}',
+                squareMeters: property.squareMeters,
+                roomCount: property.roomCount,
                 isDark: theme.brightness == Brightness.dark,
               ),
               const SizedBox(width: 12),

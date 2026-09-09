@@ -536,6 +536,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 category: cat,
                 bodyType: car.bodyType,
                 colorHex: car.colorHex,
+                seed: '${car.brand}_${car.modelName}_${car.modelYear}_${listing.id}',
                 isDark: isDark,
               ),
               const SizedBox(width: 12),

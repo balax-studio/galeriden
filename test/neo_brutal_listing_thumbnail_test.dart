@@ -77,5 +77,47 @@ void main() {
 
       expect(find.byType(RealEstateListingThumbnail), findsOneWidget);
     });
+
+    testWidgets('VasitaListingThumbnail renders multiple distinct seeds and colors properly',
+        (tester) async {
+      for (int i = 0; i < 5; i++) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: VasitaListingThumbnail(
+                category: VehicleCategory.values[i % VehicleCategory.values.length],
+                bodyType: 'Panelvan',
+                colorHex: i % 2 == 0 ? '#2563EB' : '#10B981',
+                seed: 'seed_variant_$i',
+                isDark: i.isOdd,
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(VasitaListingThumbnail), findsOneWidget);
+      }
+    });
+
+    testWidgets('RealEstateListingThumbnail renders multiple distinct seeds and specs properly',
+        (tester) async {
+      for (int i = 0; i < 5; i++) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: RealEstateListingThumbnail(
+                category: RealEstateCategory.values[i % RealEstateCategory.values.length],
+                seed: 're_listing_seed_$i',
+                squareMeters: 120 + i * 50,
+                roomCount: '${i + 1}+1',
+                isDark: i.isEven,
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(RealEstateListingThumbnail), findsOneWidget);
+      }
+    });
   });
 }

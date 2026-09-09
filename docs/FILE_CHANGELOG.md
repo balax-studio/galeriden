@@ -22,6 +22,48 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `NeoBrutalListingThumbnail Genişleme Paketi (45+ Çeşitlendirilmiş Vektörel Görsel & Dinamik Gövde Rengi)`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Kullanıcı talebi doğrultusunda her ilanda aynı görselin çıkmasını engelleyen kapsamlı bir görsel çeşitlendirme genişleme paketi geliştirmek. Her vasıta kategorisi için 3-4 farklı şasi/gövde tipi ve araç gerçek boya rengi (`colorHex`) harmanlaması; her emlak kategorisi için 3-4 farklı mimari tarz (villa, penthouse, ikiz ev, cadde apartmanı, tarihi konak, vb.) oluşturmak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/neo_brutal_listing_thumbnail.dart`:
+    - `VasitaListingThumbnail`:
+      - `bodyColor` desteği eklendi: İlanın `colorHex` değeri `ColorParser.parseCarColor` ile güvenle çözümlenerek aracın kaporta rengi dinamik olarak çizime yansıtıldı.
+      - `seed` parametresi eklendi: İlan başlığı ve ID'sine göre deterministik varyant seçimi sağlandı.
+      - 10 araç kategorisinin her biri için 3-4 alt varyant çizildi (toplam 31 araç vektör illüstrasyonu):
+        - Minivan: Kombi (tavan raylı), Panelvan (sürgülü raylı/rüzgarlıklı), Maxi Kasa (çift arka kapılı).
+        - Motosiklet: Naked/Street, Maxi-Scooter (arka çantalı), Chopper (uzun çatallı), Enduro/Adventure (yüksek gagalı).
+        - Ticari: Kutu Kamyon, Açık Kasa Damperli, Çekici Tır (yüksek tavan ve krom egzoz).
+        - Deniz Araçları: Flybridge Lüks Yat, Sürat Teknesi (dıştan motorlu), Yelkenli Kotra.
+        - Karavan: Motokaravan (tente/klimalı), Çekme Karavan (çeki demirli), Alkovenli Aile RV.
+        - Hava Araçları: Tek Motorlu Pervaneli, Çift Motorlu Pırpır, İniş Kızaklı Helikopter.
+        - ATV & UTV: Spor Yarış ATV'si, Yük Sepetli Çiftlik ATV'si, Roll-cage Buggy UTV.
+        - Klasik Araç: 1950'ler Tail-fin Coupe, Vintage Roadster, 70'ler Fastback Muscle.
+        - Otomobil/Filo: Şehir Sedan'ı, Crossover SUV, Sportif Hatchback.
+        - Hasarlı: Önden Ağır Hasarlı, Yandan Darbeli Göçük, Tavan Çökmesi/Taklalı.
+    - `RealEstateListingThumbnail`:
+      - `seed`, `squareMeters`, `roomCount` parametreleri eklendi.
+      - 5 emlak kategorisi için toplam 16 mimari vektör illüstrasyonu çizildi:
+        - Konut: Müstakil Eğimli Villa, Modern Kübik Villa (teraslı), Çatı Dubleksi/Penthouse (mansart tavan), 2 Katlı İkiz Ev.
+        - İş Yeri: Çizgili Tenteli Butik Kafe, Cam Perde Cepheli Plaza Ofisi, Sarmal Kepenkli Sanayi Hangarı.
+        - Arsa: Kadastro Parseli & Bayraklı Kazıklar, İmar Planlı Ada/Pusulalı Parsel, Dalgalı Tepeli Sıralı Fidanlık.
+        - Konut Projeleri: Gökyüzü Köprülü İkiz Kuleler, Kademeli Lüks Rezidans, 3 Bloklu Modern Site.
+        - Bina: 4 Katlı Klasik Apartman, Zemin Dükkanlı Cadde Binası, Cumbahı Tarihi Taş Konak.
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - `VasitaListingThumbnail` çağrısına `seed: '${car.brand}_${car.modelName}_${car.modelYear}_${listing.id}'` bağlandı.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - İlan kartları ve portföy kartlarında `seed`, `squareMeters` ve `roomCount` parametreleri bağlandı.
+  - `test/neo_brutal_listing_thumbnail_test.dart`:
+    - Tüm varyant indeksleri, dinamik renk çözümlemesi ve farklı tohumlar için yeni testler eklendi ve başarıyla geçirildi.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: Kullanıcı görsel zenginleştirme ve çeşitlendirme isteği.
+- **Uygulanan Çözüm**: 47 farklı vektörel alt şablon ve renk motoru entegre edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (`No issues found!`).
+  - `flutter test test/neo_brutal_listing_thumbnail_test.dart`: 6 testin 6'sı da başarıyla geçti (`All tests passed!`).
+
+---
+
 ### `Vasıta & Emlak İlanları Neo-Brutalist Görsel Küçük Resim Sistemi (NeoBrutalListingThumbnail)`
 - **Tarih**: 2026-09-09
 - **Değişiklik Amacı**: Kullanıcı isteği doğrultusunda hem Vasıta Pazarı (`VasitaMarketScreen`) hem de Emlak Pazarı (`RealEstateMarketScreen`) ilan kartlarına, Araç Pazarı'ndaki sıcak sarımsı neo-brutalist araç silüeti kutusu estetiğine uygun, ilan tipine göre özelleştirilmiş, gözü yormayan ve rahatsız etmeyen (`0xFFFEF9C3` krem-parşömen tabanlı, 2.0px kenarlıklı, 0-blur gölgeli) vektörel görsel küçük resim bileşeni entegre etmek.
