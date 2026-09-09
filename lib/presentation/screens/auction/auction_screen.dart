@@ -46,12 +46,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
     super.didChangeDependencies();
     if (!_isAuctionInitialized) {
       _isAuctionInitialized = true;
-      final notifier = ref.read(auctionSessionProvider.notifier);
-      final auction = ref.read(auctionSessionProvider).auction;
-      notifier.addBidLog(context.tr('auction_starting_price_log', {
-        'price': CurrencyFormatter.formatShort(auction.startingPrice),
-      }));
-      notifier.addBidLog(context.tr('auction_session_started'));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final notifier = ref.read(auctionSessionProvider.notifier);
+        final auction = ref.read(auctionSessionProvider).auction;
+        notifier.addBidLog(context.tr('auction_starting_price_log', {
+          'price': CurrencyFormatter.formatShort(auction.startingPrice),
+        }));
+        notifier.addBidLog(context.tr('auction_session_started'));
+      });
     }
   }
 
@@ -374,7 +377,11 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   Widget build(BuildContext context) {
     ref.listen<AuctionSessionState>(auctionSessionProvider, (prev, next) {
       if (next.isHandlingAuctionEnd && !(prev?.isHandlingAuctionEnd ?? false)) {
-        _handleAuctionEnd(next);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _handleAuctionEnd(next);
+          }
+        });
       }
     });
 

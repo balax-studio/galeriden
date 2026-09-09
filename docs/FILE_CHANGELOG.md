@@ -24,6 +24,28 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 
 ---
 
+### `lib/presentation/screens/auction/auction_screen.dart` & `test/auction_screen_widget_test.dart`
+- **Tarih**: 2026-09-09
+- **Değişiklik Amacı**: Canlı İhale (`/auction`) ekranına girildiğinde ortaya çıkan "Tried to modify a provider while the widget tree was building" (AuctionSessionNotifier StateNotifier listener exception) çökme hatasının kalıcı olarak giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - `didChangeDependencies()` metodunda `notifier.addBidLog(...)` çağrıları `WidgetsBinding.instance.addPostFrameCallback((_) { if (!mounted) return; ... })` bloğu içerisine alınarak ağaç inşa döngüsü dışına ertelendi.
+    - `build()` metodundaki `ref.listen<AuctionSessionState>` dinleyicisinde `_handleAuctionEnd(next)` tetiklemesi yine `WidgetsBinding.instance.addPostFrameCallback` içine alınarak olası ikincil sağlayıcı mutasyonları (`buyCarDirectly`, diyalog açılışları) güvenceye alındı.
+  - `test/auction_screen_widget_test.dart`:
+    - `AuctionScreen` bileşeninin `ProviderScope` altında temiz bir şekilde mount olduğunu, başlangıç teklif loglarının eklendiğini ve widget ağacı oluşturulurken hiçbir provider istisnası fırlatılmadığını doğrulayan kapsamlı widget testi eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `At least listener of the StateNotifier Instance of 'AuctionSessionNotifier' threw an exception when the notifier tried to update its state. The exceptions thrown are: Tried to modify a provider while the widget tree was building.`
+- **Kök Neden**:
+  - `didChangeDependencies()` yaşam döngüsü metodu Flutter'ın ağaç güncelleme ve build öncesi aşamasında senkron olarak çalışmaktadır. Bu aşamada doğrudan `notifier.addBidLog` ile `AuctionSessionNotifier.state` güncellendiğinde, Riverpod `_debugCanModifyProviders` kontrolü devreye girerek ağaç oluşturulurken provider durumunun değiştirilmesine izin vermemekte ve hata fırlatmaktaydı.
+- **Uygulanan Çözüm**:
+  - Sağlayıcı durumunu güncelleyen başlangıç logları `WidgetsBinding.instance.addPostFrameCallback` ile çerçevenin (frame) inşası tamamlandıktan sonraki güvenli mikrogörev aşamasına ertelendi.
+- **Doğrulama / Test Durumu**:
+  - `test/auction_screen_widget_test.dart` widget testi başarıyla geçti.
+  - `test/auction_screen_e2e_flow_test.dart`, `test/auction_fomo_and_anti_sniping_test.dart`, `test/auction_sell_test.dart` süitlerindeki 24 testin tamamı geçti.
+  - `flutter analyze lib/`: 0 hata, 0 uyarı (`No issues found!`).
+
+---
+
 ### `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart` & `lib/core/localization/translations/*`
 - **Tarih**: 2026-09-09
 - **Değişiklik Amacı**: Dashboard ana sayfasındaki (Tab 0) Hızlı Hizmetler ızgarasının Showroom Bento Hero kartı ile güçlendirilmesi, 2 sütunlu hizmet kartlarına canlı telemetri rozetlerinin eklenmesi ve derleme/hot-restart güncellemelerinin 7 dilde eksiksiz senkronizasyonu.
