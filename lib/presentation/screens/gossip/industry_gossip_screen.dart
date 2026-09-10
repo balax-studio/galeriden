@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class IndustryGossipScreen extends ConsumerWidget {
@@ -55,60 +56,65 @@ class IndustryGossipScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(14),
         physics: const BouncingScrollPhysics(),
         children: [
-          // Header Info Banner
-          NeoBrutalCard(
-            padding: const EdgeInsets.all(14),
-            backgroundColor:
-                isDark ? const Color(0xFF1E1E2E) : const Color(0xFFFFFBEB),
-            borderColor: AppColors.brutalYellow,
-            borderRadius: 14,
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.brutalYellow,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark
-                          ? const Color(0xFF333B4F)
-                          : const Color(0xFF0F172A),
-                      width: 2.0,
+          // Header Info Banner with CRT Retro-Scanline Texture
+          CrtScanlinesOverlay(
+            opacity: isDark ? 0.12 : 0.06,
+            lineSpacing: 3.5,
+            scanlineColor: isDark ? const Color(0xFF38BDF8) : Colors.black,
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(14),
+              backgroundColor:
+                  isDark ? const Color(0xFF1E1E2E) : const Color(0xFFFFFBEB),
+              borderColor: AppColors.brutalYellow,
+              borderRadius: 14,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.brutalYellow,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
+                        width: 2.0,
+                      ),
+                    ),
+                    child: const Icon(Icons.record_voice_over_rounded,
+                        color: Colors.black, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('gossip_banner_title'),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w900,
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimaryLight,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          context.tr('gossip_banner_desc'),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : AppColors.textSecondaryLight,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Icon(Icons.record_voice_over_rounded,
-                      color: Colors.black, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr('gossip_banner_title'),
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: isDark
-                              ? Colors.white
-                              : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        context.tr('gossip_banner_desc'),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : AppColors.textSecondaryLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -128,6 +134,9 @@ class IndustryGossipScreen extends ConsumerWidget {
               icon: Icons.chat_bubble_outline_rounded,
               title: context.tr('gossip_empty_title'),
               description: context.tr('gossip_empty_desc'),
+              actionLabel: context.tr('gossip_empty_cta'),
+              actionIcon: Icons.record_voice_over_rounded,
+              onActionPressed: () => _showSpreadRumorSheet(context, ref, isDark, game),
             )
           else ...[
             Text(

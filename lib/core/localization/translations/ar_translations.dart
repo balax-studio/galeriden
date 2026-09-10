@@ -5540,5 +5540,11 @@ const Map<String, String> arTranslations = {
     'real_estate_renovation_empty_title': 'لم يتم العثور على عقار للترميم',
     'real_estate_renovation_empty_desc': 'تفقد عقاراتك المملوكة لإدارة أعمال الصيانة والترميم.',
     'real_estate_renovation_empty_cta': 'الذهاب إلى سوق العقارات',
+    'reviews_empty_cta': 'الذهاب إلى صالة العرض',
+    'scrap_no_parts_cta': 'تفكيك سيارات الخردة',
+    'gossip_empty_cta': 'نشر همسة في السوق',
+    'consignment_earn_rep_cta': 'بيع السيارات لزيادة السمعة',
+    'media_headline_tag': 'عنوان السوق الرئيسي',
+    'scrap_mechanic_order_badge': 'طلب الميكانيكي',
   };
 

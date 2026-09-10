@@ -5540,5 +5540,11 @@ const Map<String, String> ruTranslations = {
     'real_estate_renovation_empty_title': 'Объект для ремонта не найден',
     'real_estate_renovation_empty_desc': 'Осмотрите вашу недвижимость для управления ремонтом и модернизацией.',
     'real_estate_renovation_empty_cta': 'Перейти на рынок недвижимости',
+    'reviews_empty_cta': 'Перейти в автосалон',
+    'scrap_no_parts_cta': 'Разобрать машины на свалке',
+    'gossip_empty_cta': 'Распустить рыночный слух',
+    'consignment_earn_rep_cta': 'Продавать авто для роста репутации',
+    'media_headline_tag': 'РЫНОЧНЫЙ ЗАГОЛОВОК',
+    'scrap_mechanic_order_badge': 'ЗАКАЗ МАСТЕРА',
   };
 

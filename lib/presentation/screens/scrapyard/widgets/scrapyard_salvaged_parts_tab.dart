@@ -9,10 +9,13 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/neo_brutal_empty_state.dart';
 import 'scrapyard_install_dialog.dart';
 
 class ScrapyardSalvagedPartsTab extends ConsumerStatefulWidget {
-  const ScrapyardSalvagedPartsTab({super.key});
+  final VoidCallback? onSwitchToScrapCars;
+
+  const ScrapyardSalvagedPartsTab({super.key, this.onSwitchToScrapCars});
 
   @override
   ConsumerState<ScrapyardSalvagedPartsTab> createState() =>
@@ -181,41 +184,27 @@ class _ScrapyardSalvagedPartsTabState
         // Parts List
         Expanded(
           child: filteredParts.isEmpty
-              ? Center(
-                  child: NeoBrutalCard(
-                    margin: const EdgeInsets.all(24),
-                    padding: const EdgeInsets.all(28),
-                    backgroundColor:
-                        isDark ? const Color(0xFF141721) : Colors.white,
-                    borderColor: isDark
-                        ? const Color(0xFF2A3142)
-                        : const Color(0xFF0F172A),
-                    borderRadius: 14,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.inventory_2_rounded,
-                            color: Color(0xFF64748B), size: 40),
-                        const SizedBox(height: 10),
-                        Text(
-                          context.tr('scrap_no_parts_found'),
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w900),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _selectedCategory == 'all' && _searchQuery.isEmpty
-                              ? context.tr('scrap_no_parts_desc_all')
-                              : context.tr('scrap_no_parts_desc_filter'),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF64748B)),
-                        ),
-                      ],
-                    ),
-                  ),
+              ? NeoBrutalEmptyState(
+                  icon: Icons.inventory_2_rounded,
+                  accentColor: AppColors.brutalOrange,
+                  badgeText: context.tr('scrap_tab_salvaged_parts', {'count': '0'}),
+                  title: context.tr('scrap_no_parts_found'),
+                  description: _selectedCategory == 'all' && _searchQuery.isEmpty
+                      ? context.tr('scrap_no_parts_desc_all')
+                      : context.tr('scrap_no_parts_desc_filter'),
+                  actionLabel: context.tr('scrap_no_parts_cta'),
+                  actionIcon: Icons.car_crash_rounded,
+                  onActionPressed: () {
+                    if (_selectedCategory == 'all' && _searchQuery.isEmpty) {
+                      widget.onSwitchToScrapCars?.call();
+                    } else {
+                      setState(() {
+                        _selectedCategory = 'all';
+                        _searchQuery = '';
+                      });
+                    }
+                  },
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
                 )
               : ListView.builder(
                   padding: const EdgeInsets.all(12),

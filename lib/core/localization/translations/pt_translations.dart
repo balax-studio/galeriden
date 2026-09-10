@@ -5539,5 +5539,11 @@ const Map<String, String> ptTranslations = {
     'real_estate_renovation_empty_title': 'Imóvel de Reforma Não Encontrado',
     'real_estate_renovation_empty_desc': 'Inspecione suas propriedades para gerenciar reformas e valorizações.',
     'real_estate_renovation_empty_cta': 'Ir ao Mercado Imobiliário',
+    'reviews_empty_cta': 'Ir para o Showroom',
+    'scrap_no_parts_cta': 'Desmanchar Carros Sucateados',
+    'gossip_empty_cta': 'Espalhar Boato no Mercado',
+    'consignment_earn_rep_cta': 'Vender Carros para Ganhar Reputação',
+    'media_headline_tag': 'MANCHETE DO MERCADO',
+    'scrap_mechanic_order_badge': 'PEDIDO DO MECÂNICO',
   };
 

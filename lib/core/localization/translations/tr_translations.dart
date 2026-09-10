@@ -5543,5 +5543,11 @@ const Map<String, String> trTranslations = {
     'real_estate_renovation_empty_title': 'Tadilat Mülkü Bulunamadı',
     'real_estate_renovation_empty_desc': 'Tadilat ve yenileme işlemlerini yönetmek için sahip olduğunuz mülkleri inceleyin.',
     'real_estate_renovation_empty_cta': 'Mülk Pazarına Git',
+    'reviews_empty_cta': 'Showroom Vitrinine Git',
+    'scrap_no_parts_cta': 'Hurda Araç Parçala',
+    'gossip_empty_cta': 'Piyasaya Fısıltı Yay',
+    'consignment_earn_rep_cta': 'İtibar Kazanmak İçin Araç Sat',
+    'media_headline_tag': 'PİYASA MANŞETİ',
+    'scrap_mechanic_order_badge': 'USTA TALEBİ',
   };
 

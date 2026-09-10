@@ -102,25 +102,44 @@ class ScrapyardB2BOrdersTab extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Text(order.mechanicAvatar,
-                            style: const TextStyle(fontSize: 20)),
-                        const SizedBox(width: 8),
-                        Text(
-                          order.mechanicName,
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w900,
-                            color: isDark
-                                ? Colors.white
-                                : const Color(0xFF0F172A),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalYellow,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(order.avatarIcon,
+                                size: 16, color: Colors.black),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              order.mechanicName,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w900,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     NeoBrutalBadge(
-                      text: '+${order.reputationReward} İtibar',
+                      text: '+${order.reputationReward} REP',
                       backgroundColor: AppColors.brutalPurple,
                       textColor: Colors.white,
                       fontSize: 10,
@@ -203,23 +222,29 @@ class ScrapyardB2BOrdersTab extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    NeoBrutalButton(
-                      label: hasMatchingPart
-                          ? context.tr('scrap_b2b_btn_fulfill')
-                          : context.tr('scrap_b2b_btn_no_part'),
-                      icon: hasMatchingPart
-                          ? Icons.local_shipping_rounded
-                          : Icons.block_rounded,
-                      backgroundColor: hasMatchingPart
-                          ? AppColors.brutalGreen
-                          : const Color(0xFF64748B),
-                      textColor:
-                          hasMatchingPart ? Colors.black : Colors.white,
-                      fontSize: 11,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 7),
-                      onPressed: () => ScrapyardFulfillOrderDialog.show(
-                          context, ref, order),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: NeoBrutalButton(
+                          label: hasMatchingPart
+                              ? context.tr('scrap_b2b_btn_fulfill')
+                              : context.tr('scrap_b2b_btn_no_part'),
+                          icon: hasMatchingPart
+                              ? Icons.local_shipping_rounded
+                              : Icons.block_rounded,
+                          backgroundColor: hasMatchingPart
+                              ? AppColors.brutalGreen
+                              : const Color(0xFF64748B),
+                          textColor:
+                              hasMatchingPart ? Colors.black : Colors.white,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 7),
+                          onPressed: () => ScrapyardFulfillOrderDialog.show(
+                              context, ref, order),
+                        ),
+                      ),
                     ),
                   ],
                 ),

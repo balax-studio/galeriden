@@ -10,6 +10,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class MediaAgencyScreen extends ConsumerStatefulWidget {
@@ -52,87 +53,98 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
         padding: const EdgeInsets.all(14),
         physics: const BouncingScrollPhysics(),
         children: [
-          // Active Campaign Status Banner
+          // Active Campaign Status Banner with Bayer Matrix Print Texture
           if (isCampaignRunning) ...[
-            NeoBrutalCard(
-              borderColor: const Color(0xFF38BDF8),
-              borderWidth: 2.5,
-              backgroundColor:
-                  isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF),
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.bolt_rounded,
-                          color: Color(0xFF38BDF8), size: 24),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          context.tr('media_active_pr_title'),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF38BDF8),
-                            letterSpacing: 0.5,
+            BayerDitherOverlay(
+              opacity: isDark ? 0.08 : 0.04,
+              spacing: 4.0,
+              ditherColor: isDark ? const Color(0xFF38BDF8) : Colors.black,
+              child: NeoBrutalCard(
+                borderColor: const Color(0xFF38BDF8),
+                borderWidth: 2.5,
+                backgroundColor:
+                    isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.bolt_rounded,
+                            color: Color(0xFF38BDF8), size: 24),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            context.tr('media_active_pr_title'),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF38BDF8),
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
-                      ),
-                      NeoBrutalBadge(
-                        text: context.tr('media_duration_badge', {
-                          'days': '${activePr.remainingDays(game.currentDay)}'
-                        }),
-                        backgroundColor: const Color(0xFF38BDF8),
-                        textColor: Colors.black,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    activePr.title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFBAE6FD),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        _buildStatItem(
-                            context.tr('media_stat_customer_flow'),
-                            '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}',
-                            const Color(0xFF10B981),
-                            isDark),
-                        _buildStatItem(
-                            context.tr('media_stat_offer_price'),
-                            '+%${(activePr.offerPriceBoost * 100).toInt()}',
-                            const Color(0xFFFFDE59),
-                            isDark),
-                        _buildStatItem(
-                            context.tr('media_stat_negotiation_ease'),
-                            '-%${(activePr.negotiationResistanceReduction * 100).toInt()}',
-                            const Color(0xFF38BDF8),
-                            isDark),
+                        NeoBrutalBadge(
+                          text: context.tr('media_duration_badge', {
+                            'days': '${activePr.remainingDays(game.currentDay)}'
+                          }),
+                          backgroundColor: const Color(0xFF38BDF8),
+                          textColor: Colors.black,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    Text(
+                      activePr.title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFBAE6FD),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Expanded(
+                            child: _buildStatItem(
+                                context.tr('media_stat_customer_flow'),
+                                '+%${((activePr.customerFlowMultiplier - 1) * 100).toInt()}',
+                                const Color(0xFF10B981),
+                                isDark),
+                          ),
+                          Expanded(
+                            child: _buildStatItem(
+                                context.tr('media_stat_offer_price'),
+                                '+%${(activePr.offerPriceBoost * 100).toInt()}',
+                                const Color(0xFFFFDE59),
+                                isDark),
+                          ),
+                          Expanded(
+                            child: _buildStatItem(
+                                context.tr('media_stat_negotiation_ease'),
+                                '-%${(activePr.negotiationResistanceReduction * 100).toInt()}',
+                                const Color(0xFF38BDF8),
+                                isDark),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -381,6 +393,7 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
 
   Widget _buildStatItem(String label, String value, Color color, bool isDark) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           value,
@@ -391,12 +404,15 @@ class _MediaAgencyScreenState extends ConsumerState<MediaAgencyScreen> {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10.5,
-            fontWeight: FontWeight.w700,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            ),
           ),
         ),
       ],

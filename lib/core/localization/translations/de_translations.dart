@@ -5539,4 +5539,10 @@ const Map<String, String> deTranslations = {
     'real_estate_renovation_empty_title': 'Renovierungsobjekt nicht gefunden',
     'real_estate_renovation_empty_desc': 'Überprüfen Sie Ihre Immobilien, um Renovierungen und Modernisierungen zu verwalten.',
     'real_estate_renovation_empty_cta': 'Zum Immobilienmarkt gehen',
+    'reviews_empty_cta': 'Zum Ausstellungsraum gehen',
+    'scrap_no_parts_cta': 'Schrottautos zerlegen',
+    'gossip_empty_cta': 'Marktgeflüster verbreiten',
+    'consignment_earn_rep_cta': 'Autos verkaufen für Ruf',
+    'media_headline_tag': 'MARKTSCHLAGZEILE',
+    'scrap_mechanic_order_badge': 'MEISTERANFRAGE',
   };

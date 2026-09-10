@@ -5547,5 +5547,11 @@ const Map<String, String> enTranslations = {
     'real_estate_renovation_empty_title': 'Renovation Property Not Found',
     'real_estate_renovation_empty_desc': 'Inspect your owned real estate assets to manage renovations and upgrades.',
     'real_estate_renovation_empty_cta': 'Go to Property Market',
+    'reviews_empty_cta': 'Go to Showroom',
+    'scrap_no_parts_cta': 'Dismantle Scrap Cars',
+    'gossip_empty_cta': 'Spread Market Whisper',
+    'consignment_earn_rep_cta': 'Sell Cars to Earn Reputation',
+    'media_headline_tag': 'MARKET HEADLINE',
+    'scrap_mechanic_order_badge': 'MASTER DEMAND',
   };
 

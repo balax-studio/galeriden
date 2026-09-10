@@ -22,6 +22,59 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Neo-Brutalist Prosedürel Shader Dokuları, Sıfır Çıkmaz Boş Durumlar, Dar Ekran (<340dp) Taşma Koruması ve Slopsuz Açıklamalar (§SPEC-2026-UI-UX-PRO-MAX-SHADERS-OVERFLOWS-ZERO-SLOP)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  1. Dar ekranlı (<340dp) mobil cihazlarda düğme ve metin taşmalarının (`RenderFlex overflowed by N pixels`) `Flexible`, `Expanded`, `FittedBox` ve `Wrap` hiyerarşisi ile giderilmesi.
+  2. Oyuncuyu yönlendirmesiz bırakan sahipsiz/boş durumların (`NeoBrutalEmptyState`) aksiyon butonları (`actionLabel`, `actionIcon`, `onAction`) ile dinamik akışa bağlanması (örneğin müşteri yorumlarında galeriye, hurdalık parça sekmesinde hurda araç satın almaya, borsa dedikodularında fısıltı yayma paneline yönlendirme).
+  3. Neo-brutalist dokuyu canlandıran sıfır kare gecikmeli tual ve prosedürel shader dokularının (`CrtScanlinesOverlay`, `BayerDitherOverlay` 4x4 matris, `TactileBrutalStamp`, `CadBlueprintOverlay`) üretilmesi ve ekranlara uygulanması.
+  4. Hurdalık B2B siparişler sekmesindeki avatar rendering sorunlarının ve sıkışan sipariş tamamlama butonlarının giderilmesi.
+  5. Konsinye, yan işletmeler ve medya ajansı ekranlarındaki etiket, rozet ve başlık alanlarının dar ekran duyarlı hale getirilmesi.
+  6. Eklenen tüm yeni metin ve etiketlerin kural 1 (sıfır emoji), kural 2 (sıfır parantez) invariantları altında 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı olarak yerelleştirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/procedural_shader_textures.dart` [YENİ]:
+    - `CrtScanlinesOverlay`: CRT tüplü televizyon yatay tarama çizgilerini ve hafif fosfor ışımasını donanım hızlandırmalı `CustomPainter` ile simüle eden katman.
+    - `BayerDitherOverlay`: 4x4 Bayer dither matrisi kullanan, retro bilgisayar ve fotokopi tramı dokusu sunan sıfır maliyetli görsel doku widget'ı.
+    - `TactileBrutalStamp`: -12° açılı, 2.5px kalın neo-brutalist damga (KAŞELENDİ / REDDEDİLDİ / ONAYLANDI / İFLAS / B2B ONAYLI).
+    - `CadBlueprintOverlay`: Teknik çizim, mimari plan ve CAD milimetrik kareleme + merkez artı izleri çizen overlay.
+  - `lib/presentation/screens/reviews/customer_reviews_screen.dart`:
+    - Değerlendirme özet kartı `BayerDitherOverlay` ile zenginleştirildi.
+    - Boş inceleme durumu `NeoBrutalEmptyState` üzerinden `reviews_empty_cta` ("Galeriye Git & Araç Sat") butonu ve GoRouter `/showroom` yönlendirmesiyle canlı hale getirildi.
+  - `lib/presentation/screens/scrapyard/widgets/scrapyard_salvaged_parts_tab.dart`:
+    - Boş envanter alanı yalın metin yerine `NeoBrutalEmptyState` ile değiştirildi; `scrap_no_parts_cta` butonu ve `onSwitchToScrapCars` geri çağrımı eklendi.
+  - `lib/presentation/screens/scrapyard/scrapyard_screen.dart`:
+    - `ScrapyardSalvagedPartsTab` bileşenine `onSwitchToScrapCars: () => _tabController.animateTo(0)` atanarak parça bulunmadığında doğrudan "Hurda Araçlar" satın alma sekmesine geçiş sağlandı.
+  - `lib/presentation/screens/scrapyard/widgets/scrapyard_b2b_orders_tab.dart`:
+    - Sipariş kartındaki `order.mechanicAvatar` metin olarak ekrana basılmak yerine neo-brutal kutu içinde `Icon(order.avatarIcon)` olarak render edildi.
+    - Sipariş teslim butonu `Flexible` ve `FittedBox` ile dar cihazlarda buton taşmasına karşı korundu.
+  - `lib/presentation/screens/gossip/industry_gossip_screen.dart`:
+    - Gazete/manşet başlık kartına `CrtScanlinesOverlay` tarama çizgisi katmanı eklendi.
+    - Boş fısıltı akışı durumuna `gossip_empty_cta` ("Piyasaya Fısıltı Yay") aksiyon butonu eklenerek doğrudan söylenti yayma paneli açıldı.
+  - `lib/presentation/screens/consignment/consignment_screen.dart`:
+    - Konsinye süresi ve aksiyon butonu satırı dar ekranlar için `Expanded` ve `Flexible(child: FittedBox(child: NeoBrutalButton(...)))` ile yeniden yapılandırıldı; buton metninin taşması engellendi.
+  - `lib/presentation/screens/side_business/side_business_screen.dart`:
+    - Başlık rozetleri `Flexible` ve `Wrap(spacing: 4, runSpacing: 4)` ile sarmalanarak küçük ekranlarda başlık metnini ezmeden alt satıra geçmesi sağlandı.
+  - `lib/presentation/screens/office/media_agency_screen.dart`:
+    - Aktif medya kampanyası kartına `BayerDitherOverlay` dokusu eklendi; istatistik metinleri `FittedBox` ile korundu.
+  - `lib/core/localization/translations/*.dart`:
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerine 6 yeni anahtar eşzamanlı olarak tanımlandı (`reviews_empty_cta`, `scrap_no_parts_cta`, `gossip_empty_cta`, `consignment_earn_rep_cta`, `media_headline_tag`, `scrap_mechanic_order_badge`).
+  - `test/ui_ux_pro_max_and_shaders_test.dart` [YENİ]:
+    - CRT, Bayer dither, brutal damga ve blueprint dokularının `CustomPainter` çizim döngülerini, 7 dil bütünlüğünü, parantezsiz/emojisiz kural denetimlerini ve 320px ultra dar ekranda `NeoBrutalEmptyState` render stabilitesini doğrulayan 8 adet test yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `consignment_screen.dart` dosyasında buton `Flexible` ve `FittedBox` içine alınırken kapanış parantezi eksikliği nedeniyle sözdizimi derleme hatası oluştu.
+  - `customer_reviews_screen.dart` dosyasında `BayerDitherOverlay` eklendiğinde kapanış parantezi kayması nedeniyle widget argüman hatası alındı.
+  - `ui_ux_pro_max_and_shaders_test.dart` dosyasında buton tıklama testi sırasında `pump()` kullanıldığında `NeoBrutalButton` animasyon zamanlayıcısının açık kaldığı tespit edildi.
+- **Kök Neden**:
+  - Çok katmanlı widget sarmalamalarında iç içe geçen parantez eşleşme karmaşıklığı.
+  - Widget testlerinde basış animasyonu barındıran bileşenlerin timer döngüsünün `pumpAndSettle()` ile tamamlanması zorunluluğu.
+- **Uygulanan Çözüm**:
+  - Sözdizimi yapısı temizlenerek parantez hiyerarşisi yeniden hizalandı.
+  - Widget testinde `await tester.pumpAndSettle()` kullanılarak tüm animasyon döngülerinin başarıyla sonlanması sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/ui_ux_pro_max_and_shaders_test.dart` çalıştırıldı: 8/8 test başarıyla geçti.
+  - `flutter test test/leaderboard_and_real_estate_market_test.dart` çalıştırıldı: 5/5 test başarıyla geçti.
+  - `flutter analyze` 10 değiştirilen ve yeni dosya üzerinde çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+
 ### `Liderler Tablosu Otomatik Yenileme, Gayrimenkul Piyasa Fiyat Kalibrasyonu, Kasa Büyüdükçe Üst Segment Vasıta Üretimi, Dar Ekran Taşma Giderimleri ve Boş Durum Yönlendirmeleri (§SPEC-2026-LEADERBOARD-REALESTATE-WEALTH-POLISH)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:

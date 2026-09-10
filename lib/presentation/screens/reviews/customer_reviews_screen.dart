@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/game_constants.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -13,6 +14,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class CustomerReviewsScreen extends ConsumerWidget {
@@ -66,16 +68,20 @@ class CustomerReviewsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(14),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // 1. Rating Header Card
-                NeoBrutalCard(
-                  padding: const EdgeInsets.all(16),
-                  backgroundColor:
-                      isDark ? const Color(0xFF141721) : Colors.white,
-                  borderColor: isDark
-                      ? const Color(0xFF2A3142)
-                      : const Color(0xFF0F172A),
-                  borderRadius: 14,
-                  child: Column(
+                // 1. Rating Header Card with Subtle Bayer Dither Texture
+                BayerDitherOverlay(
+                  opacity: isDark ? 0.08 : 0.04,
+                  spacing: 4.0,
+                  ditherColor: isDark ? AppColors.brutalYellow : Colors.black,
+                  child: NeoBrutalCard(
+                    padding: const EdgeInsets.all(16),
+                    backgroundColor:
+                        isDark ? const Color(0xFF141721) : Colors.white,
+                    borderColor: isDark
+                        ? const Color(0xFF2A3142)
+                        : const Color(0xFF0F172A),
+                    borderRadius: 14,
+                    child: Column(
                     children: [
                       Row(
                         children: [
@@ -200,7 +206,8 @@ class CustomerReviewsScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
+              ),
+              const SizedBox(height: 14),
                 const NeoBrutalNativeAdCard(
                   contextType: NativeAdContextType.reviews,
                   margin: EdgeInsets.only(bottom: 14),
@@ -231,6 +238,9 @@ class CustomerReviewsScreen extends ConsumerWidget {
                   badgeText: context.tr('reviews_empty_badge'),
                   title: context.tr('reviews_empty_title'),
                   description: context.tr('reviews_empty_desc'),
+                  actionLabel: context.tr('reviews_empty_cta'),
+                  actionIcon: Icons.storefront_rounded,
+                  onActionPressed: () => context.push('/showroom'),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 ),

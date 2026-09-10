@@ -552,50 +552,58 @@ class ConsignmentScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
 
-            // Action row
+            // Action row with responsive layout
             Row(
               children: [
-                Text(
-                  context.tr('consignment_duration_days', {
-                    'days': '${car.consignmentDaysRemaining}',
-                  }),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : AppColors.textSecondaryLight,
+                Expanded(
+                  child: Text(
+                    context.tr('consignment_duration_days', {
+                      'days': '${car.consignmentDaysRemaining}',
+                    }),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : AppColors.textSecondaryLight,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
-                NeoBrutalButton(
-                  label: hasGarageSpace
-                      ? context.tr('consignment_accept_btn')
-                      : context.tr('consignment_garage_full_btn'),
-                  backgroundColor: hasGarageSpace
-                      ? AppColors.brutalGreen
-                      : const Color(0xFF64748B),
-                  textColor: Colors.black,
-                  onPressed: hasGarageSpace
-                      ? () {
-                          final success = ref
-                              .read(gameProvider.notifier)
-                              .acceptConsignmentOffer(car);
-                          if (success) {
-                            NotificationService.showSuccess(
-                              context,
-                              context.tr('consignment_accept_success', {
-                                'car': car.modelName,
-                              }),
-                            );
-                          }
-                        }
-                      : () {
-                          NotificationService.showWarning(
-                            context,
-                            context.tr('consignment_garage_full_warning'),
-                          );
-                        },
+                const SizedBox(width: 8),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: NeoBrutalButton(
+                      label: hasGarageSpace
+                          ? context.tr('consignment_accept_btn')
+                          : context.tr('consignment_garage_full_btn'),
+                      backgroundColor: hasGarageSpace
+                          ? AppColors.brutalGreen
+                          : const Color(0xFF64748B),
+                      onPressed: hasGarageSpace
+                          ? () {
+                              final success = ref
+                                  .read(gameProvider.notifier)
+                                  .acceptConsignmentOffer(car);
+                              if (success) {
+                                NotificationService.showSuccess(
+                                  context,
+                                  context.tr('consignment_accept_success', {
+                                    'car': car.modelName,
+                                  }),
+                                );
+                              }
+                            }
+                          : () {
+                              NotificationService.showWarning(
+                                context,
+                                context.tr('consignment_garage_full_warning'),
+                              );
+                            },
+                    ),
+                  ),
                 ),
               ],
             ),

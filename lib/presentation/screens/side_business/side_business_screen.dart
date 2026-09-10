@@ -295,45 +295,47 @@ class SideBusinessScreen extends ConsumerWidget {
                           ),
                         ),
                         if (isOwned)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (isUnderConstruction)
-                                NeoBrutalBadge(
-                                  text: context.tr('side_biz_badge_construction'),
-                                  backgroundColor: AppColors.brutalYellow,
-                                  textColor: Colors.black,
-                                  fontSize: 10,
-                                )
-                              else ...[
-                                if (business.hasManager)
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: NeoBrutalBadge(
+                          Flexible(
+                            child: Wrap(
+                              alignment: WrapAlignment.end,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
+                              runSpacing: 4,
+                              children: [
+                                if (isUnderConstruction)
+                                  NeoBrutalBadge(
+                                    text: context.tr('side_biz_badge_construction'),
+                                    backgroundColor: AppColors.brutalYellow,
+                                    textColor: Colors.black,
+                                    fontSize: 10,
+                                  )
+                                else ...[
+                                  if (business.hasManager)
+                                    NeoBrutalBadge(
                                       text: context.tr('side_biz_badge_managed'),
                                       backgroundColor: const Color(0xFF06B6D4),
                                       textColor: Colors.black,
                                       fontSize: 10,
                                     ),
-                                  ),
-                                if (business.isUpgradingLevel)
-                                  NeoBrutalBadge(
-                                    text: context.tr('side_biz_level_upgrading_badge',
-                                        {'days': '${business.levelUpgradeDaysRemaining}'}),
-                                    backgroundColor: AppColors.brutalYellow,
-                                    textColor: Colors.black,
-                                    fontSize: 10,
-                                  )
-                                else
-                                  NeoBrutalBadge(
-                                    text: context.tr('side_biz_level_badge',
-                                        {'lvl': '${business.level}'}),
-                                    backgroundColor: AppColors.brutalGreen,
-                                    textColor: Colors.black,
-                                    fontSize: 10.5,
-                                  ),
+                                  if (business.isUpgradingLevel)
+                                    NeoBrutalBadge(
+                                      text: context.tr('side_biz_level_upgrading_badge',
+                                          {'days': '${business.levelUpgradeDaysRemaining}'}),
+                                      backgroundColor: AppColors.brutalYellow,
+                                      textColor: Colors.black,
+                                      fontSize: 10,
+                                    )
+                                  else
+                                    NeoBrutalBadge(
+                                      text: context.tr('side_biz_level_badge',
+                                          {'lvl': '${business.level}'}),
+                                      backgroundColor: AppColors.brutalGreen,
+                                      textColor: Colors.black,
+                                      fontSize: 10.5,
+                                    ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                       ],
                     ),

@@ -104,10 +104,12 @@ class _ScrapyardScreenState extends ConsumerState<ScrapyardScreen>
         watermark: ThematicWatermarkType.scrapyard,
         child: TabBarView(
           controller: _tabController,
-          children: const [
-            ScrapyardScrapCarsTab(),
-            ScrapyardSalvagedPartsTab(),
-            ScrapyardB2BOrdersTab(),
+          children: [
+            const ScrapyardScrapCarsTab(),
+            ScrapyardSalvagedPartsTab(
+              onSwitchToScrapCars: () => _tabController.animateTo(0),
+            ),
+            const ScrapyardB2BOrdersTab(),
           ],
         ),
       ),
