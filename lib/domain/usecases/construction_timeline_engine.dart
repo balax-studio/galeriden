@@ -196,6 +196,12 @@ class ConstructionTimelineEngine {
     return max(4, (stage.baseDays * scale * mult).round());
   }
 
+  /// Mantıklı gün hızlandırma hesabı (Etap süresinin yaklaşık 1/3'ü • minimum 3 gün)
+  static int calculateLogicalDaysToReduce({required int stageDays}) {
+    if (stageDays <= 0) return 3;
+    return max(3, (stageDays / 3).round());
+  }
+
   /// Her evre için mevcut 3 alternatif taşeron profili
   static List<SubcontractorProfile> getSubcontractorsForStage(int stageNumber) {
     final Map<int, List<String>> stageCrewNames = {

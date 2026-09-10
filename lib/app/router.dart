@@ -342,7 +342,11 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/auction',
-      pageBuilder: (context, state) => _buildCupertinoPage(const AuctionScreen(), state),
+      pageBuilder: (context, state) {
+        final tabQuery = state.uri.queryParameters['tab'];
+        final tabIndex = int.tryParse(tabQuery ?? '') ?? (state.extra as int? ?? 0);
+        return _buildCupertinoPage(AuctionScreen(initialTabIndex: tabIndex), state);
+      },
     ),
     GoRoute(
       path: '/branches',
@@ -373,6 +377,10 @@ final appRouter = GoRouter(
         final tabIndex = int.tryParse(tabQuery ?? '') ?? (state.extra as int? ?? 0);
         return _buildCupertinoPage(ShowroomScreen(initialTabIndex: tabIndex), state);
       },
+    ),
+    GoRoute(
+      path: '/inventory',
+      redirect: (context, state) => '/showroom',
     ),
     GoRoute(
       path: '/settings',

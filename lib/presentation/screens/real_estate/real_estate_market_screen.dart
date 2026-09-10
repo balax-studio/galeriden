@@ -17,6 +17,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_listing_thumbnail.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import 'real_estate_negotiation_screen.dart';
@@ -164,10 +165,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
       return;
     }
     if (property.isPersonalResidence) {
-      NotificationService.showWarning(
-        context,
-        context.tr('real_estate_sale_blocked_residence'),
-      );
+      _showVacateAndSellConfirmation(context, property);
       return;
     }
     if (property.isUnderRenovation) {
@@ -186,6 +184,64 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     }
 
     context.push('/emlak-ilan/${property.id}');
+  }
+
+  void _showVacateAndSellConfirmation(
+    BuildContext context,
+    RealEstateModel property,
+  ) {
+    HapticFeedback.selectionClick();
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        title: Text(
+          context.tr('real_estate_vacate_sell_dialog_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+        ),
+        content: Text(
+          context.tr('real_estate_vacate_sell_dialog_desc'),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(
+              context.tr('real_estate_dialog_btn_cancel'),
+              style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.w700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              ref
+                  .read(gameProvider.notifier)
+                  .vacatePersonalResidence(property.id);
+              NotificationService.showInfo(
+                context,
+                context.tr('real_estate_residence_vacated_toast'),
+              );
+              context.push('/emlak-ilan/${property.id}');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF97316),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: Colors.black, width: 1.5),
+              ),
+            ),
+            child: Text(
+              context.tr('real_estate_vacate_sell_confirm_btn'),
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -562,23 +618,24 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       physics: const AlwaysScrollableScrollPhysics(
                           parent: BouncingScrollPhysics()),
                       children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.4,
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.home_work_outlined,
-                                    size: 48, color: Colors.grey),
-                                const SizedBox(height: 12),
-                                Text(
-                                  context.tr('real_estate_empty_listings'),
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ],
-                            ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                          child: NeoBrutalEmptyState(
+                            icon: Icons.domain_disabled_rounded,
+                            title: context.tr('real_estate_empty_listings'),
+                            description: context.tr('real_estate_empty_listings_desc'),
+                            actionLabel: context.tr('real_estate_empty_listings_cta'),
+                            actionIcon: Icons.refresh_rounded,
+                            onActionPressed: () {
+                              HapticFeedback.lightImpact();
+                              ref
+                                  .read(gameProvider.notifier)
+                                  .refreshRealEstateMarketListings();
+                              NotificationService.showInfo(
+                                context,
+                                context.tr('real_estate_market_refreshed'),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -1062,36 +1119,49 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
           // Cost Breakdown Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.tr('real_estate_label_asking_price'),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.tr('real_estate_label_asking_price'),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
                     ),
-                  ),
-                  Text(
-                    CurrencyFormatter.format(listing.askingPrice),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E293B),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        CurrencyFormatter.format(listing.askingPrice),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
                     ),
-                  ),
-                  Text(
-                    '+${CurrencyFormatter.format(listing.estimatedDeedFee + RealEstateListingModel.revolvingFundFee + listing.estimatedCommission)} ${context.tr('real_estate_label_fees')}',
-                    style: const TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF64748B),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '+${CurrencyFormatter.format(listing.estimatedDeedFee + RealEstateListingModel.revolvingFundFee + listing.estimatedCommission)} ${context.tr('real_estate_label_fees')}',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               NeoBrutalButton.trade(
                 label: isFull
                     ? context.tr('real_estate_btn_slots_full')
@@ -1125,27 +1195,16 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.domain_disabled_rounded,
-                  size: 56, color: Colors.grey),
-              const SizedBox(height: 14),
-              Text(
-                context.tr('real_estate_empty_portfolio_title'),
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.tr('real_estate_empty_portfolio_subtitle'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            ],
+          child: NeoBrutalEmptyState(
+            icon: Icons.holiday_village_outlined,
+            title: context.tr('real_estate_empty_portfolio_title'),
+            description: context.tr('real_estate_empty_portfolio_subtitle'),
+            actionLabel: context.tr('real_estate_empty_portfolio_cta'),
+            actionIcon: Icons.travel_explore_rounded,
+            onActionPressed: () {
+              HapticFeedback.selectionClick();
+              _tabController.animateTo(0);
+            },
           ),
         ),
       );
@@ -1725,9 +1784,11 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                   size: 14,
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: !property.canBeSold
-                      ? const Color(0xFF94A3B8)
-                      : (property.isListed ? const Color(0xFFFEF08A) : const Color(0xFF10B981)),
+                  backgroundColor: property.isPersonalResidence
+                      ? const Color(0xFFF97316)
+                      : (!property.canBeSold
+                          ? const Color(0xFF94A3B8)
+                          : (property.isListed ? const Color(0xFFFEF08A) : const Color(0xFF10B981))),
                   foregroundColor: Colors.black,
                   elevation: 0,
                   padding: const EdgeInsets.symmetric(
@@ -1740,7 +1801,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                 label: Text(
                   property.isListed
                       ? context.tr('real_estate_btn_manage_listing')
-                      : context.tr('real_estate_btn_list_for_sale'),
+                      : (property.isPersonalResidence
+                          ? context.tr('real_estate_btn_vacate_and_sell')
+                          : context.tr('real_estate_btn_list_for_sale')),
                   style: const TextStyle(
                       fontWeight: FontWeight.w900, fontSize: 11),
                 ),

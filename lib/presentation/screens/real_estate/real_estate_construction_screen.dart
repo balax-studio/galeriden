@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/ad_service.dart';
 import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/real_estate_model.dart';
 import '../../../data/models/loan_model.dart';
 import '../../../data/models/staff_model.dart';
+import '../../../data/models/weather_model.dart';
 import '../../../domain/usecases/construction_timeline_engine.dart';
 import '../../../domain/usecases/zoning_engine.dart';
 import '../../providers/game_provider.dart';
@@ -18,6 +20,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 
 class RealEstateConstructionScreen extends ConsumerStatefulWidget {
   final String landId;
@@ -55,9 +58,13 @@ class _RealEstateConstructionScreenState
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Text(
-              context.tr('real_estate_empty_portfolio_title'),
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            child: NeoBrutalEmptyState(
+              icon: Icons.architecture_rounded,
+              title: context.tr('real_estate_construction_empty_title'),
+              description: context.tr('real_estate_construction_empty_desc'),
+              actionLabel: context.tr('real_estate_construction_empty_cta'),
+              actionIcon: Icons.travel_explore_rounded,
+              onActionPressed: () => context.go('/emlak'),
             ),
           ),
         ),
@@ -1259,11 +1266,13 @@ class _RealEstateConstructionScreenState
           ...stages.map((stage) {
             final isStagePassed = currentStage > stage.stageNumber;
             final isCurrentStage = currentStage == stage.stageNumber;
+            final hasActiveSub = land.activeSubcontractorName != null &&
+                land.activeSubcontractorName!.isNotEmpty;
             final isWorking = isCurrentStage &&
-                land.isConstructionWorking &&
+                (land.isConstructionWorking || hasActiveSub) &&
                 land.constructionDaysRemaining > 0;
             final isReady = isCurrentStage &&
-                land.isConstructionWorking &&
+                (hasActiveSub || land.isConstructionWorking) &&
                 land.constructionDaysRemaining == 0;
 
             final IconData statusIcon;
@@ -1695,17 +1704,32 @@ class _RealEstateConstructionScreenState
                               theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      land.constructionDaysRemaining > 0
-                          ? '${land.constructionDaysRemaining} ${context.tr('day')}'
-                          : context.tr('real_estate_stat_stage_ready'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: land.constructionDaysRemaining > 0
-                            ? const Color(0xFF3B82F6)
-                            : const Color(0xFF10B981),
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          land.constructionDaysRemaining > 0
+                              ? '${land.constructionDaysRemaining} ${context.tr('day')}'
+                              : context.tr('real_estate_stat_stage_ready'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: land.constructionDaysRemaining > 0
+                                ? const Color(0xFF3B82F6)
+                                : const Color(0xFF10B981),
+                          ),
+                        ),
+                        if (land.constructionDaysRemaining > 0) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            '• ~${land.constructionDaysRemaining * 2} ${context.tr('real_estate_minutes_suffix')}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -2096,11 +2120,18 @@ class _RealEstateConstructionScreenState
     final costIndex = ref.watch(gameProvider.select((s) => s.constructionCostIndex));
     final hasLegalAdvisor = ref.watch(gameProvider.select((s) => s.hiredStaff.any((st) => st.role == StaffRole.legalAdvisor)));
     final hasArchitectStaff = ref.watch(gameProvider.select((s) => s.hiredStaff.any((st) => st.role == StaffRole.appraiser || st.role == StaffRole.legalAdvisor)));
+    final currentWeather = ref.watch(gameProvider.select((s) => s.currentWeather));
+    final isWeatherFrozen = (currentWeather == WeatherType.rainy || currentWeather == WeatherType.snowy) &&
+        (land.constructionStage == 2 || land.constructionStage == 3);
 
+    final hasActiveSub = land.activeSubcontractorName != null &&
+        land.activeSubcontractorName!.isNotEmpty;
     final isWorking =
-        land.isConstructionWorking && land.constructionDaysRemaining > 0;
+        (land.isConstructionWorking || hasActiveSub) &&
+        land.constructionDaysRemaining > 0;
     final isReadyForHandover =
-        land.isConstructionWorking && land.constructionDaysRemaining == 0;
+        (hasActiveSub || land.isConstructionWorking || land.stageTotalDays > 0) &&
+        land.constructionDaysRemaining == 0;
 
     // Özel Aşama 1: Mimari Planlama & Belediye Ruhsatı
     if (land.constructionStage == 1) {
@@ -2147,14 +2178,52 @@ class _RealEstateConstructionScreenState
                 ),
               ),
               const SizedBox(height: 12),
-              if (isWorking)
+              if (isWorking) ...[
                 NeoBrutalButton(
                   label: context.tr('real_estate_precon_plan_btn_working'),
                   icon: Icons.hourglass_top_rounded,
                   onPressed: null,
                   backgroundColor: const Color(0xFFE2E8F0),
                   textColor: const Color(0xFF64748B),
-                )
+                ),
+                const SizedBox(height: 8),
+                NeoBrutalButton(
+                  label: context.tr('construction_speedup_btn', {
+                    'days': (land.constructionDaysRemaining > 0 ? land.constructionDaysRemaining : 1).toString(),
+                  }),
+                  icon: Icons.fast_forward_rounded,
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    final daysStr = (land.constructionDaysRemaining > 0 ? land.constructionDaysRemaining : 1).toString();
+                    AdService.instance.showRewardedAdWithFallback(
+                      context: context,
+                      customRewardTitle: context.tr('construction_speedup_reward_title'),
+                      onRewardEarned: () {
+                        final ok = ref.read(gameProvider.notifier).accelerateConstructionTimer(land.id);
+                        if (ok) {
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('construction_speedup_toast', {'days': daysStr}),
+                          );
+                        }
+                      },
+                    );
+                  },
+                  backgroundColor: const Color(0xFFF59E0B),
+                  textColor: Colors.black,
+                ),
+                const SizedBox(height: 6),
+                Center(
+                  child: Text(
+                    context.tr('construction_time_equivalence_hint'),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ]
               else
                 NeoBrutalButton(
                   label: canAffordPlan
@@ -2222,14 +2291,52 @@ class _RealEstateConstructionScreenState
                 ),
               ),
               const SizedBox(height: 12),
-              if (isWorking)
+              if (isWorking) ...[
                 NeoBrutalButton(
                   label: context.tr('real_estate_precon_permit_btn_working'),
                   icon: Icons.hourglass_top_rounded,
                   onPressed: null,
                   backgroundColor: const Color(0xFFE2E8F0),
                   textColor: const Color(0xFF64748B),
-                )
+                ),
+                const SizedBox(height: 8),
+                NeoBrutalButton(
+                  label: context.tr('construction_speedup_btn', {
+                    'days': (land.constructionDaysRemaining > 0 ? land.constructionDaysRemaining : 1).toString(),
+                  }),
+                  icon: Icons.fast_forward_rounded,
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    final daysStr = (land.constructionDaysRemaining > 0 ? land.constructionDaysRemaining : 1).toString();
+                    AdService.instance.showRewardedAdWithFallback(
+                      context: context,
+                      customRewardTitle: context.tr('construction_speedup_reward_title'),
+                      onRewardEarned: () {
+                        final ok = ref.read(gameProvider.notifier).accelerateConstructionTimer(land.id);
+                        if (ok) {
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('construction_speedup_toast', {'days': daysStr}),
+                          );
+                        }
+                      },
+                    );
+                  },
+                  backgroundColor: const Color(0xFFF59E0B),
+                  textColor: Colors.black,
+                ),
+                const SizedBox(height: 6),
+                Center(
+                  child: Text(
+                    context.tr('construction_time_equivalence_hint'),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ]
               else
                 NeoBrutalButton(
                   label: canAffordPermit
@@ -2259,6 +2366,9 @@ class _RealEstateConstructionScreenState
 
     final nextCost = ConstructionPricing.stageCost(land, currentStage);
     final canAfford = balance >= nextCost;
+    final speedupDays = ConstructionTimelineEngine.calculateLogicalDaysToReduce(
+      stageDays: land.stageTotalDays > 0 ? land.stageTotalDays : 10,
+    );
 
     return NeoBrutalCard(
       backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
@@ -2325,7 +2435,34 @@ class _RealEstateConstructionScreenState
               backgroundColor: const Color(0xFF10B981),
               textColor: Colors.white,
             )
-          else if (isWorking)
+          else if (isWorking) ...[
+            if (isWeatherFrozen) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF2F2),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFDC2626), width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_sync_rounded, color: Color(0xFFDC2626), size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        context.tr('construction_weather_hold_badge'),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF991B1B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             NeoBrutalButton(
               label: context.tr('real_estate_stage_btn_working', {
                 'days': land.constructionDaysRemaining.toString(),
@@ -2334,7 +2471,59 @@ class _RealEstateConstructionScreenState
               onPressed: null,
               backgroundColor: const Color(0xFFE2E8F0),
               textColor: const Color(0xFF64748B),
-            )
+            ),
+            const SizedBox(height: 8),
+            NeoBrutalButton(
+              label: context.tr('construction_speedup_btn', {'days': speedupDays.toString()}),
+              icon: Icons.fast_forward_rounded,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                AdService.instance.showRewardedAdWithFallback(
+                  context: context,
+                  customRewardTitle: context.tr('construction_speedup_reward_title'),
+                  onRewardEarned: () {
+                    final ok = ref.read(gameProvider.notifier).accelerateConstructionTimer(
+                      land.id,
+                      daysToReduce: speedupDays,
+                    );
+                    if (ok) {
+                      NotificationService.showSuccess(
+                        context,
+                        context.tr('construction_speedup_toast', {'days': speedupDays.toString()}),
+                      );
+                    }
+                  },
+                );
+              },
+              backgroundColor: const Color(0xFFF59E0B),
+              textColor: Colors.black,
+            ),
+            const SizedBox(height: 6),
+            Center(
+              child: Text(
+                context.tr('construction_time_equivalence_hint'),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            NeoBrutalButton(
+              label: context.tr('subcontractor_btn_active_with_days', {
+                'name': land.activeSubcontractorName ?? 'Taşeron Ekibi',
+                'days': land.constructionDaysRemaining.toString(),
+              }),
+              icon: Icons.engineering_rounded,
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                context.push('/emlak-insaat/${land.id}/taseron');
+              },
+              backgroundColor: const Color(0xFFFEF3C7),
+              textColor: const Color(0xFF92400E),
+            ),
+          ]
           else
             NeoBrutalButton(
               label: canAfford
@@ -2352,22 +2541,6 @@ class _RealEstateConstructionScreenState
                   : const Color(0xFF94A3B8),
               textColor: Colors.white,
             ),
-          if (isWorking) ...[
-            const SizedBox(height: 8),
-            NeoBrutalButton(
-              label: context.tr('subcontractor_btn_active_with_days', {
-                'name': land.activeSubcontractorName ?? 'Taşeron Ekibi',
-                'days': land.constructionDaysRemaining.toString(),
-              }),
-              icon: Icons.engineering_rounded,
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                context.push('/emlak-insaat/${land.id}/taseron');
-              },
-              backgroundColor: const Color(0xFFFEF3C7),
-              textColor: const Color(0xFF92400E),
-            ),
-          ],
         ],
       ),
     );
@@ -2473,37 +2646,115 @@ class _RealEstateConstructionScreenState
   // --- CONTRACTOR WAIT CARD ---
   Widget _buildContractorWaitCard(
       BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
+    final currentWeather = ref.watch(gameProvider.select((s) => s.currentWeather));
+    final isWeatherFrozen = (currentWeather == WeatherType.rainy || currentWeather == WeatherType.snowy) &&
+        (land.constructionStage == 2 || land.constructionStage == 3);
+    final contractorSpeedupDays = ConstructionTimelineEngine.calculateLogicalDaysToReduce(
+      stageDays: land.contractorStageDays > 0 ? land.contractorStageDays : 15,
+    );
+
     return NeoBrutalCard(
       backgroundColor:
           isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
       padding: const EdgeInsets.all(16),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.timer_rounded, color: Color(0xFF3B82F6), size: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.tr('real_estate_contractor_working_title'),
-                  style:
-                      const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+          Row(
+            children: [
+              const Icon(Icons.timer_rounded, color: Color(0xFF3B82F6), size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('real_estate_contractor_working_title'),
+                      style:
+                          const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr('real_estate_contractor_working_desc',
+                          {'days': land.constructionDaysRemaining.toString()}),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  context.tr('real_estate_contractor_working_desc',
-                      {'days': land.constructionDaysRemaining.toString()}),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+          if (isWeatherFrozen) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFDC2626), width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_sync_rounded, color: Color(0xFFDC2626), size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      context.tr('construction_weather_hold_badge'),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF991B1B),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (land.isConstructionActive && land.constructionDaysRemaining > 0) ...[
+            const SizedBox(height: 12),
+            NeoBrutalButton(
+              label: context.tr('construction_speedup_btn', {'days': contractorSpeedupDays.toString()}),
+              icon: Icons.fast_forward_rounded,
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                AdService.instance.showRewardedAdWithFallback(
+                  context: context,
+                  customRewardTitle: context.tr('construction_speedup_reward_title'),
+                  onRewardEarned: () {
+                    final ok = ref.read(gameProvider.notifier).accelerateConstructionTimer(
+                      land.id,
+                      daysToReduce: contractorSpeedupDays,
+                    );
+                    if (ok) {
+                      NotificationService.showSuccess(
+                        context,
+                        context.tr('construction_speedup_toast', {'days': contractorSpeedupDays.toString()}),
+                      );
+                    }
+                  },
+                );
+              },
+              backgroundColor: const Color(0xFFF59E0B),
+              textColor: Colors.black,
+            ),
+            const SizedBox(height: 6),
+            Center(
+              child: Text(
+                context.tr('construction_time_equivalence_hint'),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

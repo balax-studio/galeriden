@@ -108,5 +108,36 @@ void main() {
       expect(SeasonEngine.needsSeasonInit(uninitialized), isTrue);
       expect(SeasonEngine.shouldSettleSeason(uninitialized, now), isFalse);
     });
+
+    test('ActivePodiumPerks isActive returns false when expired', () {
+      final now = DateTime.now();
+      final activePerks = SeasonEngine.generatePodiumPerks(rank: 1, seasonId: 202636);
+      expect(activePerks.isActive, isTrue);
+
+      final expiredPerks = activePerks.copyWith(
+        expiresAt: now.subtract(const Duration(hours: 1)),
+      );
+      expect(expiredPerks.isActive, isFalse);
+    });
+
+    test('Podium perks configuration integrity for each tier', () {
+      final tier1 = SeasonEngine.generatePodiumPerks(rank: 1, seasonId: 202636);
+      expect(tier1.hasCustomsAuctionPass, isTrue);
+      expect(tier1.hasGulfBuyerNetwork, isTrue);
+      expect(tier1.notaryDiscountRate, 0.50);
+
+      final tier2 = SeasonEngine.generatePodiumPerks(rank: 2, seasonId: 202636);
+      expect(tier2.hasFleetLiquidationProtocol, isTrue);
+      expect(tier2.hasInspectionTransparency, isTrue);
+      expect(tier2.notaryDiscountRate, 0.30);
+
+      final tier3 = SeasonEngine.generatePodiumPerks(rank: 3, seasonId: 202636);
+      expect(tier3.hasMasterMechanicVoucher, isTrue);
+      expect(tier3.hasShowcaseBoost, isTrue);
+      expect(tier3.notaryDiscountRate, 0.15);
+
+      final runner = SeasonEngine.generatePodiumPerks(rank: 8, seasonId: 202636);
+      expect(runner.freeNoterVouchers, 2);
+    });
   });
 }

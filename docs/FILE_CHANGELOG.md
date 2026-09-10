@@ -21,6 +21,181 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
+
+### `Liderler Tablosu Otomatik Yenileme, Gayrimenkul Piyasa Fiyat Kalibrasyonu, Kasa Büyüdükçe Üst Segment Vasıta Üretimi, Dar Ekran Taşma Giderimleri ve Boş Durum Yönlendirmeleri (§SPEC-2026-LEADERBOARD-REALESTATE-WEALTH-POLISH)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  1. Liderler tablosunun Firestore bağlantısının doğrulanması, 45 saniyelik periyodik otomatik yenileme, pull-to-refresh desteği ve internet/veri yokluğunda yerel şehir rakipleriyle simüle edilen yedek liderler tablosunun devreye girmesi.
+  2. Oyun gününün ilerlemesinde (`advanceGameDay`) ve araç satışında (`completeSale`) oyuncu net servet ve itibarının arka planda güvenli hız kısıtlamasıyla Firestore'a senkronize edilmesi.
+  3. Gayrimenkul fiyatlarının Türkiye metropol (İstanbul, Ankara, İzmir, Antalya, Muğla/Bodrum) piyasa araştırmasına dayandırılarak gerçekçi seviyelere yükseltilmesi (Kupon Daire ₺6.8M - ₺19.5M, Dükkan ₺14M - ₺45M, Sanayi Parseli ₺24M - ₺85M, Komple Bina ₺48M - ₺140M).
+  4. Oyuncunun kasası arttıkça (`MarketEngine` ve `VasitaMarketEngine`) ucuz hurda ve başlangıç araçlarının elenmesi, ₺10M-₺25M ve ₺25M+ kasalarda süperspor, egzotik, yat, uçak ve lüks karavanların pazara hakim olması.
+  5. Dar ekranlı telefonlarda (<360dp) metin, fiyat ve buton taşmalarının (`RenderFlex overflowed by N pixels`) `Expanded`, `FittedBox` ve `ConstrainedBox` ile giderilmesi.
+  6. Gayrimenkul pazarı boş ilan, boş portföy, arsa bulunamayan şantiye ve mülk bulunamayan tadilat ekranlarının `NeoBrutalEmptyState` ile açıklayıcı bilgi ve doğrudan CTA butonlarına kavuşturulması.
+  7. Tüm yeni metinlerin 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) kural 1 (sıfır emoji) ve kural 2 (sıfır parantez) invariantlarına uygun olarak tam senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/leaderboard_service.dart`: Önbellek süresi 10 dakikadan 2 dakikaya indirildi; `forceRefresh: true` durumunda önbelleği baypas edip Firestore'dan taze veri çekme garantilendi.
+  - `lib/presentation/providers/leaderboard_provider.dart`: `isOfflineFallback` bayrağı eklendi. Firestore boş veya çevrimdışı olduğunda `_generateSimulatedRivalEntries` metoduyla ekranın asla boş kalmaması sağlandı.
+  - `lib/presentation/screens/leaderboard/leaderboard_screen.dart`: 45 saniyelik periyodik otomatik yenileme timer'ı, `RefreshIndicator` ile aşağı çekerek yenileme, çevrimdışı durum bilgilendirme rozeti ve dar ekranlar için `FittedBox` / `Flexible` sarmalamaları eklendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`: `advanceGameDay` sonuna arka plan `LeaderboardService.instance.syncPlayerStats` tetiklemesi eklendi.
+  - `lib/presentation/providers/game/game_market_mixin.dart`: `completeSale` metoduna araç satışında arka plan `LeaderboardService.instance.syncPlayerStats` tetiklemesi eklendi.
+  - `lib/domain/usecases/real_estate_market_engine.dart`: `templates` listesi Türkiye metropol piyasa araştırması fiyatları ve kira çarpanlarıyla güncellendi.
+  - `lib/domain/usecases/vasita_market_engine.dart`: `generateListings` ve `_selectWeightedTemplate` metotlarına `playerBalance` parametresi eklendi; zengin oyuncular için uçak, deniz taşıtları ve karavan olasılıkları artırıldı, ucuz araçlar bastırıldı.
+  - `lib/presentation/providers/vasita_market_provider.dart`: `refreshMarket` metodunda `playerBalance: game.balance` geçilerek vasıta pazarının anlık kasa duyarlı olması sağlandı.
+  - `lib/domain/usecases/market_engine.dart`: `_generateSingleListing` ve `_selectWeightedBrand` fonksiyonlarına ₺10M-₺25M (Mega-Tycoon) ve ₺25M+ (Sovereign Baron) segment kademeleri eklendi.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`: `_buildListingCard` fiyat ve masraf sütunu `Expanded` ve `FittedBox(fit: BoxFit.scaleDown)` ile sarmalandı; boş ilanlar ve boş portföy görünümleri `NeoBrutalEmptyState` ve yönlendirme butonlarıyla yenilendi.
+  - `lib/presentation/screens/real_estate/real_estate_construction_screen.dart`: Arsa bulunamadığında gösterilen yalın metin `NeoBrutalEmptyState` ve mülk pazarına dönüş CTA butonuyla değiştirildi.
+  - `lib/presentation/screens/real_estate/real_estate_renovation_screen.dart`: Mülk bulunamadığında gösterilen yalın metin `NeoBrutalEmptyState` ve mülk pazarına dönüş CTA butonuyla değiştirildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_retention_modals.dart`: Rakip lider tablosu başlık satırı ve ciro puanı `ConstrainedBox` ve `FittedBox` ile sarmalanarak dar ekranlarda taşma riski sıfırlandı.
+  - `lib/core/localization/translations/*.dart`: 7 desteklenen dile 10 yeni yerelleştirme anahtarı eklendi (`leaderboard_offline_badge`, `real_estate_empty_listings_desc`, `real_estate_empty_listings_cta`, `real_estate_empty_portfolio_cta`, `real_estate_construction_empty_title`, `real_estate_construction_empty_desc`, `real_estate_construction_empty_cta`, `real_estate_renovation_empty_title`, `real_estate_renovation_empty_desc`, `real_estate_renovation_empty_cta`).
+  - `test/leaderboard_and_real_estate_market_test.dart`: Fiyat kalibrasyonunu, servet ölçekli araç üretimini ve 7 dil bütünlüğünü doğrulayan otomatik test paketi yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `game_time_mixin.dart` ve `game_market_mixin.dart` dosyalarında `state.ownerName` ve `state.netWorth` çağrıldığında `DealershipModel` üzerinde doğrudan tanımlı olmadıkları için derleme hatası oluştu.
+- **Kök Neden**:
+  - `DealershipModel` içerisinde oyuncu ismi `playerName` olarak adlandırılmıştır ve net servet toplamı doğrudan bir alan değil, kasa nakiti (`balance`) ile sahip olunan araçların (`ownedCars`) piyasa değerlerinin dinamik toplamıdır.
+- **Uygulanan Çözüm**:
+  - `state.playerName` kullanıldı ve `netWorth` değeri `balance + totalCarValue` olarak hesaplanarak `syncPlayerStats` metoduna aktarıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/leaderboard_and_real_estate_market_test.dart` çalıştırıldı: 5/5 test başarıyla geçti.
+  - `flutter test test/real_estate_market_test.dart` çalıştırıldı: 15/15 test başarıyla geçti.
+  - `flutter analyze` 13 değiştirilen dosya üzerinde çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+
+### `Vasıta Pazarı Dokunmatik Kilitlenme Giderimi, Müzayedede Araç Satışı Erişilebilirliği & Ödüllü Reklam ile İhale Bekleme Süresini Atlama Protokolü (§SPEC-2026-VASITA-AUCTION-FIXES)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  1. Vasıta pazarından (`/vasita`) ana ekrana dönüldüğünde ekranın hiçbir yerine tıklanamaması (touch freeze) sorununun kökten giderilmesi.
+  2. Müzayedede sahip olunan araçların satış mekaniğinin incelenmesi, gümrük ihale salonu kapalıyken bile üst sekmelerin (Gümrük, VIP, Katalog, Aracımı Sat) erişilebilir kılınması, konsinye satış rehberi eklenmesi ve galeriden müzayedeye hızlı yönlendirme butonu sağlanması.
+  3. Müzayede bekleme süresine in-universe hikaye (Gümrük İhale Komisyonu Tasfiye İdaresi Özel Protokolü) uydurularak ödüllü reklam ile bekleme süresini anında sıfırlayıp ihaleye giriş hakkı tanınması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - `dispose` metoduna `FocusManager.instance.primaryFocus?.unfocus()` eklendi.
+    - `Navigator.of(context).push(MaterialPageRoute(...))` çağrıları GoRouter `context.push('/vasita-ekspertiz/${listing.id}', extra: listing)` ve `context.push('/vasita-pazarlik/${listing.id}', extra: listing)` ile değiştirildi; kök gezgin ile GoRouter hiyerarşisi arasındaki modal bariyer çakışması ve dokunmatik blokajı engellendi.
+  - `lib/presentation/screens/vasita/vasita_negotiation_screen.dart`:
+    - Tanımsız `/inventory` rotasına yapılan `context.go('/inventory')` çağrıları (satır 395 ve 1473) doğru hedef olan `context.go('/showroom')` ile değiştirildi.
+  - `lib/app/router.dart`:
+    - `/auction` rotası `tab` query parametresini (`tabIndex`) ayrıştıracak şekilde güncellendi (`AuctionScreen(initialTabIndex: tabIndex)`).
+    - Olası eski `/inventory` yönlendirmeleri için `/showroom` redirect kuralı eklendi.
+  - `lib/presentation/widgets/neo_brutal_app_bar.dart`:
+    - Geri tuşuna basıldığında zorla çalıştırılan `ref.read(dashboardTabProvider.notifier).state = 0` kaldırıldı; rota çıkışında ana ekran dinleyicileriyle yarış durumu ve sekme sıfırlaması engellendi.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `_checkAndShowPendingDialogs` metoduna `final route = ModalRoute.of(context); if (route != null && !route.isCurrent) return;` kontrolü eklendi; çocuk ekranlar etkinken arka planda görünmez modal bariyerlerin root navigator'a pushlanması engellendi.
+  - `lib/presentation/widgets/floating_money_overlay.dart`:
+    - Uçuşan para parçacıkları `Positioned` bileşeni `IgnorePointer(ignoring: true)` ile sarmalandı; parçacıkların dokunmatik tıklamaları yutması engellendi.
+  - `lib/presentation/providers/auction_session_provider.dart`:
+    - `bypassClosedCooldownWithAd` metodu eklendi: `AuctionEngine.openSessionImmediately()` çağrılır, `closedCountdown` 0'lanır, `isWindowOpen: true` yapılır, canlı seans ve timer başlatılır.
+    - `startVipAuction` metodunda seans başlatıldığında `isWindowOpen: true` ve `closedCountdown: 0` güvencesi sağlandı.
+  - `lib/presentation/screens/auction/widgets/auction_closed_window_view.dart`:
+    - `onBypassWithAd` callback'i ve `_handleAdBypass` metodu eklendi.
+    - Tasfiye İdaresi Protokolü hikaye kartı ("Gümrük İhale Komisyonu Özel Protokolü") ve yumuşak psikolojik buton ("Özel Kontenjan Protokolü Edin") entegre edildi.
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - `initialTabIndex` desteği eklendi; `/auction?tab=3` ile doğrudan "Aracımı Sat" sekmesi açılabilir hale getirildi.
+    - Üstteki 4'lü sekme çubuğu (Gümrük, VIP, Katalog, Aracımı Sat) ana gövdeden bağımsız hale getirildi; ihale kapalıyken de oyuncunun sekme değiştirebilmesi sağlandı.
+  - `lib/presentation/screens/auction/widgets/auction_sell_tab.dart`:
+    - Boş garaj durumunda açıklayıcı detay (`auction_sell_no_cars_detail`) ve Vasıta Pazarına yönlendiren buton eklendi.
+    - Sekme başına "Müzayede Konsinye Satış Rehberi" bilgilendirme kartı eklendi.
+  - `lib/presentation/screens/showroom/widgets/showroom_car_card.dart`:
+    - Uygun araçlar için doğrudan `/auction?tab=3` sekmesine yönlendiren "Müzayedede Sat" butonu eklendi.
+  - `lib/core/localization/translations/*.dart` (7 Dil Eşzamanlı Senkronizasyon):
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerine `auction_closed_ad_protocol_title`, `auction_closed_ad_protocol_desc`, `auction_closed_ad_bypass_btn`, `auction_closed_ad_success_toast`, `auction_closed_protocol_badge`, `auction_sell_guide_title`, `auction_sell_guide_desc`, `auction_sell_no_cars_detail`, `auction_sell_go_to_market_btn`, `btn_send_to_auction` anahtarları eklendi.
+  - `test/auction_and_vasita_navigation_test.dart` [YENİ]:
+    - Reklam ile bekleme süresini atlama, VIP oturum başlatma, 7 dil eşzamanlılığı, parantezsiz ve emojisiz kural denetimleri yazıldı (4/4 geçti).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `AuctionModel` içinde `isVip` getter'ının doğrudan bulunmaması nedeniyle `auction_and_vasita_navigation_test.dart` derleme hatası vermesi.
+- **Kök Neden**:
+  - VIP durumu `AuctionSessionState.isVipSession` boolean alanı ile yönetilmektedir.
+- **Uygulanan Çözüm**:
+  - Test beklentisi `state.isVipSession` olarak güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/auction_and_vasita_navigation_test.dart test/auction_sell_test.dart`: 11/11 geçti.
+  - `flutter test test/touch_feedback_and_unfocus_test.dart test/vasita_market_test.dart`: 30/30 geçti.
+  - `flutter analyze`: 0 issues found.
+
+### `Emlak İnşaatı 2. Aşama Sonrası İlerleme Onarımı & Ödüllü Reklam ile Mantıksal Gün Hızlandırma Sistemi (§SPEC-2026-CONSTRUCTION-SPEEDUP-TIME-CONTROL)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**: İnşaatın 2. aşamadan sonra taşeron kontrolü veya gün sayacı nedeniyle takılı kalması sorununun kökten çözülmesi; oyuncunun ödüllü reklam izleyerek (çift vardiya desteği ile) aşamayı mantıklı gün sayısında (etap süresinin 1/3'ü, min 3 gün) hızlandırabilmesi ve HUD üzerindeki gün göstergesine tıklayarak oyun takvimini 1 gün güvenli ileri sarabilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/domain/usecases/construction_timeline_engine.dart`:
+    - `calculateLogicalDaysToReduce({required int stageDays})` metodu eklendi; etap süresine göre dengeli gün indirimi (`max(3, (stageDays / 3).round())`) hesaplandı.
+  - `lib/presentation/providers/game/game_real_estate_mixin.dart`:
+    - `completeSelfBuildStage`: Taşeron ismi zorunluluğu (`activeSubcontractorName`) teslim aşamasında kaldırıldı; gün süresi 0'a inen etabın bir sonrakine sorunsuz geçmesi sağlandı.
+    - `accelerateConstructionTimer`: Ödüllü reklamla inşaat süresini mantıksal gün miktarında eksilten, mimari çizim ve ruhsat adımlarını doğrudan onaylayan, müteahhit veya öz inşaat modunda süreyi güvenle sıfırlayan motor entegre edildi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `fastForwardGameDay`: Oyun takvimini güvenli bir şekilde 1 gün ileri sarıp tüm günlük gelir, emlak, personel ve faiz döngülerini işleten metot eklendi.
+  - `lib/presentation/screens/real_estate/real_estate_construction_screen.dart`:
+    - Öz inşaat ve müteahhit kartlarına "Vardiya Desteği Al • -N Gün Hızlandır" ödüllü reklam butonu ve 1 Oyun Günü = 2 Dakika aktif oyun ipucu eklendi.
+    - Widget listelerinde derleme hatasına yol açan yerel `final speedupDays` değişken tanımları metot gövdesine taşınarak Dart sözdizimi düzeltildi.
+  - `lib/presentation/screens/real_estate/subcontractor_negotiation_chat_screen.dart`:
+    - Taşeron çalışma ve teslim kontrollerinde aktif taşeron kontrolü normalize edildi.
+  - `lib/presentation/widgets/dialogs/game_day_time_control_sheet.dart` [YENİ]:
+    - HUD gün bileşenine dokunulduğunda açılan, 1 oyun gününü sponsor desteğiyle ileri saran ve işlem geçmişine yönlendiren Neo-Brutalist alt panel sayfası oluşturuldu.
+  - `lib/presentation/widgets/game_hud_widget.dart`:
+    - Gün sayacı kutusuna dokunulduğunda `GameDayTimeControlSheet` tetiklendi.
+  - `lib/core/localization/translations/*.dart` (7 Dil Eşzamanlı Senkronizasyon):
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerine `hud_time_control_title`, `hud_time_control_desc`, `hud_time_fast_forward_btn`, `hud_time_fast_forward_toast`, `hud_time_view_history_btn`, `construction_speedup_btn`, `construction_speedup_reward_title`, `construction_speedup_toast`, `construction_time_equivalence_hint`, `construction_weather_hold_badge`, `real_estate_minutes_suffix` anahtarları eklendi.
+  - `test/construction_speedup_and_time_control_test.dart` [YENİ]:
+    - Hızlandırma günü hesaplama, 7-dil simetrisi ve parantezsiz/emojisiz denetimi, inşaat hızlandırma döngüsü ve takvim ileri sarma testleri yazıldı (4/4 geçti).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `real_estate_construction_screen.dart` dosyasında `[ ... if (cond) ...[ final speedupDays = ... ] ]` yazılması nedeniyle `missing_identifier` ve `expected_token` derleme hataları oluşması.
+  - `game_day_time_control_sheet.dart` dosyasında `NotificationService` import yolunun `core/services` olarak hatalı verilmesi (`uri_does_not_exist`).
+  - Bazı dillerde (`ru`, `es`, `ar`) `{days}` yerine sabit rakam kalması ve `hud_time_control_*` anahtarlarının eksik olması.
+- **Kök Neden**:
+  - Flutter/Dart koleksiyon if yapısı içinde doğrudan yerel değişken bildirimine izin vermez.
+  - Bildirim servisi `core/utils/` altında yer almaktadır.
+- **Uygulanan Çözüm**:
+  - Değişkenler metot başına taşındı, import düzeltildi, tüm anahtarlar 7 dilde senkronize edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/construction_speedup_and_time_control_test.dart`: 4/4 passed.
+  - `flutter test test/weekly_season_and_podium_test.dart test/real_estate_construction_test.dart`: 26/26 passed.
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Haftalık Liderlik Sezonu ve Podyum Ödülleri sisteminin uçtan uca mimari, oyun mekaniği, sınır durumları ve UI bütünlüğü açısından denetlenmesi; tespit edilen eksik perk bağlantılarının, süre aşımı açıklarının ve yerelleştirme senkronizasyonunun tamamlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - Körfez Alıcı Ağı (`hasGulfBuyerNetwork`) satış priminde `isActive` kontrolü eklendi; sezon perk süresi dolduktan sonra haksız kazanç elde edilmesi engellendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - 3. sıra podyum avantajı olan Sarı Site Vitrin Dopingi (`hasShowcaseBoost`) organik müşteri teklifi döngüsüne bağlandı. Perk aktifken teklif şansı 2 katına çıkarıldı.
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - 1. sıra podyum şampiyonluğu avantajı olan Gümrük Tasfiye VIP Kartı (`hasCustomsAuctionPass`) müzayede girişine entegre edildi. Aktifken ödüllü reklam izleme gereksinimi bypass edildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`:
+    - Alınmamış podyum ödülü olduğunda (`hasUnclaimedSeasonRewards == true`) ofis masası kupa kaidesine dikkat çekici acil durum rozeti eklendi ve dokunulduğunda ödül talep diyaloğu açıldı.
+  - `lib/presentation/screens/leaderboard/widgets/leaderboard_season_reward_dialog.dart`:
+    - Sabit metin `HAFTALIK SEZON TAMAMLANDI` yerine yerelleştirme anahtarı `podium_dialog_badge_completed` bağlandı.
+  - `lib/core/localization/translations/*.dart`:
+    - `podium_dialog_badge_completed` anahtarı 7 dilin tamamına (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) parantezsiz ve emojisz olarak eklendi.
+  - `test/weekly_season_and_podium_test.dart`:
+    - Perk geçerlilik/son kullanma süresi (`isActive`) ve tüm seviye perk entegrasyonlarını doğrulayan yeni birim testler eklendi (7/7 test yeşil).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Körfez alıcı primi hesaplanırken perk süresinin (`expiresAt`) dolup dolmadığı kontrol edilmiyordu.
+  - 3. sıra vitrin dopingi ve 1. sıra gümrük tasfiye VIP kartı perkleri tanımlanmış ancak ilgili oyun mekaniklerine fiziksel olarak bağlanmamıştı.
+  - Sezon bitişinde ödülü henüz almayan oyuncu liderlik tablosuna girmedikçe ofis ekranında ödülünü alabileceği net bir çağrı butonu görmüyordu.
+  - Ödül diyaloğunun tepe rozeti sabit Türkçe metin olarak kalmıştı.
+- **Kök Neden**:
+  - Modeller ve liderlik tablosu akışı tamamlanmış ancak yan oyun döngüleri (müzayede, organik teklif zamanlayıcısı) ile perk durumları arasındaki köprüler henüz kurulmamıştı.
+- **Uygulanan Çözüm**:
+  - Perklerin yaşam döngüsü (`isActive`) tüm yan sistemlerde zorunlu kılındı, müzayede VIP geçişi ve organik teklif hızlandırması bağlandı, ofis masası üzerinden tek tıkla ödül alma deneyimi sağlandı ve tüm metinler 7 dilde eşitlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/weekly_season_and_podium_test.dart` ile 7/7 test başarıyla geçti.
+  - `flutter analyze` ile 0 hata, 0 uyarı teyit edildi.
+
+### `Emlak Portföyü Kişisel İkametgah Boşaltma ve Satış İlanı Entegrasyonu (§SPEC-2026-REAL-ESTATE-RESIDENCE-SALE)`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Emlak portföyünde kişisel ikametgah olarak atanmış mülklerin satışa çıkarılmak istendiğinde doğrudan engellenmesi yerine oyuncuya ikametgahı otomatik boşaltıp ilana çıkma olanağı tanıyan kullanıcı dostu onay akışının ve reaktif buton durumunun kazandırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - `_navigateToSellListing`: İkamet edilen mülk için salt uyarı yerine `_showVacateAndSellConfirmation` neo-brutalist diyalog akışı devreye alındı.
+    - `_showVacateAndSellConfirmation`: Oyuncuya ikametgahın boşaltılacağını bildiren ve tek dokunuşla `vacatePersonalResidence` çalıştırıp ilan düzenleme sayfasına yönlendiren diyalog eklendi.
+    - `_buildPortfolioCard`: Kişisel ikametgah durumunda satış butonu canlı turuncu arkaplan (`0xFFF97316`) ve "Boşalt ve Sat" metniyle reaktif hale getirildi.
+  - `lib/core/localization/translations/*.dart`:
+    - `real_estate_btn_vacate_and_sell`, `real_estate_vacate_sell_dialog_title`, `real_estate_vacate_sell_dialog_desc`, `real_estate_vacate_sell_confirm_btn` anahtarları 7 dilin tamamına (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) parantezsiz ve emojisz olarak senkronize edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Önceden oyuncu kişisel ikametgahındaki mülkü satmak istediğinde buton pasif görünüyor ve tıklandığında yalnızca "Önce ikametgahınızı taşıyın" uyarısı veriyordu; oyuncunun nereden ve nasıl boşaltacağı net değildi.
+- **Kök Neden**:
+  - Satış engeli katı bir if kontrolüyle sonlandırılıyor, kullanıcıya doğrudan işlem yapma aksiyonu sunulmuyordu.
+- **Uygulanan Çözüm**:
+  - Neo-brutalist onay diyaloğu ile ikametgahı anında boşaltıp doğrudan `/emlak-ilan/{id}` sayfasına yönlendiren akış kurgulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile 0 hata, 0 uyarı doğrulandı.
+  - `flutter test test/weekly_season_and_podium_test.dart` 5/5 geçti.
+
 ### `Canlı Serbest Piyasa Kurları & Döviz Kontrol Entegrasyonu (§SPEC-2026-REAL-FOREX-INTEGRATION)`
 - **Tarih**: 2026-09-10
 - **Değişiklik Amacı**: Borsa ve döviz ekranında gerçek piyasa kurları ile simülasyon kurları arasında geçiş yapılabilmesini sağlayan neo-brutalist kontrol kartının eklenmesi, son senkronizasyon zaman damgasının gösterilmesi, çevrimdışı önbellek koruması ve 7 dilde eşzamanlı yerelleştirme senkronizasyonu.

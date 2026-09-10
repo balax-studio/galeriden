@@ -88,7 +88,7 @@ class LeaderboardSeasonRewardDialog extends ConsumerWidget {
             // Top Badge
             Center(
               child: NeoBrutalBadge(
-                text: 'HAFTALIK SEZON TAMAMLANDI',
+                text: context.tr('podium_dialog_badge_completed').toUpperCase(),
                 backgroundColor: AppColors.brutalYellow,
                 textColor: Colors.black,
                 fontSize: 11,

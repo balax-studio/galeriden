@@ -378,13 +378,15 @@ class _SubcontractorNegotiationChatScreenState
             final stageCost = (land.baseMarketValue * stage.costPercentage).roundToDouble();
             final isCompleted = land.constructionStage > stage.stageNumber;
             final isCurrent = land.constructionStage == stage.stageNumber;
+            final hasActiveSub = land.activeSubcontractorName != null &&
+                land.activeSubcontractorName!.isNotEmpty;
             final isWorking = isCurrent &&
-                land.isConstructionWorking &&
+                hasActiveSub &&
                 land.constructionDaysRemaining > 0;
             final isReadyForHandover = isCurrent &&
-                land.isConstructionWorking &&
+                (hasActiveSub || land.isConstructionWorking) &&
                 land.constructionDaysRemaining == 0;
-            final isUnstarted = isCurrent && !land.isConstructionWorking;
+            final isUnstarted = isCurrent && !isWorking && !isReadyForHandover;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),

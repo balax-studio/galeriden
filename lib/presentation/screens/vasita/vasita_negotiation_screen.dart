@@ -392,7 +392,7 @@ class _VasitaNegotiationScreenState
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onPressed: () {
               Navigator.of(dialogCtx).pop();
-              context.go('/inventory');
+              context.go('/showroom');
             },
           ),
         ],
@@ -1470,7 +1470,7 @@ class _VasitaNegotiationScreenState
             fullWidth: true,
             onPressed: () {
               Navigator.of(context).pop();
-              context.go('/inventory');
+              context.go('/showroom');
             },
           ),
           const SizedBox(height: 8),

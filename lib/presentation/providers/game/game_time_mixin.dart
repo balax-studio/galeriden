@@ -52,6 +52,7 @@ import '../../../data/models/podium_reward_model.dart';
 import '../../../domain/usecases/season_engine.dart';
 import '../../../domain/usecases/rival_leaderboard_engine.dart';
 import '../../../data/services/forex_market_service.dart';
+import '../../../core/services/leaderboard_service.dart';
 
 import 'game_base_notifier.dart';
 
@@ -412,6 +413,38 @@ mixin GameTimeMixin on GameBaseNotifier {
       balance: newBalance,
       carCount: currentCars.length,
     );
+
+    // Leaderboard background sync with built-in throttle
+    Future.microtask(() {
+      try {
+        final double totalCarValue = currentCars.fold(
+          0.0,
+          (sum, car) => sum + car.baseMarketValue,
+        );
+        final double netWorth = newBalance + totalCarValue;
+
+        LeaderboardService.instance.syncPlayerStats(
+          dealershipName: state.dealershipName,
+          ownerName: state.playerName,
+          netWorth: netWorth,
+          reputationXp: state.skills.xp,
+          playerLevel: state.level,
+          carCount: currentCars.length,
+        );
+      } catch (_) {}
+    });
+  }
+
+  /// Fast forwards in-game calendar by a logical number of days (default 1 day).
+  /// Safely processes daily economy, properties, staff, loans, and time settlement.
+  bool fastForwardGameDay({int days = 1}) {
+    final clampedDays = days.clamp(1, 3);
+    for (int i = 0; i < clampedDays; i++) {
+      advanceGameDay();
+    }
+    _lastDayAdvanceTime = DateTime.now();
+    saveState();
+    return true;
   }
 
   // --- Helper Methods ---

@@ -479,6 +479,7 @@ class VasitaMarketEngine {
     int count = 20,
     VehicleCategory? categoryFilter,
     int playerLevel = 3,
+    double? playerBalance,
   }) {
     final List<ListingModel> listings = [];
     final availableTemplates = categoryFilter == null
@@ -488,34 +489,53 @@ class VasitaMarketEngine {
     if (availableTemplates.isEmpty) return [];
 
     for (int i = 0; i < count; i++) {
-      final template = _selectWeightedTemplate(availableTemplates);
-      final listing = _generateSingleListing(template, playerLevel);
+      final template = _selectWeightedTemplate(availableTemplates, playerBalance: playerBalance);
+      final listing = _generateSingleListing(template, playerLevel, playerBalance: playerBalance);
       listings.add(listing);
     }
 
     return listings;
   }
 
-  static VasitaTemplate _selectWeightedTemplate(List<VasitaTemplate> pool) {
+  static VasitaTemplate _selectWeightedTemplate(List<VasitaTemplate> pool, {double? playerBalance}) {
     if (pool.length == 1) return pool.first;
 
-    // Weight selection based on catalog counts
+    final balance = playerBalance ?? 0.0;
+
+    int calculateTemplateWeight(VasitaTemplate t) {
+      if (t.category == VehicleCategory.aircraft) {
+        if (balance >= 25000000) return 30;
+        if (balance >= 10000000) return 15;
+        if (balance >= 3000000) return 5;
+        return 1;
+      }
+      if (t.category == VehicleCategory.marine) {
+        if (balance >= 20000000) return 45;
+        if (balance >= 8000000) return 30;
+        if (balance >= 3000000) return 20;
+        return (t.category.catalogCount ~/ 1000).clamp(2, 60);
+      }
+      if (t.category == VehicleCategory.caravan) {
+        if (balance >= 10000000) return 35;
+        return (t.category.catalogCount ~/ 1000).clamp(2, 60);
+      }
+      int baseWeight = (t.category.catalogCount ~/ 1000).clamp(2, 60);
+      if (balance >= 10000000 && t.maxBaseValue < 750000) {
+        baseWeight = max(1, (baseWeight * 0.25).round());
+      }
+      return baseWeight;
+    }
+
+    // Weight selection based on catalog counts and wealth scaling
     int totalCatalogWeight = 0;
     for (final t in pool) {
-      // Aircraft has very low occurrence (13 in catalog), damp down so it is an epic find
-      final weight = t.category == VehicleCategory.aircraft
-          ? 1
-          : (t.category.catalogCount ~/ 1000).clamp(2, 60);
-      totalCatalogWeight += weight;
+      totalCatalogWeight += calculateTemplateWeight(t);
     }
 
     int roll = _random.nextInt(max(1, totalCatalogWeight));
     int cumulative = 0;
     for (final t in pool) {
-      final weight = t.category == VehicleCategory.aircraft
-          ? 1
-          : (t.category.catalogCount ~/ 1000).clamp(2, 60);
-      cumulative += weight;
+      cumulative += calculateTemplateWeight(t);
       if (roll < cumulative) {
         return t;
       }
@@ -523,7 +543,11 @@ class VasitaMarketEngine {
     return pool[_random.nextInt(pool.length)];
   }
 
-  static ListingModel _generateSingleListing(VasitaTemplate t, int playerLevel) {
+  static ListingModel _generateSingleListing(
+    VasitaTemplate t,
+    int playerLevel, {
+    double? playerBalance,
+  }) {
     final year = t.minYear == t.maxYear
         ? t.minYear
         : t.minYear + _random.nextInt(t.maxYear - t.minYear + 1);

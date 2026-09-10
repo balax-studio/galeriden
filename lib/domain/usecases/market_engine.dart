@@ -594,7 +594,15 @@ class MarketEngine {
         final price = listing.askingPrice;
         final isCollectible = listing.car.isRare || listing.car.isBarnFind;
         if (!isCollectible) {
-          if (playerBalance >= 6000000) {
+          if (playerBalance >= 25000000) {
+            // Hyper-Tycoon (₺25M+): Suppress cars under ₺2.5M (98%) and under ₺5M (75%)
+            if (price < 2500000 && _random.nextDouble() < 0.98) continue;
+            if (price < 5000000 && _random.nextDouble() < 0.75) continue;
+          } else if (playerBalance >= 10000000) {
+            // Mega-Tycoon (₺10M - ₺25M): Suppress cars under ₺1M (96%) and under ₺2M (65%)
+            if (price < 1000000 && _random.nextDouble() < 0.96) continue;
+            if (price < 2000000 && _random.nextDouble() < 0.65) continue;
+          } else if (playerBalance >= 6000000) {
             // Tycoon: Drastically eliminate budget cars under ₺400k (95%) and ₺800k (50%)
             if (price < 400000 && _random.nextDouble() < 0.95) continue;
             if (price < 800000 && _random.nextDouble() < 0.50) continue;
@@ -967,8 +975,8 @@ class MarketEngine {
           default:
             return 0.5;
         }
-      } else {
-        // Tycoon (₺6M+): Supercars, exotics, electrics, top-tier luxury. Cheap clunkers vanish.
+      } else if (playerBalance < 10000000) {
+        // Tycoon (₺6M - ₺10M): Supercars, exotics, electrics, top-tier luxury. Cheap clunkers vanish.
         switch (segment) {
           case 'süperspor':
             return 5.0;
@@ -991,6 +999,57 @@ class MarketEngine {
             return 0.005;
           default:
             return 0.2;
+        }
+      } else if (playerBalance < 25000000) {
+        // Mega-Tycoon (₺10M - ₺25M): Hypercars, exotics dominate, mainstream cars heavily suppressed.
+        switch (segment) {
+          case 'süperspor':
+            return 8.0;
+          case 'egzotik':
+            return 10.0;
+          case 'lüks':
+          case 'premium':
+            return 3.5;
+          case 'elektrikli':
+          case 'güvenlik':
+            return 2.5;
+          case 'popüler':
+          case 'güvenilir':
+            return 0.3;
+          case 'halk':
+            return 0.05;
+          case 'ekonomi':
+            return 0.01;
+          case 'efsane':
+          case 'klasik':
+            return 0.001;
+          default:
+            return 0.1;
+        }
+      } else {
+        // Sovereign Baron (₺25M+): Pure hypercars, exotics, flagship luxury. No everyday clunkers.
+        switch (segment) {
+          case 'süperspor':
+            return 12.0;
+          case 'egzotik':
+            return 16.0;
+          case 'lüks':
+            return 4.0;
+          case 'premium':
+            return 2.5;
+          case 'elektrikli':
+            return 2.0;
+          case 'popüler':
+          case 'güvenilir':
+            return 0.1;
+          case 'halk':
+            return 0.01;
+          case 'ekonomi':
+          case 'efsane':
+          case 'klasik':
+            return 0.0001;
+          default:
+            return 0.05;
         }
       }
     }

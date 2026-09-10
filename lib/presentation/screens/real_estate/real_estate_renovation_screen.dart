@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_notification_banner.dart';
 
 class RealEstateRenovationScreen extends ConsumerWidget {
@@ -43,9 +44,13 @@ class RealEstateRenovationScreen extends ConsumerWidget {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24.0),
-            child: Text(
-              context.tr('real_estate_empty_portfolio_title'),
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            child: NeoBrutalEmptyState(
+              icon: Icons.handyman_rounded,
+              title: context.tr('real_estate_renovation_empty_title'),
+              description: context.tr('real_estate_renovation_empty_desc'),
+              actionLabel: context.tr('real_estate_renovation_empty_cta'),
+              actionIcon: Icons.travel_explore_rounded,
+              onActionPressed: () => context.go('/emlak'),
             ),
           ),
         ),

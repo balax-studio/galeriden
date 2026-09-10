@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/car_specifications.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/game_sound_haptic_service.dart';
@@ -122,13 +123,15 @@ class _AuctionSellTabState extends ConsumerState<AuctionSellTab> {
 
     if (eligibleCars.isEmpty) {
       return Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: NeoBrutalCard(
             padding: const EdgeInsets.all(24),
             backgroundColor: widget.isDark ? const Color(0xFF141721) : Colors.white,
             borderColor: widget.isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
             borderRadius: 16,
+            borderWidth: 2.5,
+            shadowOffset: const Offset(4, 4),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -153,10 +156,30 @@ class _AuctionSellTabState extends ConsumerState<AuctionSellTab> {
                   context.tr('auction_sell_no_cars'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
                     color: widget.isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr('auction_sell_no_cars_detail'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.4,
+                    fontWeight: FontWeight.w600,
+                    color: widget.isDark ? Colors.white70 : const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                NeoBrutalButton(
+                  label: context.tr('auction_sell_go_to_market_btn'),
+                  icon: Icons.storefront_rounded,
+                  backgroundColor: AppColors.brutalYellow,
+                  textColor: Colors.black,
+                  fontSize: 12,
+                  onPressed: () => context.push('/vasita'),
                 ),
               ],
             ),
@@ -184,6 +207,57 @@ class _AuctionSellTabState extends ConsumerState<AuctionSellTab> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       physics: const BouncingScrollPhysics(),
       children: [
+        // 0. CONSIGNMENT AUCTION GUIDE CARD
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(12),
+          backgroundColor: widget.isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+          borderColor: widget.isDark ? const Color(0xFF334155) : const Color(0xFF0F172A),
+          borderRadius: 12,
+          borderWidth: 2.0,
+          shadowOffset: const Offset(2, 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.brutalYellow,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF0F172A), width: 1.5),
+                ),
+                child: const Icon(Icons.info_outline_rounded, size: 20, color: Colors.black),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('auction_sell_guide_title'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: widget.isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.tr('auction_sell_guide_desc'),
+                      style: TextStyle(
+                        fontSize: 11,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                        color: widget.isDark ? Colors.white70 : const Color(0xFF475569),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
         // 1. CAR SELECTION CAROUSEL / LIST
         Text(
           context.tr('auction_sell_select_car'),

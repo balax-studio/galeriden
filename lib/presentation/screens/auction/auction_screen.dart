@@ -29,7 +29,12 @@ import 'widgets/auction_upcoming_catalog_tab.dart';
 import 'widgets/auction_sell_tab.dart';
 
 class AuctionScreen extends ConsumerStatefulWidget {
-  const AuctionScreen({super.key});
+  final int initialTabIndex;
+
+  const AuctionScreen({
+    super.key,
+    this.initialTabIndex = 0,
+  });
 
   @override
   ConsumerState<AuctionScreen> createState() => _AuctionScreenState();
@@ -61,6 +66,7 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   @override
   void initState() {
     super.initState();
+    _selectedTabIndex = widget.initialTabIndex;
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -378,9 +384,12 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   }
 
   void _switchToStandardAuction() {
-    final game = ref.read(gameProvider);
     setState(() => _selectedTabIndex = 0);
-    ref.read(auctionSessionProvider.notifier).startStandardAuction(playerLevel: game.level);
+    final auctionState = ref.read(auctionSessionProvider);
+    if (auctionState.isVipSession && auctionState.isWindowOpen) {
+      final game = ref.read(gameProvider);
+      ref.read(auctionSessionProvider.notifier).startStandardAuction(playerLevel: game.level);
+    }
   }
 
   @override
@@ -454,26 +463,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
           ),
         ],
       ),
-      body: !auctionState.isWindowOpen
-          ? AuctionClosedWindowView(
-              isDark: isDark,
-              closedCountdown: auctionState.closedCountdown,
-              isOfficerConsulted: auctionState.isOfficerConsulted,
-              officerSpeech: auctionState.officerSpeech,
-              onRefresh: () async {
-                HapticFeedback.mediumImpact();
-                await Future.delayed(const Duration(milliseconds: 350));
-                if (mounted) {
-                  ref.read(auctionSessionProvider.notifier).refreshWindow();
-                }
-              },
-              onConsultOfficer: (speech) {
-                ref.read(auctionSessionProvider.notifier).consultOfficer(speech);
-              },
-            )
-          : Column(
-              children: [
-                // Top 3-Way Tab Selector (Neo-Brutalist Monolithic Bar)
+      body: Column(
+        children: [
+          // Top 4-Way Tab Selector (Neo-Brutalist Monolithic Bar)
                 Container(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -760,15 +752,35 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                 ),
                 Expanded(
                   child: (_selectedTabIndex == 0 || _selectedTabIndex == 1)
-                      ? AuctionLiveBiddingView(
-                          auction: auctionState.auction,
-                          bidLogs: auctionState.bidLogs,
-                          isDark: isDark,
-                          playerBalance: game.balance,
-                          hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
-                          onPlaceBid: _placePlayerBid,
-                          onBluff: _executeTrollBluff,
-                        )
+                      ? (!auctionState.isWindowOpen
+                          ? AuctionClosedWindowView(
+                              isDark: isDark,
+                              closedCountdown: auctionState.closedCountdown,
+                              isOfficerConsulted: auctionState.isOfficerConsulted,
+                              officerSpeech: auctionState.officerSpeech,
+                              onRefresh: () async {
+                                HapticFeedback.mediumImpact();
+                                await Future.delayed(const Duration(milliseconds: 350));
+                                if (mounted) {
+                                  ref.read(auctionSessionProvider.notifier).refreshWindow();
+                                }
+                              },
+                              onConsultOfficer: (speech) {
+                                ref.read(auctionSessionProvider.notifier).consultOfficer(speech);
+                              },
+                              onBypassWithAd: () {
+                                ref.read(auctionSessionProvider.notifier).bypassClosedCooldownWithAd();
+                              },
+                            )
+                          : AuctionLiveBiddingView(
+                              auction: auctionState.auction,
+                              bidLogs: auctionState.bidLogs,
+                              isDark: isDark,
+                              playerBalance: game.balance,
+                              hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
+                              onPlaceBid: _placePlayerBid,
+                              onBluff: _executeTrollBluff,
+                            ))
                       : (_selectedTabIndex == 2
                           ? AuctionUpcomingCatalogTab(
                               upcomingLots: auctionState.upcomingLots,

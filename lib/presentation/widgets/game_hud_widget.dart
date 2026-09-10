@@ -16,6 +16,7 @@ import 'radial_day_progress_widget.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
+import 'dialogs/game_day_time_control_sheet.dart';
 
 /// Floating Game HUD overlay widget - Neo-Brutalist Monolithic Stats Bar
 class GameHudHeaderWidget extends ConsumerWidget {
@@ -68,7 +69,12 @@ class GameHudHeaderWidget extends ConsumerWidget {
                   ref.read(gameProvider.notifier).lastDayAdvanceTime,
               onTap: () {
                 HapticFeedback.lightImpact();
-                context.push('/history');
+                showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  isScrollControlled: true,
+                  builder: (ctx) => GameDayTimeControlSheet(isDark: isDark),
+                );
               },
             ),
             const SizedBox(width: 8),

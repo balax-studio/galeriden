@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/ad_service.dart';
@@ -20,8 +21,6 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_listing_thumbnail.dart';
 import '../../widgets/neo_brutal_page_background.dart';
-import 'vasita_expertise_screen.dart';
-import 'vasita_negotiation_screen.dart';
 
 class VasitaMarketScreen extends ConsumerStatefulWidget {
   const VasitaMarketScreen({super.key});
@@ -79,6 +78,7 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
 
   @override
   void dispose() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _scrollController?.removeListener(_onScroll);
     _scrollController?.dispose();
     _searchController.dispose();
@@ -651,13 +651,9 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 onPressed: () {
                   HapticFeedback.selectionClick();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => VasitaExpertiseScreen(
-                        listingId: listing.id,
-                        initialListing: listing,
-                      ),
-                    ),
+                  context.push(
+                    '/vasita-ekspertiz/${listing.id}',
+                    extra: listing,
                   );
                 },
               ),
@@ -681,10 +677,9 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                     ? null
                     : () {
                         HapticFeedback.mediumImpact();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => VasitaNegotiationScreen(listing: listing),
-                          ),
+                        context.push(
+                          '/vasita-pazarlik/${listing.id}',
+                          extra: listing,
                         );
                       },
               ),

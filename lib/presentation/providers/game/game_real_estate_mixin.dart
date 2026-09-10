@@ -1233,7 +1233,6 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final land = state.ownedRealEstates[index];
     if (land.constructionMode != 'selfBuild') return false;
-    if (land.activeSubcontractorName == null || land.activeSubcontractorName!.isEmpty) return false;
     if (land.constructionDaysRemaining > 0) return false; // Must wait for duration to finish
 
     final nextStage = (land.constructionStage + 1).clamp(1, 8);
@@ -1259,6 +1258,100 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     );
 
     addXP(150);
+    saveState();
+    return true;
+  }
+
+  /// Accelerates the active construction stage via rewarded ad / double shift support
+  bool accelerateConstructionTimer(String landId, {int? daysToReduce}) {
+    final index = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+    if (index == -1) return false;
+
+    final land = state.ownedRealEstates[index];
+    if (!land.isConstructionActive) return false;
+
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
+
+    // Stage 1 Special Handling (Architectural Plan & Municipal Permit)
+    if (land.constructionMode == 'selfBuild' && land.constructionStage == 1) {
+      if (!land.isArchitecturalApproved) {
+        final updatedLand = land.copyWith(
+          constructionDaysRemaining: 0,
+          isConstructionWorking: false,
+          isArchitecturalApproved: true,
+          preConstructionStep: 'draftingCompleted',
+          clearActiveSubcontractor: true,
+          provenanceLog: [
+            ...land.provenanceLog,
+            '$nowStr • Çift vardiya mimari destek sağlandı • Mimari proje çizimi hızlandırılarak onaylandı',
+          ],
+        );
+        final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+        updatedList[index] = updatedLand;
+        state = state.copyWith(ownedRealEstates: updatedList);
+        addXP(75);
+        saveState();
+        return true;
+      } else if (!land.hasBuildingPermit) {
+        final updatedLand = land.copyWith(
+          constructionDaysRemaining: 0,
+          isConstructionWorking: false,
+          hasBuildingPermit: true,
+          constructionStage: 2,
+          preConstructionStep: 'permitApproved',
+          clearActiveSubcontractor: true,
+          provenanceLog: [
+            ...land.provenanceLog,
+            '$nowStr • Hukuk ve belediye takip desteği sağlandı • Yapı ruhsatı onaylanarak şantiye açıldı',
+          ],
+        );
+        final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+        updatedList[index] = updatedLand;
+        state = state.copyWith(ownedRealEstates: updatedList);
+        addXP(75);
+        saveState();
+        return true;
+      }
+    }
+
+    // Generic Stage Countdown (Self-Build Stages 2-8 & Contractor Mode)
+    if (land.constructionDaysRemaining <= 0) return false;
+
+    final totalStageDays = land.constructionMode == 'contractor'
+        ? (land.contractorStageDays > 0 ? land.contractorStageDays : 15)
+        : (land.stageTotalDays > 0 ? land.stageTotalDays : 10);
+    final effectiveDaysToReduce = daysToReduce ??
+        ConstructionTimelineEngine.calculateLogicalDaysToReduce(stageDays: totalStageDays);
+
+    final newDaysRemaining = (land.constructionDaysRemaining - effectiveDaysToReduce).clamp(0, 999);
+
+    RealEstateModel updatedLand;
+    if (land.constructionMode == 'contractor' && newDaysRemaining == 0) {
+      final nextStage = (land.constructionStage + 1).clamp(1, 8);
+      final stageDays = land.contractorStageDays > 0 ? land.contractorStageDays : 15;
+      updatedLand = land.copyWith(
+        constructionStage: nextStage,
+        constructionDaysRemaining: nextStage < 8 ? stageDays : 0,
+        provenanceLog: [
+          ...land.provenanceLog,
+          '$nowStr • Müteahhit ekibine takviye sağlandı • Aşama hızlandırılarak tamamlandı',
+        ],
+      );
+    } else {
+      updatedLand = land.copyWith(
+        constructionDaysRemaining: newDaysRemaining,
+        isConstructionWorking: newDaysRemaining > 0,
+        provenanceLog: [
+          ...land.provenanceLog,
+          '$nowStr • Çift vardiya ekip desteği sağlandı • $effectiveDaysToReduce gün hızlandırıldı • ${newDaysRemaining == 0 ? 'Etap tamamlandı ve teslime hazır' : 'Kalan: $newDaysRemaining Gün'}',
+        ],
+      );
+    }
+
+    final updatedList = List<RealEstateModel>.from(state.ownedRealEstates);
+    updatedList[index] = updatedLand;
+    state = state.copyWith(ownedRealEstates: updatedList);
+    addXP(50);
     saveState();
     return true;
   }

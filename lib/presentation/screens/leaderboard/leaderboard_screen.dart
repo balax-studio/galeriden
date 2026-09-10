@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_localizations.dart';
@@ -14,6 +15,7 @@ import '../../providers/leaderboard_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/neo_brutal_empty_state.dart';
 import 'widgets/leaderboard_podium_perks_sheet.dart';
 import 'widgets/leaderboard_season_reward_dialog.dart';
 
@@ -25,6 +27,8 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 }
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
+  Timer? _autoRefreshTimer;
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +48,19 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         );
       }
     });
+
+    // Auto-refresh leaderboard rankings every 45 seconds while viewing screen
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 45), (_) {
+      if (!mounted) return;
+      final game = ref.read(gameProvider);
+      ref.read(leaderboardProvider.notifier).loadLeaderboard(game: game, forceRefresh: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -87,6 +104,41 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         children: [
           // 0. Season Countdown & Podium Perks Banner
           _buildSeasonBanner(context, game, isDark),
+
+          // Offline fallback notice if Firestore disconnected
+          if (state.isOfflineFallback)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 2),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2A2111) : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off_rounded, size: 14, color: Color(0xFFD97706)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        context.tr('leaderboard_offline_badge'),
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFFB45309),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
           // 1. Tab Selector (Wealth vs Reputation)
           _buildTabSelector(state, game, isDark),
@@ -149,38 +201,45 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        'SEZON $seasonId',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'SEZON $seasonId',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '•',
-                        style: TextStyle(
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                          fontWeight: FontWeight.w900,
+                        const SizedBox(width: 6),
+                        Text(
+                          '•',
+                          style: TextStyle(
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'KALAN: $remainingStr',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        const SizedBox(width: 6),
+                        Text(
+                          'KALAN: $remainingStr',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     context.tr('leaderboard_banner_tap_perks'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -287,14 +346,17 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
             ),
             const SizedBox(width: 6),
             Flexible(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
+                  ),
                 ),
               ),
             ),
@@ -308,50 +370,41 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     final list = state.currentList;
     if (list.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.leaderboard_outlined,
-                size: 56,
-                color: isDark ? Colors.white38 : Colors.black38,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.tr('leaderboard_empty_title'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.tr('leaderboard_empty_desc'),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? Colors.white60 : const Color(0xFF475569),
-                ),
-              ),
-            ],
-          ),
+        child: NeoBrutalEmptyState(
+          icon: Icons.leaderboard_outlined,
+          badgeText: context.tr('leaderboard_screen_title'),
+          title: context.tr('leaderboard_empty_title'),
+          description: context.tr('leaderboard_empty_desc'),
+          actionLabel: context.tr('leaderboard_btn_refresh'),
+          actionIcon: Icons.refresh_rounded,
+          onActionPressed: () {
+            final game = ref.read(gameProvider);
+            ref.read(leaderboardProvider.notifier).syncMyStats(game, force: true);
+            ref.read(leaderboardProvider.notifier).loadLeaderboard(game: game, forceRefresh: true);
+          },
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-      itemCount: list.length,
-      itemBuilder: (context, index) {
-        final entry = list[index];
-        final rank = index + 1;
-        final isMe = entry.playerId == state.myPlayerId;
-        return _buildLeaderboardRow(entry, rank, isMe, state.activeTab, isDark);
+    return RefreshIndicator(
+      color: Colors.black,
+      backgroundColor: AppColors.brutalYellow,
+      onRefresh: () async {
+        final game = ref.read(gameProvider);
+        await ref.read(leaderboardProvider.notifier).syncMyStats(game, force: true);
+        await ref.read(leaderboardProvider.notifier).loadLeaderboard(game: game, forceRefresh: true);
       },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+        itemCount: list.length,
+        itemBuilder: (context, index) {
+          final entry = list[index];
+          final rank = index + 1;
+          final isMe = entry.playerId == state.myPlayerId;
+          return _buildLeaderboardRow(entry, rank, isMe, state.activeTab, isDark);
+        },
+      ),
     );
   }
 
@@ -450,6 +503,8 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   const SizedBox(height: 3),
                   Text(
                     '${entry.ownerName} • ${context.tr('level_prefix')} ${entry.playerLevel}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -460,46 +515,59 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
               ),
             ),
 
+            const SizedBox(width: 8),
+
             // Score Value (Wealth or XP)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (sortType == LeaderboardSortType.wealth) ...[
-                  Text(
-                    CurrencyFormatter.format(entry.netWorth),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF00E575),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (sortType == LeaderboardSortType.wealth) ...[
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        CurrencyFormatter.format(entry.netWorth),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF00E575),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${entry.carCount} ${context.tr('leaderboard_label_cars')}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${entry.carCount} ${context.tr('leaderboard_label_cars')}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
                     ),
-                  ),
-                ] else ...[
-                  Text(
-                    '${entry.reputationXp} XP',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  ] else ...[
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '${entry.reputationXp} XP',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${context.tr('level_prefix')} ${entry.playerLevel}',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${context.tr('level_prefix')} ${entry.playerLevel}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),
@@ -589,36 +657,48 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (state.activeTab == LeaderboardSortType.wealth)
-                  Text(
-                    CurrencyFormatter.format(myNetWorth),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF00E575),
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (state.activeTab == LeaderboardSortType.wealth)
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        CurrencyFormatter.format(myNetWorth),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF00E575),
+                        ),
+                      ),
+                    )
+                  else
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '$myXp XP',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        ),
+                      ),
                     ),
-                  )
-                else
                   Text(
-                    '$myXp XP',
+                    '${context.tr('level_prefix')} ${game.level}',
                     style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                      fontSize: 10,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     ),
                   ),
-                Text(
-                  '${context.tr('level_prefix')} ${game.level}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

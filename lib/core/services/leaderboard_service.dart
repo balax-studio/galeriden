@@ -13,7 +13,7 @@ class LeaderboardService {
 
   static const String _collectionName = 'leaderboards';
   static const String _prefPlayerIdKey = 'leaderboard_anonymous_player_id';
-  static const Duration _cacheDuration = Duration(minutes: 10);
+  static const Duration _cacheDuration = Duration(minutes: 2);
   static const Duration _writeThrottleDuration = Duration(minutes: 6);
 
   String? _cachedPlayerId;
@@ -87,6 +87,11 @@ class LeaderboardService {
   Future<List<LeaderboardEntryModel>> fetchTopByWealth({bool forceRefresh = false}) async {
     final now = DateTime.now();
 
+    if (forceRefresh) {
+      _cachedWealthLeaderboard = null;
+      _wealthCacheTimestamp = null;
+    }
+
     if (!forceRefresh &&
         _cachedWealthLeaderboard != null &&
         _wealthCacheTimestamp != null &&
@@ -117,6 +122,11 @@ class LeaderboardService {
   /// Fetches top 50 players by reputation XP with in-memory caching.
   Future<List<LeaderboardEntryModel>> fetchTopByXp({bool forceRefresh = false}) async {
     final now = DateTime.now();
+
+    if (forceRefresh) {
+      _cachedXpLeaderboard = null;
+      _xpCacheTimestamp = null;
+    }
 
     if (!forceRefresh &&
         _cachedXpLeaderboard != null &&

@@ -53,6 +53,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     if (!mounted || _isModalShowing) return;
     final isLoaded = ref.read(gameProvider.notifier).isLoaded;
     if (!isLoaded) return;
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return;
 
     if (game.pendingStoryCard != null) {
       _isModalShowing = true;

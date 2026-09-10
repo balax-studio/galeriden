@@ -30,6 +30,7 @@ import '../../../domain/usecases/repair_engine.dart';
 import '../../../domain/usecases/review_engine.dart';
 import '../../../domain/usecases/weather_engine.dart';
 import '../../../domain/usecases/weekly_event_engine.dart';
+import '../../../core/services/leaderboard_service.dart';
 import 'game_base_notifier.dart';
 
 class OfferPullResult {
@@ -1090,6 +1091,27 @@ mixin GameMarketMixin on GameBaseNotifier {
     }
 
     saveState();
+
+    // Leaderboard background sync with built-in throttle
+    Future.microtask(() {
+      try {
+        final double totalCarValue = state.ownedCars.fold(
+          0.0,
+          (sum, car) => sum + car.baseMarketValue,
+        );
+        final double netWorth = state.balance + totalCarValue;
+
+        LeaderboardService.instance.syncPlayerStats(
+          dealershipName: state.dealershipName,
+          ownerName: state.playerName,
+          netWorth: netWorth,
+          reputationXp: state.skills.xp,
+          playerLevel: state.level,
+          carCount: state.ownedCars.length,
+        );
+      } catch (_) {}
+    });
+
     return true;
   }
 

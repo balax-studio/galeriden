@@ -1273,6 +1273,21 @@ class ShowroomCarCard extends ConsumerWidget {
                 ],
                 if (_buildVasitaActionButton(context, ref, isDark) != null)
                   _buildVasitaActionButton(context, ref, isDark)!,
+                if (game.isFeatureUnlocked('/auction') && !car.isRented && !car.isLockedInShowcase) ...[
+                  const SizedBox(height: 8),
+                  NeoBrutalButton(
+                    label: context.tr('btn_send_to_auction'),
+                    icon: Icons.gavel_rounded,
+                    backgroundColor: const Color(0xFF38BDF8),
+                    textColor: Colors.black,
+                    fontSize: 11,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    fullWidth: true,
+                    onPressed: () {
+                      context.push('/auction?tab=3');
+                    },
+                  ),
+                ],
                 // Koleksiyon Vitrinine Kilitleme (Her araç için mülkiyet & yadigâr hakkı)
                 const SizedBox(height: 8),
                 NeoBrutalButton(

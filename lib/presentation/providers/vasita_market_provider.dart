@@ -88,6 +88,7 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
       count: 24,
       categoryFilter: categoryFilter,
       playerLevel: playerLevel,
+      playerBalance: game.balance,
     );
     // Prune locked listings so vanished listing IDs don't leak memory
     Future.microtask(() {

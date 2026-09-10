@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/notification_service.dart';
 import '../../../../domain/usecases/auction_engine.dart';
+import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 
@@ -13,6 +16,7 @@ class AuctionClosedWindowView extends StatelessWidget {
   final String? officerSpeech;
   final Future<void> Function() onRefresh;
   final ValueChanged<String> onConsultOfficer;
+  final VoidCallback onBypassWithAd;
 
   const AuctionClosedWindowView({
     super.key,
@@ -22,6 +26,7 @@ class AuctionClosedWindowView extends StatelessWidget {
     required this.officerSpeech,
     required this.onRefresh,
     required this.onConsultOfficer,
+    required this.onBypassWithAd,
   });
 
   @override
@@ -224,11 +229,116 @@ class AuctionClosedWindowView extends StatelessWidget {
                     },
                   ),
                 ],
+                const SizedBox(height: 16),
+
+                // 3. IN-UNIVERSE LORE PROTOCOL CARD (Bypass countdown with soft psychological framing)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF181D29) : const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.brutalYellow,
+                      width: 2.0,
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xFF0F172A),
+                        offset: Offset(2.5, 2.5),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalYellow,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(0xFF0F172A),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.verified_user_rounded,
+                              color: Colors.black,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              context.tr('auction_closed_ad_protocol_title'),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                          ),
+                          NeoBrutalBadge(
+                            text: context.tr('auction_closed_protocol_badge'),
+                            backgroundColor: AppColors.brutalYellow,
+                            textColor: Colors.black,
+                            fontSize: 8.5,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.tr('auction_closed_ad_protocol_desc'),
+                        style: TextStyle(
+                          fontSize: 11,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      NeoBrutalButton(
+                        label: context.tr('auction_closed_ad_bypass_btn'),
+                        icon: Icons.card_membership_rounded,
+                        backgroundColor: AppColors.brutalYellow,
+                        textColor: Colors.black,
+                        fullWidth: true,
+                        fontSize: 11.5,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        onPressed: () => _handleAdBypass(context),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  void _handleAdBypass(BuildContext context) {
+    HapticFeedback.mediumImpact();
+    AdService.instance.showRewardedAd(
+      onRewardEarned: () {
+        onBypassWithAd();
+        NotificationService.showSuccess(
+          context,
+          context.tr('auction_closed_ad_success_toast'),
+        );
+      },
+      onAdUnavailable: () {
+        // Safe offline fallback per Rule 9 & 10
+        onBypassWithAd();
+        NotificationService.showSuccess(
+          context,
+          context.tr('auction_closed_ad_success_toast'),
+        );
+      },
     );
   }
 }

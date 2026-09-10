@@ -714,16 +714,24 @@ class DashboardRetentionModals {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.emoji_events_rounded,
-                          color: Color(0xFFFFDE59), size: 24),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.tr('rival_leaderboard_title'),
-                        style: AppTypography.titleLarge(p.isDark),
-                      ),
-                    ],
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.emoji_events_rounded,
+                            color: Color(0xFFFFDE59), size: 24),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              context.tr('rival_leaderboard_title'),
+                              style: AppTypography.titleLarge(p.isDark),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close_rounded),
@@ -944,14 +952,21 @@ class DashboardRetentionModals {
                       ),
 
                       // Turnover Score
-                      Text(
-                        CurrencyFormatter.formatShort(item.turnoverScore),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                          color: isDark
-                              ? const Color(0xFF00E575)
-                              : const Color(0xFF15803D),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 80),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            CurrencyFormatter.formatShort(item.turnoverScore),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13,
+                              color: isDark
+                                  ? const Color(0xFF00E575)
+                                  : const Color(0xFF15803D),
+                            ),
+                          ),
                         ),
                       ),
                     ],

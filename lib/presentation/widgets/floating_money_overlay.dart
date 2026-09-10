@@ -125,11 +125,14 @@ class FloatingMoneyOverlayState extends State<FloatingMoneyOverlay>
         return Positioned(
           left: item.position.dx - 60,
           top: offsetY,
-          child: Opacity(
-            opacity: opacity,
-            child: Transform.scale(
-              scale: scale,
-              child: child,
+          child: IgnorePointer(
+            ignoring: true,
+            child: Opacity(
+              opacity: opacity,
+              child: Transform.scale(
+                scale: scale,
+                child: child,
+              ),
             ),
           ),
         );

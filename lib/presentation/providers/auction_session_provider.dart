@@ -264,9 +264,12 @@ class AuctionSessionNotifier extends StateNotifier<AuctionSessionState> {
     required String startedLog,
     required String startingPriceLog,
   }) {
+    AuctionEngine.openSessionImmediately();
     final vipAuction = AuctionEngine.createVipAuction(playerLevel: playerLevel);
     state = state.copyWith(
       isVipSession: true,
+      isWindowOpen: true,
+      closedCountdown: 0,
       auction: vipAuction,
       bidLogs: [
         startingPriceLog,
@@ -298,6 +301,20 @@ class AuctionSessionNotifier extends StateNotifier<AuctionSessionState> {
       closedCountdown: remaining,
       isWindowOpen: isOpen,
     );
+  }
+
+  void bypassClosedCooldownWithAd() {
+    AuctionEngine.openSessionImmediately();
+    final game = ref.read(gameProvider);
+    state = state.copyWith(
+      isWindowOpen: true,
+      closedCountdown: 0,
+      auction: AuctionEngine.createLiveAuction(playerLevel: game.level),
+      upcomingLots: AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level),
+      isOfficerConsulted: false,
+      officerSpeech: null,
+    );
+    startTimer();
   }
 
   void markBluffed() {
