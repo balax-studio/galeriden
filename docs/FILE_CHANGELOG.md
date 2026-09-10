@@ -21,6 +21,27 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
+
+### `iOS Minimum Deployment Target Yükseltmesi ve FirebaseFirestore StateObject Derleme Hatası Çözümü`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Codemagic / Xcode derleme ortamında FirebaseFirestore paketinin `StateObject is only available in iOS 14.0 or newer` hatasıyla derlemenin kesilmesini gidermek ve iOS minimum dağıtım hedefini modern Flutter standardı olan 15.0 seviyesine eşitlemek.
+- **Yapılan Değişiklikler**:
+  - `ios/Podfile`:
+    - `platform :ios, '13.0'` tanımı `platform :ios, '15.0'` olarak güncellendi.
+    - `post_install` kancasındaki `IPHONEOS_DEPLOYMENT_TARGET` zorlaması `13.0` değerinden `15.0` değerine yükseltildi.
+  - `ios/Runner.xcodeproj/project.pbxproj`:
+    - `Debug`, `Release` ve `Profile` hedef konfigürasyonlarındaki `IPHONEOS_DEPLOYMENT_TARGET` değerleri `13.0`'dan `15.0`'a yükseltildi.
+  - `ios/Flutter/AppFrameworkInfo.plist`:
+    - Flutter derleyicisinin minimum hedef beklentisiyle tam uyum için `<key>MinimumOSVersion</key><string>15.0</string>` anahtarı eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `flutter build ipa` sırasında Xcode derlemesinin `Swift Compiler Error - Xcode: 'StateObject' is only available in iOS 14.0 or newer` hatası vermesi - `FirestoreQuery.swift`.
+- **Kök Neden**:
+  - `Podfile` içindeki `post_install` bloğunun CocoaPods tarafından indirilen tüm pod bağımlılıklarının - `FirebaseFirestore` dahil - `IPHONEOS_DEPLOYMENT_TARGET` değerini zorla `13.0` yapması; oysa `cloud_firestore` paketinin Swift katmanında SwiftUI `StateObject` - iOS 14.0+ - özelliğini kullanması.
+- **Uygulanan Çözüm**:
+  - Proje düzeyinde ve tüm CocoaPod bağımlılıklarında minimum iOS sürümü 15.0 olarak yapılandırılarak `FirebaseFirestore` bağımlılığının derleme uyumluluğu sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile statik analiz doğrulandı.
+
 ### `Eski Günlük Rastgele Olay Sisteminin Kaldırılması ve 365 Günlük Karar Sistemine Konsolidasyon`
 - **Tarih**: 2026-09-10
 - **Değişiklik Amacı**: Eski paralel rastgele olay mekanizmasının `RandomEventEngine`, `pendingRandomEvent`, `NeoBrutalRandomEventDialog`, `DashboardRandomEventBanner` projeden tamamen kaldırılarak tüm hikaye ve karar akışının 365 Günlük Dramatik Karar Sistemi `DramaticCardEngine` ve `pendingDramaticCard` üzerinde konsolide edilmesi.
