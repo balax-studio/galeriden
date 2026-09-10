@@ -1355,28 +1355,53 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
               ),
               const SizedBox(height: 10),
               if (isAccepted)
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: NeoBrutalButton(
-                        label: context.tr('rental_btn_sign_lease'),
-                        icon: Icons.drive_file_rename_outline_rounded,
-                        backgroundColor: const Color(0xFF10B981),
-                        onPressed: () => _leaseToCandidate(candidate, prop),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      flex: 3,
-                      child: NeoBrutalButton(
-                        label: context.tr('rental_btn_chat_negotiate'),
-                        icon: Icons.forum_rounded,
-                        backgroundColor: const Color(0xFFDDD6FE),
-                        onPressed: () => _openNegotiationChat(candidate, prop),
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 320) {
+                      return Column(
+                        children: [
+                          NeoBrutalButton(
+                            label: context.tr('rental_btn_sign_lease'),
+                            icon: Icons.drive_file_rename_outline_rounded,
+                            backgroundColor: const Color(0xFF10B981),
+                            fullWidth: true,
+                            onPressed: () => _leaseToCandidate(candidate, prop),
+                          ),
+                          const SizedBox(height: 8),
+                          NeoBrutalButton(
+                            label: context.tr('rental_btn_chat_negotiate'),
+                            icon: Icons.forum_rounded,
+                            backgroundColor: const Color(0xFFDDD6FE),
+                            fullWidth: true,
+                            onPressed: () => _openNegotiationChat(candidate, prop),
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          flex: 4,
+                          child: NeoBrutalButton(
+                            label: context.tr('rental_btn_sign_lease'),
+                            icon: Icons.drive_file_rename_outline_rounded,
+                            backgroundColor: const Color(0xFF10B981),
+                            onPressed: () => _leaseToCandidate(candidate, prop),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 3,
+                          child: NeoBrutalButton(
+                            label: context.tr('rental_btn_chat_negotiate'),
+                            icon: Icons.forum_rounded,
+                            backgroundColor: const Color(0xFFDDD6FE),
+                            onPressed: () => _openNegotiationChat(candidate, prop),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 )
               else if (isCounter)
                 NeoBrutalButton(
@@ -1387,26 +1412,51 @@ class _RealEstateRentalScreenState extends ConsumerState<RealEstateRentalScreen>
                   onPressed: () => _openNegotiationChat(candidate, prop),
                 )
               else if (isRejected)
-                Row(
-                  children: [
-                    Expanded(
-                      child: NeoBrutalButton(
-                        label: context.tr('rental_btn_chat_negotiate'),
-                        icon: Icons.forum_rounded,
-                        backgroundColor: const Color(0xFFFBBF24),
-                        onPressed: () => _openNegotiationChat(candidate, prop),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: NeoBrutalButton(
-                        label: context.tr('rental_btn_dismiss_candidate'),
-                        icon: Icons.person_search_rounded,
-                        backgroundColor: const Color(0xFFE2E8F0),
-                        onPressed: () => _dismissCandidate(candidate, prop),
-                      ),
-                    ),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (constraints.maxWidth < 320) {
+                      return Column(
+                        children: [
+                          NeoBrutalButton(
+                            label: context.tr('rental_btn_chat_negotiate'),
+                            icon: Icons.forum_rounded,
+                            backgroundColor: const Color(0xFFFBBF24),
+                            fullWidth: true,
+                            onPressed: () => _openNegotiationChat(candidate, prop),
+                          ),
+                          const SizedBox(height: 8),
+                          NeoBrutalButton(
+                            label: context.tr('rental_btn_dismiss_candidate'),
+                            icon: Icons.person_search_rounded,
+                            backgroundColor: const Color(0xFFE2E8F0),
+                            fullWidth: true,
+                            onPressed: () => _dismissCandidate(candidate, prop),
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: NeoBrutalButton(
+                            label: context.tr('rental_btn_chat_negotiate'),
+                            icon: Icons.forum_rounded,
+                            backgroundColor: const Color(0xFFFBBF24),
+                            onPressed: () => _openNegotiationChat(candidate, prop),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: NeoBrutalButton(
+                            label: context.tr('rental_btn_dismiss_candidate'),
+                            icon: Icons.person_search_rounded,
+                            backgroundColor: const Color(0xFFE2E8F0),
+                            onPressed: () => _dismissCandidate(candidate, prop),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
             ],
           ],

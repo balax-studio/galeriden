@@ -160,6 +160,7 @@ class GameCoreNotifier extends GameBaseNotifier
         _isLoaded = true;
         state = updated;
         syncRentalState();
+        checkSeasonSettlement();
         startPeriodicOrganicOfferTimer();
         saveState();
         return;
@@ -187,6 +188,7 @@ class GameCoreNotifier extends GameBaseNotifier
         ),
       );
     }
+    checkSeasonSettlement();
     startPeriodicOrganicOfferTimer();
     saveState();
   }

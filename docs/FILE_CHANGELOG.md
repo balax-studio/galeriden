@@ -21,6 +21,118 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
+### `Canlı Serbest Piyasa Kurları & Döviz Kontrol Entegrasyonu (§SPEC-2026-REAL-FOREX-INTEGRATION)`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Borsa ve döviz ekranında gerçek piyasa kurları ile simülasyon kurları arasında geçiş yapılabilmesini sağlayan neo-brutalist kontrol kartının eklenmesi, son senkronizasyon zaman damgasının gösterilmesi, çevrimdışı önbellek koruması ve 7 dilde eşzamanlı yerelleştirme senkronizasyonu.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/stock_market/stock_market_screen.dart`:
+    - `_buildForexTab`: Canlı Piyasa / Simülasyon geçişini sağlayan `Switch.adaptive`, son senkronizasyon zamanı etiketi ve manuel zorunlu yenileme butonu (`Kurları Yenile`) içeren NeoBrutalCard kontrol modülü eklendi.
+    - Linter `deprecated_member_use` (`activeColor` -> `activeTrackColor`) ve `use_build_context_synchronously` (`if (!mounted) return`) uyarıları temizlendi.
+  - `lib/core/localization/translations/*.dart`:
+    - Döviz canlı piyasa kontrol modülüne ait 8 anahtar (`forex_real_market_mode`, `forex_real_market_desc`, `forex_simulated_market_desc`, `forex_live_badge`, `forex_sim_badge`, `forex_last_sync`, `forex_refresh_btn`, `forex_sync_success`, `forex_sync_offline`) 7 desteklenen dilin tamamına (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) parantezsiz ve emojisz olarak eklendi.
+  - `test/weekly_season_and_podium_test.dart`:
+    - Kullanılmayan import temizlendi, 5/5 testin yeşil geçtiği doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `Switch.adaptive` bileşeninde `activeColor` kullanımı Flutter güncel sürümünde deprecated uyarısı veriyordu.
+  - Asenkron kur çekimi sonrasında `context.mounted` yerine State üzerindeki `mounted` kontrolü yapılmadığında linter uyarısı oluşuyordu.
+- **Kök Neden**:
+  - Flutter v3.31+ API güncellemeleri ve State sınıfı bağlamındaki linter kuralları.
+- **Uygulanan Çözüm**:
+  - `activeTrackColor` kullanıldı ve `if (!mounted) return;` kontrolü yerleştirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` ile tüm projede 0 hata, 0 uyarı elde edildi.
+  - `flutter test test/weekly_season_and_podium_test.dart` tüm testleri başarıyla geçti.
+
+### `Haftalık Sezonlar ve Podyum Ödülleri Uçtan Uca Denetim ve Entegrasyon İyileştirmeleri (§SPEC-2026-PODIUM-SEASONS-AUDIT)`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Yeni eklenen Haftalık Sezonlar ve Podyum Ödülleri özelliğinin uçtan uca mimari, oyun mekaniği ve kullanıcı deneyimi denetiminin yapılması; tespit edilen 4 kritik entegrasyon açığı ve sınır durumunun giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `completeSale`: Körfez Alıcıları primi uygulanırken yalnızca `hasGulfBuyerNetwork == true` kontrolü yerine imtiyazın geçerlilik süresini de teyit eden `activePodiumPerks!.isActive` kontrolü eklendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `_triggerOrganicOffer`: 3. sıra podyum ödülü olan "Sarı Site Vitrin Dopingi" (`hasShowcaseBoost`) aktifken müşteri teklif ihtimali iki katına çıkarıldı (çarpan x2.0).
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - `_openCustomsAuction`: 1. sıra podyum ödülü olan "Gümrük İhalesi VIP Protokolü" (`hasCustomsAuctionPass`) sahibi oyuncular için ödüllü reklam zorunluluğu baypas edildi; doğrudan ihaleye giriş sağlandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`:
+    - Makam masası kupa alanına `hasUnclaimedSeasonRewards == true` durumunda dikkat çekici yanıp sönen brutalist "Ödüller Hazır" rozeti eklendi ve tıklanarak doğrudan ödül toplama diyaloğunun açılması sağlandı.
+  - `lib/core/localization/translations/*.dart`:
+    - `podium_unclaimed_alert` anahtarı 7 dilin tamamına (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Podyum imtiyaz süresi (7 gün) dolduktan sonra oyuncu gün atlamadan önce satış yaparsa `isActive` kontrolü yapılmadığı için Körfez primi verilebiliyordu.
+  - 3. Sıra Vitrin Dopingi (`hasShowcaseBoost`) ve 1. Sıra Gümrük İhalesi Geçişi (`hasCustomsAuctionPass`) modellerde tanımlanmış ancak ilgili oyun akışlarına (organik teklif ve gümrük ihalesi) tam bağlanmamıştı.
+  - Sezon devri gerçekleştikten sonra ofis masasında bekleyen ödül olduğu oyuncuya belirgin şekilde hissettirilmiyordu.
+- **Kök Neden**:
+  - Hızlı prototipleme esnasında model alanları oluşturulmuş ancak oyun döngüsünün derin noktalarındaki (ihale ekranı ve organik teklif zamanlayıcısı) koşullarla tam köprü kurulmamıştı.
+- **Uygulanan Çözüm**:
+  - Tüm podyum imtiyazları aktiflik süresi (`isActive`) kontrolüyle güvenli hale getirildi. Vitrin dopingi organik teklif şansını ikiye katlayacak şekilde bağlandı, gümrük ihalesi reklam şartı kaldırıldı ve ofis masasına reaktif uyarı rozeti eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/weekly_season_and_podium_test.dart` ile birim testler başarıyla çalıştırıldı (5/5 geçti).
+  - `flutter analyze lib/presentation/providers/game/ lib/presentation/screens/auction/ lib/presentation/screens/dashboard/widgets/ lib/core/localization/` ile 0 hata, 0 uyarı doğrulandı.
+
+### `Haftalık Sezonlar ve Podyum Ödülleri Sistemi (§SPEC-2026-PODIUM-SEASONS)`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Liderlik tablosundaki kümülatif servet tıkanıklığını aşarak her Pazartesi 00:00 UTC'de sıfırlanan 7 günlük haftalık satış cirosu/kârı yarışını başlatmak; ilk 3 podyum kazananına ve ilk 10'a Türk otomotiv kültürüne özgü stratejik, nakit-dışı yüksek kaldıraçlı imtiyazlar (Gümrük Tasfiye İhalesi, Körfez Alıcıları primi, Banka Filo Kapatma, Ekspertiz şeffaflığı, Sanayi Usta Başı Çeki, Sarı Site Vitrin Dopingi, VIP Noter İndirimleri, özel plaka unvanları ve makam masası kupaları) kazandırmak.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/podium_reward_model.dart` [YENİ]:
+    - `ActivePodiumPerks` modeli oluşturuldu: `notaryDiscountRate`, `hasCustomsAuctionPass`, `hasFleetLiquidationProtocol`, `hasMasterMechanicVoucher`, `hasGulfBuyerNetwork`, `hasInspectionTransparency`, `hasShowcaseBoost`, `freeNoterVouchers`, `customPlateTitle` ve 7 günlük geçerlilik süresi `expiresAt`.
+    - `PodiumTrophy` modeli oluşturuldu: Makam masasında ve profilde kalıcı olarak saklanan altın/gümüş/bronz kupa ve berat arşivi.
+  - `lib/domain/usecases/season_engine.dart` [YENİ]:
+    - ISO hafta bazlı sezon kimliği `getSeasonId(YYYYWW)`, sezon başlangıç ve bitiş UTC anları, kalan süre hesaplama ve biçimlendirme (`formatRemainingTime`), dereceye göre imtiyaz üretimi (`generatePodiumPerks`), kalıcı kupa üretimi (`createPodiumTrophy`) ve sezon devir kontrolü (`shouldSettleSeason`, `needsSeasonInit`).
+  - `lib/data/models/dealership_model.dart`:
+    - Yeni alanlar eklendi: `currentSeasonId`, `weeklyTurnoverScore`, `weeklyCarsSold`, `hasUnclaimedSeasonRewards`, `lastClaimedSeasonRank`, `activePodiumPerks`, `earnedTrophies`.
+    - `toMap`, `toJson`, `fromJson`, `copyWith` ve yapıcı metotlar geriye dönük tam uyumlu varsayılanlarla güncellendi.
+  - `lib/domain/usecases/rival_leaderboard_engine.dart`:
+    - Sıralama hesaplaması `weeklyTurnoverScore` ve `weeklyCarsSold` değerlerini oyuncunun haftalık performansına bağlayacak şekilde güncellendi.
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `buyCarWithNoter` işleminde `activePodiumPerks.notaryDiscountRate` devreye alındı.
+    - `sellCar`, `sellCarAtAuction`, `fulfillContract` satışlarında `weeklyTurnoverScore` ve `weeklyCarsSold` artışı bağlandı.
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `completeSale` metodunda podyum 1. sıra "Körfez Alıcıları" imtiyazı (`hasGulfBuyerNetwork`) ile lüks araç satışlarına +%15 anında prim eklendi ve haftalık ciro puanı güncellendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `checkSeasonSettlement()` ve `claimSeasonRewards()` eklendi; günlük gün ilerleme (`advanceGameDay`) döngüsüne bağlandı.
+  - `lib/presentation/providers/game/game_core_provider.dart`:
+    - Kayıt yükleme (`_loadState`) anında sezon devir ve ilk sezon kimliği ataması sağlandı.
+  - `lib/presentation/screens/leaderboard/widgets/leaderboard_podium_perks_sheet.dart` [YENİ]:
+    - 4 podyum kademesini, özel plakaları ve imtiyazları Neo-Brutalist görsel kurallarla listeleyen modal sayfa.
+  - `lib/presentation/screens/leaderboard/widgets/leaderboard_season_reward_dialog.dart` [YENİ]:
+    - Tamamlanan sezonun derecesini, kazanılan kupayı ve açılan imtiyazları kutlayan ve tek dokunuşla ödülleri toplayan Neo-Brutalist diyalog.
+  - `lib/presentation/screens/leaderboard/leaderboard_screen.dart`:
+    - Sezon kimliği ve geri sayım sayacı afişi (`_buildSeasonBanner`), podyum ödülleri inceleme butonu ve açılmamış ödül varsa otomatik kutlama diyaloğu eklendi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_office_view.dart`:
+    - Makam masasında kazanılan en yüksek kupayı (Altın/Gümüş/Bronz) sergileyen ve aktif imtiyazı gösteren `_buildOfficeTrophySection` bileşeni eklendi.
+  - `lib/core/localization/translations/*.dart` (7 Dil Eşzamanlı Senkronizasyon):
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin tamamına 28 yeni podyum, kupa ve imtiyaz anahtarı sıfır emoji ve sıfır parantez kuralına tam uyularak eklendi.
+  - `test/weekly_season_and_podium_test.dart` [YENİ]:
+    - ISO hafta kimliği, imtiyaz üretimi, kupa yaratımı, model serileştirme ve sezon rollover mantığını doğrulayan 5 birim test eklendi ve tümü geçti.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Test dosyasında paket adı `package:galerisinden/` olarak yazıldığında derleme hatası oluştu.
+- **Kök Neden**:
+  - `pubspec.yaml` dosyasındaki paket adı `galeriden` idi.
+- **Uygulanan Çözüm**:
+  - Test dosyasındaki importlar `package:galeriden/` olarak düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/weekly_season_and_podium_test.dart` çalıştırıldı: 5 testin 5'i de başarıyla geçti.
+
+### `Emlak Pazar Portföy ve İlgili Ekranlarda RenderFlex Buton Taşmalarının Onarımı`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Emlak piyasası portföy sekmesinde ve ilişkili ekranlarda dar ekran genişliklerinde (360dp–390dp) ve 7-dil yerelleştirmelerinde yatay butonların ekran dışına taşması (RenderFlex overflow) sorununu gidermek ve duyarlı hiyerarşik yerleşim sağlamak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - `_buildUnifiedTerminalHeader`: Sekme seçici ve cüzdan/telemetri başlığı `SingleChildScrollView(scrollDirection: Axis.horizontal)` ve `ConstrainedBox` ile sarılarak dar ekranlarda ve uzun yerelleştirilmiş dillerde (Almanca/Portekizce) yatay taşma riski ortadan kaldırıldı.
+    - `_buildPortfolioCard`: Finansal değerleme bilgileri ile eylem butonları dikey hiyerarşiye ayrıldı. Eylem butonları sırası sabit genişlikli `Row` yerine `Wrap(spacing: 6, runSpacing: 6, alignment: WrapAlignment.end)` yapısına dönüştürülerek sığmayan butonların alt satıra şık bir şekilde kırılması sağlandı.
+  - `lib/presentation/screens/real_estate/real_estate_listing_manage_screen.dart`:
+    - Kiracı detay kartındaki aylık kira ve depozito satırı `Wrap(spacing: 8, runSpacing: 4)` ile sarmalanarak uzun para birimi formatlarında taşma yapması engellendi.
+  - `lib/presentation/screens/real_estate/real_estate_rental_screen.dart`:
+    - `_buildCandidateCard`: Aday onay ve ret butonları `LayoutBuilder` ile 320dp altındaki dar kart alanlarında tam genişlikli dikey sütuna geçecek şekilde responsive hale getirildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Portföy kartlarında 5-6 farklı butonun (İnşaat, Tadilat, Ev Dizayn, İkametgâh, Kiralama, Teklifler, Satış) finansal özet ile aynı yatay `Row` içinde olması nedeniyle 360dp–412dp mobil ekranlarda `A RenderFlex overflowed by xxx pixels on the right` hatası oluşması.
+- **Kök Neden**:
+  - Yatay eksende genişliği dinamik olan birden fazla metinli butonun esnek olmayan (`unconstrained`) tek bir `Row` içerisine yerleştirilmesi.
+- **Uygulanan Çözüm**:
+  - Neo-Brutalist görsel gramer korunarak sabit `Row` yapıları `Wrap` ve `SingleChildScrollView` ile yeniden tasarlandı; dar ekran kırılma noktaları `LayoutBuilder` ile desteklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/real_estate/` ile statik analiz doğrulandı.
 
 ### `iOS Minimum Deployment Target Yükseltmesi ve FirebaseFirestore StateObject Derleme Hatası Çözümü`
 - **Tarih**: 2026-09-10

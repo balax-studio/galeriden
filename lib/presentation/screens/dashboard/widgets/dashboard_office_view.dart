@@ -17,6 +17,7 @@ import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../leaderboard/widgets/leaderboard_season_reward_dialog.dart';
 import 'dashboard_quick_finance_card.dart';
 
 extension SmartHookModelUiExtension on SmartHookModel {
@@ -119,6 +120,10 @@ class DashboardOfficeView extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+
+          // 1.5. Podium Trophy & Season Glory Showcase
+          _buildOfficeTrophySection(context, isDark),
           const SizedBox(height: 12),
 
           // 2. Financial Summary Card
@@ -1364,6 +1369,143 @@ class DashboardOfficeView extends ConsumerWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildOfficeTrophySection(BuildContext context, bool isDark) {
+    final bool hasUnclaimed = game.hasUnclaimedSeasonRewards;
+    final borderColor = isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A);
+    final hasTrophies = game.earnedTrophies.isNotEmpty;
+    final latestTrophy = hasTrophies ? game.earnedTrophies.last : null;
+    final activePerks = game.activePodiumPerks;
+
+    Color trophyColor;
+    String trophyTitle;
+    IconData trophyIcon;
+
+    if (latestTrophy != null) {
+      if (latestTrophy.rank == 1) {
+        trophyColor = const Color(0xFFFFD700);
+        trophyTitle = context.tr('podium_trophy_gold');
+        trophyIcon = Icons.workspace_premium_rounded;
+      } else if (latestTrophy.rank == 2) {
+        trophyColor = const Color(0xFFE2E8F0);
+        trophyTitle = context.tr('podium_trophy_silver');
+        trophyIcon = Icons.shield_rounded;
+      } else {
+        trophyColor = const Color(0xFFCD7F32);
+        trophyTitle = context.tr('podium_trophy_bronze');
+        trophyIcon = Icons.handshake_rounded;
+      }
+    } else {
+      trophyColor = hasUnclaimed ? const Color(0xFFFFD700) : const Color(0xFF94A3B8);
+      trophyTitle = context.tr('office_trophy_empty_pedestal');
+      trophyIcon = Icons.military_tech_outlined;
+    }
+
+    return InkWell(
+      onTap: () {
+        if (hasUnclaimed) {
+          LeaderboardSeasonRewardDialog.show(
+            context,
+            game: game,
+            isDark: isDark,
+          );
+        } else {
+          context.push('/leaderboard');
+        }
+      },
+      child: NeoBrutalCard(
+        padding: const EdgeInsets.all(14),
+        backgroundColor: isDark ? const Color(0xFF161B28) : Colors.white,
+        borderColor: hasUnclaimed ? const Color(0xFFEF4444) : (hasTrophies ? trophyColor : borderColor),
+        borderWidth: (hasTrophies || hasUnclaimed) ? 2.4 : 2.0,
+        borderRadius: 12,
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: (hasUnclaimed ? const Color(0xFFEF4444) : trophyColor).withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: hasUnclaimed ? const Color(0xFFEF4444) : (hasTrophies ? trophyColor : borderColor),
+                  width: 2.0,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Icon(
+                trophyIcon,
+                color: hasUnclaimed
+                    ? const Color(0xFFEF4444)
+                    : (hasTrophies ? trophyColor : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))),
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        trophyTitle,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      if (hasUnclaimed) ...[
+                        const SizedBox(width: 6),
+                        NeoBrutalBadge(
+                          text: context.tr('podium_unclaimed_alert'),
+                          backgroundColor: const Color(0xFFEF4444),
+                          textColor: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ] else if (hasTrophies) ...[
+                        const SizedBox(width: 6),
+                        NeoBrutalBadge(
+                          text: 'SEZON ${latestTrophy?.seasonId ?? ""}',
+                          backgroundColor: trophyColor,
+                          textColor: Colors.black,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    hasUnclaimed
+                        ? context.tr('podium_dialog_congrats_desc')
+                        : (hasTrophies
+                            ? (activePerks?.isActive == true
+                                ? '${context.tr('office_active_perk_prefix')}: ${activePerks?.customPlateTitle ?? 'VIP Noter İndirimi'}'
+                                : context.tr('office_trophy_cabinet_desc'))
+                            : context.tr('office_trophy_empty_desc')),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              size: 22,
+            ),
+          ],
+        ),
       ),
     );
   }

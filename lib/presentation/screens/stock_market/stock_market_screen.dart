@@ -955,6 +955,174 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             ],
           ),
         ),
+        const SizedBox(height: 10),
+
+        // Gerçek Piyasa Kurları & Simülasyon Kontrol Kartı (§SPEC-2026-REAL-FOREX)
+        NeoBrutalCard(
+          padding: const EdgeInsets.all(14),
+          backgroundColor: isDark ? const Color(0xFF181D2A) : Colors.white,
+          borderColor:
+              isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+          borderRadius: 12,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: game.useRealForexRates
+                                ? AppColors.toxicLime
+                                : AppColors.brutalYellow,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 1.5),
+                          ),
+                          child: const Icon(
+                            Icons.public,
+                            color: Colors.black,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('forex_real_market_mode'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark ? Colors.white : Colors.black,
+                                ),
+                              ),
+                              Text(
+                                game.useRealForexRates
+                                    ? context.tr('forex_real_market_desc')
+                                    : context.tr('forex_simulated_market_desc'),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white70 : Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Switch.adaptive(
+                    value: game.useRealForexRates,
+                    activeTrackColor: AppColors.toxicLime,
+                    onChanged: (val) {
+                      HapticFeedback.lightImpact();
+                      ref.read(gameProvider.notifier).toggleRealForexRates(val);
+                    },
+                  ),
+                ],
+              ),
+              if (game.useRealForexRates) ...[
+                const SizedBox(height: 10),
+                Divider(
+                  height: 1,
+                  color: isDark ? const Color(0xFF2A3142) : Colors.black12,
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        NeoBrutalBadge(
+                          text: context.tr('forex_live_badge'),
+                          backgroundColor: AppColors.toxicLime,
+                          textColor: Colors.black,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          game.lastForexSyncTimestamp != null
+                              ? context.tr('forex_last_sync', {
+                                  'time':
+                                      '${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).hour.toString().padLeft(2, '0')}:${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).minute.toString().padLeft(2, '0')}'
+                                })
+                              : '',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white60 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        HapticFeedback.mediumImpact();
+                        final success = await ref
+                            .read(gameProvider.notifier)
+                            .syncRealForexRates(force: true);
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? context.tr('forex_sync_success')
+                                  : context.tr('forex_sync_offline'),
+                              style: const TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                            backgroundColor:
+                                success ? AppColors.toxicLime : Colors.redAccent,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF2A3142)
+                              : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF475569)
+                                : Colors.black87,
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 14,
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              context.tr('forex_refresh_btn'),
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
         const SizedBox(height: 14),
 
         ...forexList.map((item) {

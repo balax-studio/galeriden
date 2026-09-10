@@ -349,21 +349,31 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
       return;
     }
 
+    final hasVipPass = game.activePodiumPerks?.isActive == true &&
+        game.activePodiumPerks?.hasCustomsAuctionPass == true;
+
+    void startVipSession() {
+      setState(() => _selectedTabIndex = 1);
+      final notifier = ref.read(auctionSessionProvider.notifier);
+      final tempVip = AuctionEngine.createVipAuction(playerLevel: game.level);
+      notifier.startVipAuction(
+        playerLevel: game.level,
+        startedLog: context.tr('auction_vip_session_started'),
+        startingPriceLog: context.tr('auction_starting_price_log', {
+          'price': CurrencyFormatter.formatShort(tempVip.startingPrice),
+        }),
+      );
+    }
+
+    if (hasVipPass) {
+      startVipSession();
+      return;
+    }
+
     AdService.instance.showRewardedAdWithFallback(
       context: context,
       customRewardTitle: context.tr('auction_vip_ad_reward'),
-      onRewardEarned: () {
-        setState(() => _selectedTabIndex = 1);
-        final notifier = ref.read(auctionSessionProvider.notifier);
-        final tempVip = AuctionEngine.createVipAuction(playerLevel: game.level);
-        notifier.startVipAuction(
-          playerLevel: game.level,
-          startedLog: context.tr('auction_vip_session_started'),
-          startingPriceLog: context.tr('auction_starting_price_log', {
-            'price': CurrencyFormatter.formatShort(tempVip.startingPrice),
-          }),
-        );
-      },
+      onRewardEarned: startVipSession,
     );
   }
 

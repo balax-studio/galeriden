@@ -135,15 +135,10 @@ class RivalLeaderboardEngine {
     },
   ];
 
-  static double _calculatePlayerScore(DealershipModel playerDealership) {
-    final vehicleAssets = playerDealership.ownedCars.fold<double>(
-      0.0,
-      (sum, car) => sum + (car.estimatedRealValue > 0 ? car.estimatedRealValue : car.baseMarketValue),
-    );
-    final netWorth = playerDealership.balance + vehicleAssets;
-    final activityScore = playerDealership.totalProfit + (playerDealership.carsSold * 90000.0);
-    final combined = activityScore + (netWorth * 0.4);
-    return combined > 50000.0 ? combined : 50000.0;
+  static double _calculateLeagueBaseline(DealershipModel playerDealership) {
+    // Baseline weekly expectancy scaled to dealership league level
+    final effectiveLevel = playerDealership.level.clamp(1, 20);
+    return 45000.0 + (effectiveLevel * 65000.0);
   }
 
   static double _getDailyVariance(String name, int day) {
@@ -155,7 +150,7 @@ class RivalLeaderboardEngine {
   static List<LeaderboardEntry> _generateRawList({
     required DealershipModel playerDealership,
     required int day,
-    required double baseScore,
+    required double leagueBaseline,
   }) {
     final entries = <LeaderboardEntry>[];
 
@@ -163,11 +158,17 @@ class RivalLeaderboardEngine {
     final playerName = playerDealership.dealershipName.isNotEmpty
         ? playerDealership.dealershipName
         : 'Benim Galerim';
+    final playerScore = playerDealership.weeklyTurnoverScore > 0
+        ? playerDealership.weeklyTurnoverScore
+        : (playerDealership.carsSold > 0 ? (playerDealership.carsSold * 35000.0) : 0.0);
+
     entries.add(LeaderboardEntry(
       name: playerName,
-      turnoverScore: baseScore,
+      turnoverScore: playerScore,
       reputation: playerDealership.reputationScore,
-      carsSold: playerDealership.carsSold,
+      carsSold: playerDealership.weeklyCarsSold > 0
+          ? playerDealership.weeklyCarsSold
+          : playerDealership.carsSold,
       isPlayer: true,
       tagline: 'Senin Galerim',
     ));
@@ -185,7 +186,7 @@ class RivalLeaderboardEngine {
 
       final variance = _getDailyVariance(name, day);
       final dayBonus = 1.0 + (dailyGrowthRate * (day - 1));
-      final turnover = ((baseScore * multiplier) + flatOffset) * dayBonus * variance;
+      final turnover = ((leagueBaseline * multiplier) + flatOffset) * dayBonus * variance;
 
       // Scale cars sold and reputation organically with player progress
       final playerSoldFactor = playerDealership.carsSold * 0.8;
@@ -212,20 +213,20 @@ class RivalLeaderboardEngine {
     required int currentDay,
   }) {
     final effectiveDay = currentDay > 0 ? currentDay : 1;
-    final baseScore = _calculatePlayerScore(playerDealership);
+    final leagueBaseline = _calculateLeagueBaseline(playerDealership);
 
     // Current day leaderboard
     final currentList = _generateRawList(
       playerDealership: playerDealership,
       day: effectiveDay,
-      baseScore: baseScore,
+      leagueBaseline: leagueBaseline,
     );
 
     // Previous day leaderboard for trend computation (if day 1, compare with baseline day 0)
     final prevList = _generateRawList(
       playerDealership: playerDealership,
       day: effectiveDay > 1 ? effectiveDay - 1 : 0,
-      baseScore: baseScore * 0.97,
+      leagueBaseline: leagueBaseline * 0.97,
     );
 
     // Map previous ranks

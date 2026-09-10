@@ -74,8 +74,11 @@ class StockMarketEngine {
   }
 
   /// Processes daily forex and gold rate movements with 30-day historical window.
+  /// If [useRealForex] is true, applies small realistic daily noise (±0.4%) around anchor rates.
+  /// Otherwise applies broader simulation fluctuation (±1.5%).
   static List<ForexGoldModel> processForexFluctuations({
     required List<ForexGoldModel> forexList,
+    bool useRealForex = false,
     Random? random,
   }) {
     if (forexList.isEmpty) return ForexGoldModel.defaultForex;
@@ -83,7 +86,9 @@ class StockMarketEngine {
     final List<ForexGoldModel> updated = [];
 
     for (var item in forexList) {
-      final double changeRatio = 1.0 + ((rng.nextDouble() * 0.03) - 0.015);
+      final double spreadRange = useRealForex ? 0.008 : 0.03;
+      final double spreadOffset = useRealForex ? 0.004 : 0.015;
+      final double changeRatio = 1.0 + ((rng.nextDouble() * spreadRange) - spreadOffset);
       final double newBuy = (item.buyRate * changeRatio * 100).roundToDouble() / 100.0;
       final double newSell = (newBuy * 0.991 * 100).roundToDouble() / 100.0;
 

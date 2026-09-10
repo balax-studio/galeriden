@@ -65,10 +65,13 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedContracts = List<WantedCarContract>.from(state.activeContracts)
       ..removeAt(contractIndex);
 
+    final double profitToAdd = profit > 0 ? profit : 0.0;
     state = state.copyWith(
       balance: state.balance + totalPayout,
       totalProfit: state.totalProfit + profit,
       carsSold: state.carsSold + 1,
+      weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
+      weeklyCarsSold: state.weeklyCarsSold + 1,
       ownedCars: updatedCars,
       activeContracts: updatedContracts,
     );
@@ -109,13 +112,17 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedBalance = state.balance - finalPurchasePrice;
 
     PurchaseRiskOutcome outcome;
-    if (!isExpertiseCompleted) {
+    final bool hasAutoInspection = state.activePodiumPerks?.isActive == true &&
+        state.activePodiumPerks?.hasInspectionTransparency == true;
+    if (!isExpertiseCompleted && !hasAutoInspection) {
       outcome = RiskEngine.evaluateUninspectedPurchaseRisk(car);
     } else {
       outcome = PurchaseRiskOutcome(
         isTrapped: false,
-        title: 'Ekspertizli Alım',
-        description: 'Ekspertiz raporu doğrultusunda güvenle satın alındı.',
+        title: hasAutoInspection ? 'Podyum İmtiyazı: Kusur Şeffaflığı' : 'Ekspertizli Alım',
+        description: hasAutoInspection
+            ? 'Kurumsal Plaza unvanı sayesinde tüm gizli kusurlar alım öncesi tespit edildi.'
+            : 'Ekspertiz raporu doğrultusunda güvenle satın alındı.',
         updatedCar: car,
       );
     }
@@ -161,9 +168,17 @@ mixin GameInventoryMixin on GameBaseNotifier {
     double registrationFee = 850.0,
     bool isExpertiseCompleted = false,
   }) {
+    double finalNoterFee = noterFee;
+    if (state.activePodiumPerks != null && state.activePodiumPerks!.isActive) {
+      final discount = state.activePodiumPerks!.notaryDiscountRate;
+      if (discount > 0) {
+        finalNoterFee = (noterFee * (1.0 - discount)).roundToDouble();
+      }
+    }
+
     // Unified buyer acquisition perks (pazarlık, tüccar torunu, pazar kurdu) (C2)
     final double effectiveAgreedPrice = state.applyBuyerPerks(agreedPrice);
-    final totalAcquisitionCost = effectiveAgreedPrice + noterFee + registrationFee;
+    final totalAcquisitionCost = effectiveAgreedPrice + finalNoterFee + registrationFee;
     if (state.balance < totalAcquisitionCost) return null;
     if (state.ownedCars.length >= state.maxGarageSlots) return null;
 
@@ -397,11 +412,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCars = List<CarModel>.from(state.ownedCars)
       ..removeAt(carIndex);
 
+    final double profitToAdd = profit > 0 ? profit : 0.0;
     state = state.copyWith(
       balance: state.balance + cashReceived,
       ownedCars: updatedCars,
       totalProfit: state.totalProfit + profit,
       carsSold: state.carsSold + 1,
+      weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
+      weeklyCarsSold: state.weeklyCarsSold + 1,
     );
 
     addXP(100);
@@ -445,11 +463,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     );
 
     final int newCarsSold = state.carsSold + 1;
+    final double profitToAdd = profit > 0 ? profit : 0.0;
     state = state.copyWith(
       balance: state.balance + netCashReceived,
       ownedCars: updatedCars,
       totalProfit: state.totalProfit + profit,
       carsSold: newCarsSold,
+      weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
+      weeklyCarsSold: state.weeklyCarsSold + 1,
       salesHistory: [record, ...state.salesHistory],
     );
 
@@ -1050,21 +1071,27 @@ mixin GameInventoryMixin on GameBaseNotifier {
   RepairResult repairBodyPartWithTier(
       CarModel car, String partName, RepairTier tier) {
     final result = RepairEngine.repairBodyPart(car, partName, tier);
-    if (state.balance >= result.costPaid) {
+    final double discount = (state.activePodiumPerks?.isActive == true &&
+            state.activePodiumPerks?.hasMasterMechanicVoucher == true)
+        ? 0.25
+        : 0.0;
+    final double costToCharge = (result.costPaid * (1.0 - discount)).roundToDouble();
+
+    if (state.balance >= costToCharge) {
       final carWithCost = result.updatedCar.copyWith(
-        maintenanceCost: car.maintenanceCost + result.costPaid,
+        maintenanceCost: car.maintenanceCost + costToCharge,
       );
       final updatedCars = state.ownedCars
           .map((c) => c.id == car.id ? carWithCost : c)
           .toList();
       state = state.copyWith(
-        balance: state.balance - result.costPaid,
+        balance: state.balance - costToCharge,
         ownedCars: updatedCars,
       );
       AnalyticsService.instance.logCarRepaired(
         brand: car.brand,
         model: car.modelName,
-        cost: result.costPaid,
+        cost: costToCharge,
         repairType: 'body_part_$partName',
       );
       if (result.isSuccess) {
@@ -1080,9 +1107,15 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// Repair Engine with tier
   RepairResult repairEngineWithTier(CarModel car, RepairTier tier) {
     final result = RepairEngine.repairEngine(car, tier);
-    if (state.balance >= result.costPaid) {
+    final double discount = (state.activePodiumPerks?.isActive == true &&
+            state.activePodiumPerks?.hasMasterMechanicVoucher == true)
+        ? 0.25
+        : 0.0;
+    final double costToCharge = (result.costPaid * (1.0 - discount)).roundToDouble();
+
+    if (state.balance >= costToCharge) {
       final carWithCost = result.updatedCar.copyWith(
-        maintenanceCost: car.maintenanceCost + result.costPaid,
+        maintenanceCost: car.maintenanceCost + costToCharge,
       );
       final updatedCars = state.ownedCars
           .map((c) => c.id == car.id ? carWithCost : c)
@@ -1093,7 +1126,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
           : 0;
 
       state = state.copyWith(
-        balance: state.balance - result.costPaid,
+        balance: state.balance - costToCharge,
         ownedCars: updatedCars,
         dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
         lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
@@ -1101,7 +1134,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       AnalyticsService.instance.logCarRepaired(
         brand: car.brand,
         model: car.modelName,
-        cost: result.costPaid,
+        cost: costToCharge,
         repairType: 'engine_${tier.name}',
       );
       if (result.isSuccess) {
@@ -1117,9 +1150,15 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// Repair Transmission with tier
   RepairResult repairTransmissionWithTier(CarModel car, RepairTier tier) {
     final result = RepairEngine.repairTransmission(car, tier);
-    if (state.balance >= result.costPaid) {
+    final double discount = (state.activePodiumPerks?.isActive == true &&
+            state.activePodiumPerks?.hasMasterMechanicVoucher == true)
+        ? 0.25
+        : 0.0;
+    final double costToCharge = (result.costPaid * (1.0 - discount)).roundToDouble();
+
+    if (state.balance >= costToCharge) {
       final carWithCost = result.updatedCar.copyWith(
-        maintenanceCost: car.maintenanceCost + result.costPaid,
+        maintenanceCost: car.maintenanceCost + costToCharge,
       );
       final updatedCars = state.ownedCars
           .map((c) => c.id == car.id ? carWithCost : c)
@@ -1130,7 +1169,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
           : 0;
 
       state = state.copyWith(
-        balance: state.balance - result.costPaid,
+        balance: state.balance - costToCharge,
         ownedCars: updatedCars,
         dailyWorkshopRepairsCount: isMasterRepair ? (usedRepairs + 1) : state.dailyWorkshopRepairsCount,
         lastWorkshopRepairDay: isMasterRepair ? state.currentDay : state.lastWorkshopRepairDay,
@@ -1138,7 +1177,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       AnalyticsService.instance.logCarRepaired(
         brand: car.brand,
         model: car.modelName,
-        cost: result.costPaid,
+        cost: costToCharge,
         repairType: 'transmission_${tier.name}',
       );
       if (result.isSuccess) {

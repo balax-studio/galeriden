@@ -660,8 +660,10 @@ class _RealEstateListingManageScreenState
                           ],
                         ),
                         const Divider(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          alignment: WrapAlignment.spaceBetween,
                           children: [
                             Text(
                               'Aylık Kira: ${CurrencyFormatter.format(prop.currentTenant!.monthlyRent)}',

@@ -8,11 +8,14 @@ import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../data/models/leaderboard_entry_model.dart';
 import '../../../data/models/dealership_model.dart';
+import '../../../domain/usecases/season_engine.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/leaderboard_provider.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
+import 'widgets/leaderboard_podium_perks_sheet.dart';
+import 'widgets/leaderboard_season_reward_dialog.dart';
 
 class LeaderboardScreen extends ConsumerStatefulWidget {
   const LeaderboardScreen({super.key});
@@ -30,6 +33,16 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       final game = ref.read(gameProvider);
       ref.read(leaderboardProvider.notifier).syncMyStats(game);
       ref.read(leaderboardProvider.notifier).loadLeaderboard(game: game);
+
+      // Settle / prompt unclaimed season podium rewards if available
+      if (game.hasUnclaimedSeasonRewards) {
+        final themeExt = Theme.of(context).extension<AppThemeExtension>()!;
+        LeaderboardSeasonRewardDialog.show(
+          context,
+          game: game,
+          isDark: themeExt.palette.isDark,
+        );
+      }
     });
   }
 
@@ -49,6 +62,14 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         actions: [
           IconButton(
             icon: Icon(
+              Icons.military_tech_rounded,
+              color: isDark ? const Color(0xFFFFD700) : const Color(0xFFB45309),
+            ),
+            tooltip: context.tr('podium_sheet_header_title'),
+            onPressed: () => LeaderboardPodiumPerksSheet.show(context, isDark: isDark),
+          ),
+          IconButton(
+            icon: Icon(
               Icons.refresh_rounded,
               color: isDark ? Colors.white : Colors.black,
             ),
@@ -64,6 +85,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       ),
       body: Column(
         children: [
+          // 0. Season Countdown & Podium Perks Banner
+          _buildSeasonBanner(context, game, isDark),
+
           // 1. Tab Selector (Wealth vs Reputation)
           _buildTabSelector(state, game, isDark),
 
@@ -77,6 +101,102 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           // 3. Sticky Bottom My Rank Bar
           _buildStickyMyRank(state, game, isDark),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSeasonBanner(BuildContext context, DealershipModel game, bool isDark) {
+    final seasonId = SeasonEngine.getSeasonId();
+    final remaining = SeasonEngine.getTimeRemainingInSeason();
+    final remainingStr = SeasonEngine.formatRemainingTime(remaining);
+    final borderColor = isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A);
+
+    return InkWell(
+      onTap: () => LeaderboardPodiumPerksSheet.show(context, isDark: isDark),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 10, 16, 2),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF191E2B) : const Color(0xFFFEFCE8),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: borderColor, width: 2.0),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black : const Color(0xFF0F172A),
+              offset: const Offset(3, 3),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFD700),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.black, width: 1.5),
+              ),
+              child: const Icon(
+                Icons.emoji_events_rounded,
+                color: Colors.black,
+                size: 18,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'SEZON $seasonId',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '•',
+                        style: TextStyle(
+                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'KALAN: $remainingStr',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.tr('leaderboard_banner_tap_perks'),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: Color(0xFFEAB308),
+            ),
+          ],
+        ),
       ),
     );
   }

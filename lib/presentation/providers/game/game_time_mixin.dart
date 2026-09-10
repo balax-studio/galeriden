@@ -48,6 +48,10 @@ import '../../../domain/services/daily_loan_processor.dart';
 import '../../../domain/services/daily_rental_processor.dart';
 import '../../../domain/services/daily_staff_processor.dart';
 import '../../../core/services/analytics_service.dart';
+import '../../../data/models/podium_reward_model.dart';
+import '../../../domain/usecases/season_engine.dart';
+import '../../../domain/usecases/rival_leaderboard_engine.dart';
+import '../../../data/services/forex_market_service.dart';
 
 import 'game_base_notifier.dart';
 
@@ -70,9 +74,12 @@ mixin GameTimeMixin on GameBaseNotifier {
       // Günlük dalgalanma faktörü (0.8 ile 1.2 arası)
       double dayFactor = 0.8 + (random.nextDouble() * 0.4);
 
-      // Organik müşteri teklifleri
+      // Organik müşteri teklifleri (Rank 3 Vitrin Dopingi: 2 kat teklif sıklığı)
+      final bool hasShowcaseBoost = state.activePodiumPerks?.isActive == true &&
+          state.activePodiumPerks?.hasShowcaseBoost == true;
+      final double baseChance = hasShowcaseBoost ? 0.50 : 0.25;
       if (state.ownedCars.isNotEmpty &&
-          random.nextDouble() < (0.25 * dayFactor)) {
+          random.nextDouble() < (baseChance * dayFactor)) {
         triggerOrganicOffers();
       }
     });
@@ -391,6 +398,7 @@ mixin GameTimeMixin on GameBaseNotifier {
 
     _lastDayAdvanceTime = DateTime.now();
     refreshMarketTrends();
+    checkSeasonSettlement();
 
     AnalyticsService.instance.logDayPassed(
       day: nextDay,
@@ -407,6 +415,72 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   // --- Helper Methods ---
+
+  /// Evaluates weekly season rollover and rewards distribution.
+  void checkSeasonSettlement() {
+    final now = DateTime.now().toUtc();
+    if (SeasonEngine.needsSeasonInit(state)) {
+      state = state.copyWith(currentSeasonId: SeasonEngine.getSeasonId(now));
+      saveState();
+      return;
+    }
+
+    if (SeasonEngine.shouldSettleSeason(state, now)) {
+      final rivals = RivalLeaderboardEngine.getLeaderboard(
+        playerDealership: state,
+        currentDay: state.currentDay,
+      );
+      final playerIndex = rivals.indexWhere((r) => r.isPlayer);
+      final finalRank = playerIndex >= 0 ? playerIndex + 1 : 99;
+      final completedSeasonId = state.currentSeasonId;
+      final newSeasonId = SeasonEngine.getSeasonId(now);
+
+      ActivePodiumPerks? newPerks;
+      final List<PodiumTrophy> newTrophies = List.from(state.earnedTrophies);
+      bool hasRewards = false;
+
+      if (finalRank <= 10) {
+        hasRewards = true;
+        newPerks = SeasonEngine.generatePodiumPerks(
+          rank: finalRank,
+          seasonId: completedSeasonId,
+          now: now,
+        );
+        final trophy = SeasonEngine.createPodiumTrophy(
+          rank: finalRank,
+          seasonId: completedSeasonId,
+          earnedAt: now,
+        );
+        if (trophy != null && !newTrophies.any((t) => t.id == trophy.id)) {
+          newTrophies.add(trophy);
+        }
+      }
+
+      state = state.copyWith(
+        currentSeasonId: newSeasonId,
+        weeklyTurnoverScore: 0.0,
+        weeklyCarsSold: 0,
+        hasUnclaimedSeasonRewards: hasRewards,
+        lastClaimedSeasonRank: finalRank,
+        activePodiumPerks: newPerks,
+        clearActivePodiumPerks: newPerks == null,
+        earnedTrophies: newTrophies,
+      );
+      saveState();
+    } else {
+      if (state.activePodiumPerks != null && !state.activePodiumPerks!.isActive) {
+        state = state.copyWith(clearActivePodiumPerks: true);
+        saveState();
+      }
+    }
+  }
+
+  /// Marks unclaimed weekly season rewards as claimed by the player.
+  void claimSeasonRewards() {
+    if (!state.hasUnclaimedSeasonRewards) return;
+    state = state.copyWith(hasUnclaimedSeasonRewards: false);
+    saveState();
+  }
 
   double _processDailyPropertyBurn(double balance) {
     return balance - state.dailyPropertyRentBurn;
@@ -1534,8 +1608,31 @@ mixin GameTimeMixin on GameBaseNotifier {
   List<ForexGoldModel> _processForexMarket(List<ForexGoldModel> forexList) {
     return StockMarketEngine.processForexFluctuations(
       forexList: forexList,
+      useRealForex: state.useRealForexRates,
       random: random,
     );
+  }
+
+  /// Syncs real market foreign exchange and gold rates with background fetch and cache fallback.
+  Future<bool> syncRealForexRates({bool force = false}) async {
+    if (!state.useRealForexRates) return false;
+    final rates = await ForexMarketService.fetchLiveForexRates(force: force);
+    if (rates != null && rates.isNotEmpty) {
+      state = state.copyWith(
+        marketForex: rates,
+        lastForexSyncTimestamp: DateTime.now().millisecondsSinceEpoch,
+      );
+      return true;
+    }
+    return false;
+  }
+
+  /// Toggles between real market indexing and pure synthetic simulation.
+  void toggleRealForexRates(bool enabled) {
+    state = state.copyWith(useRealForexRates: enabled);
+    if (enabled) {
+      syncRealForexRates(force: true);
+    }
   }
 
   (

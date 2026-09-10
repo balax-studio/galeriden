@@ -40,6 +40,7 @@ import 'substates/finance_substate.dart';
 import 'substates/inventory_substate.dart';
 import 'substates/real_estate_substate.dart';
 import '../../domain/usecases/loan_settlement_engine.dart';
+import 'podium_reward_model.dart';
 
 enum GameSeason {
   spring, // İlkbahar (Days 1-7, 29-35...)
@@ -334,6 +335,19 @@ class DealershipModel {
   final List<String> unlockedCustomPaintIds;
   final CasinoStatsModel casinoStats;
   final double constructionCostIndex; // F3·2: Malzeme ve inşaat maliyet endeksi (0.85 - 1.35)
+
+  // Haftalık Sezon & Liderlik Podyumu Alanları
+  final int currentSeasonId;
+  final double weeklyTurnoverScore;
+  final int weeklyCarsSold;
+  final bool hasUnclaimedSeasonRewards;
+  final int lastClaimedSeasonRank;
+  final ActivePodiumPerks? activePodiumPerks;
+  final List<PodiumTrophy> earnedTrophies;
+
+  // Gerçek Piyasa Kurları & Döviz Endeksi (§SPEC-2026-REAL-FOREX)
+  final bool useRealForexRates;
+  final int? lastForexSyncTimestamp;
 
   int get mysteryContainerDaysRemaining => (lastMysteryContainerPurchaseDay == 0) ? 0 : (7 - (currentDay - lastMysteryContainerPurchaseDay)).clamp(0, 7);
   bool get isMysteryContainerAvailable => mysteryContainerDaysRemaining <= 0;
@@ -1425,6 +1439,15 @@ class DealershipModel {
     this.unlockedCustomPaintIds = const [],
     this.casinoStats = const CasinoStatsModel(),
     this.constructionCostIndex = 1.0,
+    this.currentSeasonId = 0,
+    this.weeklyTurnoverScore = 0.0,
+    this.weeklyCarsSold = 0,
+    this.hasUnclaimedSeasonRewards = false,
+    this.lastClaimedSeasonRank = 0,
+    this.activePodiumPerks,
+    this.earnedTrophies = const [],
+    this.useRealForexRates = true,
+    this.lastForexSyncTimestamp,
   });
 
   factory DealershipModel.initial() {
@@ -1933,6 +1956,15 @@ class DealershipModel {
       'ownedRealEstates': ownedRealEstates.map((e) => e.toJson()).toList(),
       'maxRealEstateSlots': maxRealEstateSlots,
       'constructionCostIndex': constructionCostIndex,
+      'currentSeasonId': currentSeasonId,
+      'weeklyTurnoverScore': weeklyTurnoverScore,
+      'weeklyCarsSold': weeklyCarsSold,
+      'hasUnclaimedSeasonRewards': hasUnclaimedSeasonRewards,
+      'lastClaimedSeasonRank': lastClaimedSeasonRank,
+      'activePodiumPerks': activePodiumPerks?.toMap(),
+      'earnedTrophies': earnedTrophies.map((e) => e.toMap()).toList(),
+      'useRealForexRates': useRealForexRates,
+      'lastForexSyncTimestamp': lastForexSyncTimestamp,
     };
   }
 
@@ -2158,6 +2190,17 @@ class DealershipModel {
       ownedRealEstates: parseList(json['ownedRealEstates'] as List<dynamic>?, RealEstateModel.fromJson),
       maxRealEstateSlots: json['maxRealEstateSlots'] as int? ?? 5,
       constructionCostIndex: (json['constructionCostIndex'] as num?)?.toDouble() ?? 1.0,
+      currentSeasonId: json['currentSeasonId'] as int? ?? 0,
+      weeklyTurnoverScore: (json['weeklyTurnoverScore'] as num?)?.toDouble() ?? 0.0,
+      weeklyCarsSold: json['weeklyCarsSold'] as int? ?? 0,
+      hasUnclaimedSeasonRewards: json['hasUnclaimedSeasonRewards'] as bool? ?? false,
+      lastClaimedSeasonRank: json['lastClaimedSeasonRank'] as int? ?? 0,
+      activePodiumPerks: json['activePodiumPerks'] != null && json['activePodiumPerks'] is Map
+          ? ActivePodiumPerks.fromMap(Map<String, dynamic>.from(json['activePodiumPerks'] as Map))
+          : null,
+      earnedTrophies: parseList(json['earnedTrophies'] as List<dynamic>?, PodiumTrophy.fromMap),
+      useRealForexRates: json['useRealForexRates'] as bool? ?? true,
+      lastForexSyncTimestamp: json['lastForexSyncTimestamp'] as int?,
     );
   }
 
@@ -2330,6 +2373,16 @@ class DealershipModel {
     List<RealEstateModel>? ownedRealEstates,
     int? maxRealEstateSlots,
     double? constructionCostIndex,
+    int? currentSeasonId,
+    double? weeklyTurnoverScore,
+    int? weeklyCarsSold,
+    bool? hasUnclaimedSeasonRewards,
+    int? lastClaimedSeasonRank,
+    ActivePodiumPerks? activePodiumPerks,
+    bool clearActivePodiumPerks = false,
+    List<PodiumTrophy>? earnedTrophies,
+    bool? useRealForexRates,
+    int? lastForexSyncTimestamp,
   }) {
     return DealershipModel(
       balance: balance ?? this.balance,
@@ -2466,6 +2519,15 @@ class DealershipModel {
       ownedRealEstates: ownedRealEstates ?? this.ownedRealEstates,
       maxRealEstateSlots: maxRealEstateSlots ?? this.maxRealEstateSlots,
       constructionCostIndex: constructionCostIndex ?? this.constructionCostIndex,
+      currentSeasonId: currentSeasonId ?? this.currentSeasonId,
+      weeklyTurnoverScore: weeklyTurnoverScore ?? this.weeklyTurnoverScore,
+      weeklyCarsSold: weeklyCarsSold ?? this.weeklyCarsSold,
+      hasUnclaimedSeasonRewards: hasUnclaimedSeasonRewards ?? this.hasUnclaimedSeasonRewards,
+      lastClaimedSeasonRank: lastClaimedSeasonRank ?? this.lastClaimedSeasonRank,
+      activePodiumPerks: clearActivePodiumPerks ? null : (activePodiumPerks ?? this.activePodiumPerks),
+      earnedTrophies: earnedTrophies ?? this.earnedTrophies,
+      useRealForexRates: useRealForexRates ?? this.useRealForexRates,
+      lastForexSyncTimestamp: lastForexSyncTimestamp ?? this.lastForexSyncTimestamp,
     );
   }
 

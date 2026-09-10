@@ -664,6 +664,11 @@ mixin GameMarketMixin on GameBaseNotifier {
           eligibleCars.add(car);
           eligibleCars.add(car);
         }
+        // Podium Perk (Rank 3): Sarı Site Vitrin Dopingi - vitrindeki araçlara ek teklif ağırlığı
+        if (state.activePodiumPerks?.isActive == true &&
+            state.activePodiumPerks?.hasShowcaseBoost == true) {
+          eligibleCars.add(car);
+        }
         // Vlogger Berk high trust grants +25% organic customer traffic
         if (state.hasHighNpcTrust('vlogger_berk')) {
           eligibleCars.add(car);
@@ -1013,16 +1018,30 @@ mixin GameMarketMixin on GameBaseNotifier {
     final newReputation =
         (state.reputationScore + reputationChange).clamp(0, 1000);
 
+    // Körfez Alıcıları perk (Rank 1 Podium): Lüks araçlarda ek nakit ve kâr primi
+    final bool isLuxury = car.baseMarketValue >= 450000.0;
+    final bool hasGulfNetwork = state.activePodiumPerks?.isActive == true &&
+        state.activePodiumPerks?.hasGulfBuyerNetwork == true;
+    final double gulfBonus = (hasGulfNetwork && isLuxury && profit > 0)
+        ? (profit * 0.15).roundToDouble()
+        : 0.0;
+
+    final double finalProfit = profit + gulfBonus;
+    final double finalCashReceived = cashReceived + gulfBonus;
+    final double profitToAdd = finalProfit > 0 ? finalProfit : 0.0;
+
     state = state.copyWith(
-      balance: state.balance + cashReceived,
+      balance: state.balance + finalCashReceived,
       ownedCars: updatedCars,
       incomingOffers: updatedOffers,
       pendingOrders: updatedPendingOrders,
       activeRentals: updatedActiveRentals,
       activeCheques: updatedCheques,
       activeInstallments: updatedInstallments,
-      totalProfit: state.totalProfit + profit,
+      totalProfit: state.totalProfit + finalProfit,
       carsSold: newCarsSold,
+      weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
+      weeklyCarsSold: state.weeklyCarsSold + 1,
       salesHistory: [record, ...state.salesHistory],
       loyalCustomerNames: updatedLoyals,
       customerReviews: updatedReviews,
