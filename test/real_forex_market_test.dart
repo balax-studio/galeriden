@@ -3,9 +3,14 @@ import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/stock_model.dart';
 import 'package:galeriden/data/services/forex_market_service.dart';
 import 'package:galeriden/domain/usecases/stock_market_engine.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   group('Real Forex & Gold Market Tests', () {
     test('parseTrNumber accurately converts Turkish and international decimal strings', () {
@@ -116,6 +121,21 @@ void main() {
       final defaultRestored = DealershipModel.fromJson({});
       expect(defaultRestored.useRealForexRates, isTrue);
       expect(defaultRestored.lastForexSyncTimestamp, isNull);
+    });
+
+    test('ForexMarketService.fetchLiveForexRates returns non-empty live rates or graceful fallback', () async {
+      final rates = await ForexMarketService.fetchLiveForexRates(force: true);
+      expect(rates, isNotNull);
+      expect(rates!.length, greaterThanOrEqualTo(3));
+
+      final usd = rates.firstWhere((r) => r.symbol == 'USD');
+      expect(usd.buyRate, greaterThan(30.0));
+
+      final eur = rates.firstWhere((r) => r.symbol == 'EUR');
+      expect(eur.buyRate, greaterThan(30.0));
+
+      final gold = rates.firstWhere((r) => r.symbol == 'GOLD');
+      expect(gold.buyRate, greaterThan(2000.0));
     });
   });
 }

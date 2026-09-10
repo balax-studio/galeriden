@@ -150,35 +150,41 @@ class ForexMarketService {
 
   /// Fetches live rates from network with caching and offline fallback.
   static Future<List<ForexGoldModel>?> fetchLiveForexRates({bool force = false}) async {
-    if (kIsWeb) return null;
+    if (kIsWeb) return ForexGoldModel.defaultForex;
+
+    SharedPreferences? prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e) {
+      debugPrint('ForexMarketService SharedPreferences init error: $e');
+    }
+
+    final lastSyncMs = prefs?.getInt(prefKeyTimestamp) ?? 0;
+    final cachedJsonStr = prefs?.getString(prefKeyRates);
+
+    final isExpired = DateTime.now().millisecondsSinceEpoch - lastSyncMs > cacheDuration.inMilliseconds;
+
+    if (!force && !isExpired && cachedJsonStr != null) {
+      try {
+        final List<dynamic> decoded = jsonDecode(cachedJsonStr) as List<dynamic>;
+        return decoded.map((e) => ForexGoldModel.fromJson(e as Map<String, dynamic>)).toList();
+      } catch (_) {
+        // Ignore cache parse error, continue to fetch
+      }
+    }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastSyncMs = prefs.getInt(prefKeyTimestamp) ?? 0;
-      final cachedJsonStr = prefs.getString(prefKeyRates);
-
-      final isExpired = DateTime.now().millisecondsSinceEpoch - lastSyncMs > cacheDuration.inMilliseconds;
-
-      if (!force && !isExpired && cachedJsonStr != null) {
-        try {
-          final List<dynamic> decoded = jsonDecode(cachedJsonStr) as List<dynamic>;
-          return decoded.map((e) => ForexGoldModel.fromJson(e as Map<String, dynamic>)).toList();
-        } catch (_) {
-          // Ignore cache parse error, continue to fetch
-        }
-      }
-
       // 1. Try Primary Endpoint
       final primaryRates = await _fetchPrimary();
       if (primaryRates != null && primaryRates.isNotEmpty) {
-        await _saveToCache(prefs, primaryRates);
+        if (prefs != null) await _saveToCache(prefs, primaryRates);
         return primaryRates;
       }
 
       // 2. Try Fallback Endpoints
       final fallbackRates = await _fetchFallback();
       if (fallbackRates != null && fallbackRates.isNotEmpty) {
-        await _saveToCache(prefs, fallbackRates);
+        if (prefs != null) await _saveToCache(prefs, fallbackRates);
         return fallbackRates;
       }
 
@@ -191,7 +197,8 @@ class ForexMarketService {
       debugPrint('ForexMarketService fetch error: $e');
     }
 
-    return null;
+    // 4. Guaranteed offline baseline: defaultForex
+    return ForexGoldModel.defaultForex;
   }
 
   static Future<List<ForexGoldModel>?> _fetchPrimary() async {

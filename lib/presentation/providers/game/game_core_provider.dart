@@ -161,6 +161,7 @@ class GameCoreNotifier extends GameBaseNotifier
         state = updated;
         syncRentalState();
         checkSeasonSettlement();
+        syncRealForexRates();
         startPeriodicOrganicOfferTimer();
         saveState();
         return;
@@ -189,6 +190,7 @@ class GameCoreNotifier extends GameBaseNotifier
       );
     }
     checkSeasonSettlement();
+    syncRealForexRates();
     startPeriodicOrganicOfferTimer();
     saveState();
   }

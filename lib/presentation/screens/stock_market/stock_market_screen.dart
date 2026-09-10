@@ -48,6 +48,7 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
         if (AdService.shouldShowNativeAdForDay(currentDay, NativeAdContextType.stockMarket)) {
           AdService.instance.preloadNativeAd();
         }
+        ref.read(gameProvider.notifier).syncRealForexRates();
       }
     });
   }

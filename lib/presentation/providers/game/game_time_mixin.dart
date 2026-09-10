@@ -1622,6 +1622,7 @@ mixin GameTimeMixin on GameBaseNotifier {
         marketForex: rates,
         lastForexSyncTimestamp: DateTime.now().millisecondsSinceEpoch,
       );
+      saveState();
       return true;
     }
     return false;
