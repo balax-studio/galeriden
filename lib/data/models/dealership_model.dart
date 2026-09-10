@@ -225,11 +225,9 @@ class DealershipModel {
   final int nextDramaticCardTargetDays;
   final DramaticCardModel? pendingDramaticCard;
 
-  // Random Event Engine Fields
-  final List<String> seenRandomEventIds;
-  final int daysSinceLastRandomEvent;
-  final int nextRandomEventTargetDays;
-  final GameEventModel? pendingRandomEvent;
+  // Deprecated random event getter for backwards-compatible test assertions
+  @Deprecated('Consolidated into pendingDramaticCard')
+  GameEventModel? get pendingRandomEvent => null;
 
   // Banka ve Personel Akademisi Kalıcı Durum Alanları
   final double bankDepositBalance;
@@ -1337,10 +1335,6 @@ class DealershipModel {
     this.daysSinceLastDramaticCard = 0,
     this.nextDramaticCardTargetDays = 20,
     this.pendingDramaticCard,
-    this.seenRandomEventIds = const [],
-    this.daysSinceLastRandomEvent = 0,
-    this.nextRandomEventTargetDays = 7,
-    this.pendingRandomEvent,
     this.bankDepositBalance = 0.0,
     this.bankCreditLimit = 250000.0,
     this.purchasedAcademyCourses = const [],
@@ -1855,6 +1849,7 @@ class DealershipModel {
       'b2bPartOrders': b2bPartOrders.map((o) => o.toJson()).toList(),
       'activeServiceJobs': activeServiceJobs.map((j) => j.toJson()).toList(),
       'unlockedBuildings': unlockedBuildings.toList(),
+      'ownedBranchDeeds': ownedBranchDeeds.toList(),
       'seenStoryCardIds': seenStoryCardIds,
       'daysSinceLastStoryAd': daysSinceLastStoryAd,
       'nextStoryAdTargetDays': nextStoryAdTargetDays,
@@ -1863,10 +1858,6 @@ class DealershipModel {
       'daysSinceLastDramaticCard': daysSinceLastDramaticCard,
       'nextDramaticCardTargetDays': nextDramaticCardTargetDays,
       'pendingDramaticCard': pendingDramaticCard?.toJson(),
-      'seenRandomEventIds': seenRandomEventIds,
-      'daysSinceLastRandomEvent': daysSinceLastRandomEvent,
-      'nextRandomEventTargetDays': nextRandomEventTargetDays,
-      'pendingRandomEvent': pendingRandomEvent?.toJson(),
       'bankDepositBalance': bankDepositBalance,
       'bankCreditLimit': bankCreditLimit,
       'purchasedAcademyCourses': purchasedAcademyCourses,
@@ -2044,6 +2035,10 @@ class DealershipModel {
         '/theme-store',
         '/branches',
       },
+      ownedBranchDeeds: (json['ownedBranchDeeds'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toSet() ??
+          const {},
       seenStoryCardIds: (json['seenStoryCardIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
       daysSinceLastStoryAd: (json['daysSinceLastStoryAd'] as num?)?.toInt() ?? 0,
       nextStoryAdTargetDays: (json['nextStoryAdTargetDays'] as num?)?.toInt() ?? 14,
@@ -2052,10 +2047,6 @@ class DealershipModel {
       daysSinceLastDramaticCard: (json['daysSinceLastDramaticCard'] as num?)?.toInt() ?? 0,
       nextDramaticCardTargetDays: (json['nextDramaticCardTargetDays'] as num?)?.toInt() ?? 20,
       pendingDramaticCard: json['pendingDramaticCard'] != null ? DramaticCardModel.fromJson(Map<String, dynamic>.from(json['pendingDramaticCard'] as Map)) : null,
-      seenRandomEventIds: (json['seenRandomEventIds'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
-      daysSinceLastRandomEvent: (json['daysSinceLastRandomEvent'] as num?)?.toInt() ?? 0,
-      nextRandomEventTargetDays: (json['nextRandomEventTargetDays'] as num?)?.toInt() ?? 7,
-      pendingRandomEvent: json['pendingRandomEvent'] != null ? GameEventModel.fromJson(Map<String, dynamic>.from(json['pendingRandomEvent'] as Map)) : null,
       bankDepositBalance: (json['bankDepositBalance'] as num?)?.toDouble() ?? 0.0,
       bankCreditLimit: (json['bankCreditLimit'] as num?)?.toDouble() ?? 250000.0,
       purchasedAcademyCourses: (json['purchasedAcademyCourses'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? const [],
@@ -2259,11 +2250,6 @@ class DealershipModel {
     int? nextDramaticCardTargetDays,
     DramaticCardModel? pendingDramaticCard,
     bool clearPendingDramaticCard = false,
-    List<String>? seenRandomEventIds,
-    int? daysSinceLastRandomEvent,
-    int? nextRandomEventTargetDays,
-    GameEventModel? pendingRandomEvent,
-    bool clearPendingRandomEvent = false,
     double? bankDepositBalance,
     double? bankCreditLimit,
     List<String>? purchasedAcademyCourses,
@@ -2403,10 +2389,6 @@ class DealershipModel {
       daysSinceLastDramaticCard: daysSinceLastDramaticCard ?? this.daysSinceLastDramaticCard,
       nextDramaticCardTargetDays: nextDramaticCardTargetDays ?? this.nextDramaticCardTargetDays,
       pendingDramaticCard: clearPendingDramaticCard ? null : (pendingDramaticCard ?? this.pendingDramaticCard),
-      seenRandomEventIds: seenRandomEventIds ?? this.seenRandomEventIds,
-      daysSinceLastRandomEvent: daysSinceLastRandomEvent ?? this.daysSinceLastRandomEvent,
-      nextRandomEventTargetDays: nextRandomEventTargetDays ?? this.nextRandomEventTargetDays,
-      pendingRandomEvent: clearPendingRandomEvent ? null : (pendingRandomEvent ?? this.pendingRandomEvent),
       bankDepositBalance: bankDepositBalance ?? this.bankDepositBalance,
       bankCreditLimit: bankCreditLimit ?? this.bankCreditLimit,
       purchasedAcademyCourses: purchasedAcademyCourses ?? this.purchasedAcademyCourses,

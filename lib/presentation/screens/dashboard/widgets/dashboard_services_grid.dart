@@ -14,6 +14,7 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/blueprint_grid_background.dart';
+import 'hub_service_illustrations.dart';
 
 class _ServiceItem {
   final IconData icon;
@@ -2541,22 +2542,6 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     required bool isCasinoUnlocked,
   }) {
     final unlockedHubServices = <_ServiceItem>[
-      if (isReviewsUnlocked)
-        _ServiceItem(
-          icon: Icons.reviews_rounded,
-          color: const Color(0xFFF59E0B),
-          bgLight: const Color(0xFFFFFBEB),
-          bgDark: const Color(0xFF261D07),
-          title: context.tr('service_reviews'),
-          subtitle: context.tr('service_reviews_sub',
-              {'rep': game.reputationScore}),
-          telemetry: context.tr('deck_reviews_telemetry'),
-          telemetryIcon: Icons.star_rounded,
-          actionLabel: context.tr('deck_action_reviews'),
-          route: '/reviews',
-          badge: context.tr('service_reviews_sub',
-              {'rep': '${game.reputationScore}'}),
-        ),
       if (isSideBizUnlocked)
         _ServiceItem(
           icon: Icons.business_center_rounded,
@@ -2673,6 +2658,22 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           badge:
               '${game.districtMarketShare.values.where((v) => v >= 0.05).length} Semt',
         ),
+      if (isReviewsUnlocked)
+        _ServiceItem(
+          icon: Icons.reviews_rounded,
+          color: const Color(0xFFF59E0B),
+          bgLight: const Color(0xFFFFFBEB),
+          bgDark: const Color(0xFF261D07),
+          title: context.tr('service_reviews'),
+          subtitle: context.tr('service_reviews_sub',
+              {'rep': game.reputationScore}),
+          telemetry: context.tr('deck_reviews_telemetry'),
+          telemetryIcon: Icons.star_rounded,
+          actionLabel: context.tr('deck_action_reviews'),
+          route: '/reviews',
+          badge: context.tr('service_reviews_sub',
+              {'rep': '${game.reputationScore}'}),
+        ),
       if (isCasinoUnlocked)
         _ServiceItem(
           icon: Icons.casino_rounded,
@@ -2704,25 +2705,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         .where((s) => s.route != '/casino')
         .toList();
 
-    // Determine Hero Feature Slot ("dinamik seviyeye göre bunları büyüt")
-    _ServiceItem? heroService;
-    List<_ServiceItem> gridServices = [];
-
-    if (isSideBizUnlocked) {
-      final idx = nonCasinoServices.indexWhere((s) => s.route == '/side-businesses');
-      if (idx != -1) {
-        heroService = nonCasinoServices[idx];
-        gridServices = nonCasinoServices
-            .where((s) => s.route != '/side-businesses')
-            .toList();
-      } else {
-        heroService = nonCasinoServices.firstOrNull;
-        gridServices = nonCasinoServices.skip(1).toList();
-      }
-    } else {
-      heroService = nonCasinoServices.firstOrNull;
-      gridServices = nonCasinoServices.skip(1).toList();
-    }
+    // Dynamic Asymmetrical Bento Grid processes all unlocked nonCasinoServices
 
     final double totalPassive = game.sideBusinesses
         .where((b) => b.isOwned)
@@ -2837,51 +2820,14 @@ class _DashboardServicesGridContent extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
 
-          // Enlarge Hero Feature Slot ("dinamik seviyeye göre bunları büyüt")
-          if (heroService != null) ...[
-            _buildHubHeroCard(
-              context: context,
-              ref: ref,
-              game: game,
-              isDark: isDark,
-              item: heroService,
-            ),
-            if (gridServices.isNotEmpty) const SizedBox(height: 8),
-          ],
-
-          // 2-Column Proportional Bento Grid (Not long horizontal strips!)
-          for (int i = 0; i < gridServices.length; i += 2) ...[
-            if (i > 0) const SizedBox(height: 8),
-            IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: _buildHubBentoTile(
-                      context: context,
-                      ref: ref,
-                      game: game,
-                      isDark: isDark,
-                      item: gridServices[i],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (i + 1 < gridServices.length)
-                    Expanded(
-                      child: _buildHubBentoTile(
-                        context: context,
-                        ref: ref,
-                        game: game,
-                        isDark: isDark,
-                        item: gridServices[i + 1],
-                      ),
-                    )
-                  else
-                    const Expanded(child: SizedBox.shrink()),
-                ],
-              ),
-            ),
-          ],
+          // Dynamic Asymmetrical Bento Grid with Contrast Illustrations
+          ..._buildAsymmetricBentoRows(
+            context: context,
+            ref: ref,
+            game: game,
+            isDark: isDark,
+            services: nonCasinoServices,
+          ),
 
           // Dedicated VIP Casino Strip (Anchors the bottom in High-Roller Gold/Noir)
           if (casinoItem != null) ...[
@@ -2943,12 +2889,395 @@ class _DashboardServicesGridContent extends ConsumerWidget {
     );
   }
 
+  /// Deterministic Asymmetric Bento Composition with Tetris / Puzzle Interlocking Blocks
+  List<Widget> _buildAsymmetricBentoRows({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required List<_ServiceItem> services,
+  }) {
+    final List<Widget> rows = [];
+    if (services.isEmpty) return rows;
+
+    if (services.length == 1) {
+      // 1 Item: 100% Full Width Dominant Hero Card
+      rows.add(
+        _buildHubHeroCard(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          item: services[0],
+          isFullWidth: true,
+        ),
+      );
+      return rows;
+    }
+
+    // Role-based Card Slot Assignment matching reference visual hierarchy
+    _ServiceItem? heroItem;
+    _ServiceItem? tallInvertedItem;
+    _ServiceItem? panoramicItem;
+    final List<_ServiceItem> unassigned = [];
+
+    for (final s in services) {
+      if (s.route == '/side-businesses') {
+        heroItem = s;
+      } else if (s.route == '/rent-a-car') {
+        tallInvertedItem = s;
+      } else if (s.route == '/night-market') {
+        panoramicItem = s;
+      } else {
+        unassigned.add(s);
+      }
+    }
+
+    // Fallback assignment if preferred routes aren't present
+    if (heroItem == null && unassigned.isNotEmpty) {
+      heroItem = unassigned.removeAt(0);
+    }
+    if (tallInvertedItem == null && unassigned.isNotEmpty) {
+      tallInvertedItem = unassigned.removeAt(0);
+    }
+    if (panoramicItem == null) {
+      final dIdx = unassigned.indexWhere((s) => s.route == '/districts');
+      if (dIdx != -1) {
+        panoramicItem = unassigned.removeAt(dIdx);
+      }
+    }
+
+    // ROW 1: Dominant Hero (62%) + Inverted Terracotta Card (38%)
+    if (heroItem != null && tallInvertedItem != null) {
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 62,
+                child: _buildHubHeroCard(
+                  context: context,
+                  ref: ref,
+                  game: game,
+                  isDark: isDark,
+                  item: heroItem,
+                  isFullWidth: false,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 38,
+                child: (tallInvertedItem.route == '/rent-a-car')
+                    ? _buildHubInvertedCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: tallInvertedItem,
+                      )
+                    : _buildHubVerticalPuzzleCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: tallInvertedItem,
+                      ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (heroItem != null) {
+      rows.add(
+        _buildHubHeroCard(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          item: heroItem,
+          isFullWidth: true,
+        ),
+      );
+    }
+
+    // TETRIS / PUZZLE BLOCK 1 (Left Puzzle: Left Vertical Card 40% + Right Stacked 2 Cards 60%)
+    // Triggered when there are at least 3 unassigned items
+    if (unassigned.length >= 3) {
+      // Select vertical anchor for Block 1 (prefers /consignment or /scrapyard)
+      _ServiceItem b1Tall;
+      final cIdx = unassigned.indexWhere((s) => s.route == '/consignment');
+      if (cIdx != -1) {
+        b1Tall = unassigned.removeAt(cIdx);
+      } else {
+        b1Tall = unassigned.removeAt(0);
+      }
+
+      final b1StackTop = unassigned.removeAt(0);
+      final b1StackBottom = unassigned.removeAt(0);
+
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left Tall Bento Pod (40%) - Soft outer left (22px), flat docking right (8px)
+              Expanded(
+                flex: 40,
+                child: _buildHubVerticalPuzzleCard(
+                  context: context,
+                  ref: ref,
+                  game: game,
+                  isDark: isDark,
+                  item: b1Tall,
+                  customBorderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(22),
+                    bottomLeft: Radius.circular(22),
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Right Stacked Column (60%) - Flat docking left (8px), dynamic outer right
+              Expanded(
+                flex: 60,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildHubCompactHorizontalCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: b1StackTop,
+                        customBorderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(18),
+                          bottomRight: Radius.circular(10),
+                          topLeft: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: _buildHubCompactHorizontalCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: b1StackBottom,
+                        customBorderRadius: const BorderRadius.only(
+                          bottomRight: Radius.circular(18),
+                          topRight: Radius.circular(10),
+                          topLeft: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // INSERT PANORAMIC DARK NOIR BANNER (Gece Sanayisi / Drag & Modifiye)
+    if (panoramicItem != null) {
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        _buildHubPanoramicCard(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          item: panoramicItem,
+        ),
+      );
+      panoramicItem = null;
+    }
+
+    // TETRIS / PUZZLE BLOCK 2 (Inverted Right Puzzle: Left Stacked 2 Cards 60% + Right Vertical Card 40%)
+    // Triggered when there are at least 3 unassigned items
+    if (unassigned.length >= 3) {
+      // Select vertical anchor for Block 2 (prefers /districts or /reviews)
+      _ServiceItem b2Tall;
+      final dIdx = unassigned.indexWhere((s) => s.route == '/districts');
+      if (dIdx != -1) {
+        b2Tall = unassigned.removeAt(dIdx);
+      } else {
+        b2Tall = unassigned.removeLast();
+      }
+
+      final b2StackTop = unassigned.removeAt(0);
+      final b2StackBottom = unassigned.removeAt(0);
+
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left Stacked Column (60%) - Flat docking right (8px), dynamic outer left
+              Expanded(
+                flex: 60,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _buildHubCompactHorizontalCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: b2StackTop,
+                        customBorderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(18),
+                          bottomLeft: Radius.circular(10),
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: _buildHubCompactHorizontalCard(
+                        context: context,
+                        ref: ref,
+                        game: game,
+                        isDark: isDark,
+                        item: b2StackBottom,
+                        customBorderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(18),
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Right Tall Bento Pod (40%) - Soft outer right (22px), flat docking left (8px)
+              Expanded(
+                flex: 40,
+                child: _buildHubVerticalPuzzleCard(
+                  context: context,
+                  ref: ref,
+                  game: game,
+                  isDark: isDark,
+                  item: b2Tall,
+                  customBorderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(22),
+                    bottomRight: Radius.circular(22),
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // LEFTOVER ITEMS (Dynamic level progression fallback)
+    if (unassigned.length >= 2) {
+      final uA = unassigned.removeAt(0);
+      final uB = unassigned.removeAt(0);
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 55,
+                child: _buildHubCompactHorizontalCard(
+                  context: context,
+                  ref: ref,
+                  game: game,
+                  isDark: isDark,
+                  item: uA,
+                  customBorderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(18),
+                    bottomLeft: Radius.circular(18),
+                    topRight: Radius.circular(8),
+                    bottomRight: Radius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                flex: 45,
+                child: _buildHubCompactHorizontalCard(
+                  context: context,
+                  ref: ref,
+                  game: game,
+                  isDark: isDark,
+                  item: uB,
+                  customBorderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(18),
+                    bottomRight: Radius.circular(18),
+                    topLeft: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (unassigned.isNotEmpty) {
+      final single = unassigned.removeAt(0);
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        _buildHubCleanUtilityTile(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          item: single,
+          customBorderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+          ),
+        ),
+      );
+    }
+
+    // Fallback if panoramic wasn't placed yet
+    if (panoramicItem != null) {
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 8));
+      rows.add(
+        _buildHubPanoramicCard(
+          context: context,
+          ref: ref,
+          game: game,
+          isDark: isDark,
+          item: panoramicItem,
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  /// Dominant Hero Card (Selective Illustration: Industrial Holding Blueprint)
   Widget _buildHubHeroCard({
     required BuildContext context,
     required WidgetRef ref,
     required DealershipModel game,
     required bool isDark,
     required _ServiceItem item,
+    bool isFullWidth = false,
   }) {
     final isNew = game.isFeatureNew(item.route);
     final isSideBiz = item.route == '/side-businesses';
@@ -2957,162 +3286,175 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         .fold(0.0, (sum, b) => sum + b.dailyIncome);
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(11),
-      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      padding: const EdgeInsets.all(12),
+      backgroundColor: isDark ? const Color(0xFF141C2B) : Colors.white,
       borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
-      borderWidth: 2.2,
+      borderWidth: 2.4,
       borderRadius: 14,
-      customBorderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
-        bottomLeft: Radius.circular(8),
-        bottomRight: Radius.circular(8),
-      ),
+      customBorderRadius: isFullWidth
+          ? const BorderRadius.only(
+              topLeft: Radius.circular(22),
+              bottomRight: Radius.circular(22),
+              topRight: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            )
+          : const BorderRadius.only(
+              topLeft: Radius.circular(24),
+              bottomRight: Radius.circular(24),
+              topRight: Radius.circular(10),
+              bottomLeft: Radius.circular(10),
+            ),
+      clipBehavior: Clip.antiAlias,
       showBlueprintGrid: true,
       patternType: BlueprintPatternType.blueprintGrid,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen(item.route);
         context.push(item.route);
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Row(
+          // Background High-Contrast Holding/Automotive Illustration
+          Positioned(
+            right: -8,
+            bottom: -6,
+            width: isFullWidth ? 160 : 130,
+            height: 95,
+            child: IgnorePointer(
+              child: HubServiceIllustration(
+                route: item.route,
+                color: item.color,
+                opacity: isDark ? 0.38 : 0.22,
+                strokeWidth: 1.8,
+              ),
+            ),
+          ),
+          // Foreground Content
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: item.color,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFF0F172A),
+                        width: 1.6,
+                      ),
+                    ),
+                    child: Icon(item.icon, size: 18, color: Colors.black),
+                  ),
+                  const SizedBox(width: 7),
+                  if (isNew) ...[
+                    _buildNotificationDot(isDark),
+                    const SizedBox(width: 4),
+                  ],
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (item.badge != null && item.badge!.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    NeoBrutalBadge(
+                      text: item.badge!,
+                      backgroundColor: item.color,
+                      textColor: Colors.black,
+                      fontSize: 8.0,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2.5),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item.subtitle,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
               Container(
-                padding: const EdgeInsets.all(7),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                 decoration: BoxDecoration(
-                  color: item.color,
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.4)
+                      : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: const Color(0xFF0F172A),
-                    width: 1.6,
+                    color: isDark
+                        ? const Color(0xFF2E3D56)
+                        : const Color(0xFFCBD5E1),
+                    width: 1.2,
                   ),
                 ),
-                child: Icon(item.icon, size: 20, color: Colors.white),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          item.title,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                        ),
-                        if (isNew) ...[
-                          const SizedBox(width: 5),
-                          _buildNotificationDot(isDark),
-                        ],
-                      ],
+                    Icon(
+                      item.telemetryIcon ?? Icons.bolt_rounded,
+                      size: 13,
+                      color: item.color,
                     ),
-                    Text(
-                      item.subtitle,
-                      style: TextStyle(
-                        fontSize: 9.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark
-                            ? const Color(0xFF94A3B8)
-                            : const Color(0xFF64748B),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        (isSideBiz && passiveIncome > 0)
+                            ? '+${CurrencyFormatter.formatShort(passiveIncome)} ${context.tr('cashflow_per_day')}'
+                            : (item.telemetry ?? item.subtitle),
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (item.badge != null)
-                NeoBrutalBadge(
-                  text: item.badge!,
-                  backgroundColor: item.color,
-                  textColor: Colors.white,
-                  fontSize: 8.5,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                ),
-              const SizedBox(width: 6),
-              _buildDirectionalPill(
-                isDark: isDark,
-                arrowColor: Colors.white,
-                bgColor: item.color,
-                size: 24,
-                iconSize: 14,
+              const SizedBox(height: 8),
+              NeoBrutalButton(
+                label: item.actionLabel ?? context.tr('deck_action_businesses'),
+                fontSize: 10,
+                backgroundColor: item.color,
+                textColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 6.5),
+                onPressed: () {
+                  ref.read(gameProvider.notifier).markFeatureSeen(item.route);
+                  context.push(item.route);
+                },
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          // Rich Telemetry & Matrix
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
-            decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.35)
-                  : const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isDark ? const Color(0xFF2E3D56) : const Color(0xFFCBD5E1),
-                width: 1.3,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  item.telemetryIcon ?? Icons.auto_graph_rounded,
-                  size: 14,
-                  color: item.color,
-                ),
-                const SizedBox(width: 5),
-                Expanded(
-                  child: Text(
-                    item.telemetry ?? context.tr('deck_biz_passive'),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: isDark
-                          ? Colors.white
-                          : const Color(0xFF0F172A),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                if (isSideBiz && passiveIncome > 0)
-                  Text(
-                    '+${CurrencyFormatter.formatShort(passiveIncome)} ${context.tr('cashflow_per_day')}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                      color: isDark
-                          ? const Color(0xFF6EE7B7)
-                          : const Color(0xFF047857),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          NeoBrutalButton(
-            label: item.actionLabel ?? context.tr('deck_action_businesses'),
-            fontSize: 10.5,
-            backgroundColor: item.color,
-            textColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-            onPressed: () {
-              ref.read(gameProvider.notifier).markFeatureSeen(item.route);
-              context.push(item.route);
-            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHubBentoTile({
+  /// Inverted Contrast Terracotta Card (Matching Reference Kiralama Box)
+  Widget _buildHubInvertedCard({
     required BuildContext context,
     required WidgetRef ref,
     required DealershipModel game,
@@ -3121,20 +3463,348 @@ class _DashboardServicesGridContent extends ConsumerWidget {
   }) {
     final isNew = game.isFeatureNew(item.route);
 
+    // Warm rich terracotta / deep rust red
+    final Color bgColor =
+        isDark ? const Color(0xFF6C1F0D) : const Color(0xFF9A3412);
+    final Color borderColor =
+        isDark ? const Color(0xFF991B1B) : const Color(0xFF0F172A);
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(10),
+      backgroundColor: bgColor,
+      borderColor: borderColor,
+      borderWidth: 2.3,
+      borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topRight: Radius.circular(24),
+        bottomLeft: Radius.circular(24),
+        topLeft: Radius.circular(10),
+        bottomRight: Radius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      showBlueprintGrid: false,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen(item.route);
+        context.push(item.route);
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Background Vector Silhouette in translucent white
+          Positioned(
+            right: -10,
+            bottom: -6,
+            width: 100,
+            height: 75,
+            child: IgnorePointer(
+              child: HubServiceIllustration(
+                route: item.route,
+                color: Colors.white,
+                opacity: 0.28,
+                strokeWidth: 1.5,
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.20),
+                      borderRadius: BorderRadius.circular(7),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.40),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Icon(item.icon, size: 16, color: Colors.white),
+                  ),
+                  if (isNew) _buildNotificationDot(isDark),
+                  _buildDirectionalPill(
+                    isDark: false,
+                    arrowColor: Colors.black,
+                    bgColor: Colors.white,
+                    size: 20,
+                    iconSize: 12,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      height: 1.15,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  if (item.badge != null && item.badge!.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        item.badge!,
+                        style: const TextStyle(
+                          fontSize: 7.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 3.5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.25),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      item.telemetryIcon ?? Icons.bolt_rounded,
+                      size: 10,
+                      color: Colors.white.withValues(alpha: 0.9),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        item.telemetry ?? item.subtitle,
+                        style: const TextStyle(
+                          fontSize: 8.0,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Panoramic Dark Noir Banner (Matching Reference Roadside / Freight Bar)
+  Widget _buildHubPanoramicCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required _ServiceItem item,
+  }) {
+    final isNew = game.isFeatureNew(item.route);
+
+    // Deep Noir / Charcoal with crisp black border
+    final Color bgColor =
+        isDark ? const Color(0xFF0A0F1D) : const Color(0xFF0F172A);
+    final Color borderColor =
+        isDark ? const Color(0xFF1E293B) : const Color(0xFF0F172A);
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      backgroundColor: bgColor,
+      borderColor: borderColor,
+      borderWidth: 2.3,
+      borderRadius: 14,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(22),
+        bottomRight: Radius.circular(22),
+        topRight: Radius.circular(10),
+        bottomLeft: Radius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.technicalCrosses,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen(item.route);
+        context.push(item.route);
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Background Vector Silhouette on the right in bright accent
+          Positioned(
+            right: -6,
+            bottom: -6,
+            width: 140,
+            height: 75,
+            child: IgnorePointer(
+              child: HubServiceIllustration(
+                route: item.route,
+                color: item.color,
+                opacity: 0.35,
+                strokeWidth: 1.6,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: item.color,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(item.icon, size: 18, color: Colors.black),
+              ),
+              const SizedBox(width: 9),
+              if (isNew) ...[
+                _buildNotificationDot(isDark),
+                const SizedBox(width: 4),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (item.badge != null && item.badge!.isNotEmpty) ...[
+                          const SizedBox(width: 5),
+                          NeoBrutalBadge(
+                            text: item.badge!,
+                            backgroundColor: item.color,
+                            textColor: Colors.black,
+                            fontSize: 7.5,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 2),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.subtitle,
+                      style: const TextStyle(
+                        fontSize: 9.0,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF94A3B8),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            item.telemetryIcon ?? Icons.bolt_rounded,
+                            size: 10,
+                            color: item.color,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            item.telemetry ?? item.subtitle,
+                            style: TextStyle(
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.w800,
+                              color: item.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildDirectionalPill(
+                isDark: false,
+                arrowColor: Colors.black,
+                bgColor: item.color,
+                size: 24,
+                iconSize: 14,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Clean, Quiet Utility Tile (NO background illustration - calm breathing surface)
+  Widget _buildHubCleanUtilityTile({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required _ServiceItem item,
+    BorderRadiusGeometry? customBorderRadius,
+  }) {
+    final isNew = game.isFeatureNew(item.route);
+
     return NeoBrutalCard(
       padding: const EdgeInsets.all(9),
-      backgroundColor: isDark ? const Color(0xFF182030) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF161E2C) : Colors.white,
       borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
       borderWidth: 2.2,
       borderRadius: 12,
-      showBlueprintGrid: true,
-      patternType: BlueprintPatternType.blueprintGrid,
+      customBorderRadius: customBorderRadius ??
+          const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+          ),
+      clipBehavior: Clip.antiAlias,
+      showBlueprintGrid: false,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen(item.route);
         context.push(item.route);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
@@ -3150,17 +3820,20 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 ),
                 child: Icon(item.icon, size: 15, color: Colors.black),
               ),
-              const SizedBox(width: 5),
+              const SizedBox(width: 4),
               if (isNew) _buildNotificationDot(isDark),
               const Spacer(),
               if (item.badge != null && item.badge!.isNotEmpty)
                 NeoBrutalBadge(
                   text: item.badge!,
-                  backgroundColor: item.color,
-                  textColor: Colors.black,
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF1F5F9),
+                  textColor:
+                      isDark ? Colors.white : const Color(0xFF0F172A),
                   fontSize: 7.5,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 5, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 ),
             ],
           ),
@@ -3171,7 +3844,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 child: Text(
                   item.title,
                   style: TextStyle(
-                    fontSize: 12.5,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                     color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
@@ -3182,15 +3855,16 @@ class _DashboardServicesGridContent extends ConsumerWidget {
               const SizedBox(width: 3),
               _buildDirectionalPill(
                 isDark: isDark,
-                arrowColor: Colors.black,
-                bgColor: item.color,
+                arrowColor: isDark ? Colors.white : Colors.black,
+                bgColor: isDark
+                    ? const Color(0xFF2E3D56)
+                    : const Color(0xFFE2E8F0),
                 size: 18,
                 iconSize: 11,
               ),
             ],
           ),
           const SizedBox(height: 5),
-          // Dedicated Live Telemetry Box
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 6, vertical: 3.5),
@@ -3200,15 +3874,17 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   : const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: isDark ? const Color(0xFF2E3D56) : const Color(0xFFCBD5E1),
-                width: 1.2,
+                color: isDark
+                    ? const Color(0xFF2E3D56)
+                    : const Color(0xFFCBD5E1),
+                width: 1.1,
               ),
             ),
             child: Row(
               children: [
                 Icon(
                   item.telemetryIcon ?? Icons.bolt_rounded,
-                  size: 11,
+                  size: 10,
                   color: item.color,
                 ),
                 const SizedBox(width: 4),
@@ -3216,11 +3892,10 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   child: Text(
                     item.telemetry ?? item.subtitle,
                     style: TextStyle(
-                      fontSize: 8.5,
+                      fontSize: 8.0,
                       fontWeight: FontWeight.w800,
-                      color: isDark
-                          ? Colors.white
-                          : const Color(0xFF0F172A),
+                      color:
+                          isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -3233,6 +3908,291 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       ),
     );
   }
+
+  /// Vertical 2-Row Puzzle Card (Tactical Pod for Tetris Blocks)
+  Widget _buildHubVerticalPuzzleCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required _ServiceItem item,
+    BorderRadiusGeometry? customBorderRadius,
+  }) {
+    final isNew = game.isFeatureNew(item.route);
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.all(10),
+      backgroundColor: isDark ? const Color(0xFF141C2B) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 13,
+      customBorderRadius: customBorderRadius ??
+          const BorderRadius.only(
+            topLeft: Radius.circular(22),
+            bottomLeft: Radius.circular(22),
+            topRight: Radius.circular(8),
+            bottomRight: Radius.circular(8),
+          ),
+      clipBehavior: Clip.antiAlias,
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.technicalCrosses,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen(item.route);
+        context.push(item.route);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Top Icon & Badge Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: item.color,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(item.icon, size: 17, color: Colors.black),
+              ),
+              if (isNew) ...[
+                const SizedBox(width: 4),
+                _buildNotificationDot(isDark),
+              ],
+              const Spacer(),
+              if (item.badge != null && item.badge!.isNotEmpty)
+                NeoBrutalBadge(
+                  text: item.badge!,
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : item.color.withValues(alpha: 0.18),
+                  textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+                  fontSize: 7.5,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 2.5),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Middle Title & Subtitle
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item.title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  height: 1.15,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                item.subtitle,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF64748B),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Bottom Telemetry & Directional Action
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 3.5),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.35)
+                        : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: isDark
+                          ? const Color(0xFF2E3D56)
+                          : const Color(0xFFCBD5E1),
+                      width: 1.1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        item.telemetryIcon ?? Icons.bolt_rounded,
+                        size: 10,
+                        color: item.color,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          item.telemetry ?? item.subtitle,
+                          style: TextStyle(
+                            fontSize: 8.0,
+                            fontWeight: FontWeight.w800,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: isDark ? Colors.white : Colors.black,
+                bgColor: isDark ? const Color(0xFF2E3D56) : item.color,
+                size: 22,
+                iconSize: 13,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Compact Horizontal Card for 2-Row Stacked Column in Tetris Blocks
+  Widget _buildHubCompactHorizontalCard({
+    required BuildContext context,
+    required WidgetRef ref,
+    required DealershipModel game,
+    required bool isDark,
+    required _ServiceItem item,
+    BorderRadiusGeometry? customBorderRadius,
+  }) {
+    final isNew = game.isFeatureNew(item.route);
+
+    return NeoBrutalCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      backgroundColor: isDark ? const Color(0xFF161E2C) : Colors.white,
+      borderColor: isDark ? const Color(0xFF2E3D56) : const Color(0xFF0F172A),
+      borderWidth: 2.2,
+      borderRadius: 12,
+      customBorderRadius: customBorderRadius ??
+          const BorderRadius.only(
+            topRight: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            topLeft: Radius.circular(8),
+            bottomLeft: Radius.circular(8),
+          ),
+      clipBehavior: Clip.antiAlias,
+      showBlueprintGrid: false,
+      onTap: () {
+        ref.read(gameProvider.notifier).markFeatureSeen(item.route);
+        context.push(item.route);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Top Icon & Badge Row
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4.5),
+                decoration: BoxDecoration(
+                  color: item.color,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: const Color(0xFF0F172A),
+                    width: 1.3,
+                  ),
+                ),
+                child: Icon(item.icon, size: 14, color: Colors.black),
+              ),
+              if (isNew) ...[
+                const SizedBox(width: 4),
+                _buildNotificationDot(isDark),
+              ],
+              const Spacer(),
+              if (item.badge != null && item.badge!.isNotEmpty)
+                NeoBrutalBadge(
+                  text: item.badge!,
+                  backgroundColor: isDark
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF1F5F9),
+                  textColor:
+                      isDark ? Colors.white : const Color(0xFF0F172A),
+                  fontSize: 7.5,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 5, vertical: 2),
+                ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          // Title & Action Row
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      item.title,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color:
+                            isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      item.telemetry ?? item.subtitle,
+                      style: TextStyle(
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              _buildDirectionalPill(
+                isDark: isDark,
+                arrowColor: isDark ? Colors.white : Colors.black,
+                bgColor: isDark
+                    ? const Color(0xFF2E3D56)
+                    : const Color(0xFFE2E8F0),
+                size: 19,
+                iconSize: 11,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   Widget _buildHubCasinoStrip({
     required BuildContext context,
@@ -3252,9 +4212,10 @@ class _DashboardServicesGridContent extends ConsumerWidget {
       customBorderRadius: const BorderRadius.only(
         topLeft: Radius.circular(8),
         topRight: Radius.circular(8),
-        bottomLeft: Radius.circular(16),
-        bottomRight: Radius.circular(16),
+        bottomLeft: Radius.circular(20),
+        bottomRight: Radius.circular(20),
       ),
+      clipBehavior: Clip.antiAlias,
       showBlueprintGrid: true,
       patternType: BlueprintPatternType.diagonalHatch,
       onTap: () {

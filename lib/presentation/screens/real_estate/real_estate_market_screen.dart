@@ -38,11 +38,15 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
   ScrollController get _activeListingsScrollController =>
       _listingsScrollController ??= (ScrollController()..addListener(_onScroll));
   bool _isLoadingMore = false;
+  bool _isSearchExpanded = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
     _listingsScrollController ??= ScrollController()..addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -240,33 +244,8 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Status bar (Balance & Portfolio Slot Counter)
-            _buildStatusBar(game),
-
-            // Tab Bar: Market vs Portfolio
-            Container(
-              color: theme.colorScheme.surface,
-              child: TabBar(
-                controller: _tabController,
-                indicatorColor: Colors.black,
-                indicatorWeight: 3,
-                labelColor: Colors.black,
-                labelStyle:
-                    const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                unselectedLabelColor: Colors.grey.shade600,
-                tabs: [
-                  Tab(
-                    icon: const Icon(Icons.storefront_rounded, size: 20),
-                    text: context.tr('real_estate_tab_market'),
-                  ),
-                  Tab(
-                    icon: const Icon(Icons.apartment_rounded, size: 20),
-                    text:
-                        '${context.tr('real_estate_tab_portfolio')} • ${game.ownedRealEstates.length}',
-                  ),
-                ],
-              ),
-            ),
+            // Unified Compact Terminal Header (Tabs + Telemetry Pips)
+            _buildUnifiedTerminalHeader(game),
 
             Expanded(
               child: TabBarView(
@@ -291,10 +270,9 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     );
   }
 
-  Widget _buildStatusBar(dynamic game) {
-    final isFull = game.ownedRealEstates.length >= game.maxRealEstateSlots;
+  Widget _buildUnifiedTerminalHeader(dynamic game) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: const BoxDecoration(
         color: Color(0xFF1E293B),
         border: Border(bottom: BorderSide(color: Colors.black, width: 2)),
@@ -302,68 +280,244 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.account_balance_wallet_rounded,
-                  color: Color(0xFF10B981), size: 18),
-              const SizedBox(width: 8),
-              Text(
-                CurrencyFormatter.format(game.balance),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                ),
-              ),
-            ],
+          // Left: Compact Segmented Tab Switcher (İlanlar vs Portföy)
+          _buildCompactSegmentedTabs(game),
+
+          // Right: Compact Telemetry Pod (Wallet + Pips + Expand)
+          _buildCompactTelemetryPod(game),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactSegmentedTabs(dynamic game) {
+    final activeIndex = _tabController.index;
+    return Container(
+      height: 30,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildSegmentButton(
+            label: context.tr('real_estate_tab_market'),
+            icon: Icons.storefront_rounded,
+            isActive: activeIndex == 0,
+            activeColor: const Color(0xFFFFD700), // brutalYellow
+            onTap: () {
+              HapticFeedback.selectionClick();
+              _tabController.animateTo(0);
+              setState(() {});
+            },
           ),
-          Row(
-            children: [
-              Icon(
-                Icons.holiday_village_rounded,
-                color: isFull ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
-                size: 18,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                '${context.tr('real_estate_slots_badge')}: ${game.ownedRealEstates.length} / ${game.maxRealEstateSlots}',
-                style: TextStyle(
-                  color: isFull ? const Color(0xFFFCA5A5) : Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: () => _confirmExpandSlots(context),
-                borderRadius: BorderRadius.circular(4),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.black, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.add_rounded, size: 14, color: Colors.black),
-                      Text(
-                        '${context.tr('real_estate_expand_slots_btn')} • ${CurrencyFormatter.formatShort(ref.watch(gameProvider.notifier).realEstateSlotExpansionCost)}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(width: 3),
+          _buildSegmentButton(
+            label: '${context.tr('real_estate_tab_portfolio')} • ${game.ownedRealEstates.length}',
+            icon: Icons.apartment_rounded,
+            isActive: activeIndex == 1,
+            activeColor: const Color(0xFF10B981), // emerald
+            onTap: () {
+              HapticFeedback.selectionClick();
+              _tabController.animateTo(1);
+              setState(() {});
+            },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSegmentButton({
+    required String label,
+    required IconData icon,
+    required bool isActive,
+    required Color activeColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isActive ? activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(5),
+          border: isActive
+              ? Border.all(color: Colors.black, width: 1.2)
+              : null,
+          boxShadow: isActive
+              ? const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(1, 1),
+                    blurRadius: 0,
+                  )
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isActive ? Colors.black : Colors.white70,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.w900 : FontWeight.w700,
+                color: isActive ? Colors.black : Colors.white70,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactTelemetryPod(dynamic game) {
+    final isFull = game.ownedRealEstates.length >= game.maxRealEstateSlots;
+    final int filledSlots = game.ownedRealEstates.length;
+    final int maxSlots = game.maxRealEstateSlots;
+    final cost = ref.watch(gameProvider.notifier).realEstateSlotExpansionCost;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Mini Wallet Badge
+        Container(
+          height: 26,
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: Colors.black, width: 1.2),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.account_balance_wallet_rounded,
+                color: Color(0xFF10B981),
+                size: 13,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                CurrencyFormatter.formatShort(game.balance),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 6),
+
+        // Tactical Capacity Pip Strip
+        Tooltip(
+          message: '${context.tr('real_estate_slots_badge')}: $filledSlots / $maxSlots',
+          child: InkWell(
+            onTap: () => _confirmExpandSlots(context),
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              height: 26,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isFull ? const Color(0xFFEF4444) : Colors.black,
+                  width: 1.2,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.holiday_village_rounded,
+                    color: isFull ? const Color(0xFFEF4444) : const Color(0xFFF59E0B),
+                    size: 13,
+                  ),
+                  const SizedBox(width: 4),
+                  if (maxSlots <= 8)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(maxSlots, (i) {
+                        final isFilled = i < filledSlots;
+                        return Container(
+                          width: 6,
+                          height: 10,
+                          margin: const EdgeInsets.symmetric(horizontal: 1),
+                          decoration: BoxDecoration(
+                            color: isFilled
+                                ? (isFull ? const Color(0xFFEF4444) : const Color(0xFF10B981))
+                                : const Color(0xFF334155),
+                            borderRadius: BorderRadius.circular(1.5),
+                            border: Border.all(color: Colors.black, width: 0.8),
+                          ),
+                        );
+                      }),
+                    )
+                  else
+                    Text(
+                      '$filledSlots/$maxSlots',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w900,
+                        color: isFull ? const Color(0xFFFCA5A5) : Colors.white,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 4),
+
+        // Mini Expand "+" Button
+        Tooltip(
+          message: '${context.tr('real_estate_expand_slots_btn')} • ${CurrencyFormatter.formatShort(cost)}',
+          child: InkWell(
+            onTap: () => _confirmExpandSlots(context),
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF59E0B),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.black, width: 1.2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(1, 1),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.add_rounded,
+                size: 15,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -375,45 +529,8 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
   ) {
     return Column(
       children: [
-        // Category Filter Pills Bar
-        _buildCategoryPillsBar(activeFilter),
-
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (val) {
-              ref.read(realEstateMarketSearchProvider.notifier).state = val;
-            },
-            decoration: InputDecoration(
-              hintText: context.tr('real_estate_search_hint'),
-              hintStyle: const TextStyle(fontSize: 12),
-              prefixIcon: const Icon(Icons.search_rounded, size: 20),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear_rounded, size: 18),
-                      onPressed: () {
-                        _searchController.clear();
-                        ref.read(realEstateMarketSearchProvider.notifier).state =
-                            '';
-                      },
-                    )
-                  : null,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
-              filled: true,
-              fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Colors.black, width: 1.5),
-              ),
-            ),
-          ),
-        ),
+        // Compact Inline Filter & Search Dock
+        _buildCompactSearchAndFilterDock(theme, activeFilter),
 
         // Listings List
         Expanded(
@@ -546,34 +663,199 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     );
   }
 
-  Widget _buildCategoryPillsBar(RealEstateCategory? activeFilter) {
+  Widget _buildCompactSearchAndFilterDock(
+    ThemeData theme,
+    RealEstateCategory? activeFilter,
+  ) {
+    final hasSearchQuery = _searchController.text.isNotEmpty;
+    final isExpanded = _isSearchExpanded || hasSearchQuery;
+
     return Container(
-      height: 44,
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildFilterChip(
-            label: context.tr('real_estate_filter_all'),
-            isSelected: activeFilter == null,
+      margin: const EdgeInsets.fromLTRB(12, 6, 12, 4),
+      child: isExpanded
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Expanded search row
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(1.5, 1.5),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 8),
+                              child: Icon(Icons.search_rounded, size: 16, color: Colors.black),
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                autofocus: true,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                ),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  border: InputBorder.none,
+                                  hintText: context.tr('real_estate_search_hint'),
+                                  hintStyle: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black45,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 6),
+                                ),
+                                onChanged: (val) {
+                                  ref.read(realEstateMarketSearchProvider.notifier).state = val;
+                                  setState(() {});
+                                },
+                              ),
+                            ),
+                            if (hasSearchQuery)
+                              InkWell(
+                                onTap: () {
+                                  _searchController.clear();
+                                  ref.read(realEstateMarketSearchProvider.notifier).state = '';
+                                  setState(() {});
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 6),
+                                  child: Icon(Icons.clear_rounded, size: 16, color: Colors.black),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        _searchController.clear();
+                        ref.read(realEstateMarketSearchProvider.notifier).state = '';
+                        setState(() {
+                          _isSearchExpanded = false;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.black, width: 1.5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(1.5, 1.5),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.close_rounded, size: 16, color: Colors.black),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                // Micro category chips below search
+                SizedBox(
+                  height: 26,
+                  child: _buildCategoryChipsScrollList(activeFilter, isMini: true),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                // Compact Search Toggle Button
+                InkWell(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() {
+                      _isSearchExpanded = true;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(6),
+                  child: Container(
+                    width: 32,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD700), // brutalYellow
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.black, width: 1.5),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black,
+                          offset: Offset(1.5, 1.5),
+                          blurRadius: 0,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.search_rounded,
+                      size: 16,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                // Horizontal category chips filling remaining space
+                Expanded(
+                  child: SizedBox(
+                    height: 30,
+                    child: _buildCategoryChipsScrollList(activeFilter, isMini: false),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildCategoryChipsScrollList(
+    RealEstateCategory? activeFilter, {
+    required bool isMini,
+  }) {
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      children: [
+        _buildFilterChip(
+          label: context.tr('real_estate_filter_all'),
+          isSelected: activeFilter == null,
+          isMini: isMini,
+          onTap: () => ref
+              .read(realEstateMarketProvider.notifier)
+              .setCategoryFilter(null),
+        ),
+        ...RealEstateCategory.values.map((cat) {
+          return _buildFilterChip(
+            label: context.tr(cat.localizationKey),
+            icon: cat.icon,
+            accentColor: cat.accentColor,
+            isSelected: activeFilter == cat,
+            isMini: isMini,
             onTap: () => ref
                 .read(realEstateMarketProvider.notifier)
-                .setCategoryFilter(null),
-          ),
-          ...RealEstateCategory.values.map((cat) {
-            return _buildFilterChip(
-              label: context.tr(cat.localizationKey),
-              icon: cat.icon,
-              accentColor: cat.accentColor,
-              isSelected: activeFilter == cat,
-              onTap: () => ref
-                  .read(realEstateMarketProvider.notifier)
-                  .setCategoryFilter(cat),
-            );
-          }),
-        ],
-      ),
+                .setCategoryFilter(cat),
+          );
+        }),
+      ],
     );
   }
 
@@ -583,44 +865,59 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     Color? accentColor,
     required bool isSelected,
     required VoidCallback onTap,
+    bool isMini = false,
   }) {
+    final bgColor = isSelected
+        ? (accentColor ?? Colors.black)
+        : Colors.white;
+    final fgColor = isSelected
+        ? (accentColor != null ? Colors.black : Colors.white)
+        : Colors.black87;
+
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 6),
       child: InkWell(
         onTap: () {
           HapticFeedback.selectionClick();
           onTap();
         },
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMini ? 7 : 9,
+            vertical: isMini ? 2 : 4,
+          ),
           decoration: BoxDecoration(
-            color: isSelected
-                ? (accentColor ?? Colors.black)
-                : Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
+            color: bgColor,
+            borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected ? Colors.black : Colors.grey.shade400,
-              width: 1.5,
+              color: Colors.black,
+              width: isSelected ? 1.5 : 1.2,
             ),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: Colors.black,
+                      offset: Offset(1, 1),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 16,
-                  color: isSelected ? Colors.white : Colors.black87,
-                ),
-                const SizedBox(width: 5),
+                Icon(icon, size: isMini ? 11 : 13, color: fgColor),
+                const SizedBox(width: 4),
               ],
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : Colors.black87,
+                  fontSize: isMini ? 10 : 11,
+                  fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                  color: fgColor,
+                  letterSpacing: 0.1,
                 ),
               ),
             ],

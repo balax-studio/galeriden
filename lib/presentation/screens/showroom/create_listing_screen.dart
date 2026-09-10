@@ -39,6 +39,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
   late String _listingTone;
   late bool _hideDamagedPhotos;
   late bool _allowsInstallments;
+  late bool _applyDoping;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
         : 'standard';
     _hideDamagedPhotos = car.hideDamagedPhotos;
     _allowsInstallments = car.allowsInstallments;
+    _applyDoping = car.isDoped;
   }
 
   @override
@@ -826,20 +828,42 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           _buildPackageTile(
             title: 'Acil İlan • Doping',
             subtitle: '+%50 daha hızlı organik müşteri teklifi',
-            isActive: activeCar.isDoped,
-            actionLabel: activeCar.isDoped ? 'Dopingli' : '₺${CurrencyFormatter.formatShort(GameConstants.dopingCost)} Uygula',
+            isActive: activeCar.isDoped || _applyDoping,
+            actionLabel: activeCar.isDoped
+                ? 'Dopingli'
+                : (_applyDoping
+                    ? context.tr('listing_doping_selected', {
+                        'cost': '₺${CurrencyFormatter.formatShort(GameConstants.dopingCost)}',
+                      })
+                    : '₺${CurrencyFormatter.formatShort(GameConstants.dopingCost)} Uygula'),
             badgeColor: const Color(0xFFFFDE59),
             isDark: isDark,
             onTap: activeCar.isDoped
                 ? null
                 : () {
                     HapticFeedback.mediumImpact();
-                    final success = ref.read(gameProvider.notifier).boostListingDoping(activeCar.id);
-                    if (success) {
-                      NotificationService.showSuccess(context, 'Doping başarıyla uygulandı!');
-                    } else {
-                      NotificationService.showError(context, 'Yetersiz bakiye!');
+                    if (_applyDoping) {
+                      setState(() => _applyDoping = false);
+                      NotificationService.showInfo(
+                        context,
+                        context.tr('listing_doping_deselected_toast'),
+                      );
+                      return;
                     }
+                    if (gameBalance < GameConstants.dopingCost) {
+                      NotificationService.showError(
+                        context,
+                        context.tr('doping_insufficient_funds', {
+                          'cost': CurrencyFormatter.format(GameConstants.dopingCost),
+                        }),
+                      );
+                      return;
+                    }
+                    setState(() => _applyDoping = true);
+                    NotificationService.showSuccess(
+                      context,
+                      context.tr('listing_doping_selected_toast'),
+                    );
                   },
           ),
           const SizedBox(height: 10),
@@ -1511,6 +1535,14 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
                   hideDamagedPhotos: _hideDamagedPhotos,
                   allowsInstallments: _allowsInstallments,
                 );
+
+            if (_applyDoping && !activeCar.isDoped) {
+              ref.read(gameProvider.notifier).boostListingDoping(
+                    activeCar.id,
+                    forceAllowUnlisted: true,
+                  );
+            }
+
             NotificationService.showSuccess(
               context,
               context.tr('toast_listing_updated_success'),

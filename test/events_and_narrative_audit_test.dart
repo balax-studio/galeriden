@@ -5,8 +5,7 @@ import 'package:galeriden/core/utils/color_parser.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/game_event_model.dart';
-import 'package:galeriden/data/models/side_business_model.dart';
-import 'package:galeriden/data/models/staff_model.dart';
+import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 
 void main() {
@@ -59,7 +58,7 @@ void main() {
       expect(deserialized.staffMoraleChange, equals(-10));
     });
 
-    test('A6 & C3: resolveRandomEvent guards insufficient funds & executes consequences', () {
+    test('A6 & C3: resolveDramaticCardChoice executes consequences properly', () {
       final container = ProviderContainer(
         overrides: [
           gameProvider.overrideWith((ref) => GameNotifier()),
@@ -72,7 +71,6 @@ void main() {
 
       final notifier = container.read(gameProvider.notifier);
 
-      // Setup initial state: 10,000 balance, 1 car, 1 car wash side business, 1 staff
       final car = CarModel(
         id: 'test_car_1',
         brand: 'Vosgen',
@@ -98,70 +96,38 @@ void main() {
         declarationType: ListingDeclarationType.honest,
       );
 
-      final carWash = SideBusinessModel(
-        id: 'sb_2',
-        name: 'Oto Yıkama',
-        type: SideBusinessType.carWash,
-        dailyIncome: 1000,
-        cost: 50000,
-        isOwned: true,
-      );
-
-      final staff = StaffModel(
-        id: 'staff_1',
-        name: 'Ali Usta',
-        role: StaffRole.masterMechanic,
-        hiredAt: DateTime.now(),
-        morale: 80,
-      );
-
       notifier.state = notifier.state.copyWith(
-        balance: 10000.0,
+        balance: 50000.0,
+        reputationScore: 50,
         ownedCars: [car],
-        sideBusinesses: [carWash],
-        hiredStaff: [staff],
       );
 
-      // 1. Guard check: Choice costs 25,000 but balance is 10,000 -> Should return without mutating
-      const expensiveChoice = GameEventChoice(
-        label: 'Ağır Ceza',
-        resultText: 'Para yetmiyor',
-        balanceChange: -25000.0,
-        targetCarEffect: 'impound',
+      final card = DramaticCardEngine.generateDailyDilemma(1, notifier.state);
+      final choice = card.choices.first;
+
+      final initialBalance = notifier.state.balance;
+      final initialReputation = notifier.state.reputation;
+      final initialXP = notifier.state.experience;
+
+      final result = notifier.resolveDramaticCardChoice(
+        card: card,
+        choice: choice,
+        fixedRoll: 0.0,
       );
 
-      notifier.resolveRandomEvent(expensiveChoice);
-      expect(notifier.state.balance, equals(10000.0));
-      expect(notifier.state.ownedCars.length, equals(1));
-
-      // 2. Mechanical consequence: side business downtime & staff morale
-      const downtimeChoice = GameEventChoice(
-        label: 'Tamiri Bekle',
-        resultText: '2 gün kapalı',
-        balanceChange: -2000.0,
-        sideBusinessId: 'car_wash',
-        sideBusinessDowntimeDays: 2,
-        staffMoraleChange: -15,
+      expect(
+        notifier.state.balance,
+        equals(initialBalance - choice.upfrontCost + result.outcome.moneyDelta),
       );
-
-      notifier.resolveRandomEvent(downtimeChoice);
-      expect(notifier.state.balance, equals(8000.0));
-      final updatedWash = notifier.state.sideBusinesses.firstWhere((b) => b.type == SideBusinessType.carWash);
-      expect(updatedWash.isUnderConstruction, isTrue);
-      expect(updatedWash.constructionDaysRemaining, equals(2));
-      expect(notifier.state.hiredStaff.first.morale, equals(65));
-
-      // 3. Mechanical consequence: car impound
-      const impoundChoice = GameEventChoice(
-        label: 'Yediemin',
-        resultText: 'Araca el konuldu',
-        balanceChange: -1000.0,
-        targetCarEffect: 'impound',
+      expect(
+        notifier.state.reputation,
+        equals((initialReputation + result.outcome.reputationDelta).clamp(0, 1000)),
       );
-
-      notifier.resolveRandomEvent(impoundChoice);
-      expect(notifier.state.balance, equals(7000.0));
-      expect(notifier.state.ownedCars.isEmpty, isTrue);
+      expect(
+        notifier.state.experience,
+        equals(initialXP + result.outcome.xpReward),
+      );
     });
   });
 }
+

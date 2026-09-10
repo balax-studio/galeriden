@@ -21,6 +21,285 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
+### `Eski Günlük Rastgele Olay Sisteminin Kaldırılması ve 365 Günlük Karar Sistemine Konsolidasyon`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Eski paralel rastgele olay mekanizmasının `RandomEventEngine`, `pendingRandomEvent`, `NeoBrutalRandomEventDialog`, `DashboardRandomEventBanner` projeden tamamen kaldırılarak tüm hikaye ve karar akışının 365 Günlük Dramatik Karar Sistemi `DramaticCardEngine` ve `pendingDramaticCard` üzerinde konsolide edilmesi.
+- **Yapılan Değişiklikler**:
+  - `pubspec.yaml` & `lib/core/constants/game_constants.dart`:
+    - Uygulama sürümü `1.0.6` ve derleme numarası `+30` olarak güncellendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `nextDay` döngüsünden `_processRandomEvents` mantığı ve `randomEvent` değişkeni temizlendi.
+    - `state.copyWith` bloğundan `daysSinceLastRandomEvent`, `nextRandomEventTargetDays`, `pendingRandomEvent`, `seenRandomEventIds` alanları kaldırıldı.
+    - `_processRandomEvents`, `resolveRandomEvent` ve `dismissPendingRandomEvent` fonksiyonları kaldırılarak olay çözümleri `resolveDramaticCardChoice` çatısına devredildi.
+  - `lib/data/models/dealership_model.dart`:
+    - Geriye dönük kayıt uyumluluğu için `pendingRandomEvent` getterı `@Deprecated('Consolidated into pendingDramaticCard')` olarak işaretlendi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`:
+    - `DashboardRandomEventBanner` bileşeni ve kullanılmayan `neo_brutal_random_event_dialog.dart` ile `game_event_model.dart` importları temizlendi.
+  - `lib/presentation/widgets/neo_brutal_random_event_dialog.dart`:
+    - Artık kullanılmayan eski rastgele olay diyalog bileşeni projeden silindi.
+  - `lib/domain/usecases/random_event_engine.dart`:
+    - 365 günlük sistemle mükerrerlik oluşturan eski olay şablonları ve motor dosyası projeden silindi.
+  - `lib/core/localization/translations/*.dart` - 7 Dil Eşzamanlı Senkronizasyon:
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin tamamına `listing_doping_selected`, `listing_doping_deselected_toast`, `listing_doping_selected_toast` anahtarları eklendi.
+  - `lib/presentation/screens/showroom/create_listing_screen.dart`:
+    - Doping seçim etiketleri ve bildirimleri 7 dilli `context.tr` yapısına bağlandı.
+  - Test Dosyaları:
+    - `test/events_and_narrative_audit_test.dart`: Eski `resolveRandomEvent` testi `resolveDramaticCardChoice` sonuçlarını doğrulayacak şekilde güncellendi.
+    - `test/small_screen_overflow_audit_test.dart`: Eski diyalog yerine `NeoBrutalDramaticDialog` test edildi.
+    - `test/market_share_decay_and_black_market_raid_test.dart`: Silinen rastgele olay grubu temizlendi, pazar payı ve halka arz testleri korundu.
+    - `test/feedback_dialog_test.dart`: Gönder butonu için `ensureVisible` eklenerek tıklama güvenceye alındı.
+    - `test/random_event_engine_ownership_test.dart`, `test/deep_immersion_and_notary_events_test.dart`, `test/side_business_negative_events_test.dart`: Silinen motorun testleri kaldırıldı.
+    - `test/resources/presentation_unlocalized_allowlist.txt`: Açılış logosu için logo istisnası kaydedildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `lib/presentation/widgets/neo_brutal_random_event_dialog.dart` silinmeden önce `resolveRandomEvent` bulunamadı hatası.
+  - Testlerde `DramaticCardModel` yapıcı parametrelerinin eksik olması ve kullanılmayan import uyarıları.
+  - `feedback_dialog_test.dart` içinde yeni eklenen geliştirici Instagram şeridi nedeniyle gönder butonunun ekran sınırının altına taşması.
+  - `localization_integrity_guard_test.dart` testinde doping seçim metinleri ve açılış ekranı logo metninin takılması.
+- **Kök Neden**:
+  - Önceki oturum kod silme işlemi sürerken yarıda kesilmişti.
+  - `DramaticCardModel` modelinin zengin anlatı için zorunlu parametreler beklemesi.
+  - `FeedbackDialog` içerik boyunun 800x600 test penceresinde kaydırma gerektirmesi.
+  - İlan ekranında doğrudan Türkçe karakter içeren dizgeler kullanılmış olması.
+- **Uygulanan Çözüm**:
+  - `neo_brutal_random_event_dialog.dart` ve `random_event_engine.dart` temizlendi.
+  - Testlerde `DramaticCardEngine.generateDailyDilemma` kullanılarak gerçekçi modeller sağlandı.
+  - `feedback_dialog_test.dart` içine `tester.ensureVisible` eklendi.
+  - Doping metinleri 7 dilde senkronize edilerek `context.tr` çağrılarına bağlandı, logo istisnası allowlist'e işlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı - `No issues found!`.
+  - `test/events_and_narrative_audit_test.dart`, `test/small_screen_overflow_audit_test.dart`, `test/market_share_decay_and_black_market_raid_test.dart`: 15/15 geçti.
+  - `test/feedback_dialog_test.dart`: 4/4 geçti.
+  - `test/localization_integrity_guard_test.dart` ve `test/translation_key_coverage_test.dart`: 7/7 geçti.
+
+### `Neo-Brutalist Açılış Ekranı (Splash / Loading) ve Balax Studio Resmi Instagram İletişim Entegrasyonu`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Oyuna 1.5 saniyelik yüksek tempolu, dokunsal bir Neo-Brutalist açılış/yükleme ekranı kazandırılması ve oyuncuların doğrudan stüdyo ile bağlantı kurabilmesi için Ayarlar ile Geri Bildirim ekranlarına resmi geliştirici Instagram hesabının (@balaxstudio) entegre edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/constants/game_constants.dart`:
+    - `developerInstagramUrl` (`https://www.instagram.com/balaxstudio`) ve `developerInstagramHandle` (`@balaxstudio`) sabitleri tanımlandı.
+  - `lib/core/localization/translations/*.dart` (7 Dil Eşzamanlı Senkronizasyon):
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dosyalarının tamamına 10 yeni anahtar eklendi (`settings_dev_contact_badge`, `settings_dev_contact_title`, `settings_dev_contact_desc`, `settings_dev_contact_btn`, `feedback_alt_contact_strip`, `splash_tagline`, `splash_studio_present`, `splash_loading_step1`, `splash_loading_step2`, `splash_loading_step3`).
+    - Tüm metinlerde Invariant Kuralı #1 (sıfır emoji) ve #2 (sıfır parantez) titizlikle korundu.
+  - `lib/presentation/screens/splash/splash_screen.dart` (YENİ):
+    - 1.5 saniyelik yüksek tempolu açılış ekranı oluşturuldu.
+    - Tasarım: Üst ve alt hareketli endüstriyel sarı-siyah şeritler (`HazardStripeWidget`), eğik Balax Studio damga rozeti (`Transform.rotate`), çift katmanlı siyah konturlu "GALERİDEN" logosu, taktiksel alt slogan, neon gösterge simgesi, 1500 ms'de %0-%100 arası dolan segmentli RPM telemetri ilerleme çubuğu ve dinamik durum metinleri.
+    - Dokunuşla hızlandırma (fast-forward) desteği ve tamamlandığında onboarding durumuna göre `/dashboard` veya `/onboarding` rotasına pürüzsüz yönlendirme.
+  - `lib/app/router.dart`:
+    - `initialLocation: '/splash'` olarak güncellendi.
+    - `/splash` rotası kaydedildi ve kök `/` yönlendirmesi `/splash`'e bağlandı.
+  - `lib/presentation/screens/settings/settings_screen.dart`:
+    - "Topluluk & Geri Bildirim" bölümüne 2.5px siyah konturlu, 3.5px sert gölgeli, üstünde endüstriyel sarı-siyah şerit bulunan "GELİŞTİRİCİ İLE DİREKT İLETİŞİM • BALAX STUDIO" taktiksel kartı eklendi.
+    - Dokunsal Instagram butonuna tıklandığında `url_launcher` ile `LaunchMode.externalApplication` modunda Instagram profili açılması sağlandı.
+  - `lib/presentation/widgets/feedback_dialog.dart`:
+    - E-posta formunun altına "Alternatif Hızlı Kanal - Instagram: @balaxstudio" kompakt şeridi eklendi.
+  - `test/splash_screen_test.dart` (YENİ):
+    - Açılış ekranı render, hazard stripes, telemetri animasyonu, hızlı geçiş ve zamanlayıcı temizliğini doğrulayan testler yazıldı (2/2 passed).
+  - `test/developer_contact_test.dart` (YENİ):
+    - Instagram URL ve handle sabitleri, 7 dil simetrisi ve invariant kuralları ile FeedbackDialog alternatif hızlı kanal testleri yazıldı (3/3 passed).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `splash_screen.dart` ilk derlemesinde `DotGridBackground` bileşeninin `child` parametresi beklemesi ve `NeoBrutalCard` için `boxShadow` yerine `shadowOffset` ve `shadowColor` parametrelerinin tanımlı olması.
+  - Bağımsız widget testinde GoRouter bağlı olmadığı için `_proceedToNextScreen` içinde `No GoRouter found in context` hatası fırlatılması.
+  - Test container'ı dispose edilirken debounced saveState zamanlayıcısının bekleyen zamanlayıcı uyarısı vermesi.
+  - `FeedbackDialog` testinde `AppThemeExtension` sağlanmadığı için tema uzantısı bulunamaması.
+- **Kök Neden**:
+  - `DotGridBackground` bir container sarmalayıcısıdır ve `required Widget child` bekler.
+  - `NeoBrutalCard` özel neo-brutalist parametreler (`shadowOffset`, `shadowColor`) kullanır.
+  - GoRouter bulunmayan izole test senaryolarında `context.go` çağrısı istisna fırlatır.
+- **Uygulanan Çözüm**:
+  - `DotGridBackground` içine `child: SizedBox.expand()` verildi.
+  - `NeoBrutalCard` parametreleri `shadowOffset: Offset(3.5, 3.5)` ve `shadowColor: Colors.black` olarak düzeltildi.
+  - `_proceedToNextScreen` içine router bulunmayan test ortamlarını güvenli tolere eden koruma eklendi.
+  - Testlerde `AppTheme.darkTheme` ve timer temizleme adımları eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 7 dosyada 0 hata, 0 uyarı (`No issues found!`).
+  - `test/translation_key_coverage_test.dart`: 6/6 test geçti (7 dil %100 tam simetri).
+  - `test/developer_contact_test.dart`: 3/3 test geçti.
+  - `test/splash_screen_test.dart`: 2/2 test geçti. Toplam 11 test yeşil.
+
+### `Emlak Pazarı • Neo-Brutalist Taktiksel Terminal Konsolu ve Kompakt Header Redesign`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Emlak Pazarı ekranında dikey alan israfını çözmek, mobil görünürlüğü artırmak ve ilan kartlarına maksimum alan bırakmak amacıyla üst başlık ve kontrol alanının birleşik Neo-Brutalist Taktiksel Terminal Konsolu olarak yeniden tasarlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - Eski `_buildStatusBar` (42px) ve devasa `TabBar` (55px) kaldırılarak yerine tek satırda çalışan 40px yüksekliğinde `_buildUnifiedTerminalHeader` getirildi.
+    - **Sol Segment Switcher (`_buildCompactSegmentedTabs`)**: 30px taktik kapsül içinde "İlanlar" ve "Portföyüm • N" butonları; aktif sekmede 2.0px siyah konturlu `brutalYellow` / `toxicLime` dolgu, dokunsal `Transform.translate` mekanik basma efekti.
+    - **Sağ Telemetri Podu (`_buildCompactTelemetryPod`)**: Zümrüt yeşili kompakt cüzdan rozeti (`₺...B`), mülk kapasitesini gösteren 5 hücreli mikro taktik slot doluluk pips göstergesi (`[■][□][□][□][□]`), tek dokunuşla kapasite artıran mini `+` butonu.
+    - **Kompakt Filtre & Genişleyebilir Arama Dock'u (`_buildCompactSearchAndFilterDock`)**: 50px'lik arama kutusu ve 44px'lik kategori şeridinin alt alta 100px yemesi engellendi. Normal durumda 34px yükseklikte sol tarafta kompakt sarı arama butonu, sağ tarafta yatay kayan 28px mikro kategori hapları ("Tümü", "Konut", "İş Yeri", "Arsa", "Konut Projeleri", "Bina") yerleştirildi. Arama butonuna basıldığında satır içine kompakt arama alanı açılarak kapatma butonu sağlandı.
+    - Dikey kontrol alanı toplamda ~207px'ten ~75px'e düşürülerek 130px+ net dikey alan kazanıldı; ilan kartları ekranın üst kısmına taşındı.
+  - `test/real_estate_market_compact_header_test.dart` (YENİ):
+    - Birleşik konsol render, sekme geçişi, arama dock genişleme/daralma, 320px ultra-dar ekranda sıfır overflow ve invariant (sıfır emoji, sıfır parantez) testleri yazıldı (5/5 passed).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - İlk test çalıştırmasında `/emlak` rotasının başlangıç seviyesinde (Level 1) kilitli olması nedeniyle `NeoBrutalLockedFeatureView` dönmesi ve "İlanlar" metninin bulunamaması.
+  - Test beklentisinde `Portföy • 0` aranırken dil dosyasında `Portföyüm` olması.
+  - `test/real_estate_market_compact_header_test.dart` içinde kullanılmayan import uyarısı (`unused_import`).
+- **Kök Neden**:
+  - `DealershipModel` üzerinde `/emlak` rotasının `level >= 4` gerektirmesi.
+  - `tr_translations.dart` içinde `real_estate_tab_portfolio` anahtarının "Portföyüm" olarak tanımlı olması.
+  - Test kurgusu sırasında eklenen model importunun doğrudan çağrılmaması.
+- **Uygulanan Çözüm**:
+  - Test container'ında seviye `level: 5` yapılarak özellik kilidi açıldı.
+  - Test beklentisi `Portföyüm • 0` olarak güncellendi.
+  - Kullanılmayan import temizlenerek `flutter analyze` sıfır hataya indirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 3 dosyada 0 hata, 0 uyarı (`No issues found!`).
+  - `test/real_estate_market_compact_header_test.dart`: 5/5 test geçti.
+  - `test/real_estate_market_test.dart`: 15/15 test geçti. Toplam 20 test yeşil.
+
+### `Kritik Oynanış Hataları ve Ekonomi Dengelemesi • Şube Tapu Kalıcılığı, Acil İlan Doping ve Alıcı Teklif Dampingi`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Oyuncu geri bildirimlerinde bildirilen kritik oynanış ve ekonomi aksaklıklarının çözümü: Şube tapu mülkiyetinin kaybolması, ilan ekranında hatalı yetersiz bakiye uyarısı ve araç ticaretinde kontrolsüz çarpan enflasyonu.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/dealership_model.dart`:
+    - `toJson()` metoduna `'ownedBranchDeeds': ownedBranchDeeds.toList()` eklendi.
+    - `fromJson()` metoduna `ownedBranchDeeds: (json['ownedBranchDeeds'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? const {}` çözücüsü eklendi.
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `boostListingDoping(String carId, {bool forceAllowUnlisted = false})` parametresi eklendi; taslak aşamasındaki araçların erken reddedilmesi engellendi.
+  - `lib/presentation/screens/showroom/create_listing_screen.dart`:
+    - `late bool _applyDoping;` durum bayrağı tanımlandı.
+    - Tıklamada anında bakiye kesmek yerine güvenli toggle ve yerel bakiye kontrolü eklendi; ilan onaylandığında doping tetiklenmesi sağlandı.
+  - `lib/domain/usecases/negotiation_engine.dart`:
+    - `generateBuyerOffer` içinde çarpan damping formülü uygulandı: `totalMultiplier = (1.0 + (rawMultiplier - 1.0) * 0.45).clamp(0.88, 1.18);`.
+  - `test/branch_deed_persistence_test.dart`:
+    - Tapu mülkiyeti serileştirme ve geriye dönük uyumluluk birim testleri oluşturuldu (2/2 passed).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Şube tapusu satın alındıktan sonra oyun yeniden başlatıldığında mülkiyetin sıfırlanması.
+  - İlan oluşturma ekranında yeterli nakit olmasına rağmen "Yetersiz bakiye!" uyarısı çıkması.
+  - Araç satışında biriken katsayılar nedeniyle 24 saatte %40-%100+ fahiş kâr marjı oluşması.
+- **Kök Neden**:
+  - `ownedBranchDeeds` alanının JSON serialization/deserialization döngüsüne dahil edilmemiş olması.
+  - `boostListingDoping` metodunun henüz listelenmemiş araçlarda `false` dönmesi ve arayüzün bunu bakiye yetersizliği olarak göstermesi.
+  - Mevsim, ilçe, dedikodu ve şube çarpanlarının sınırsız bileşik çarpımı sonucu tavanın delinmesi.
+- **Uygulanan Çözüm**:
+  - JSON köprüleri bağlandı, doping seçimi güvenli toggle formuna alındı ve alıcı tekliflerine yumuşatıcı damping uygulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` 0 hata ile doğrulandı.
+  - `test/branch_deed_persistence_test.dart` (2/2 passed).
+  - `test/car_listing_offer_rules_test.dart` (11/11 passed).
+  - `test/vehicle_maintenance_cost_and_profit_test.dart` (6/6 passed).
+  - `test/negotiation_dynamic_tactics_test.dart` ve ilgili paketler (15/15 passed).
+
+### `Dashboard Günlük Net Nakit Akışı • Neo-Brutalist Taktiksel HUD Ticker Redesign`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi doğrultusunda ("günlük net akış kutusuna özel bi çalışma yap içine ve genel tasarıma dair /design /ui-styling"), düz ve monoton görünümlü `DashboardDailyCashFlowCard` bileşeni, panonun yeni asimetrik bento geometrisiyle uyumlu, yüksek kontrastlı Neo-Brutalist taktiksel bir finans HUD göstergesine dönüştürüldü.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`:
+    - **Asimetrik Dış Şasi (Chassis)**: Standart 12px yuvarlatma yerine `BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(6), bottomRight: Radius.circular(16), bottomLeft: Radius.circular(6))` asimetrik taktik kavisleri, 2.5px siyah kontur ve 3.5px sert 0-blur offset gölge uygulandı.
+    - **Dinamik Kâr/Zarar Vurgusu**: Net nakit akışı pozitifken zümrüt yeşili (`#00E575`) vurgulu parlama, negatifken acil durum kırmızısı (`#EF4444`) renk kodlaması bağlandı.
+    - **Üst Ticker Şeridi**:
+      * Sol: Asimetrik köşeli mikro cüzdan rozeti (`Icons.account_balance_wallet_rounded`) ve kalın `GÜNLÜK NET NAKİT AKIŞI` başlığı.
+      * Sağ: 8 çubuklu dinamik equalizer sparkline bar göstergesi (`_buildSparklineBars`), tabular rakam destekli ve 1.5px konturlu yüksek kontrastlı rozet (`+₺.../gün`) ve yön oku (`Icons.chevron_right_rounded`).
+    - **Alt Telemetri Mikro-Bento Podları**: Düz metin satırı yerine 3 bağımsız taktik kapsüle ayrıldı:
+      * Gelir Podu (`Yan Gelirler: +₺...`): Hafif zümrüt dolgu, 1.5px zümrüt kontur, `Icons.arrow_upward_rounded` ikonu ve asimetrik (8-4-8-4) mikro köşe radyüsü.
+      * Maaş Podu (`Maaşlar: -₺...`): Koyu slate/antrasit dolgu, 1.5px kontur, `Icons.badge_rounded` ikonu.
+      * Kredi/Borç Podu (`Krediler: -₺...`): Aktif kredi borcu varsa (`dailyLoanPayment > 0`) dinamik olarak devreye giren uyarı kırmızısı taktik kapsül (`Icons.account_balance_outlined`).
+  - `test/dashboard_daily_cashflow_card_test.dart` (YENİ):
+    - Pozitif net akış, aktif kredi podu tetiklenmesi ve ultra-dar ekranda (320px) taşma olmaksızın render testleri yazıldı (3/3 passed).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - İlk test yazımında `LoanModel` ve `StaffRole` parametreleri gerçek model tanımlarıyla uyumsuzdu; `StaffRole.mechanic` yerine `StaffRole.masterMechanic` ve `LoanModel` alanları düzeltildi.
+- **Kök Neden**: Model constructor parametrelerinin test içerisinde eski şablonla çağrılması.
+- **Uygulanan Çözüm**: `dashboard_daily_cashflow_card_test.dart` dosyasındaki model çağrıları `LoanModel` ve `StaffModel` alanlarıyla tam senkronize edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`: 0 issues (No issues found!).
+  - `flutter test test/dashboard_daily_cashflow_card_test.dart`: 3/3 test başarıyla geçti.
+  - `flutter test test/ui_layout_and_header_spacing_test.dart`: 8/8 test başarıyla geçti.
+  - Canlı Chrome tarayıcısında (localhost:8080) görsel teyit alındı ve ekran görüntüsü kaydedildi.
+
+### `Şehir Hub'ı • Asimetrik Köşe Radyüsleri (Asymmetric Radii Matrix) ve Dinamik Puzzle Kenetlenme Formları`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi ("referans görseldeki gibi kutular tam dikdörtgen değil formu değişik biraz bu hubda öyle olsun ve seviye sistemine göre açılan servislerde form dinamik olacak") doğrultusunda, tüm kartların monoton 4 köşesi eşit (uniform) dikdörtgen yapısı kaldırılarak; her kartın konumu, dış kabuk ve iç kenetlenme temas noktalarına göre şekillenen dinamik asimetrik köşe radyüsleri sistemi uygulandı.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Hero Kartı (Yan İşletmeler)**: Çapraz asimetrik radyüs (`topLeft: 24`, `bottomRight: 24`, `topRight: 10`, `bottomLeft: 10`) ve `clipBehavior: Clip.antiAlias` uygulandı.
+    - **Dikey Terrakotta Kiralama Kartı (Rent-a-Car)**: Karşıt çapraz asimetrik radyüs (`topRight: 24`, `bottomLeft: 24`, `topLeft: 10`, `bottomRight: 10`) ve `clipBehavior: Clip.antiAlias` uygulandı.
+    - **Dikey Puzzle Podları (Konsinye & Emanet ve Semt Hakimiyeti)**:
+      * Sol Puzzle Podu (`Konsinye & Emanet`): Dış sol köşeler `22px`, içteki istife kenetlenen sağ köşeler `8px` (`topLeft: 22`, `bottomLeft: 22`, `topRight: 8`, `bottomRight: 8`).
+      * Sağ Puzzle Podu (`Semt Hakimiyeti`): Dış sağ köşeler `22px`, içteki istife kenetlenen sol köşeler `8px` (`topRight: 22`, `bottomRight: 22`, `topLeft: 8`, `bottomLeft: 8`).
+    - **Kompakt Yatay Kartlar (Hurdalık, Showroom Mimari, Dedikodu, Yorumlar)**:
+      * Sol Bloktaki Sağ İstif: Sol docking kenarları `8px`, dış sağ köşeler `topRight: 18` (üst kart) veya `bottomRight: 18` (alt kart).
+      * Sağ Bloktaki Sol İstif: Sağ docking kenarları `8px`, dış sol köşeler `topLeft: 18` (üst kart) veya `bottomLeft: 18` (alt kart).
+    - **Panoramik Şerit (Gece Sanayisi)**: Çapraz taktik kapsül formu (`topLeft: 22`, `bottomRight: 22`, `topRight: 10`, `bottomLeft: 10`).
+    - **VIP Casino Şeridi**: Tabanı sabitleyen zemin formu (`bottomLeft: 20`, `bottomRight: 20`, `topLeft: 8`, `topRight: 8`).
+    - **Dinamik Seviye / Tekil / İkili Kalanlar**: Seviyeye göre tek veya ikili kalan servislerde dış hatları koruyan `16px/10px` veya `18px/8px` dinamik köşe desteği eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: N/A.
+- **Uygulanan Çözüm**: `customBorderRadius` ve `Clip.antiAlias` entegrasyonu sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/`: Sıfır hata ve sıfır uyarı ile doğrulandı (No issues found!).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart`: 5 testin tamamı başarıyla geçti (All tests passed!).
+  - Canlı Chrome oturumunda ekran görüntüsü alınarak asimetrik köşe kilitlenmesi ve dokunsal konturlar doğrulandı.
+
+### `Şehir Hub'ı • Maslak Sanayi Hangar Tetris / Puzzle Kenetlenme Mimarisi`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi doğrultusunda ("Şehir & Yan Sektörler Operasyonel Hubı dikdörtgenleri buradakii gibi puzzle gibi olsun ve buradaki hubdaki dikdörtgenleri biraz daha asimetrik yapalım"), alt kutuların 50%/50% simetrik ikili ızgara görünümü tamamen kaldırılarak, Maslak Sanayi Hangarındaki puzzle/tetris mimarisine uygun sol dikey + sağ iki yatay ve ters puzzle mimarisine dönüştürüldü.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Tetris / Puzzle Blok 1 (Sol Puzzle)**: Sol tarafta 2 satır yüksekliğinde dikey bir taktik puzzle kartı (%40 flex, `Konsinye & Emanet`), sağ tarafta ise alt alta istiflenmiş iki adet ferah ve kompakt yatay kart (%60 flex, üstte `Hurdalık & Parça`, altta `Showroom Mimari`). `IntrinsicHeight` ile kusursuz kenetlenme sağlandı.
+    - **Orta Dinamik Şerit**: Koyu antrasit/noir (%100 tam genişlik) `Gece Sanayisi` panoramik taktik şeridi ile ritim dengelendi.
+    - **Tetris / Puzzle Blok 2 (Ters Puzzle)**: Sol tarafta alt alta istiflenmiş iki kompakt yatay kart (%60 flex, üstte `Dedikodu Hattı`, altta `Müşteri Yorumları`), sağ tarafta ise 2 satır yüksekliğinde dikey puzzle kartı (%40 flex, `Semt Hakimiyeti`).
+    - **Yeni Bileşenler**:
+      * `_buildHubVerticalPuzzleCard`: 2 satır yüksekliğinde dikey akışlı, üstte taktik renkli ikon ve durum rozeti, ortada başlık ve alt başlık, altta telemetri çipi ve yönlendirme butonu barındıran teknik blueprint kartı.
+      * `_buildHubCompactHorizontalCard`: Fazla çizim barındırmayan, sakin, nefes alan, kompakt ve ferah 2'li istif kartı.
+    - Unused declaration olan `_buildHubTallActionCard` temizlendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `warning - The declaration '_buildHubTallActionCard' isn't referenced` uyarı alındı.
+- **Kök Neden**: Yeni puzzle widget'ları eklendikten sonra eski metodun referansı kalmamıştı.
+- **Uygulanan Çözüm**: Unused metod kaldırılarak Dart Analyzer uyarısı 0'a indirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/`: Sıfır hata ve sıfır uyarı ile doğrulandı (No issues found!).
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart`: 5 testin tamamı başarıyla geçti (All tests passed!).
+  - `http://localhost:8080`: Canlı Chrome oturumunda wheel scroll ile sayfa kaydırılarak ekran görüntüsü alındı, puzzle bloklarının kusursuz kenetlendiği doğrulandı.
+
+### `Şehir Hub'ı • Seçici İllüstrasyon, Zıt Terrakotta & Antrasit Bloklar ve 1:1 Temiz Yardımcı Kutular`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı geribildirimleri doğrultusunda ("bazı kartlar tam dikdörtgen değil ve bazıları ters farklı renkli kutu tasarımları var ve bazılarının kutu içinde tasarım yok bak ve tasarım dersi al tekrardan tasarla orayı ayrıca önemli olanlar daha büyük olsun kullanıcı ux dizaynına uygun"), Şehir & Yan Sektörler Operasyonel Hub'ı referans mobil UI mimarisine tam uyumlu hale getirildi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - **Seçici İllüstrasyon İlkesi**: Tüm kartların arkasına çizim koyma kuralı kaldırılarak görsel karmaşa giderildi. İllüstrasyonlar yalnızca 3 ana taşıyıcı kartta (Hero `Yan İşletmeler`, Dikey Terrakotta `Rent-a-Car` ve Panoramik Taktik Şerit `Gece Sanayisi`) bırakıldı.
+    - **Zıt Renkli Kontrast Bloklar**:
+      * `_buildHubInvertedCard`: Zengin koyu kiremit/terrakotta (`#9A3412` / `#6C1F0D`) zemin dolgusu, beyaz tipografi, `Kirada` durum rozeti, beyaz yönlendirme butonu ve spor coupe silüeti uygulandı.
+      * `_buildHubPanoramicCard`: Derin koyu antrasit/noir (`#0F172A`) zemin dolgusu, kırmızı yarış bayrağı, drag & modifiye telemetrisi ve yarış kanadı/alev hatları illüstrasyonu eklendi.
+    - **1:1 Temiz Yardımcı Servis Kutuları (`_buildHubCleanUtilityTile`)**: `Hurdalık & Parça`, `Showroom Mimari`, `Konsinye & Emanet`, `Dedikodu Hattı`, `Müşteri Yorumları` servisleri; arka planda çizim barındırmayan, sakin, nefes alan saf beyaz / koyu arduvaz zeminli, renkli taktik ikon kutulu, net başlıklı ve telemetri haplı kompakt kutulara dönüştürüldü.
+    - `_buildAsymmetricBentoRows`: Dinamik hiyerarşik yuvalama mantığı baştan yazıldı. Row 1: Hero (%62) + Dikey Terrakotta (%38) -> Row 2: Temiz İkili Kutu -> Row 3: Panoramik Taktik Şerit -> Row 4 & 5: Temiz İkili Kutular -> Bottom: VIP Casino Şeridi.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: N/A.
+- **Uygulanan Çözüm**: Dart Analyzer ve tüm widget testleri çalıştırıldı; tarayıcıda canlı olarak doğrulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/`: Sıfır hata ve sıfır uyarı ile doğrulandı.
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart`: 5 testin tamamı başarıyla geçti (All tests passed).
+  - `http://localhost:8080`: Canlı tarayıcı oturumunda ekran görüntüsü alınarak doğrulandı.
+
+### `Şehir & Yan Sektörler Operasyonel Hub • Asimetrik Bento Grid & Yüksek Kontrastlı Vektör Çizimleri`
+- **Tarih**: 2026-09-10
+- **Değişiklik Amacı**: Kullanıcı talebi ("bu 8 kutu sana örnekte attığım gibi asimetrik box ve kontrast çizimli hale dönüştürelim... dinamik olarak seviyeye göre açılınca dinamik büyüyüp açılacak vs kilitli olduğunda gözükmeyecek") doğrultusunda, Şehir & Yan Sektörler Hub'ındaki 8 kutu tekdüze 2x4 ızgaradan dinamik asimetrik Bento Grid sistemine ve donanım hızlandırmalı yüksek kontrastlı otomotiv vektör çizimlerine kavuşturuldu.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/hub_service_illustrations.dart` (YENİ DOSYA):
+    - Saf Flutter `CustomPainter` ile sıfır harici varlık bağımlılığı olmaksızın 10 adet yüksek kontrastlı teknik otomotiv silüeti ve illüstrasyonu çizildi:
+      1. `Rent-a-Car`: Aerodinamik spor coupe silüeti, hız çizgileri ve dijital anahtar.
+      2. `Hurdalık & Parça`: Mekanik motor bloğu, silindirler ve turboşarj tel kafes çizimi.
+      3. `Showroom Mimari`: Modern cam galeri cephesi, açılı spot ışıkları ve podyum.
+      4. `Konsinye & Emanet`: Podyumdaki araç ve komisyon anlaşma mührü.
+      5. `Gece Sanayisi`: Ayarlanabilir arka yarış kanadı, difüzör ve çift egzoz alevleri.
+      6. `Dedikodu Hattı`: İstihbarat anten kulesi ve eşmerkezli radyo dalga darbeleri.
+      7. `Semt Hakimiyeti`: 3D izometrik şehir bölge ızgarası ve zirve bayrağı.
+      8. `Müşteri Yorumları`: 5 yıldızlı itibar tacı ve ışıma yapan geometrik ışınlar.
+      9. `Yan İşletmeler`: Sanayi holding silüeti ve yükselen ciro trendi.
+      10. `Casino`: VIP maça/karo sembolü ve altın rulet çarkı kenarlığı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `_buildAsymmetricBentoRows`: Açık olan servis sayısına göre deterministik asimetrik Bento ritmi oluşturuldu:
+      * 1 Servis: %100 genişlikte büyük Hero kartı.
+      * 2 Servis (Fotoğraf 1 Üst Düzeni): %62 Geniş Hero Kartı + %38 Dikey Kompakt Kart.
+      * 3 Servis: %100 Geniş Hero Kartı + İki adet %50 Dengeli Bento Kartı.
+      * 4+ Servis: Dinamik Asimetrik Ritim (Hero %62 + Dikey %38 -> İkili %50/%50 -> Ters Asimetrik Dikey %38 + Geniş %62 -> İkili %50/%50).
+    - `_buildHubHeroCard`, `_buildHubTallActionCard`, `_buildHubWideFeatureCard`, `_buildHubBentoTile` kart bileşenleri arka planda `HubServiceIllustration` ile birleştirildi.
+    - Kilitli servisler ekrandan tamamen kaldırılarak sadece açık olanlar dinamik boyutta render edildi; en altta tek satırlık minimalist kilit açılım hedefi korundu.
+- **Karşılaşılan Hatalar / Sorunlar**: Yok.
+- **Kök Neden**: N/A.
+- **Uygulanan Çözüm**: Hot restart ile tarayıcıda canlı olarak doğrulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/`: Sıfır hata ve sıfır uyarı ile doğrulandı.
+  - `flutter test test/city_operations_hub_and_marketplace_redesign_test.dart test/dynamic_next_target_banner_test.dart test/service_unlock_notification_dot_test.dart`: Tüm widget testleri eksiksiz geçti (All tests passed).
+  - `flutter run -d chrome`: Hot restart ile derlendi ve `http://localhost:8080` üzerinde başarıyla çalıştı.
+  - Chrome DevTools ekran görüntüsü ile asimetrik bento hiyerarşisi ve vektör çizimler canlı ortamda doğrulandı.
 
 ### `Dashboard Services • Kapsayıcı Deck Kutuları (Enclosing Deck Containers) & Göz Dinlendirici Nötr Palet`
 - **Tarih**: 2026-09-10

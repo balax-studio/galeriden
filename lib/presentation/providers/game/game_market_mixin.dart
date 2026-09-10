@@ -523,7 +523,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Boost Listing Doping
   /// Boost Listing Doping (Can only be done once per car, requires car to be listed, caps at max 3 offers)
-  bool boostListingDoping(String carId) {
+  bool boostListingDoping(String carId, {bool forceAllowUnlisted = false}) {
     const cost = 2500.0;
     if (state.balance < cost) return false;
 
@@ -532,8 +532,8 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
 
-    // Rule 1: Car MUST be listed for sale and not rented
-    if (!car.isListed || car.isRented) return false;
+    // Rule 1: Car MUST be listed for sale (unless forceAllowUnlisted during listing creation) and not rented
+    if ((!car.isListed && !forceAllowUnlisted) || car.isRented) return false;
 
     // Rule 2: Doping can only be applied ONCE per car
     if (car.isDoped) return false;

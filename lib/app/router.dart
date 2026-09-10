@@ -63,6 +63,7 @@ import '../presentation/screens/real_estate/home_interior_design_screen.dart';
 import '../presentation/screens/real_estate/home_interior_category_detail_screen.dart';
 import '../presentation/screens/casino/casino_hub_screen.dart';
 import '../presentation/screens/leaderboard/leaderboard_screen.dart';
+import '../presentation/screens/splash/splash_screen.dart';
 import '../core/services/analytics_service.dart';
 
 Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
@@ -74,7 +75,7 @@ Page<dynamic> _buildCupertinoPage(Widget child, GoRouterState state) {
 }
 
 final appRouter = GoRouter(
-  initialLocation: '/dashboard',
+  initialLocation: '/splash',
   errorBuilder: (context, state) => const DashboardScreen(),
   observers: [
     if (AnalyticsService.instance.observer != null)
@@ -83,7 +84,11 @@ final appRouter = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      redirect: (context, state) => '/dashboard',
+      redirect: (context, state) => '/splash',
+    ),
+    GoRoute(
+      path: '/splash',
+      pageBuilder: (context, state) => _buildCupertinoPage(const SplashScreen(), state),
     ),
     GoRoute(
       path: '/dashboard',

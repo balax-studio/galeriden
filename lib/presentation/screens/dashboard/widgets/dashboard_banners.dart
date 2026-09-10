@@ -7,7 +7,6 @@ import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/dramatic_card_model.dart';
-import '../../../../data/models/game_event_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/weekly_event_engine.dart';
@@ -19,7 +18,6 @@ import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/neo_brutal_dramatic_dialog.dart';
-import '../../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/zeigarnik_progress_bar.dart';
 import 'dashboard_retention_modals.dart';
@@ -450,126 +448,6 @@ class DashboardDramaticCardBanner extends StatelessWidget {
     );
   }
 }
-
-/// Daily Random Event Banner
-class DashboardRandomEventBanner extends StatelessWidget {
-  final GameEventModel event;
-  final ThemePaletteModel palette;
-
-  const DashboardRandomEventBanner({
-    super.key,
-    required this.event,
-    required this.palette,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = palette.isDark;
-
-    return NeoBrutalCard(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        NeoBrutalRandomEventDialog.show(context, event);
-      },
-      padding: const EdgeInsets.all(12),
-      backgroundColor:
-          isDark ? const Color(0xFF231C1A) : const Color(0xFFFFF7ED),
-      borderColor: const Color(0xFFF97316),
-      borderRadius: 14,
-      borderWidth: 2.5,
-      shadowOffset: const Offset(4, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF97316),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDark
-                        ? const Color(0xFF333B4F)
-                        : const Color(0xFF0F172A),
-                    width: 1.8,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.campaign_rounded,
-                  size: 22,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        NeoBrutalBadge(
-                          text: context.tr('banner_random_event_badge'),
-                          backgroundColor: const Color(0xFFF97316),
-                          textColor: Colors.white,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w900,
-                        ),
-                        const Spacer(),
-                        const PulsingDot(color: Color(0xFFF97316), size: 8),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      event.title,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            event.description,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569),
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerRight,
-            child: NeoBrutalButton(
-              label: context.tr('banner_random_event_action'),
-              icon: Icons.visibility_rounded,
-              backgroundColor: const Color(0xFFF97316),
-              textColor: Colors.white,
-              borderRadius: 8,
-              borderWidth: 1.8,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              fontSize: 11,
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                NeoBrutalRandomEventDialog.show(context, event);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// First Day Quest Guide Banner
 class DashboardFirstDayQuestBanner extends StatelessWidget {
   final DealershipModel game;
@@ -1293,7 +1171,7 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
   }
 }
 
-/// Estimated Daily Cash Flow Breakdown Card
+/// Estimated Daily Cash Flow Breakdown Card (Neo-Brutalist Tactical HUD Ticker)
 class DashboardDailyCashFlowCard extends StatelessWidget {
   final DealershipModel game;
   final ThemePaletteModel palette;
@@ -1321,37 +1199,72 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
       (sum, l) => sum + (l.monthlyPayment),
     );
     final netDailyFlow = dailyPassiveIncome - dailySalaries - dailyLoanPayment;
+    final isPositive = netDailyFlow >= 0;
+    final flowColor =
+        isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444);
 
     return NeoBrutalCard(
       onTap: () {
         HapticFeedback.lightImpact();
         context.push('/finance/daily-cashflow');
       },
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
-      borderRadius: 12,
+      borderColor: isDark
+          ? (isPositive
+              ? const Color(0xFF00E575).withValues(alpha: 0.45)
+              : const Color(0xFFEF4444).withValues(alpha: 0.45))
+          : const Color(0xFF0F172A),
+      borderWidth: 2.5,
+      customBorderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(6),
+        bottomRight: Radius.circular(16),
+        bottomLeft: Radius.circular(6),
+      ),
+      shadowOffset: const Offset(3.5, 3.5),
+      shadowColor: isDark ? Colors.black : const Color(0xFF0F172A),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header Row: Tactical Wallet Badge + Title + Equalizer + Pill Badge + Chevron
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.account_balance_wallet_rounded,
-                    size: 16,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF475569),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF1E2433)
+                          : const Color(0xFFF1F5F9),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF333B4F)
+                            : const Color(0xFF0F172A),
+                        width: 1.5,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(6),
+                        topRight: Radius.circular(3),
+                        bottomRight: Radius.circular(6),
+                        bottomLeft: Radius.circular(3),
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.account_balance_wallet_rounded,
+                      size: 13,
+                      color: flowColor,
+                    ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Text(
                     context.tr('daily_net_cashflow'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w900,
+                      letterSpacing: 0.4,
                       color: isDark ? Colors.white : const Color(0xFF0F172A),
                     ),
                   ),
@@ -1359,20 +1272,34 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _buildSparklineBars(isDark, netDailyFlow >= 0),
+                  _buildSparklineBars(isDark, isPositive),
                   const SizedBox(width: 8),
-                  Text(
-                    '${netDailyFlow >= 0 ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/${context.tr('hud_day').toLowerCase()}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: netDailyFlow >= 0
-                          ? const Color(0xFF00E575)
-                          : const Color(0xFFEF4444),
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: flowColor.withValues(alpha: isDark ? 0.16 : 0.12),
+                      border: Border.all(
+                        color: flowColor,
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      '${isPositive ? '+' : ''}${CurrencyFormatter.formatShort(netDailyFlow)}/${context.tr('hud_day').toLowerCase()}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: isPositive
+                            ? (isDark
+                                ? const Color(0xFF00E575)
+                                : const Color(0xFF059669))
+                            : const Color(0xFFEF4444),
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Icon(
                     Icons.chevron_right_rounded,
                     size: 16,
@@ -1385,42 +1312,114 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+
+          // Telemetry Bento Pods Row
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                  child: Text(
-                context.tr('side_incomes', {
-                  'amount': CurrencyFormatter.formatShort(dailyPassiveIncome)
-                }),
-                style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF00E575)),
-              )),
-              Expanded(
-                  child: Text(
-                context.tr('salaries',
-                    {'amount': CurrencyFormatter.formatShort(dailySalaries)}),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF64748B),
-                ),
-              )),
-              if (dailyLoanPayment > 0)
-                Text(
-                  context.tr('loans', {
-                    'amount': CurrencyFormatter.formatShort(dailyLoanPayment)
+                child: _buildTelemetryPod(
+                  isDark: isDark,
+                  icon: Icons.arrow_upward_rounded,
+                  accentColor: const Color(0xFF00E575),
+                  customBg: const Color(0xFF00E575)
+                      .withValues(alpha: isDark ? 0.10 : 0.08),
+                  customBorder: const Color(0xFF00E575)
+                      .withValues(alpha: isDark ? 0.35 : 0.25),
+                  text: context.tr('side_incomes', {
+                    'amount': CurrencyFormatter.formatShort(dailyPassiveIncome)
                   }),
-                  style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFEF4444)),
                 ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: _buildTelemetryPod(
+                  isDark: isDark,
+                  icon: Icons.badge_rounded,
+                  accentColor: isDark
+                      ? const Color(0xFF94A3B8)
+                      : const Color(0xFF475569),
+                  customBg: isDark
+                      ? const Color(0xFF191D28)
+                      : const Color(0xFFF8FAFC),
+                  customBorder: isDark
+                      ? const Color(0xFF2A3142)
+                      : const Color(0xFFE2E8F0),
+                  text: context.tr('salaries', {
+                    'amount': CurrencyFormatter.formatShort(dailySalaries)
+                  }),
+                ),
+              ),
+              if (dailyLoanPayment > 0) ...[
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _buildTelemetryPod(
+                    isDark: isDark,
+                    icon: Icons.account_balance_outlined,
+                    accentColor: const Color(0xFFEF4444),
+                    customBg: const Color(0xFFEF4444)
+                        .withValues(alpha: isDark ? 0.10 : 0.08),
+                    customBorder: const Color(0xFFEF4444)
+                        .withValues(alpha: isDark ? 0.40 : 0.25),
+                    text: context.tr('loans', {
+                      'amount': CurrencyFormatter.formatShort(dailyLoanPayment)
+                    }),
+                  ),
+                ),
+              ],
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTelemetryPod({
+    required bool isDark,
+    required IconData icon,
+    required Color accentColor,
+    required String text,
+    Color? customBg,
+    Color? customBorder,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      decoration: BoxDecoration(
+        color: customBg ??
+            (isDark ? const Color(0xFF191D28) : const Color(0xFFF8FAFC)),
+        border: Border.all(
+          color: customBorder ??
+              (isDark ? const Color(0xFF2A3142) : const Color(0xFFE2E8F0)),
+          width: 1.5,
+        ),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(8),
+          topRight: Radius.circular(4),
+          bottomRight: Radius.circular(8),
+          bottomLeft: Radius.circular(4),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 11,
+            color: accentColor,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 9.5,
+                fontWeight: FontWeight.w800,
+                color: accentColor,
+                letterSpacing: 0.1,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -1429,22 +1428,25 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
 
   Widget _buildSparklineBars(bool isDark, bool isPositive) {
     final bars = isPositive
-        ? [0.35, 0.5, 0.45, 0.7, 0.65, 0.85, 1.0]
-        : [1.0, 0.8, 0.75, 0.6, 0.5, 0.4, 0.3];
+        ? [0.35, 0.45, 0.55, 0.5, 0.75, 0.7, 0.9, 1.0]
+        : [1.0, 0.85, 0.8, 0.65, 0.55, 0.45, 0.35, 0.25];
+    final activeColor =
+        isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444);
+    final inactiveColor =
+        isDark ? const Color(0xFF2A3142) : const Color(0xFFCBD5E1);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: List.generate(bars.length, (index) {
-        final height = 3.5 + (bars[index] * 9.5);
-        final isLast = index == bars.length - 1;
+        final height = 3.0 + (bars[index] * 10.0);
+        final isHighlighted = index >= bars.length - 3;
         return Container(
           width: 2.5,
           height: height,
           margin: const EdgeInsets.symmetric(horizontal: 0.8),
           decoration: BoxDecoration(
-            color: isLast
-                ? (isPositive ? const Color(0xFF00E575) : const Color(0xFFEF4444))
-                : (isDark ? const Color(0xFF333B4F) : const Color(0xFFCBD5E1)),
+            color: isHighlighted ? activeColor : inactiveColor,
             borderRadius: BorderRadius.circular(1.0),
           ),
         );
@@ -1452,3 +1454,4 @@ class DashboardDailyCashFlowCard extends StatelessWidget {
     );
   }
 }
+

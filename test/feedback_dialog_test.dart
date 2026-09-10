@@ -121,6 +121,8 @@ void main() {
       await tester.enterText(textFields.last, 'Test Mesaj Detayı');
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text('BİLDİRİMİ GÖNDER'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('BİLDİRİMİ GÖNDER'));
       await tester.pump(const Duration(milliseconds: 200));
 

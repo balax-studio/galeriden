@@ -16,6 +16,7 @@ import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/dialogs/language_selector_dialog.dart';
 import '../../widgets/feedback_dialog.dart';
+import '../../widgets/hazard_stripe_widget.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -523,6 +524,119 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // 7. Balax Studio Official Developer Contact Card
+          NeoBrutalCard(
+            padding: EdgeInsets.zero,
+            backgroundColor:
+                isDark ? const Color(0xFF141722) : const Color(0xFF1E2433),
+            borderColor: Colors.black,
+            borderWidth: 2.5,
+            borderRadius: 14,
+            shadowOffset: const Offset(3.5, 3.5),
+            shadowColor: Colors.black,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(11.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Industrial Hazard Stripe Accent Bar
+                  const HazardStripeWidget(
+                    height: 8.0,
+                    stripeWidth: 8.0,
+                    isAnimated: false,
+                    color1: AppColors.brutalYellow,
+                    color2: Color(0xFF0F172A),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(14.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.brutalYellow,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Colors.black, width: 2.0),
+                                    ),
+                                    child: const Icon(
+                                      Icons.alternate_email_rounded,
+                                      size: 16,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      context.tr('settings_dev_contact_title'),
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            NeoBrutalBadge(
+                              text: context.tr('settings_dev_contact_badge'),
+                              backgroundColor: AppColors.toxicLime,
+                              textColor: Colors.black,
+                              borderColor: Colors.black,
+                              borderWidth: 1.8,
+                              fontSize: 9.0,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          context.tr('settings_dev_contact_desc'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF94A3B8),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        NeoBrutalButton(
+                          label: context.tr('settings_dev_contact_btn'),
+                          icon: Icons.send_rounded,
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 11.5,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          onPressed: () async {
+                            try {
+                              final uri = Uri.parse(
+                                  GameConstants.developerInstagramUrl);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(uri,
+                                    mode: LaunchMode.externalApplication);
+                              }
+                            } catch (_) {}
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 14),

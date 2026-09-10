@@ -529,11 +529,14 @@ class NegotiationEngine {
     double weatherMultiplier = 1.0,
     int? currentDay,
   }) {
-    final totalMultiplier = seasonMultiplier *
+    final rawMultiplier = seasonMultiplier *
         districtMultiplier *
         gossipMultiplier *
         branchMultiplier *
         weatherMultiplier;
+    // Dampen runaway compounding and clamp to a realistic market range (0.88x to 1.18x)
+    final totalMultiplier =
+        (1.0 + (rawMultiplier - 1.0) * 0.45).clamp(0.88, 1.18);
     final realVal = car.estimatedRealValue * totalMultiplier;
     final askingPrice = car.isListed ? car.listingPrice : (listingPrice > 0 ? listingPrice : realVal);
     final distRoll = _random.nextDouble();

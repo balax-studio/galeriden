@@ -18,7 +18,7 @@ class GameConstants {
   GameConstants._();
 
   static const String appName = 'Galeriden';
-  static const String appVersion = '1.0.5';
+  static const String appVersion = '1.0.6';
   static const String privacyPolicyUrl =
       'https://docs.google.com/document/d/e/2PACX-1vSIja6S76xfAAy2wwWh12Mi0rEdjiMailne09VQj5gbPnhDTSpFVU5SKmwb2AdeuqO41L3EjjSI0kfd/pub';
 
@@ -29,6 +29,11 @@ class GameConstants {
       'https://apps.apple.com/app/id6802756838?action=write-review';
   static const String appStoreWebUrl =
       'https://apps.apple.com/app/galeriden/id6802756838';
+
+  // Developer & Social Media Channels
+  static const String developerInstagramUrl =
+      'https://www.instagram.com/balaxstudio';
+  static const String developerInstagramHandle = '@balaxstudio';
 
   /// Returns the platform-specific store URL for rating & reviews.
   static String get storeReviewUrl {

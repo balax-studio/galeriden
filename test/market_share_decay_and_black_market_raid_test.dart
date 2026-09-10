@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/data/models/game_event_model.dart';
 import 'package:galeriden/data/models/stock_model.dart';
-import 'package:galeriden/domain/usecases/random_event_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -142,78 +141,6 @@ void main() {
       expect(ipoEvent, isNotNull);
       expect(ipoEvent.title, contains('Anadolu Batarya A.Ş. • ANABAT Borsada Tavan Açtı!'));
       expect(notifier.state.activeIpos.first.isListed, isTrue);
-    });
-  });
-
-  group('Kara Borsa Polis Baskını & Dramatik Event Tests', () {
-    late GameNotifier notifier;
-
-    setUp(() {
-      SharedPreferences.setMockInitialValues({});
-      notifier = GameNotifier();
-    });
-
-    test('RandomEventEngine içinde event_black_market_raid eventi eksiksiz mevcuttur', () {
-      final allEvents = RandomEventEngine.allEventTemplates;
-      final raidEvent = allEvents.firstWhere((e) => e.id == 'event_black_market_raid');
-
-      expect(raidEvent, isNotNull);
-      expect(raidEvent.title, contains('GECE PAZARI POLİS BASKINI • MALİYE & KAÇAKÇILIK OPERASYONU'));
-      expect(raidEvent.choices.length, equals(3));
-
-      // Seçenek 1: Hukuk Danışmanı
-      expect(raidEvent.choices[0].label, contains('Hukuk Danışmanını Ara • -25.000 ₺'));
-      expect(raidEvent.choices[0].balanceChange, equals(-25000.0));
-      expect(raidEvent.choices[0].reputationChange, equals(5));
-
-      // Seçenek 2: Cezayı Kabul Et
-      expect(raidEvent.choices[1].label, contains('Cezayı Kabul Et & Aracı Teslim Et • -60.000 ₺'));
-      expect(raidEvent.choices[1].balanceChange, equals(-60000.0));
-      expect(raidEvent.choices[1].reputationChange, equals(-20));
-
-      // Seçenek 3: Kaçırmaya Çalış
-      expect(raidEvent.choices[2].label, contains('Gece Yarısı Aracı Kaçırmaya Çalış • Riskli'));
-      expect(raidEvent.choices[2].balanceChange, equals(-150000.0));
-      expect(raidEvent.choices[2].reputationChange, equals(-35));
-    });
-
-    test('event_black_market_raid metinlerinde sıfır emoji ve sıfır parantez kuralına tam uyulmuştur', () {
-      final allEvents = RandomEventEngine.allEventTemplates;
-      final raidEvent = allEvents.firstWhere((e) => e.id == 'event_black_market_raid');
-
-      // Zero Unicode Emoji check
-      final emojiRegex = RegExp(r'[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]', unicode: true);
-      expect(emojiRegex.hasMatch(raidEvent.title), isFalse);
-      expect(emojiRegex.hasMatch(raidEvent.description), isFalse);
-
-      for (final choice in raidEvent.choices) {
-        expect(emojiRegex.hasMatch(choice.label), isFalse);
-        expect(emojiRegex.hasMatch(choice.resultText), isFalse);
-
-        // Zero Parentheses check
-        expect(choice.label.contains('(') || choice.label.contains(')'), isFalse);
-        expect(choice.resultText.contains('(') || choice.resultText.contains(')'), isFalse);
-      }
-    });
-
-    test('resolveRandomEvent çağrıldığında bakiye, itibar ve xp doğru mutasyona uğrar', () {
-      notifier.state = notifier.state.copyWith(
-        balance: 200000.0,
-        reputationScore: 50,
-      );
-
-      final choice = GameEventChoice(
-        label: 'Hukuk Danışmanını Ara • -25.000 ₺',
-        resultText: 'Avukat tedbiri durdurdu.',
-        balanceChange: -25000.0,
-        reputationChange: 5,
-        xpGain: 120,
-      );
-
-      notifier.resolveRandomEvent(choice);
-
-      expect(notifier.state.balance, equals(175000.0));
-      expect(notifier.state.reputationScore, equals(55));
     });
   });
 }

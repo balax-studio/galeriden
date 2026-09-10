@@ -30,7 +30,6 @@ import '../../../data/models/real_estate_offer_model.dart';
 import '../../../data/models/tenant_model.dart';
 import '../../../domain/usecases/mission_factory.dart';
 import '../../../domain/usecases/dramatic_card_engine.dart';
-import '../../../domain/usecases/random_event_engine.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/trade_in_engine.dart';
 import '../../../domain/usecases/gossip_engine.dart';
@@ -204,11 +203,6 @@ mixin GameTimeMixin on GameBaseNotifier {
         state.nextStoryAdTargetDays, state.pendingStoryCard);
     final dramatic = _processDramaticDecision(nextDay, state.daysSinceLastDramaticCard,
         state.nextDramaticCardTargetDays, state.pendingDramaticCard);
-    final randomEvent = _processRandomEvents(
-        state.daysSinceLastRandomEvent,
-        state.nextRandomEventTargetDays,
-        state.pendingRandomEvent,
-        List.from(state.seenRandomEventIds));
 
     currentCars = _processListingsAmortization(currentCars);
 
@@ -376,10 +370,6 @@ mixin GameTimeMixin on GameBaseNotifier {
       daysSinceLastDramaticCard: dramatic.$1,
       nextDramaticCardTargetDays: dramatic.$2,
       pendingDramaticCard: dramatic.$3,
-      daysSinceLastRandomEvent: randomEvent.$1,
-      nextRandomEventTargetDays: randomEvent.$2,
-      pendingRandomEvent: randomEvent.$3,
-      seenRandomEventIds: randomEvent.$4,
       bankDepositBalance: updatedBankDeposit,
       activeMissions: updatedMissions,
       activeContracts: updatedContracts,
@@ -1639,21 +1629,6 @@ mixin GameTimeMixin on GameBaseNotifier {
     return (updatedDays, targetDays, pendingCard);
   }
 
-  (int, int, GameEventModel?, List<String>) _processRandomEvents(int daysSince,
-      int targetDays, GameEventModel? pendingCard, List<String> seenIds) {
-    int updatedDays = daysSince + 1;
-    if (updatedDays >= targetDays && pendingCard == null) {
-      pendingCard = RandomEventEngine.getFilteredRandomEvent(state);
-      if (pendingCard != null) {
-        seenIds.add(pendingCard.id);
-        if (seenIds.length > 12) seenIds.removeAt(0);
-        updatedDays = 0;
-        targetDays = 5 + random.nextInt(6);
-      }
-    }
-    return (updatedDays, targetDays, pendingCard, seenIds);
-  }
-
   List<CarModel> _processListingsAmortization(List<CarModel> cars) {
     return cars.map((c) {
       if (!c.isListed) return c;
@@ -1905,162 +1880,6 @@ mixin GameTimeMixin on GameBaseNotifier {
       saveState();
     }
     return delistedCount;
-  }
-
-  /// Resolves the contextual random event choice outcome and mutates state
-  /// Resolves the contextual random event choice outcome and mutates state
-  void resolveRandomEvent(GameEventChoice choice) {
-    // Insufficient funds guard: Player cannot select choices they cannot afford (A6)
-    if (choice.balanceChange < 0 && state.balance < choice.balanceChange.abs()) {
-      return;
-    }
-
-    final newBalance = state.balance + choice.balanceChange;
-    final newReputation =
-        (state.reputationScore + choice.reputationChange).clamp(0, 1000);
-
-    List<CarModel> updatedCars = List.from(state.ownedCars);
-    List<SideBusinessModel> updatedSideBusinesses =
-        List.from(state.sideBusinesses);
-    List<StaffModel> updatedStaff = List.from(state.hiredStaff);
-
-    // Mechanical consequences on owned cars (C3)
-    if (choice.targetCarEffect != null && updatedCars.isNotEmpty) {
-      switch (choice.targetCarEffect) {
-        case 'impound':
-          final bmIndex = updatedCars.indexWhere((c) => c.isBlackMarket);
-          final targetIndex = bmIndex != -1 ? bmIndex : 0;
-          updatedCars.removeAt(targetIndex);
-          break;
-        case 'dirty':
-          updatedCars = updatedCars
-              .map((c) => c.copyWith(
-                    isWashed: false,
-                    isDetailedCleaned: false,
-                    isPolished: false,
-                  ))
-              .toList();
-          break;
-        case 'wash_all':
-          updatedCars = updatedCars
-              .map((c) => c.copyWith(
-                    isWashed: true,
-                    isDetailedCleaned: true,
-                  ))
-              .toList();
-          break;
-        case 'damage':
-          final car = updatedCars.first;
-          final updatedBodyParts =
-              Map<String, PartStatus>.from(car.expertise.bodyParts);
-          final updatedPartConditions =
-              Map<String, double>.from(car.expertise.partConditions);
-
-          final partToDamage = updatedBodyParts.keys.firstWhere(
-            (k) => updatedBodyParts[k] == PartStatus.original,
-            orElse: () => updatedBodyParts.keys.isNotEmpty
-                ? updatedBodyParts.keys.first
-                : 'Kaput',
-          );
-          updatedBodyParts[partToDamage] = PartStatus.damaged;
-          updatedPartConditions[partToDamage] = 20.0;
-
-          final newExpertise = car.expertise.copyWith(
-            bodyParts: updatedBodyParts,
-            partConditions: updatedPartConditions,
-            tramerAmount: car.expertise.tramerAmount + 15000,
-          );
-          updatedCars[0] = car.copyWith(expertise: newExpertise);
-          break;
-        case 'repaint':
-          final car = updatedCars.first;
-          final updatedBodyParts =
-              Map<String, PartStatus>.from(car.expertise.bodyParts);
-          final updatedPartConditions =
-              Map<String, double>.from(car.expertise.partConditions);
-
-          final partToPaint = updatedBodyParts.keys.firstWhere(
-            (k) =>
-                updatedBodyParts[k] == PartStatus.damaged ||
-                updatedBodyParts[k] == PartStatus.changed,
-            orElse: () => updatedBodyParts.keys.isNotEmpty
-                ? updatedBodyParts.keys.first
-                : 'Kaput',
-          );
-          updatedBodyParts[partToPaint] = PartStatus.painted;
-          updatedPartConditions[partToPaint] = 85.0;
-
-          final newExpertise = car.expertise.copyWith(
-            bodyParts: updatedBodyParts,
-            partConditions: updatedPartConditions,
-            tramerAmount: car.expertise.tramerAmount + 4000,
-          );
-          updatedCars[0] = car.copyWith(expertise: newExpertise);
-          break;
-      }
-    }
-
-    // Mechanical consequences on side businesses (C3)
-    if (choice.sideBusinessId != null && updatedSideBusinesses.isNotEmpty) {
-      final sbIndex = updatedSideBusinesses.indexWhere((b) =>
-          b.id == choice.sideBusinessId ||
-          b.type.name == choice.sideBusinessId ||
-          (choice.sideBusinessId == 'car_wash' &&
-              b.type == SideBusinessType.carWash));
-      if (sbIndex != -1) {
-        final targetBiz = updatedSideBusinesses[sbIndex];
-        if (choice.sideBusinessDowntimeDays != null) {
-          if (choice.sideBusinessDowntimeDays! > 0) {
-            updatedSideBusinesses[sbIndex] = targetBiz.copyWith(
-              isUnderConstruction: true,
-              constructionDaysRemaining: choice.sideBusinessDowntimeDays!,
-              totalConstructionDays: choice.sideBusinessDowntimeDays!,
-            );
-          } else {
-            updatedSideBusinesses[sbIndex] = targetBiz.copyWith(
-              isUnderConstruction: false,
-              constructionDaysRemaining: 0,
-            );
-          }
-        }
-      }
-    }
-
-    // Mechanical consequences on staff morale (C3)
-    if (choice.staffMoraleChange != null &&
-        choice.staffMoraleChange != 0 &&
-        updatedStaff.isNotEmpty) {
-      updatedStaff = updatedStaff.map((s) {
-        final newMorale = (s.morale + choice.staffMoraleChange!).clamp(0, 100);
-        return s.copyWith(morale: newMorale);
-      }).toList();
-    }
-
-    final currentEventId = state.pendingRandomEvent?.id ?? 'random_event';
-    AnalyticsService.instance.logRandomEventChoice(
-      eventId: currentEventId,
-      choiceId: choice.label,
-      balanceChange: choice.balanceChange.toInt(),
-      reputationChange: choice.reputationChange,
-    );
-
-    state = state.copyWith(
-      balance: newBalance,
-      reputationScore: newReputation,
-      ownedCars: updatedCars,
-      sideBusinesses: updatedSideBusinesses,
-      hiredStaff: updatedStaff,
-      clearPendingRandomEvent: true,
-    );
-    if (choice.xpGain > 0) {
-      addXP(choice.xpGain);
-    }
-    saveState();
-  }
-
-  /// Dismisses a pending random event without making a choice
-  void dismissPendingRandomEvent() {
-    state = state.copyWith(clearPendingRandomEvent: true);
   }
 
   /// Selects the next available narrative card from the pool, preventing repeats until cycle completes

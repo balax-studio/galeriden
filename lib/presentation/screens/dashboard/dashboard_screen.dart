@@ -17,7 +17,6 @@ import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_story_ad_dialog.dart';
-import '../../widgets/neo_brutal_random_event_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
@@ -74,21 +73,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     // pendingDramaticCard is displayed directly on the dashboard via DashboardDramaticCardBanner.
     // The user opens it manually by tapping the banner, preventing intrusive popups on launch or after onboarding.
 
-    if (game.pendingRandomEvent != null) {
-      _isModalShowing = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) {
-          _isModalShowing = false;
-          return;
-        }
-        await NeoBrutalRandomEventDialog.show(context, game.pendingRandomEvent!);
-        _isModalShowing = false;
-        if (mounted) {
-          _checkAndShowPendingDialogs(ref.read(gameProvider));
-        }
-      });
-      return;
-    }
 
     if (game.activeCrmEvent != null) {
       _isModalShowing = true;
@@ -519,14 +503,7 @@ class _DashboardHomeTab extends ConsumerWidget {
         palette: p,
       );
     }
-    // 3. Pending Random Event
-    if (game.pendingRandomEvent != null) {
-      return DashboardRandomEventBanner(
-        event: game.pendingRandomEvent!,
-        palette: p,
-      );
-    }
-    // 4. First Day Quest Guide (if fresh player with 0 sales)
+    // 3. First Day Quest Guide (if fresh player with 0 sales)
     if (game.carsSold == 0) {
       return DashboardFirstDayQuestBanner(
         game: game,

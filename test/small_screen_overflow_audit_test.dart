@@ -5,15 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/localization/language_model.dart';
 import 'package:galeriden/core/theme/app_theme_extension.dart';
 import 'package:galeriden/data/models/theme_palette_model.dart';
+import 'package:galeriden/data/models/dealership_model.dart';
 import 'package:galeriden/data/models/story_card_model.dart';
-import 'package:galeriden/data/models/game_event_model.dart';
 import 'package:galeriden/data/models/car_model.dart';
 import 'package:galeriden/data/models/expertise_model.dart';
 import 'package:galeriden/data/models/vehicle_category.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/widgets/whats_new_dialog.dart';
+import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_story_ad_dialog.dart';
-import 'package:galeriden/presentation/widgets/neo_brutal_random_event_dialog.dart';
+import 'package:galeriden/presentation/widgets/neo_brutal_dramatic_dialog.dart';
 import 'package:galeriden/presentation/widgets/ads/neo_brutal_fallback_ad_dialog.dart';
 import 'package:galeriden/presentation/widgets/tactile_operation_overlay.dart';
 import 'package:galeriden/presentation/screens/showroom/widgets/showroom_car_card.dart';
@@ -124,7 +125,7 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('3. NeoBrutalRandomEventDialog on 320px screen in German locale', (tester) async {
+    testWidgets('3. NeoBrutalDramaticDialog on 320px screen in German locale', (tester) async {
       tester.view.physicalSize = const Size(320, 568);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -133,33 +134,11 @@ void main() {
       final container = ProviderContainer();
       container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
 
-      final sampleEvent = GameEventModel(
-        id: 'event_test_1',
-        title: 'Vergi Denetimi ve Noter Teftişi',
-        description: 'Maliye müfettişleri galeri kayıtlarını incelemeye geldi. Eksik faturalar var.',
-        type: GameEventType.badEvent,
-        iconEmoji: 'document',
-        amount: 25000,
-        date: DateTime.now(),
-        choices: const [
-          GameEventChoice(
-            label: 'Cezayı Öde ve Muhasebeyi Düzelt',
-            resultText: 'Müfettişler ikna oldu fakat ceza kesildi.',
-            balanceChange: -25000,
-            reputationChange: 2,
-          ),
-          GameEventChoice(
-            label: 'İtiraz Et ve Mahkemeye Git',
-            resultText: 'Dava süreci başladı, prestij kaybettin.',
-            balanceChange: -5000,
-            reputationChange: -4,
-          ),
-        ],
-      );
+      final sampleCard = DramaticCardEngine.generateDailyDilemma(1, DealershipModel.initial());
 
       await tester.pumpWidget(
         _buildSmallScreenTestApp(
-          NeoBrutalRandomEventDialog(event: sampleEvent),
+          NeoBrutalDramaticDialog(card: sampleCard),
           container: container,
           locale: const Locale('de'),
           screenSize: const Size(320, 568),
