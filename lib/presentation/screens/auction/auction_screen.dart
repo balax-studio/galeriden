@@ -226,8 +226,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
 
   void _resetAuctionSilently() {
     if (!mounted) return;
-    final game = ref.read(gameProvider);
     final notifier = ref.read(auctionSessionProvider.notifier);
+
+    // If the auction window is no longer active, close the window and start countdown
+    if (!AuctionEngine.isAuctionActiveNow()) {
+      notifier.closeWindow();
+      return;
+    }
+
+    final game = ref.read(gameProvider);
     notifier.resetRound(playerLevel: game.level);
     notifier.addBidLog(context.tr('auction_starting_price_log', {
       'price': CurrencyFormatter.formatShort(ref.read(auctionSessionProvider).auction.startingPrice),

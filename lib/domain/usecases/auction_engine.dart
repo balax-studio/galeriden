@@ -119,8 +119,8 @@ class AuctionEngine {
     // If waiting for next scheduled session
     if (_nextSessionTime != null) {
       if (now.isAfter(_nextSessionTime!)) {
-        // Scheduled time reached! Open session for randomized duration (90 to 180 seconds)
-        final sessionDuration = 90 + _random.nextInt(90);
+        // Scheduled time reached! Open session for randomized duration (60 to 90 seconds, ~2 lots)
+        final sessionDuration = 60 + _random.nextInt(31);
         _currentSessionEndTime = now.add(Duration(seconds: sessionDuration));
         _nextSessionTime = null;
         return true;
@@ -157,8 +157,8 @@ class AuctionEngine {
     return diff > 0 ? diff : 0;
   }
 
-  /// Schedules next random session interval (random between 45 and 180 seconds)
-  static DateTime scheduleNextRandomSession({int minSeconds = 45, int maxSeconds = 180}) {
+  /// Schedules next random session interval (random between 60 and 120 seconds)
+  static DateTime scheduleNextRandomSession({int minSeconds = 60, int maxSeconds = 120}) {
     final randomSeconds = minSeconds + _random.nextInt(maxSeconds - minSeconds + 1);
     final targetTime = DateTime.now().add(Duration(seconds: randomSeconds));
     _nextSessionTime = targetTime;
@@ -166,8 +166,8 @@ class AuctionEngine {
     return targetTime;
   }
 
-  /// Force start an active auction session
-  static void openSessionImmediately({int durationSeconds = 120}) {
+  /// Force start an active auction session (e.g. via rewarded ad or VIP protocol)
+  static void openSessionImmediately({int durationSeconds = 90}) {
     _currentSessionEndTime = DateTime.now().add(Duration(seconds: durationSeconds));
     _nextSessionTime = null;
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/domain/usecases/auction_engine.dart';
 import 'package:galeriden/data/models/auction_model.dart';
+import 'package:galeriden/core/services/ad_reward_calculator.dart';
 import 'package:galeriden/presentation/providers/auction_session_provider.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/core/localization/translations/tr_translations.dart';
@@ -81,6 +82,73 @@ void main() {
       expect(state.isVipSession, isTrue);
       expect(state.closedCountdown, equals(0));
       expect(state.auction.status, equals(AuctionStatus.active));
+    });
+
+    test('2b. closeWindow transitions state to closed window with active countdown', () {
+      final container = ProviderContainer();
+      addTearDown(() {
+        container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+        container.read(auctionSessionProvider.notifier).stopTimer();
+        container.dispose();
+      });
+
+      container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();
+      final auctionNotifier = container.read(auctionSessionProvider.notifier);
+
+      auctionNotifier.bypassClosedCooldownWithAd();
+      expect(container.read(auctionSessionProvider).isWindowOpen, isTrue);
+
+      auctionNotifier.closeWindow();
+
+      final closedState = container.read(auctionSessionProvider);
+      expect(closedState.isWindowOpen, isFalse);
+      expect(closedState.closedCountdown, greaterThan(0));
+      expect(closedState.isVipSession, isFalse);
+      expect(closedState.hasPlayerEnteredBid, isFalse);
+    });
+  });
+
+  group('Economy Balance & Ad Reward Safety Tests (3M Wealth Safe Caps)', () {
+    test('Economy Test 1: 3M TL wealth yields safe ~40-50k standard reward, never 3.2M', () {
+      // Test player with 3M wealth at level 5
+      final outcome = AdRewardCalculator.calculateDynamicReward(
+        playerLevel: 5,
+        totalGarageValue: 1500000.0,
+        playerBalance: 1500000.0,
+      );
+
+      // Must be reasonable (around 35k to 120k on jackpot), NEVER 3.2M
+      expect(outcome.moneyAmount, greaterThanOrEqualTo(25000.0));
+      expect(outcome.moneyAmount, lessThanOrEqualTo(140000.0));
+      expect(outcome.moneyAmount, lessThan(500000.0)); // Strictly less than 500k
+    });
+
+    test('Economy Test 2: 100M TL late-game tycoon is strictly capped at max 350.000 TL', () {
+      // Test player with 100M wealth at max level 15
+      for (int i = 0; i < 50; i++) {
+        final outcome = AdRewardCalculator.calculateDynamicReward(
+          playerLevel: 15,
+          totalGarageValue: 50000000.0,
+          playerBalance: 50000000.0,
+        );
+
+        // Absolute global ceiling must never exceed 350.000 TL
+        expect(outcome.moneyAmount, lessThanOrEqualTo(350000.0));
+      }
+    });
+
+    test('Economy Test 3: Emergency and branch grants are strictly bounded', () {
+      final emergency = AdRewardCalculator.calculateEmergencyGrant(
+        playerLevel: 5,
+        playerBalance: 3000000.0,
+      );
+      expect(emergency, lessThanOrEqualTo(220000.0));
+
+      final branch = AdRewardCalculator.calculateBranchGrant(
+        playerLevel: 5,
+        playerBalance: 3000000.0,
+      );
+      expect(branch, lessThanOrEqualTo(180000.0));
     });
   });
 

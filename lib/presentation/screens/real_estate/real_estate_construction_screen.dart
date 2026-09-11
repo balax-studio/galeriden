@@ -21,6 +21,8 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
+import '../../widgets/procedural_shader_textures.dart';
+import '../../widgets/real_estate_artistic_canvas.dart';
 
 class RealEstateConstructionScreen extends ConsumerStatefulWidget {
   final String landId;
@@ -556,36 +558,45 @@ class _RealEstateConstructionScreenState
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.architecture_rounded,
-                          color: Color(0xFF2563EB), size: 22),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.tr('real_estate_kaks_capacity_header'),
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w900,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.architecture_rounded,
+                            color: Color(0xFF2563EB), size: 22),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            context.tr('real_estate_kaks_capacity_header'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  NeoBrutalBadge(
-                    text: isExceeded
-                        ? 'EMSAL AŞILDI'
-                        : (isProjectApproved
-                            ? context.tr('real_estate_kaks_btn_approved')
-                            : '%${(usageRatio * 100).toStringAsFixed(0)} DOLU'),
-                    backgroundColor: isExceeded
-                        ? const Color(0xFFFEE2E2)
-                        : (isProjectApproved
-                            ? const Color(0xFFD1FAE5)
-                            : const Color(0xFFDBEAFE)),
-                    textColor: isExceeded
-                        ? const Color(0xFFDC2626)
-                        : (isProjectApproved
-                            ? const Color(0xFF065F46)
-                            : const Color(0xFF1D4ED8)),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: NeoBrutalBadge(
+                      text: isExceeded
+                          ? 'EMSAL AŞILDI'
+                          : (isProjectApproved
+                              ? context.tr('real_estate_kaks_btn_approved')
+                              : '%${(usageRatio * 100).toStringAsFixed(0)} DOLU'),
+                      backgroundColor: isExceeded
+                          ? const Color(0xFFFEE2E2)
+                          : (isProjectApproved
+                              ? const Color(0xFFD1FAE5)
+                              : const Color(0xFFDBEAFE)),
+                      textColor: isExceeded
+                          ? const Color(0xFFDC2626)
+                          : (isProjectApproved
+                              ? const Color(0xFF065F46)
+                              : const Color(0xFF1D4ED8)),
+                    ),
                   ),
                 ],
               ),
@@ -607,6 +618,30 @@ class _RealEstateConstructionScreenState
                   ),
                 ),
               ),
+              if (isProjectApproved) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Flexible(
+                      child: NeoBrutalBadge(
+                        text: context.tr('real_estate_stamp_zoning_approved'),
+                        backgroundColor: const Color(0xFFDCFCE7),
+                        textColor: const Color(0xFF15803D),
+                        fontSize: 8.5,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: NeoBrutalBadge(
+                        text: context.tr('real_estate_stamp_soil_test'),
+                        backgroundColor: const Color(0xFFE0E7FF),
+                        textColor: const Color(0xFF4338CA),
+                        fontSize: 8.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 12),
 
               // Stats Row
@@ -2574,33 +2609,48 @@ class _RealEstateConstructionScreenState
           isDark ? const Color(0xFF1E293B) : const Color(0xFFFFFBEB),
       borderColor: const Color(0xFFF59E0B),
       padding: const EdgeInsets.all(14),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.crtScanlines,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.radio_rounded,
-                      color: Color(0xFFD97706), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    context.tr('real_estate_radio_dispatch_title'),
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFFB45309),
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    const Icon(Icons.radio_rounded,
+                        color: Color(0xFFD97706), size: 18),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        context.tr('real_estate_radio_dispatch_title'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFFB45309),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              NeoBrutalBadge(
-                text: land.isConstructionWorking
-                    ? context.tr('real_estate_radio_badge_channel')
-                    : context.tr('real_estate_radio_badge_standby'),
-                backgroundColor: const Color(0xFFFEF3C7),
-                textColor: const Color(0xFF92400E),
+              const SizedBox(width: 6),
+              Flexible(
+                flex: 2,
+                child: NeoBrutalBadge(
+                  text: land.isConstructionWorking
+                      ? context.tr('real_estate_radio_badge_channel')
+                      : context.tr('real_estate_radio_badge_standby'),
+                  backgroundColor: const Color(0xFFFEF3C7),
+                  textColor: const Color(0xFF92400E),
+                  fontSize: 9.0,
+                ),
               ),
             ],
           ),
@@ -2637,6 +2687,63 @@ class _RealEstateConstructionScreenState
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: 6),
+          SiteRadioWaveformWidget(
+            height: 18,
+            isDark: isDark,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF10B981),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        context.tr('real_estate_radio_frequency_badge'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9.0,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFFB45309),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                context.tr('real_estate_laser_level_label'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 9.0,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: 'monospace',
+                  letterSpacing: 0.4,
+                  color: isDark
+                      ? const Color(0xFF64748B)
+                      : const Color(0xFF92400E),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -22,6 +22,103 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `İnşaat 8. Aşama (İskan Ruhsatı & Kat Mülkiyeti) İlerleme, 0-Gün Sayacı ve Daire Tapusu Doğrulama Onarımı (§SPEC-2026-CONSTRUCTION-STAGE8-HANDOVER)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - 8. aşamada olan ve kalan günü sıfırdan büyük olan mevcut kayıtlı oyunların doğru aşama kartına ("8. İskan Ruhsatı & Kat Mülkiyeti", kalan gün sayacı ve hızlandırma butonu) kavuşması, gün bittiğinde "ETABI TESLİM AL" adımıyla 9. aşamaya geçerek dairelerini teslim alabilmesi ve kalan günü 0 olan oyuncuların doğrudan daire tapularını alabilmesi mekanizmasının doğrulanması ve tamir edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/real_estate_model.dart`:
+    - `isConstructionComplete` getter'ı revize edildi: `selfBuild` modunda Aşama 7 bitip Aşama 8'e geçildiğinde taşeron henüz atanmamışken (`activeSubcontractorName == null`) inşaatın erkenden tamamlandı sayılması hatası giderildi. Artık `selfBuild` için tamamlanma koşulu `constructionStage >= 9` veya `provenanceLog` içinde 8. aşama teslim kaydının bulunması olarak kesinleştirildi.
+    - Böylece 8. aşamada kalan günü olan oyuncuların kartı ve hızlandırma butonu korunurken, günü bitenler "ETABI TESLİM AL" adımıyla 9. aşamaya geçerek doğrudan anahtar teslime ulaşabilir hale getirildi.
+    - Kalan günü 0 olan müteahhit veya tamamlanmış projeler için `isConstructionComplete` anında `true` dönerek doğrudan kat mülkiyeti daire tapularının alınabilmesi (`finalizeConstruction`) garanti altına alındı.
+  - `test/construction_completion_and_peyzaj_fix_test.dart`:
+    - Test 7 ve Test 8 eklendi:
+      * Test 7: 8. aşamada 5 günü kalan kayıtlı oyunun aktif çalışma kartını, hızlandırma butonunu ve gün bitiminde "ETABI TESLİM AL" ile 9. aşamaya geçerek daireleri teslim alabildiğini doğrular.
+      * Test 8: 8. aşamada kalan günü 0 olan kayıtlı oyunların doğrudan kat mülkiyeti tapularını alabildiğini doğrular.
+    - 8 testin 8'i de başarıyla geçti (`8/8 PASSED`).
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/construction_completion_and_peyzaj_fix_test.dart` (8/8 geçti).
+  - `flutter analyze lib/` (0 hata, 0 uyarı, No issues found).
+
+### `Ekonomi Dengesi AdReward Tavanı & Canlı İhale Döngüsel Kapanma/Reklamla Giriş Protokolü Onarımı (§SPEC-2026-ECONOMY-AD-REWARD-AND-AUCTION-CYCLE)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Ayarlar ekranında ve diğer hibe alanlarında 3M TL ve üzeri servete sahip oyunculara 3.2M TL gibi oyunun araç alım-satım dengesini ve ilerleme hissini bozan aşırı ödüllerin verilmesinin engellenmesi; tüm ödül hesaplayıcının kademeli servet oranları ve katı tavanlarla (3M servette ~40-50K TL standart, max 120-140K TL jackpot; en zengin endgame oyuncusunda dahi mutlak tavan 350K TL) ekonomiyi koruyacak şekilde kalibre edilmesi.
+  - Canlı Gümrük Müzayedesinin (`/auction`) sürekli açık kalması ve hiç kapanmaması hatasının kök nedeninin çözülmesi; müzayedenin her seans sonrasında (yaklaşık 2 araçlık canlı ihaleden sonra) otomatik kapanması (`closeWindow`), geri sayım sayacının başlaması, "Müzayede Salonu Kapalı" ekranında Gümrük Tasfiye İdaresi Özel Protokolü ile ödüllü reklam izlenerek bekleme süresinin anında atlanabilmesi ve doğrudan yeni ihaleye girilebilmesi sisteminin tam çalışır hale getirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/ad_reward_calculator.dart`:
+    - Servet ölçekli ödül oranı (`wealthRate`) 3M için %1.0 seviyesine, 25M+ için %0.25 seviyesine çekildi.
+    - Seviye bazlı tavanlar (`maxBaseCap`) ve ikramiye tavanları (`maxJackpotCap`) sıkılaştırılarak 3M servette standart ödül 40.000 - 50.000 TL, jackpot ödülü 120.000 - 140.000 TL aralığına sınırlandı.
+    - Oyun içi hiçbir reklam ödülünün veya ikramiyenin 350.000 TL mutlak tavanını aşamaması sağlandı; şube, VIP filo ve borsa içeriden bilgi hibeleri de güvenli sınırlarla korundu.
+  - `lib/presentation/screens/settings/settings_screen.dart`:
+    - Önceden hesaplanıp state içinde önbelleğe alınmış olabilecek >350K TL eski ödül nesnelerinin geçersiz kılınması (`_cachedRewardOutcome!.moneyAmount > 350000.0`) ve anında güvenli miktara güncellenmesi sağlandı.
+  - `lib/domain/usecases/auction_engine.dart`:
+    - İhale seans süresi 60-90 saniyeye (~2 araçlık canlı çekişme), seanslar arası bekleme aralığı 60-120 saniyeye ayarlandı.
+    - Reklam izleme veya VIP protokol ile anında açılışta `openSessionImmediately` 90 saniyelik taze seans tahsis edecek şekilde optimize edildi.
+  - `lib/presentation/providers/auction_session_provider.dart`:
+    - `closeWindow()` metodu eklendi: İhale süresi dolduğunda veya tur tamamlandığında pencereyi kapatıp geri sayımı (60-120s) aktif hale getiren ve timer'ı geri sayım modunda çalıştıran mekanizma kuruldu.
+    - `_tick()` döngüsü revize edildi: Pencere kapalıyken saniye saniye geri sayım yapılması, sıfıra ulaştığında otomatik yeni seans açması, pencere açıkken seans süresi bittiğinde lot tamamlanmasını takiben pencereyi güvenle kapatması sağlandı.
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - `_resetAuctionSilently` metoduna `AuctionEngine.isAuctionActiveNow()` kontrolü eklendi; seans süresi bitmişse yeni araç açmak yerine `notifier.closeWindow()` tetiklenerek oyuncuya "Müzayede Salonu Kapalı" ekranı, geri sayım sayacı ve "Özel Kontenjan Protokolü Edin" reklam izleme butonu sunuldu.
+  - `test/auction_and_vasita_navigation_test.dart`:
+    - `closeWindow` geçiş testi, 3M TL servette ödülün 25K-140K aralığında kaldığı ve asla 3.2M üretmediği testi, 100M TL servette mutlak 350K tavan testi eklendi (8/8 geçti).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `ad_reward_calculator.dart` dosyasında önceki formülasyonda late-game zenginlik oranı `totalWealth * 0.0275` ve 4x çarpanı kullanıldığında 30M+ garaj değerine sahip oyuncularda 3.2M TL gibi aşırı yüksek ödül çıkabiliyordu.
+  - `auction_session_provider.dart` ve `auction_screen.dart` dosyalarında her araç ihalesi bittiğinde `_resetAuctionSilently` koşulsuz olarak `resetRound()` çağırarak yeni bir araç başlatıyordu; bu durum seans süresi bitse bile müzayede salonunun hiç kapanmamasına ve reklamla bekleme süresini atlama kartının oyuncunun karşısına çıkamamasına yol açıyordu.
+- **Kök Neden**:
+  - Reklam ödülünde üst limit bulunmaması ve çarpanın 4x olması.
+  - Müzayede tur bitişinde seans penceresinin aktifliğinin sorgulanmaması ve `closeWindow` çağrısının eksikliği.
+- **Uygulanan Çözüm**:
+  - Ödül formülü sıkı matematiksel tavanlara (3M için ~40-50K, genel tavan 350K) bağlandı.
+  - Tur bitişlerinde `AuctionEngine.isAuctionActiveNow()` kontrolü entegre edilerek seans bitiminde salonun kapanması ve reklamla anında açılabilmesi sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/auction_and_vasita_navigation_test.dart` (8/8 geçti).
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart` (19/19 geçti).
+  - `flutter analyze lib/` (0 hata, 0 uyarı, No issues found).
+
+### `4 Ekran Düzen Taşma Çözümleri, Buton Metin Bütünlüğü, Sıfır-Taşma Güvencesi & 7 Dilli Yerelleştirme (§SPEC-2026-PART3-LAYOUT-OVERFLOW-RESILIENCE)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Kullanıcı tarafından iletilen 4 ekrandaki (Dashboard Showroom & Galeri kartı, Oto Yıkama Paket 4 bonus rozeti ve "UYGULANDI" buton metin kesilmesi, Gayrimenkul Şantiye Telsizi başlık rozeti ve Gece Mezatı Eşleşme kartı başlığı) `RenderFlex overflow` taşma hatalarının kalıcı olarak çözülmesi.
+  - Neo-brutalist taktil tasarım standartlarına ve 7 dilli yerelleştirme kurallarına tam uyum sağlanması.
+  - İlgili kartlara prosedürel CRT scanlines telemetri dokularının giydirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `service_showroom` ("Showroom & Galeri") başlık satırındaki unconstrained metin `Flexible` ile sarıldı, `branchName`'e `maxLines: 1, overflow: TextOverflow.ellipsis` uygulandı, `SizedBox(width: 6)` eklendi; 3.0 piksellik taşma tamamen giderildi.
+  - `lib/presentation/screens/car_wash/car_wash_screen.dart`:
+    - Paket 4 bonus rozetindeki (`+12 Süper Değer Artışı & 2x Hızlı Satış`) 5.7 piksellik taşma giderildi; rozet `Flexible` ile sarıldı, `fontSize: 9.0`, yatay iç boşluk `5.0` yapıldı.
+    - Uygulandı butonundaki metin kesilmesi ("UYGULAN...") giderildi; buton genişlik kısıtı `minWidth: 86.0, maxWidth: 110.0`, buton yazı boyutu `11.0` ve iç boşluk `symmetric(horizontal: 6, vertical: 8)` yapılarak tam metin "UYGULANDI" temiz ve taktil biçimde sığdırıldı.
+    - Paket kartlarına istasyon diagnostik hissi veren `BlueprintPatternType.crtScanlines` prosedürel dokusu entegre edildi.
+  - `lib/presentation/screens/real_estate/real_estate_construction_screen.dart`:
+    - Şantiye telsiz anons kartı (`_buildSiteRadioDispatchCard`) başlık satırındaki 20 piksellik taşma giderildi.
+    - Sol taraftaki telsiz ikon ve başlık sütunu `Expanded(flex: 3, child: ...)` ile sarıldı, `fontSize: 12.0`, `Icon(size: 18)`.
+    - Sağ taraftaki kanal dinleme rozeti (`NeoBrutalBadge`) `Flexible(flex: 2, child: ...)` ile sarıldı, `fontSize: 9.0`. En dar 320px ekranlarda ve uzun yerelleştirme metinlerinde sıfır taşma güvencesi sağlandı.
+    - Karta şantiye telemetri ve telsiz hissi veren `BlueprintPatternType.crtScanlines` prosedürel dokusu giydirildi.
+    - Karta taktil canlı telsiz ses osiloskobu dalgası (`SiteRadioWaveformWidget`), frekans rozeti (`real_estate_radio_frequency_badge`) ve lazer nivo kot hizalama işareti (`real_estate_laser_level_label`) eklendi.
+    - KAKS kapasite kartı başlığı `Expanded` ile sarmalanarak dar ekranda taşma koruması altına alındı ve onaylı projelerde belediye onaylı ruhsat damgaları (`real_estate_stamp_zoning_approved`, `real_estate_stamp_soil_test`) dinamik olarak eklendi.
+  - `lib/presentation/widgets/real_estate_artistic_canvas.dart`:
+    - Topografik kot/izohips ressamı (`TopographicContourPainter`), telsiz osiloskop akustik dalga ressamı (`RadioWaveformPainter`), `SiteRadioWaveformWidget`, `LaserLevelLineWidget` ve `NeoBrutalStampWidget` bileşenleri oluşturuldu.
+  - `lib/core/localization/translations/*.dart` (7 Dil Eşzamanlı Senkronizasyon):
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin tamamına `real_estate_stamp_zoning_approved`, `real_estate_stamp_soil_test`, `real_estate_laser_level_label`, `real_estate_radio_frequency_badge` anahtarları sıfır emoji ve sıfır parantez kuralına tam uyularak eklendi.
+  - `lib/presentation/screens/night_market/night_market_screen.dart`:
+    - Gece Mezatı ve Drag Arenası eşleşme kartı başlığındaki (`YARIŞ EŞLEŞMESİ & ORANLAR` + `3/3 Hak` + rakip rozeti) 13 piksellik taşma giderildi.
+    - Başlık satırı `Expanded(flex: 3, child: ...)` içine alındı; sağdaki iki rozet `Flexible(flex: 2, child: Row(...))` içine alınarak ikinci rozet `Flexible` yapıldı.
+    - Sabit kodlanmış `'Rakip Değiş'` butonu, 7 dilli yerelleştirme kuralına uygun olarak `context.tr('night_market_change_rival')` ile bağlandı.
+    - Eşleşme kartına yeraltı sokak yarışı telemetri dokusu veren `BlueprintPatternType.crtScanlines` prosedürel deseni uygulandı.
+  - `test/layout_overflow_and_generative_shaders_test.dart`:
+    - Test 8, Test 9, Test 10 ve Test 11 eklenerek Dashboard Showroom, Car Wash Paket 4, Construction Radio Dispatch ve Night Market Matchup Header senaryoları 320px dar mobil görünümde test edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Test 10'da unconstrained `NeoBrutalBadge`, Ahem yazı tipi altında 234 piksel genişlik kaplayarak sol `Expanded` bloğuna yalnızca 7.6 piksel bırakıyor ve 20 piksel taşmaya yol açıyordu.
+  - Oto yıkama ekranında "UYGULANDI" metni 80px genişlikte `maxLines: 1` ve `ellipsis` sebebiyle "UYGULAN..." olarak kesiliyordu.
+- **Kök Neden**:
+  - Flex konteynerler içindeki her iki alt öğenin de unconstrained olması durumunda, intrinsik boyutu büyük olan öğenin flex alanını tüketmesi ve minimum boyutu olan ikon/metin bileşenlerini sıkıştırması.
+- **Uygulanan Çözüm**:
+  - Karşılıklı `flex: 3` (başlık/ikon) ve `flex: 2` (rozet/aksiyon) oranları kurularak, en dar mobil ekranlarda dahi her iki bileşenin dengeli pay alması ve `NeoBrutalBadge`'in kendi içinde zarifçe `ellipsis` ile sönümlenmesi sağlandı.
+  - Buton kısıtı `minWidth: 86.0, maxWidth: 110.0` aralığına genişletilerek metin kesilmesi önlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/` (No issues found, 0 errors, 0 warnings).
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart` (19/19 test sıfır hata ve sıfır RenderFlex taşmasıyla geçti).
+
 ### `Özel Plaka Tasarımcısı Düzen Taşma Çözümü & Nadirlik Bazlı Generatif Shader Dokuları (§SPEC-2026-PLATE-DESIGNER-OVERFLOW-AND-SHADERS)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:

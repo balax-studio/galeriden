@@ -723,13 +723,17 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          context.tr('service_showroom'),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.3,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        Flexible(
+                          child: Text(
+                            context.tr('service_showroom'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.3,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
                           ),
                         ),
                         if (game.isFeatureNew('/showroom')) ...[
@@ -741,6 +745,8 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                     const SizedBox(height: 1),
                     Text(
                       branchName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -750,6 +756,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 6),
               if (hasOffers)
                 NeoBrutalBadge(
                   text: context.tr('telemetry_offers_count', {'count': '$offersCount'}),

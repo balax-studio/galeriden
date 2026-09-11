@@ -50,24 +50,25 @@ class AdRewardCalculator {
     final totalWealth = effectiveBalance + effectiveGarage;
 
     // 2. Base scaling based on player level
-    final double baseLevelAmount = 5000.0 + (playerLevel * 3000.0);
+    final double baseLevelAmount = 5000.0 + (playerLevel * 1500.0);
 
-    // 3. Dynamic wealth percentage scaling:
-    // - Low wealth (<= 500k TL): 6.0% (gives up to 30k TL)
-    // - Mid wealth (<= 5M TL): 4.5% (gives up to 225k TL)
-    // - Upper-mid wealth (<= 25M TL): 3.5% (gives up to 875k TL)
-    // - Tycoon / late-game wealth (> 25M TL, e.g. 66M+ TL): 2.75% (gives 1.8M - 3.5M+ TL)
+    // 3. Economy-safe dynamic wealth percentage scaling:
+    // Strictly calibrated so an ad NEVER ruins the economy or progression.
+    // - Low wealth (<= 500k TL): 1.5% (gives up to 7.5k TL)
+    // - Mid wealth (<= 5M TL): 1.0% (for 3M TL -> gives 30k TL base; with level ~40-45k TL total)
+    // - Upper-mid wealth (<= 25M TL): 0.5% (for 10M -> 50k TL, for 25M -> 125k TL)
+    // - Tycoon wealth (> 25M TL): 0.25% (for 50M -> 125k TL)
     double wealthRatioAmount = 0.0;
     if (totalWealth > 0) {
       final double wealthRate;
       if (totalWealth <= 500000.0) {
-        wealthRate = 0.06;
+        wealthRate = 0.015;
       } else if (totalWealth <= 5000000.0) {
-        wealthRate = 0.045;
+        wealthRate = 0.010;
       } else if (totalWealth <= 25000000.0) {
-        wealthRate = 0.035;
+        wealthRate = 0.005;
       } else {
-        wealthRate = 0.0275;
+        wealthRate = 0.0025;
       }
       wealthRatioAmount = totalWealth * wealthRate;
     }
@@ -75,24 +76,27 @@ class AdRewardCalculator {
     double baseAmount = baseLevelAmount + wealthRatioAmount;
 
     if (targetCarPrice != null && targetCarPrice > 0) {
-      baseAmount = max(baseAmount, targetCarPrice * 0.04);
+      baseAmount = max(baseAmount, min(40000.0, targetCarPrice * 0.02));
     }
 
-    // Dynamic level & wealth gated clamps
+    // Dynamic level & wealth gated clamps protecting tycoon economy
+    // Strict upper bounds ensure an ad NEVER ruins the joy of flipping cars or earning wealth.
+    // A player with 3M wealth will receive ~40.000 - 50.000 TL standard, max ~120.000 TL on jackpot.
+    // Even an endgame multibillionaire will never receive millions from an ad (max cap 350.000 TL).
     final double maxBaseCap;
     final double maxJackpotCap;
     if (playerLevel <= 3) {
-      maxBaseCap = max(25000.0, totalWealth * 0.10);
-      maxJackpotCap = min(100000.0, maxBaseCap * 4.0);
+      maxBaseCap = min(25000.0, max(10000.0, totalWealth * 0.03));
+      maxJackpotCap = min(50000.0, maxBaseCap * 2.0);
     } else if (playerLevel <= 6) {
-      maxBaseCap = max(60000.0, totalWealth * 0.08);
-      maxJackpotCap = min(250000.0, maxBaseCap * 4.0);
+      maxBaseCap = min(55000.0, max(20000.0, totalWealth * 0.018));
+      maxJackpotCap = min(140000.0, maxBaseCap * 2.5);
     } else {
-      maxBaseCap = max(125000.0, totalWealth * 0.06);
-      maxJackpotCap = maxBaseCap * 4.0;
+      maxBaseCap = min(120000.0, max(30000.0, totalWealth * 0.008));
+      maxJackpotCap = min(350000.0, maxBaseCap * 2.5);
     }
 
-    baseAmount = baseAmount.clamp(7500.0, maxBaseCap);
+    baseAmount = baseAmount.clamp(5000.0, maxBaseCap);
 
     // Round nicely to clean game numbers
     baseAmount = _roundToCleanNumber(baseAmount);
@@ -102,26 +106,26 @@ class AdRewardCalculator {
 
     if (roll >= 98) {
       // 3% Legendary Jackpot
-      final total = _roundToCleanNumber((baseAmount * 4.0).clamp(0.0, maxJackpotCap));
+      final total = _roundToCleanNumber((baseAmount * 2.5).clamp(0.0, maxJackpotCap));
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.legendaryJackpot,
-        multiplier: 4.0,
-        badgeText: 'EFSANEVİ BÜYÜK İKRAMİYE • 4X',
+        multiplier: 2.5,
+        badgeText: 'EFSANEVİ BÜYÜK İKRAMİYE • 2.5X',
         title: 'SANAYİ EFSANESİ BÜYÜK İKRAMİYE KAZANDIN',
-        message: 'Tüm sanayi esnafı senin için toplandı! Şampiyon galericilere özel 4 katı dev nakit desteği kasana aktarıldı.',
+        message: 'Tüm sanayi esnafı senin için toplandı! Şampiyon galericilere özel dev nakit desteği kasana aktarıldı.',
         bonusItemDescription: 'Sanayi Ustalarından Altın Mühürlü Onur Plaketi',
       );
     } else if (roll >= 81) {
       // 17% Double Luck
-      final total = _roundToCleanNumber((baseAmount * 2.0).clamp(0.0, maxJackpotCap));
+      final total = _roundToCleanNumber((baseAmount * 1.8).clamp(0.0, maxJackpotCap));
       return AdRewardOutcome(
         moneyAmount: total,
         tier: AdRewardTier.doubleLuck,
-        multiplier: 2.0,
-        badgeText: 'ÇİFTE KAZANÇ • 2X',
+        multiplier: 1.8,
+        badgeText: 'ÇİFTE KAZANÇ • 1.8X',
         title: 'ŞANSLI GÜNÜNDESİN • ÇİFTE KAZANÇ',
-        message: 'Esnaf dayanışması bu kez ikiye katlandı! Bereketli kazanç hesabına yansıtıldı.',
+        message: 'Esnaf dayanışması bu kez bereketle katlandı! Destek hesabına yansıtıldı.',
       );
     } else {
       // 80% Standard Reward
@@ -148,8 +152,8 @@ class AdRewardCalculator {
       totalGarageValue: totalGarageValue,
       playerBalance: playerBalance,
     ).moneyAmount;
-    final tierMultiplier = 1.0 + (branchTier * 0.15);
-    return _roundToCleanNumber(max(40000.0, base * 1.20 * tierMultiplier));
+    final tierMultiplier = 1.0 + (branchTier * 0.10);
+    return _roundToCleanNumber(min(180000.0, max(25000.0, base * 1.15 * tierMultiplier)));
   }
 
   /// Calculates dynamic VIP corporate fleet contract grant for rent-a-car screen
@@ -164,8 +168,8 @@ class AdRewardCalculator {
       totalGarageValue: totalGarageValue,
       playerBalance: playerBalance,
     ).moneyAmount;
-    final fleetBonus = 1.0 + (fleetCount * 0.05);
-    return _roundToCleanNumber(max(35000.0, base * 1.10 * fleetBonus));
+    final fleetBonus = 1.0 + (fleetCount * 0.03);
+    return _roundToCleanNumber(min(160000.0, max(20000.0, base * 1.10 * fleetBonus)));
   }
 
   /// Calculates dynamic stock insider market report cash grant for stock market screen
@@ -179,7 +183,7 @@ class AdRewardCalculator {
       totalGarageValue: totalGarageValue,
       playerBalance: playerBalance,
     ).moneyAmount;
-    return _roundToCleanNumber(max(25000.0, base * 0.90));
+    return _roundToCleanNumber(min(140000.0, max(15000.0, base * 0.90)));
   }
 
   /// Calculates dynamic emergency cash grant for lifeline dialogs
@@ -195,9 +199,9 @@ class AdRewardCalculator {
       playerBalance: playerBalance,
     ).moneyAmount;
     if (recentLoss != null && recentLoss > base) {
-      return _roundToCleanNumber(max(base, recentLoss * 0.60));
+      return _roundToCleanNumber(min(220000.0, max(base, recentLoss * 0.50)));
     }
-    return _roundToCleanNumber(max(30000.0, base));
+    return _roundToCleanNumber(min(140000.0, max(20000.0, base)));
   }
 
   /// Rounds reward to clean presentable game figures (e.g. 25.000, 1.850.000)

@@ -385,5 +385,112 @@ void main() {
       notifier.stopPeriodicOrganicOfferTimer();
       container.dispose();
     });
+
+    test('7. Stage 8 Active Save with Days Remaining: displays Stage 8 active card, speedup works, and ETABI TESLİM AL triggers Stage 9', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      final stage8Land = RealEstateModel(
+        id: 'land_stage8_active_save',
+        title: 'Çankaya İnşaat Parseli',
+        category: RealEstateCategory.land,
+        city: 'Ankara',
+        district: 'Çankaya',
+        squareMeters: 600,
+        roomCount: '-',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 6000000,
+        currentPurchasePrice: 6000000,
+        constructionMode: 'selfBuild',
+        constructionStage: 8,
+        constructionDaysRemaining: 5,
+        stageTotalDays: 10,
+        isConstructionWorking: true,
+        activeSubcontractorName: 'Peyzaj & İskan Ekibi',
+        playerSharePercent: 100,
+      );
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [stage8Land],
+        balance: 10000000,
+      );
+
+      // Not yet complete because 5 days remain
+      expect(stage8Land.isConstructionComplete, isFalse);
+      expect(stage8Land.landPhase, equals(LandPhase.etapCalisiyor));
+
+      // Speed up construction by 5 days (e.g. ad / double shift)
+      final speedOk = notifier.accelerateConstructionTimer('land_stage8_active_save', daysToReduce: 5);
+      expect(speedOk, isTrue);
+
+      final readyLand = notifier.state.ownedRealEstates.firstWhere((r) => r.id == 'land_stage8_active_save');
+      expect(readyLand.constructionDaysRemaining, equals(0));
+      expect(readyLand.landPhase, equals(LandPhase.etapTeslimAlinir));
+
+      // ETABI TESLİM AL step advances to Stage 9
+      final completeOk = notifier.completeSelfBuildStage('land_stage8_active_save');
+      expect(completeOk, isTrue);
+
+      final finishedLand = notifier.state.ownedRealEstates.firstWhere((r) => r.id == 'land_stage8_active_save');
+      expect(finishedLand.constructionStage, equals(9));
+      expect(finishedLand.isConstructionComplete, isTrue);
+      expect(finishedLand.landPhase, equals(LandPhase.teslimeHazir));
+
+      // Finalize and claim deeds
+      final apartments = notifier.finalizeConstruction('land_stage8_active_save');
+      expect(apartments.isNotEmpty, isTrue);
+      expect(notifier.state.ownedRealEstates.any((r) => r.id == 'land_stage8_active_save'), isFalse);
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
+
+    test('8. Stage 8 Save with 0 Days Remaining: can directly receive apartment title deeds', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+
+      // Existing saved game with 0 days remaining
+      final stage8DoneLand = RealEstateModel(
+        id: 'land_stage8_zero_days',
+        title: 'Bornova Arsa Projesi',
+        category: RealEstateCategory.land,
+        city: 'İzmir',
+        district: 'Bornova',
+        squareMeters: 500,
+        roomCount: '-',
+        buildingAge: 0,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 5000000,
+        currentPurchasePrice: 5000000,
+        constructionMode: 'contractor',
+        constructionStage: 8,
+        constructionDaysRemaining: 0,
+        playerSharePercent: 60,
+      );
+
+      notifier.state = notifier.state.copyWith(
+        ownedRealEstates: [stage8DoneLand],
+        balance: 5000000,
+      );
+
+      // Instantly eligible to finalize and receive deeds
+      expect(stage8DoneLand.isConstructionComplete, isTrue);
+      expect(stage8DoneLand.landPhase, equals(LandPhase.teslimeHazir));
+
+      final apartments = notifier.finalizeConstruction('land_stage8_zero_days');
+      expect(apartments.length, equals(stage8DoneLand.playerShareUnits));
+      for (final apt in apartments) {
+        expect(apt.deedType, equals(DeedType.ownershipDeed)); // Kat Mülkiyeti tapusu
+        expect(apt.category, equals(RealEstateCategory.housing));
+      }
+
+      notifier.stopPeriodicOrganicOfferTimer();
+      container.dispose();
+    });
   });
 }

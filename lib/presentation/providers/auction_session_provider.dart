@@ -92,25 +92,24 @@ class AuctionSessionNotifier extends StateNotifier<AuctionSessionState> {
     _timer = null;
   }
 
+  void closeWindow() {
+    final remaining = AuctionEngine.getSecondsUntilNextAuction();
+    state = state.copyWith(
+      isWindowOpen: false,
+      closedCountdown: remaining > 0 ? remaining : 90,
+      hasPlayerEnteredBid: false,
+      isHandlingAuctionEnd: false,
+      hasExtendedAuction: false,
+      hasBluffedInCurrentAuction: false,
+      isOfficerConsulted: false,
+      officerSpeech: null,
+      isVipSession: false,
+    );
+    startTimer();
+  }
+
   void _tick() {
-    final windowNow = AuctionEngine.isAuctionActiveNow();
-
-    if (windowNow != state.isWindowOpen) {
-      if (windowNow ||
-          (!state.isHandlingAuctionEnd &&
-              !state.hasPlayerEnteredBid &&
-              state.auction.secondsRemaining <= 0)) {
-        final game = ref.read(gameProvider);
-        state = state.copyWith(
-          isWindowOpen: windowNow,
-          auction: windowNow ? AuctionEngine.createLiveAuction(playerLevel: game.level) : state.auction,
-          upcomingLots: windowNow ? AuctionEngine.generateUpcomingLots(count: 3, playerLevel: game.level) : state.upcomingLots,
-          isOfficerConsulted: false,
-          officerSpeech: null,
-        );
-      }
-    }
-
+    // 1. If auction window is closed, countdown until next session
     if (!state.isWindowOpen) {
       final remaining = AuctionEngine.getSecondsUntilNextAuction();
       if (remaining <= 0) {
@@ -130,6 +129,14 @@ class AuctionSessionNotifier extends StateNotifier<AuctionSessionState> {
       return;
     }
 
+    // 2. Window is open: check if session has expired while current lot is complete
+    final windowNow = AuctionEngine.isAuctionActiveNow();
+    if (!windowNow && !state.hasPlayerEnteredBid && state.auction.secondsRemaining <= 1) {
+      closeWindow();
+      return;
+    }
+
+    // 3. Process current auction lot countdown
     if (state.auction.secondsRemaining <= 1) {
       if (!state.isHandlingAuctionEnd) {
         stopTimer();

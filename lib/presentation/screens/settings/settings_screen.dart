@@ -33,6 +33,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _isAdProcessing = false;
+  AdRewardOutcome? _cachedRewardOutcome;
 
   @override
   Widget build(BuildContext context) {
@@ -254,11 +255,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             builder: (context) {
               final garageTotal = game.ownedCars
                   .fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
-              final outcome = AdRewardCalculator.calculateDynamicReward(
-                playerLevel: game.level,
-                totalGarageValue: garageTotal,
-                playerBalance: game.balance,
-              );
+              if (_cachedRewardOutcome == null || _cachedRewardOutcome!.moneyAmount > 350000.0) {
+                _cachedRewardOutcome = AdRewardCalculator.calculateDynamicReward(
+                  playerLevel: game.level,
+                  totalGarageValue: garageTotal,
+                  playerBalance: game.balance,
+                );
+              }
+              final outcome = _cachedRewardOutcome!;
 
               return NeoBrutalCard(
                 padding: const EdgeInsets.all(14),
@@ -320,7 +324,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 outcome: outcome,
                                 onRewardEarned: () {
                                   if (mounted) {
-                                    setState(() => _isAdProcessing = false);
+                                    setState(() {
+                                      _isAdProcessing = false;
+                                      _cachedRewardOutcome = null;
+                                    });
                                   }
                                   ref.read(gameProvider.notifier).claimAdReward(outcome.moneyAmount);
                                   NotificationService.showSuccess(

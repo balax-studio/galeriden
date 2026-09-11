@@ -252,11 +252,25 @@ class RealEstateModel {
   bool get isConstructionActive =>
       category == RealEstateCategory.land &&
       (constructionMode != null || (constructionStage > 0 && constructionStage <= 9));
-  double get constructionProgress =>
-      isConstructionComplete ? 1.0 : (constructionStage / 8.0).clamp(0.0, 1.0);
+
+  /// Dinamik inşaat ilerleme yüzdesi (Aşama 8'de kalan gün varken asla %100 göstermez)
+  double get constructionProgress {
+    if (isConstructionComplete || constructionStage >= 9) return 1.0;
+    if (constructionStage <= 0) return 0.0;
+    final completedStages = (constructionStage - 1).clamp(0, 7);
+    double intra = 0.0;
+    final totalDays = (constructionMode == 'contractor')
+        ? (contractorStageDays > 0 ? contractorStageDays : 15)
+        : (stageTotalDays > 0 ? stageTotalDays : 10);
+    if (totalDays > 0 && constructionDaysRemaining >= 0) {
+      intra = (1.0 - (constructionDaysRemaining / totalDays)).clamp(0.0, 1.0);
+    }
+    return ((completedStages + intra) / 8.0).clamp(0.0, 0.99);
+  }
+
   int get constructionPercent => (constructionProgress * 100).round();
 
-  /// Şantiye tamamen bitti mi (Etap 8 tamamlandı ve gün 0)
+  /// Şantiye tamamen bitti mi (Etap 8 tamamlandı ve kalan gün 0)
   bool get isConstructionComplete =>
       category == RealEstateCategory.land &&
       isConstructionActive &&
@@ -265,16 +279,10 @@ class RealEstateModel {
               constructionStage >= 8 &&
               constructionDaysRemaining <= 0) ||
           (constructionMode == 'selfBuild' &&
-              ((constructionStage >= 8 &&
-                      provenanceLog.any((l) => l.contains('Aşama 8'))) ||
+              (constructionStage >= 9 ||
                   (constructionStage >= 8 &&
                       constructionDaysRemaining <= 0 &&
-                      !isConstructionWorking &&
-                      (activeSubcontractorName == null ||
-                          activeSubcontractorName!.isEmpty) &&
-                      stageTotalDays == 0 &&
-                      (provenanceLog.any((l) => l.contains('Aşama 8')) ||
-                          provenanceLog.isEmpty)))));
+                      provenanceLog.any((log) => log.contains('Aşama 8'))))));
 
   /// Durum makinesi fazı (Tek birincil buton mimarisi • E0)
   LandPhase get landPhase {

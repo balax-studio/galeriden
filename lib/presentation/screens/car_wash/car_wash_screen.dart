@@ -23,6 +23,7 @@ import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../../widgets/dialogs/neo_brutal_operation_dialog.dart';
 import '../../../core/services/ad_service.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/procedural_shader_textures.dart';
 
 class CarWashScreen extends ConsumerStatefulWidget {
   const CarWashScreen({super.key});
@@ -1474,6 +1475,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 12,
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.crtScanlines,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -1482,22 +1485,27 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
                         title,
                         style: const TextStyle(
-                            fontSize: 13, fontWeight: FontWeight.w900),
+                            fontSize: 12.5, fontWeight: FontWeight.w900),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    NeoBrutalBadge(
-                      text: bonusText,
-                      backgroundColor: badgeColor,
-                      textColor: Colors.black,
-                      fontSize: 9.5,
+                    Flexible(
+                      child: NeoBrutalBadge(
+                        text: bonusText,
+                        backgroundColor: badgeColor,
+                        textColor: Colors.black,
+                        fontSize: 9.0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 2),
+                      ),
                     ),
                   ],
                 ),
@@ -1521,9 +1529,9 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 92, maxWidth: 115),
+            constraints: const BoxConstraints(minWidth: 86, maxWidth: 110),
             child: NeoBrutalButton(
               label: isCompleted
                   ? context.tr('tuning_btn_applied')
@@ -1536,7 +1544,8 @@ class _CarWashScreenState extends ConsumerState<CarWashScreen> {
               loadingIcon: loadingIcon,
               loadingLabel: context.tr('general_processing'),
               fullWidth: true,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              fontSize: 11.0,
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
               onPressed: isCompleted || isLoading ? null : onApply,
             ),
           ),

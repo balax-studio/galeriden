@@ -685,5 +685,271 @@ void main() {
       expect(find.text('Plakayı Araca Ata & Tescil Et'), findsOneWidget);
       expect(find.text('Yeni Plaka: 34 ATA 1923'), findsOneWidget);
     });
+
+    testWidgets('8. Dashboard Showroom & Galeri card on 320px viewport does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  children: [
+                    Container(width: 44, height: 44, color: AppColors.brutalYellow),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Flexible(
+                                child: Text(
+                                  'Showroom & Galeri',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(width: 7, height: 7, color: Colors.amber),
+                            ],
+                          ),
+                          const SizedBox(height: 1),
+                          const Text(
+                            'Mega Otomotiv Holding Plazası • Seviye 8',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                      child: const Text('+₺594 / d', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900)),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(width: 28, height: 28, color: AppColors.brutalYellow),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Showroom & Galeri'), findsOneWidget);
+      expect(find.text('+₺594 / d'), findsOneWidget);
+    });
+
+    testWidgets('9. Car Wash Package 4 Tile on 320px viewport does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: NeoBrutalCard(
+                  showBlueprintGrid: true,
+                  patternType: BlueprintPatternType.crtScanlines,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    '4. Seramik Kaplama & VIP Detailing',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: NeoBrutalBadge(
+                                    text: '+%12 Süper Değer Artışı & 2x Hızlı Satış',
+                                    backgroundColor: const Color(0xFFA855F7),
+                                    textColor: Colors.black,
+                                    fontSize: 9.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 86, maxWidth: 110),
+                        child: NeoBrutalButton(
+                          label: 'UYGULANDI',
+                          icon: Icons.check_circle_rounded,
+                          fontSize: 11.0,
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('4. Seramik Kaplama & VIP Detailing'), findsOneWidget);
+      expect(find.text('UYGULANDI'), findsOneWidget);
+    });
+
+    testWidgets('10. Construction Radio Dispatch Card on 320px viewport does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: NeoBrutalCard(
+                  showBlueprintGrid: true,
+                  patternType: BlueprintPatternType.crtScanlines,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Expanded(
+                        flex: 3,
+                        child: Row(
+                          children: [
+                            Icon(Icons.radio_rounded, size: 18),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Şantiye Telsizi & Canlı Anons',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w900),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Flexible(
+                        flex: 2,
+                        child: NeoBrutalBadge(
+                          text: 'Kanal 3 • Canlı Dinleme',
+                          fontSize: 9.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Şantiye Telsizi & Canlı Anons'), findsOneWidget);
+      expect(find.text('Kanal 3 • Canlı Dinleme'), findsOneWidget);
+    });
+
+    testWidgets('11. Night Market Matchup Header on 320px viewport does not overflow', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 320,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Expanded(
+                      flex: 3,
+                      child: Row(
+                        children: [
+                          Icon(Icons.flash_on_rounded, size: 20),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'YARIŞ EŞLEŞMESİ & ORANLAR',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w900),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Flexible(
+                      flex: 2,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          NeoBrutalBadge(
+                            text: '3/3 Hak',
+                            fontSize: 9.5,
+                          ),
+                          SizedBox(width: 4),
+                          Flexible(
+                            child: NeoBrutalBadge(
+                              text: 'ÇAYLAK',
+                              fontSize: 9.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('YARIŞ EŞLEŞMESİ & ORANLAR'), findsOneWidget);
+      expect(find.text('3/3 Hak'), findsOneWidget);
+      expect(find.text('ÇAYLAK'), findsOneWidget);
+    });
   });
 }

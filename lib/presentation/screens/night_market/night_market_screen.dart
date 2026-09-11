@@ -17,6 +17,7 @@ import '../../widgets/neon_sign_widget.dart';
 import '../../widgets/hazard_stripe_widget.dart';
 import '../../widgets/mini_games/drag_race_canvas.dart';
 import '../../widgets/chassis_laser_scan_widget.dart';
+import '../../widgets/procedural_shader_textures.dart';
 
 class NightMarketScreen extends ConsumerStatefulWidget {
   const NightMarketScreen({super.key});
@@ -306,40 +307,64 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
         borderRadius: 10,
         borderWidth: 2.5,
         shadowOffset: const Offset(4.0, 4.0),
-        showDotGrid: true,
+        showBlueprintGrid: true,
+        patternType: BlueprintPatternType.crtScanlines,
         showHazardHeader: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(Icons.flash_on_rounded,
-                    color: AppColors.brutalYellow, size: 20),
-                const SizedBox(width: 6),
-                Text(
-                  context.tr('night_market_matchup_title'),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.flash_on_rounded,
+                          color: AppColors.brutalYellow, size: 20),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          context.tr('night_market_matchup_title'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const Spacer(),
-                NeoBrutalBadge(
-                  text: context.tr('night_market_daily_races_left',
-                      {'count': '$dailyRacesRemaining'}),
-                  backgroundColor: dailyRacesRemaining > 0
-                      ? AppColors.brutalYellow
-                      : AppColors.errorRed,
-                  textColor: Colors.black,
-                  fontSize: 10,
-                ),
-                const SizedBox(width: 4),
-                NeoBrutalBadge(
-                  text: rival.badge,
-                  backgroundColor: AppColors.brutalPink,
-                  textColor: Colors.white,
-                  fontSize: 10,
+                const SizedBox(width: 6),
+                Flexible(
+                  flex: 2,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      NeoBrutalBadge(
+                        text: context.tr('night_market_daily_races_left',
+                            {'count': '$dailyRacesRemaining'}),
+                        backgroundColor: dailyRacesRemaining > 0
+                            ? AppColors.brutalYellow
+                            : AppColors.errorRed,
+                        textColor: Colors.black,
+                        fontSize: 9.5,
+                      ),
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: NeoBrutalBadge(
+                          text: rival.badge,
+                          backgroundColor: AppColors.brutalPink,
+                          textColor: Colors.white,
+                          fontSize: 9.5,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -500,14 +525,14 @@ class _NightMarketScreenState extends ConsumerState<NightMarketScreen> {
                       border: Border.all(
                           color: const Color(0xFF475569), width: 1.0),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.refresh_rounded,
+                        const Icon(Icons.refresh_rounded,
                             size: 14, color: Colors.white),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Text(
-                          'Rakip Değiş',
-                          style: TextStyle(
+                          context.tr('night_market_change_rival'),
+                          style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                               color: Colors.white),
