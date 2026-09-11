@@ -229,11 +229,10 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                   ),
 
                   // 2. Filter Bar
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                          child: Text(
+                      Text(
                         context.tr('history_sales_records_count',
                             {'count': '${filteredHistory.length}'}),
                         style: TextStyle(
@@ -242,20 +241,22 @@ class _SalesHistoryScreenState extends ConsumerState<SalesHistoryScreen> {
                           letterSpacing: 0.5,
                           color: isDark ? Colors.white70 : const Color(0xFF0F172A),
                         ),
-                      )),
+                      ),
+                      const SizedBox(height: 8),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         child: Row(
                           children: [
                             _buildFilterBtn(
                                 context.tr('history_filter_all'), 0, isDark),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             _buildFilterBtn(
                                 context.tr('history_filter_profitable'), 1, isDark),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             _buildFilterBtn(
                                 context.tr('history_filter_consignment'), 2, isDark),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 6),
                             _buildFilterBtn(
                                 context.tr('history_filter_loss'), 3, isDark),
                           ],

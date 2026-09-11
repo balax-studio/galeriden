@@ -143,7 +143,12 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
                     Align(
                       alignment: Alignment.center,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 52.0),
+                        padding: EdgeInsets.only(
+                          left: widget.showLeading ? 52.0 : 12.0,
+                          right: (widget.actions != null && widget.actions!.isNotEmpty)
+                              ? (widget.actions!.length > 1 ? 140.0 : 108.0)
+                              : (widget.statusBadge != null ? 80.0 : (widget.showLeading ? 52.0 : 12.0)),
+                        ),
                         child: widget.titleWidget ??
                             _buildAnimatedTitlePlate(
                               isDark: isDark,
@@ -403,7 +408,10 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
     }
 
     final screenWidth = MediaQuery.maybeOf(context)?.size.width ?? 360.0;
-    final maxPlateWidth = (screenWidth - (widget.showLeading ? 116.0 : 64.0)).clamp(80.0, 500.0);
+    final actionsWidth = (widget.actions != null && widget.actions!.isNotEmpty)
+        ? (widget.actions!.length > 1 ? 130.0 : 96.0)
+        : (widget.statusBadge != null ? 70.0 : 0.0);
+    final maxPlateWidth = (screenWidth - (widget.showLeading ? 56.0 : 16.0) - actionsWidth - 28.0).clamp(70.0, 500.0);
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxPlateWidth),

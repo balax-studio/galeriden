@@ -905,32 +905,39 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: opt.color,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF333B4F)
-                                          : const Color(0xFF0F172A),
-                                      width: 2.0,
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: opt.color,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: isDark
+                                            ? const Color(0xFF333B4F)
+                                            : const Color(0xFF0F172A),
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    child: Icon(opt.icon,
+                                        color: Colors.black, size: 20),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      opt.title,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w900),
                                     ),
                                   ),
-                                  child: Icon(opt.icon,
-                                      color: Colors.black, size: 20),
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  opt.title,
-                                  style: const TextStyle(
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w900),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

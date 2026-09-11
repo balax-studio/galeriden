@@ -1711,32 +1711,42 @@ class _RealEstateNegotiationScreenState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      netAdvantage >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-                      size: 18,
-                      color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.tr('real_estate_dark_net_advantage'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        netAdvantage >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                        size: 18,
                         color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          context.tr('real_estate_dark_net_advantage'),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Text(
-                  netAdvantage >= 0
-                      ? '+${CurrencyFormatter.format(netAdvantage)}'
-                      : '-${CurrencyFormatter.format(netAdvantage.abs())}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                const SizedBox(width: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    netAdvantage >= 0
+                        ? '+${CurrencyFormatter.format(netAdvantage)}'
+                        : '-${CurrencyFormatter.format(netAdvantage.abs())}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      color: netAdvantage >= 0 ? const Color(0xFF065F46) : const Color(0xFF991B1B),
+                    ),
                   ),
                 ),
               ],

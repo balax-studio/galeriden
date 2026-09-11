@@ -20,6 +20,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_empty_state.dart';
 import '../../widgets/neo_brutal_listing_thumbnail.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import 'real_estate_negotiation_screen.dart';
 import 'widgets/real_estate_offers_sheet.dart';
 
@@ -1326,491 +1327,545 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
     final isDark = theme.brightness == Brightness.dark;
 
     return NeoBrutalCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      padding: EdgeInsets.zero,
+      child: CadBlueprintOverlay(
+        opacity: isDark ? 0.05 : 0.035,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RealEstateListingThumbnail(
-                category: property.category,
-                seed: '${property.title}_${property.city}_${property.squareMeters}_${property.id}',
-                squareMeters: property.squareMeters,
-                roomCount: property.roomCount,
-                isDark: theme.brightness == Brightness.dark,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      property.title,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w900),
+              Row(
+                children: [
+                  RealEstateListingThumbnail(
+                    category: property.category,
+                    seed: '${property.title}_${property.city}_${property.squareMeters}_${property.id}',
+                    squareMeters: property.squareMeters,
+                    roomCount: property.roomCount,
+                    isDark: theme.brightness == Brightness.dark,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          property.title,
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${property.city} • ${property.district} • ${property.squareMeters} m²',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${property.city} • ${property.district} • ${property.squareMeters} m²',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Status badges
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  if (property.isPersonalResidence)
+                    NeoBrutalBadge(
+                      text:
+                          '${context.tr('real_estate_residence_badge')} • +${property.personalResidencePrestigeBonus} PRESTİJ',
+                      backgroundColor: const Color(0xFFE0E7FF),
+                      textColor: const Color(0xFF3730A3),
+                    ),
+                  if (property.isRented)
+                    NeoBrutalBadge(
+                      text:
+                          '${context.tr('real_estate_badge_rented')} • ${CurrencyFormatter.format(property.dailyRentIncome)}/${context.tr('real_estate_unit_day')}',
+                      backgroundColor: const Color(0xFFD1FAE5),
+                    )
+                  else if (!property.isPersonalResidence)
+                    NeoBrutalBadge(
+                      text: context.tr('real_estate_badge_vacant'),
+                      backgroundColor: const Color(0xFFF1F5F9),
+                    ),
+                  if (property.isUnderRenovation)
+                    NeoBrutalBadge(
+                      text: '${context.tr('real_estate_badge_under_renovation')} • %${property.renovationPercent}',
+                      backgroundColor: const Color(0xFFFEF3C7),
+                      textColor: const Color(0xFF92400E),
+                    )
+                  else if (property.isRenovated)
+                    NeoBrutalBadge(
+                      text: context.tr('real_estate_badge_renovated'),
+                      backgroundColor: const Color(0xFFD1FAE5),
+                    ),
+                  if (property.hasWaterLeakRisk)
+                    NeoBrutalBadge(
+                      text: context.tr('real_estate_leak_badge'),
+                      backgroundColor: const Color(0xFFFEE2E2),
+                      textColor: const Color(0xFF991B1B),
+                    ),
+                  if (property.category == RealEstateCategory.land) ...[
+                    Builder(builder: (_) {
+                      final z = ZoningEngine.calculateZoning(
+                        parcelSquareMeters: property.squareMeters.toDouble(),
+                      );
+                      return NeoBrutalBadge(
+                        text: 'KAKS ${z.kaks.toStringAsFixed(2)} • ${z.totalConstructionArea.round()} m²',
+                        backgroundColor: const Color(0xFFDBEAFE),
+                        textColor: const Color(0xFF1D4ED8),
+                      );
+                    }),
+                    if (property.isConstructionActive)
+                      NeoBrutalBadge(
+                        text: property.constructionStage >= 8
+                            ? context.tr('real_estate_construction_badge_ready')
+                            : '${context.tr('real_estate_construction_badge_active')} • %${property.constructionPercent}',
+                        backgroundColor: property.constructionStage >= 8
+                            ? const Color(0xFFD1FAE5)
+                            : const Color(0xFFFEF3C7),
+                        textColor: property.constructionStage >= 8
+                            ? const Color(0xFF065F46)
+                            : const Color(0xFF92400E),
+                      )
+                    else
+                      NeoBrutalBadge(
+                        text: context.tr('real_estate_construction_badge_idle'),
+                        backgroundColor: const Color(0xFFF1F5F9),
                       ),
-                    ),
                   ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // Status badges
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              if (property.isPersonalResidence)
-                NeoBrutalBadge(
-                  text:
-                      '${context.tr('real_estate_residence_badge')} • +${property.personalResidencePrestigeBonus} PRESTİJ',
-                  backgroundColor: const Color(0xFFE0E7FF),
-                  textColor: const Color(0xFF3730A3),
-                ),
-              if (property.isRented)
-                NeoBrutalBadge(
-                  text:
-                      '${context.tr('real_estate_badge_rented')} • ${CurrencyFormatter.format(property.dailyRentIncome)}/${context.tr('real_estate_unit_day')}',
-                  backgroundColor: const Color(0xFFD1FAE5),
-                )
-              else if (!property.isPersonalResidence)
-                NeoBrutalBadge(
-                  text: context.tr('real_estate_badge_vacant'),
-                  backgroundColor: const Color(0xFFF1F5F9),
-                ),
-              if (property.isUnderRenovation)
-                NeoBrutalBadge(
-                  text: 'TADİLAT SÜRÜYOR • %${property.renovationPercent}',
-                  backgroundColor: const Color(0xFFFEF3C7),
-                  textColor: const Color(0xFF92400E),
-                )
-              else if (property.isRenovated)
-                NeoBrutalBadge(
-                  text: context.tr('real_estate_badge_renovated'),
-                  backgroundColor: const Color(0xFFD1FAE5),
-                ),
-              if (property.hasWaterLeakRisk)
-                NeoBrutalBadge(
-                  text: context.tr('real_estate_leak_badge'),
-                  backgroundColor: const Color(0xFFFEE2E2),
-                  textColor: const Color(0xFF991B1B),
-                ),
-              if (property.category == RealEstateCategory.land) ...[
-                Builder(builder: (_) {
-                  final z = ZoningEngine.calculateZoning(
-                    parcelSquareMeters: property.squareMeters.toDouble(),
-                  );
-                  return NeoBrutalBadge(
-                    text: 'KAKS ${z.kaks.toStringAsFixed(2)} • ${z.totalConstructionArea.round()} m²',
-                    backgroundColor: const Color(0xFFDBEAFE),
-                    textColor: const Color(0xFF1D4ED8),
-                  );
-                }),
-                if (property.isConstructionActive)
                   NeoBrutalBadge(
-                    text: property.constructionStage >= 8
-                        ? context.tr('real_estate_construction_badge_ready')
-                        : '${context.tr('real_estate_construction_badge_active')} • %${property.constructionPercent}',
-                    backgroundColor: property.constructionStage >= 8
-                        ? const Color(0xFFD1FAE5)
-                        : const Color(0xFFFEF3C7),
-                    textColor: property.constructionStage >= 8
-                        ? const Color(0xFF065F46)
-                        : const Color(0xFF92400E),
-                  )
-                else
-                  NeoBrutalBadge(
-                    text: context.tr('real_estate_construction_badge_idle'),
-                    backgroundColor: const Color(0xFFF1F5F9),
+                    text: context.tr(property.deedType.localizationKey),
+                    backgroundColor: const Color(0xFFE2E8F0),
                   ),
-              ],
-              NeoBrutalBadge(
-                text: context.tr(property.deedType.localizationKey),
-                backgroundColor: const Color(0xFFE2E8F0),
+                  if (property.isRented)
+                    NeoBrutalBadge(
+                      text: '${context.tr('real_estate_badge_rented')} • ${property.currentTenant?.name ?? context.tr('rental_tenant_header')}',
+                      backgroundColor: const Color(0xFFD1FAE5),
+                      textColor: const Color(0xFF065F46),
+                    )
+                  else if (property.isRentalListed)
+                    NeoBrutalBadge(
+                      text: context.tr('rental_status_listed'),
+                      backgroundColor: const Color(0xFFDBEAFE),
+                      textColor: const Color(0xFF1D4ED8),
+                    ),
+                  if (property.isListed) ...[
+                    NeoBrutalBadge(
+                      text: 'Satılık • ${CurrencyFormatter.formatShort(property.customListingPrice ?? fairValue)}',
+                      backgroundColor: const Color(0xFFFEF3C7),
+                      textColor: const Color(0xFF92400E),
+                    ),
+                    if (property.activeOffers.isNotEmpty)
+                      NeoBrutalBadge(
+                        text: 'Gelen Teklif • ${property.activeOffers.length}',
+                        backgroundColor: const Color(0xFFD1FAE5),
+                        textColor: const Color(0xFF065F46),
+                      ),
+                  ],
+                ],
               ),
-              if (property.isPersonalResidence)
-                const NeoBrutalBadge(
-                  text: 'İkametgah',
-                  backgroundColor: Color(0xFFEEF2FF),
-                  textColor: Color(0xFF4F46E5),
-                ),
-              if (property.isRented)
-                NeoBrutalBadge(
-                  text: 'Kirada • ${property.currentTenant?.name ?? 'Kiracı'}',
-                  backgroundColor: const Color(0xFFD1FAE5),
-                  textColor: const Color(0xFF065F46),
-                )
-              else if (property.isRentalListed)
-                const NeoBrutalBadge(
-                  text: 'Kiralık İlanda',
-                  backgroundColor: Color(0xFFDBEAFE),
-                  textColor: Color(0xFF1D4ED8),
-                ),
-              if (property.isListed) ...[
-                NeoBrutalBadge(
-                  text: 'Satılık • ${CurrencyFormatter.formatShort(property.customListingPrice ?? fairValue)}',
-                  backgroundColor: const Color(0xFFFEF3C7),
-                  textColor: const Color(0xFF92400E),
-                ),
-                if (property.activeOffers.isNotEmpty)
-                  NeoBrutalBadge(
-                    text: 'Gelen Teklif • ${property.activeOffers.length}',
-                    backgroundColor: const Color(0xFFD1FAE5),
-                    textColor: const Color(0xFF065F46),
-                  ),
-              ],
-            ],
-          ),
 
-          // Pending rent loss-aversion banner inside property
-          if (property.pendingRentIncome > 0) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              decoration: BoxDecoration(
-                color: property.uncollectedRentDays >= 3
-                    ? (isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2))
-                    : (isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5)),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: property.uncollectedRentDays >= 3
-                      ? const Color(0xFFDC2626)
-                      : const Color(0xFF059669),
-                  width: 1.5,
+              // Pending rent loss-aversion banner inside property
+              if (property.pendingRentIncome > 0) ...[
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: property.uncollectedRentDays >= 3
+                        ? (isDark ? const Color(0xFF450A0A) : const Color(0xFFFEF2F2))
+                        : (isDark ? const Color(0xFF064E3B) : const Color(0xFFECFDF5)),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: property.uncollectedRentDays >= 3
+                          ? const Color(0xFFDC2626)
+                          : const Color(0xFF059669),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${context.tr('real_estate_rent_pool_title')}: ${CurrencyFormatter.format(property.pendingRentIncome)} • ${property.uncollectedRentDays} ${context.tr('day')}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: property.uncollectedRentDays >= 3
+                                    ? const Color(0xFFDC2626)
+                                    : const Color(0xFF059669),
+                              ),
+                            ),
+                            if (property.uncollectedRentDays >= 3)
+                              Text(
+                                context.tr('real_estate_rent_delay_warning'),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFB91C1C),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          final collected = ref
+                              .read(gameProvider.notifier)
+                              .collectRent(property.id);
+                          if (collected > 0) {
+                            NotificationService.showSuccess(
+                              context,
+                              context.tr('real_estate_rent_collect_toast',
+                                  {'amount': CurrencyFormatter.format(collected)}),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF10B981),
+                          foregroundColor: Colors.black,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            side: const BorderSide(color: Colors.black, width: 1.5),
+                          ),
+                        ),
+                        child: Text(
+                          context.tr('real_estate_rent_collect_btn'),
+                          style: const TextStyle(
+                              fontSize: 10, fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              child: Row(
+              ],
+
+              const Divider(height: 20),
+
+              // Financial Value & Actions (Tactical Hierarchical Layout with Responsive Wrap Actions)
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${context.tr('real_estate_rent_pool_title')}: ${CurrencyFormatter.format(property.pendingRentIncome)} • ${property.uncollectedRentDays} ${context.tr('day')}',
+                          context.tr('real_estate_label_estimated_value'),
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w900,
-                            color: property.uncollectedRentDays >= 3
-                                ? const Color(0xFFDC2626)
-                                : const Color(0xFF059669),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
-                        if (property.uncollectedRentDays >= 3)
-                          Text(
-                            context.tr('real_estate_rent_delay_warning'),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFB91C1C),
-                            ),
+                        Text(
+                          CurrencyFormatter.format(fairValue),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
                           ),
+                        ),
+                        Text(
+                          '${potentialProfit >= 0 ? '+' : ''}${CurrencyFormatter.format(potentialProfit)} ${context.tr('real_estate_label_flipping_profit')}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: potentialProfit >= 0
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFFEF4444),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      final collected = ref
-                          .read(gameProvider.notifier)
-                          .collectRent(property.id);
-                      if (collected > 0) {
-                        NotificationService.showSuccess(
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Action Buttons: Responsive Wrap ensures zero RenderFlex overflow across all screen widths and 7 languages
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  // Land Construction Project Button -> navigates to /emlak-insaat/:id
+                  if (property.category == RealEstateCategory.land) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        context.push('/emlak-insaat/${property.id}');
+                      },
+                      icon: const Icon(Icons.architecture_rounded, size: 14),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: property.isConstructionActive
+                            ? (property.constructionStage >= 8
+                                ? const Color(0xFFD1FAE5)
+                                : const Color(0xFFFEF3C7))
+                            : const Color(0xFFE0E7FF),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        property.isConstructionActive
+                            ? (property.constructionStage >= 8
+                                ? context.tr('real_estate_construction_badge_ready')
+                                : '${context.tr('real_estate_btn_manage_construction')} • %${property.constructionPercent}')
+                            : context.tr('real_estate_btn_start_construction'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                    ),
+                  ] else if (!property.isRenovated || property.hasWaterLeakRisk) ...[
+                    // Renovation Button -> navigates to /emlak-tadilat/:id
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        context.push('/emlak-tadilat/${property.id}');
+                      },
+                      icon: const Icon(Icons.handyman_rounded, size: 14),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: property.hasWaterLeakRisk
+                            ? const Color(0xFFFEE2E2)
+                            : (property.isUnderRenovation
+                                ? const Color(0xFFFEF3C7)
+                                : Colors.white),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        property.hasWaterLeakRisk
+                            ? context.tr('real_estate_leak_badge')
+                            : (property.renovationStage > 0
+                                ? '${context.tr('real_estate_badge_under_renovation')} • %${property.renovationPercent}'
+                                : context.tr('real_estate_btn_renovate')),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                    ),
+                  ],
+
+                  // Home Interior Design Button (strictly personal residence only)
+                  // Creative Violet (#A855F7) eliminates color clash with orange sell button!
+                  if (property.isPersonalResidence) ...[
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.chair_rounded, size: 14),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFA855F7),
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_btn_interior_design'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w900, fontSize: 10),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/emlak-ev-dizayn/${property.id}');
+                      },
+                    ),
+                  ],
+
+                  // Personal Residence Vacate/Move Button (when personal residence)
+                  if (property.isPersonalResidence) ...[
+                    OutlinedButton.icon(
+                      icon: const Icon(
+                        Icons.door_back_door_outlined,
+                        size: 14,
+                        color: Color(0xFF475569),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF334155),
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_vacate_residence_btn'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        ref
+                            .read(gameProvider.notifier)
+                            .vacatePersonalResidence(property.id);
+                        NotificationService.showInfo(
                           context,
-                          context.tr('real_estate_rent_collect_toast',
-                              {'amount': CurrencyFormatter.format(collected)}),
+                          context.tr('real_estate_residence_vacated_toast'),
                         );
-                      }
+                      },
+                    ),
+                  ] else if (property.canBePersonalResidence) ...[
+                    // Set as personal residence button
+                    OutlinedButton.icon(
+                      icon: const Icon(
+                        Icons.add_home_work_rounded,
+                        size: 14,
+                        color: Color(0xFF4338CA),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF4338CA),
+                        backgroundColor: const Color(0xFFEEF2FF),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_set_residence_btn'),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        final ok = ref
+                            .read(gameProvider.notifier)
+                            .setPersonalResidence(property.id);
+                        if (ok) {
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('real_estate_residence_toast'),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+
+                  // Rental Portal Button (strictly for rentable / rented properties, never personal residence)
+                  if (!property.isPersonalResidence && (property.isRented || property.isRentalListed || property.canBeRented)) ...[
+                    OutlinedButton.icon(
+                      icon: Icon(
+                        property.isRented
+                            ? Icons.key_rounded
+                            : (property.isRentalListed
+                                ? Icons.campaign_rounded
+                                : Icons.real_estate_agent_rounded),
+                        size: 14,
+                        color: Colors.black,
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: property.isRented
+                            ? const Color(0xFFD1FAE5)
+                            : (property.isRentalListed
+                                ? const Color(0xFFDBEAFE)
+                                : const Color(0xFFF1F5F9)),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        property.isRented
+                            ? context.tr('real_estate_badge_rented')
+                            : (property.isRentalListed
+                                ? context.tr('rental_status_listed')
+                                : context.tr('rental_portal_title')),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        context.push('/emlak-kiralama/${property.id}');
+                      },
+                    ),
+                  ],
+
+                  // Showcase offers button (if listed and has offers)
+                  if (property.isListed && property.activeOffers.isNotEmpty) ...[
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        RealEstateOffersSheet.show(context: context, property: property);
+                      },
+                      icon: const Icon(Icons.local_offer_rounded, size: 14),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: const Color(0xFFD1FAE5),
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      ),
+                      label: Text(
+                        context.tr('real_estate_btn_offers_count', {'count': property.activeOffers.length}),
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
+                      ),
+                    ),
+                  ],
+
+                  // Unified Listing & Sale button
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      _navigateToSellListing(context, property);
                     },
+                    icon: Icon(
+                      property.isListed ? Icons.storefront_rounded : Icons.campaign_rounded,
+                      size: 14,
+                    ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
+                      backgroundColor: property.isPersonalResidence
+                          ? const Color(0xFFF97316)
+                          : (!property.canBeSold
+                              ? const Color(0xFF94A3B8)
+                              : (property.isListed ? const Color(0xFFFEF08A) : const Color(0xFF10B981))),
                       foregroundColor: Colors.black,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: 10, vertical: 6),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(6),
                         side: const BorderSide(color: Colors.black, width: 1.5),
                       ),
                     ),
-                    child: Text(
-                      context.tr('real_estate_rent_collect_btn'),
+                    label: Text(
+                      property.isListed
+                          ? context.tr('real_estate_btn_manage_listing')
+                          : (property.isPersonalResidence
+                              ? context.tr('real_estate_btn_vacate_and_sell')
+                              : context.tr('real_estate_btn_list_for_sale')),
                       style: const TextStyle(
-                          fontSize: 10, fontWeight: FontWeight.w900),
+                          fontWeight: FontWeight.w900, fontSize: 11),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-
-          const Divider(height: 20),
-
-          // Financial Value & Actions (Tactical Hierarchical Layout with Responsive Wrap Actions)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr('real_estate_label_estimated_value'),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    Text(
-                      CurrencyFormatter.format(fairValue),
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    Text(
-                      '${potentialProfit >= 0 ? '+' : ''}${CurrencyFormatter.format(potentialProfit)} ${context.tr('real_estate_label_flipping_profit')}',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: potentialProfit >= 0
-                            ? const Color(0xFF10B981)
-                            : const Color(0xFFEF4444),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 10),
-
-          // Action Buttons: Responsive Wrap ensures zero RenderFlex overflow across all screen widths and 7 languages
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              // Land Construction Project Button -> navigates to /emlak-insaat/:id
-              if (property.category == RealEstateCategory.land) ...[
-                OutlinedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    context.push('/emlak-insaat/${property.id}');
-                  },
-                  icon: const Icon(Icons.architecture_rounded, size: 14),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: property.isConstructionActive
-                        ? (property.constructionStage >= 8
-                            ? const Color(0xFFD1FAE5)
-                            : const Color(0xFFFEF3C7))
-                        : const Color(0xFFE0E7FF),
-                    side: const BorderSide(color: Colors.black, width: 1.5),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 6),
-                  ),
-                  label: Text(
-                    property.isConstructionActive
-                        ? (property.constructionStage >= 8
-                            ? context.tr('real_estate_construction_badge_ready')
-                            : '${context.tr('real_estate_btn_manage_construction')} • %${property.constructionPercent}')
-                        : context.tr('real_estate_btn_start_construction'),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 10),
-                  ),
-                ),
-              ] else if (!property.isRenovated || property.hasWaterLeakRisk) ...[
-                // Renovation Button -> navigates to /emlak-tadilat/:id
-                OutlinedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    context.push('/emlak-tadilat/${property.id}');
-                  },
-                  icon: const Icon(Icons.handyman_rounded, size: 14),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: property.hasWaterLeakRisk
-                        ? const Color(0xFFFEE2E2)
-                        : (property.isUnderRenovation
-                            ? const Color(0xFFFEF3C7)
-                            : Colors.white),
-                    side: const BorderSide(color: Colors.black, width: 1.5),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 6),
-                  ),
-                  label: Text(
-                    property.hasWaterLeakRisk
-                        ? context.tr('real_estate_leak_badge')
-                        : (property.renovationStage > 0
-                            ? '${context.tr('real_estate_badge_under_renovation')} • %${property.renovationPercent}'
-                            : context.tr('real_estate_btn_renovate')),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 10),
-                  ),
-                ),
-              ],
-
-              // Home Interior Design Button (strictly personal residence only)
-              if (property.isPersonalResidence) ...[
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.chair_rounded, size: 14),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: Colors.black,
-                    elevation: 0,
-                    side: const BorderSide(color: Colors.black, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 6),
-                  ),
-                  label: Text(
-                    context.tr('real_estate_btn_interior_design'),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w900, fontSize: 10),
-                  ),
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    context.push('/emlak-ev-dizayn/${property.id}');
-                  },
-                ),
-              ],
-
-              // Personal Residence Toggle Button (strictly housing only)
-              if (property.isPersonalResidence)
-                IconButton(
-                  icon: const Icon(
-                    Icons.home_work_rounded,
-                    color: Color(0xFF4F46E5),
-                  ),
-                  tooltip: context.tr('real_estate_vacate_residence_btn'),
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    ref
-                        .read(gameProvider.notifier)
-                        .vacatePersonalResidence(property.id);
-                    NotificationService.showInfo(
-                      context,
-                      context.tr('real_estate_residence_vacated_toast'),
-                    );
-                  },
-                )
-              else if (property.canBePersonalResidence)
-                IconButton(
-                  icon: const Icon(
-                    Icons.add_home_work_rounded,
-                    color: Color(0xFF64748B),
-                  ),
-                  tooltip: context.tr('real_estate_set_residence_btn'),
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    final ok = ref
-                        .read(gameProvider.notifier)
-                        .setPersonalResidence(property.id);
-                    if (ok) {
-                      NotificationService.showSuccess(
-                        context,
-                        context.tr('real_estate_residence_toast'),
-                      );
-                    }
-                  },
-                ),
-
-              // Rental Portal Button
-              IconButton(
-                icon: Icon(
-                  property.isRented
-                      ? Icons.key_rounded
-                      : Icons.monetization_on_rounded,
-                  color: property.isRented
-                      ? const Color(0xFF10B981)
-                      : (property.isRentalListed
-                          ? const Color(0xFF3B82F6)
-                          : (property.canBeRented
-                              ? const Color(0xFF64748B)
-                              : Colors.grey)),
-                ),
-                tooltip: context.tr('rental_portal_title'),
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  context.push('/emlak-kiralama/${property.id}');
-                },
-              ),
-
-              // Showcase offers button (if listed and has offers)
-              if (property.isListed && property.activeOffers.isNotEmpty) ...[
-                OutlinedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    RealEstateOffersSheet.show(context: context, property: property);
-                  },
-                  icon: const Icon(Icons.local_offer_rounded, size: 14),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: const Color(0xFFD1FAE5),
-                    side: const BorderSide(color: Colors.black, width: 1.5),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  ),
-                  label: Text(
-                    context.tr('real_estate_btn_offers_count', {'count': property.activeOffers.length}),
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
-                  ),
-                ),
-              ],
-
-              // Unified Listing & Sale button
-              ElevatedButton.icon(
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  _navigateToSellListing(context, property);
-                },
-                icon: Icon(
-                  property.isListed ? Icons.storefront_rounded : Icons.campaign_rounded,
-                  size: 14,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: property.isPersonalResidence
-                      ? const Color(0xFFF97316)
-                      : (!property.canBeSold
-                          ? const Color(0xFF94A3B8)
-                          : (property.isListed ? const Color(0xFFFEF08A) : const Color(0xFF10B981))),
-                  foregroundColor: Colors.black,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    side: const BorderSide(color: Colors.black, width: 1.5),
-                  ),
-                ),
-                label: Text(
-                  property.isListed
-                      ? context.tr('real_estate_btn_manage_listing')
-                      : (property.isPersonalResidence
-                          ? context.tr('real_estate_btn_vacate_and_sell')
-                          : context.tr('real_estate_btn_list_for_sale')),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w900, fontSize: 11),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

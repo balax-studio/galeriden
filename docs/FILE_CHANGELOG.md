@@ -22,6 +22,45 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Görsel Taşma Düzeltmeleri, Emlak Portföyü Buton Renk Çakışması & Prosedürel Dokular (§SPEC-2026-UI-OVERFLOWS-REAL-ESTATE-POLISH)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  1. Müzayede (Auction) ekranındaki 4 sekmeli barın dar ekranlarda 10px ve 21px yatay taşmalarının (`RenderFlex overflowed`) ve üst başlık plakasının "CANLI MEZAT" rozeti ile çarpışmasının giderilmesi.
+  2. Satış & Ticaret Geçmişi ekranında yatay `Row` sıkışması nedeniyle harf harf dikey dökülen "S A T I Ş K A Y I T L A R I ..." başlığının ve 14px taşan filtre butonlarının dikey hiyerarşik `Column` düzenine alınarak düzeltilmesi.
+  3. VIP Performans & Modifiye (Tuning Studio) ekranındaki seçenek kartlarında sağ tarafta sarkan "+%4 Değer" rozetinin 35-36px taşmasının başlık satırını `Expanded` ile sınırlandırarak çözülmesi.
+  4. Tapu ve Gayrimenkul Pazarlık Masası ekranında yeşil net avantaj kartının sağ kenardan 29px taşmasının giderilmesi.
+  5. Emlak Pazarı Portföyüm ekranında yan yana gelen "İç Dizayn Yap" (kehribar turuncu) ve "Tahliye Et & Sat" (turuncu) butonları arasındaki renk çakışmasının giderilmesi; İç Dizayn Yap butonunun yaratıcı ve lüks tasarım moru (`Color(0xFFA855F7)`) ile ayrıştırılması.
+  6. Kişisel ikametgah olarak atanmış mülklerde yersiz görünen gri daire içi dolar (`$`) ikonunun kaldırılması; kiralama ve ikametgah değiştirme butonlarının neo-brutalist dokulu ve etiketli düğmelere dönüştürülmesi.
+  7. Emlak portföy kartlarının `/generative-art-shaders` kapsamında `CadBlueprintOverlay` mimari ızgara tual dokusu ile giydirilmesi.
+  8. `tr_translations.dart` içerisinde eksik olan `'real_estate_btn_vacate_and_sell'` anahtarının ("Tahliye Et & Sat") eklenerek İngilizce fallback ("Vacate & Sell") gösteriminin önlenmesi ve 7 dille tam senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/localization/translations/tr_translations.dart`:
+    - `'real_estate_btn_vacate_and_sell': 'Tahliye Et & Sat'` anahtarı eklendi.
+  - `lib/presentation/widgets/neo_brutal_app_bar.dart`:
+    - `_buildTitle` içinde sağ aksiyon düğmelerinin genişliğini dinamik hesaplayan `actionsWidth = 105.0` faktörü entegre edildi; başlık levhasının "CANLI MEZAT" gibi son ek rozetlerle çakışması engellendi.
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - Dört sekme düğmesi içerikleri `FittedBox(fit: BoxFit.scaleDown)` ile sarmalandı.
+  - `lib/presentation/screens/history/sales_history_screen.dart`:
+    - Filtre satırı `Row(children: [Expanded(Text), SingleChildScrollView(...)])` yapısından, başlığı tam genişlikte üste alan ve filtre çiplerini yatay kaydıran `Column` yapısına çevrildi.
+  - `lib/presentation/screens/workshop/tuning_studio_screen.dart`:
+    - Seçenek kartı başlık satırındaki metin bloğu `Expanded` içine alınarak sağdaki değer artış rozetinin taşması önlendi.
+  - `lib/presentation/screens/real_estate/real_estate_negotiation_screen.dart`:
+    - Net avantaj metni `Expanded`, tutar göstergesi `FittedBox` ile sarmalanarak 29px taşma giderildi.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - `_buildPortfolioCard` `CadBlueprintOverlay` ile sarmalandı.
+    - "İç Dizayn Yap" butonu `Color(0xFFA855F7)` mor renge güncellendi.
+    - İkametgah durumunda sahipsiz duran gri dolar simgesi kaldırıldı; kiraya verilebilir mülkler için etiketli butonlar eklendi.
+    - Mükerrer ikametgah rozeti temizlendi ve kiralık ilanda rozeti yerelleştirildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `_buildPortfolioCard` düzenlenirken `final isDark` satırında sözdizimi kırılması oluştu, anında tespit edilerek düzeltildi.
+- **Kök Neden**:
+  - Kısıtlı genişlikli ekranlarda sabit boyutlu metin ve ikonların taşması; `Wrap` içinde aynı renk tonlarına sahip iki aksiyon butonunun yan yana düşmesi; `tr_translations.dart` dosyasında bir anahtarın eksik kalması.
+- **Uygulanan Çözüm**:
+  - `FittedBox` ve `Expanded` ile taşma koruması sağlandı, renk paleti neo-brutalist kurallarla uyumlu kontrast mor ile ayrıştırıldı ve eksik çeviri tamamlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` çalıştırıldı.
+  - Proje geneli derleme ve test kontrolleri gerçekleştirildi.
+
 ### `Android Yerel Gelişmiş Reklam (NativeAd) Dar Ekran Genişlik Esnekliği ve Kısıtlama İyileştirmesi (§SPEC-2026-NATIVE-AD-ANDROID-POLISH)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:

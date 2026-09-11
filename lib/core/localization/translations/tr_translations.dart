@@ -4932,6 +4932,7 @@ const Map<String, String> trTranslations = {
     'real_estate_pkg_super_desc': '4 kat teklif hızı • Anında ilk VIP alıcı teklifi garantisi',
     'real_estate_expected_arrival_label': 'Tahmini Teklif Süresi',
     'real_estate_btn_manage_listing': 'İlanı Yönet',
+    'real_estate_btn_vacate_and_sell': 'Tahliye Et & Sat',
     'real_estate_btn_list_for_sale': 'Satış İlanı Ver',
     'real_estate_btn_view_offers': 'Gelen Teklifleri Gör',
     'real_estate_insufficient_balance_package': 'Yetersiz bakiye! Seçilen vitrin paketi için paranız yetmiyor.',

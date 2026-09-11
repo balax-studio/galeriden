@@ -520,33 +520,39 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                   : null,
                             ),
                             child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.gavel_rounded,
-                                    size: 14,
-                                    color: _selectedTabIndex == 0
-                                        ? Colors.black
-                                        : (isDark
-                                            ? Colors.white60
-                                            : const Color(0xFF64748B)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.gavel_rounded,
+                                        size: 14,
+                                        color: _selectedTabIndex == 0
+                                            ? Colors.black
+                                            : (isDark
+                                                ? Colors.white60
+                                                : const Color(0xFF64748B)),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        context.tr('auction_tab_customs'),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.3,
+                                          color: _selectedTabIndex == 0
+                                              ? Colors.black
+                                              : (isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF64748B)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    context.tr('auction_tab_customs'),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 0
-                                          ? Colors.black
-                                          : (isDark
-                                              ? Colors.white70
-                                              : const Color(0xFF64748B)),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -585,31 +591,37 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                   : null,
                             ),
                             child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.stars_rounded,
-                                    size: 14,
-                                    color: _selectedTabIndex == 1
-                                        ? Colors.black
-                                        : const Color(0xFFA855F7),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.stars_rounded,
+                                        size: 14,
+                                        color: _selectedTabIndex == 1
+                                            ? Colors.black
+                                            : const Color(0xFFA855F7),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        context.tr('auction_tab_vip'),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.3,
+                                          color: _selectedTabIndex == 1
+                                              ? Colors.black
+                                              : (isDark
+                                                  ? const Color(0xFFA855F7)
+                                                  : const Color(0xFF7C3AED)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    context.tr('auction_tab_vip'),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 1
-                                          ? Colors.black
-                                          : (isDark
-                                              ? const Color(0xFFA855F7)
-                                              : const Color(0xFF7C3AED)),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -648,35 +660,41 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                   : null,
                             ),
                             child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.list_alt_rounded,
-                                    size: 14,
-                                    color: _selectedTabIndex == 2
-                                        ? Colors.black
-                                        : (isDark
-                                            ? Colors.white60
-                                            : const Color(0xFF64748B)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.list_alt_rounded,
+                                        size: 14,
+                                        color: _selectedTabIndex == 2
+                                            ? Colors.black
+                                            : (isDark
+                                                ? Colors.white60
+                                                : const Color(0xFF64748B)),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        context.tr('auction_tab_catalog', {
+                                          'count': '${auctionState.upcomingLots.length}',
+                                        }),
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.3,
+                                          color: _selectedTabIndex == 2
+                                              ? Colors.black
+                                              : (isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF64748B)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    context.tr('auction_tab_catalog', {
-                                      'count': '${auctionState.upcomingLots.length}',
-                                    }),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.3,
-                                      color: _selectedTabIndex == 2
-                                          ? Colors.black
-                                          : (isDark
-                                              ? Colors.white70
-                                              : const Color(0xFF64748B)),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
@@ -715,33 +733,39 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                   : null,
                             ),
                             child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.sell_rounded,
-                                    size: 13,
-                                    color: _selectedTabIndex == 3
-                                        ? Colors.black
-                                        : (isDark
-                                            ? Colors.white60
-                                            : const Color(0xFF64748B)),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.sell_rounded,
+                                        size: 13,
+                                        color: _selectedTabIndex == 3
+                                            ? Colors.black
+                                            : (isDark
+                                                ? Colors.white60
+                                                : const Color(0xFF64748B)),
+                                      ),
+                                      const SizedBox(width: 3),
+                                      Text(
+                                        context.tr('auction_sell_tab'),
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.2,
+                                          color: _selectedTabIndex == 3
+                                              ? Colors.black
+                                              : (isDark
+                                                  ? Colors.white70
+                                                  : const Color(0xFF64748B)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    context.tr('auction_sell_tab'),
-                                    style: TextStyle(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.2,
-                                      color: _selectedTabIndex == 3
-                                          ? Colors.black
-                                          : (isDark
-                                              ? Colors.white70
-                                              : const Color(0xFF64748B)),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
