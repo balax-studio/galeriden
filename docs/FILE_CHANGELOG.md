@@ -22,6 +22,24 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Android Yerel Gelişmiş Reklam (NativeAd) Dar Ekran Genişlik Esnekliği ve Kısıtlama İyileştirmesi (§SPEC-2026-NATIVE-AD-ANDROID-POLISH)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - `NeoBrutalNativeAdCard` bileşeni içerisindeki `ConstrainedBox` yapısından katı `minWidth: 320` kısıtlamasının kaldırılması; 320dp-340dp genişliğindeki kompakt Android cihazlarda kenar boşlukları (padding/margin) nedeniyle oluşabilecek kutu kısıtlama çatışması (`BoxConstraints minWidth > maxWidth`) ve `RenderFlex` taşmalarının önlenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`:
+    - `AdWidget`'ı sarmalayan `BoxConstraints` içerisindeki `minWidth: 320` kaldırıldı; Google Native Template Medium gereksinimi olan dikey `minHeight: 320, maxHeight: 360` kuralı korunarak genişliğin üst kapsayıcıya ve ekran genişliğine göre doğal esnemesi sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Herhangi bir derleme veya çalışma zamanı hatasıyla karşılaşılmadı.
+- **Kök Neden**:
+  - `BoxConstraints` içinde sabit 320px asgari genişlik atanması, küçük ekranlı Android telefonlarda veya yatay boşluklu kolonlarda kullanılabilir genişliğin 320px altına düştüğü durumlarda potansiyel düzen bozulmalarına zemin hazırlamaktaydı.
+- **Uygulanan Çözüm**:
+  - Asgari genişlik sınırı kaldırılarak genişliğin tam duyarlı (responsive) olması sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart` çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/ad_service_test.dart` çalıştırıldı: 8/8 test başarıyla geçti.
+  - `flutter test test/ui_ux_pro_max_and_shaders_test.dart` çalıştırıldı: 8/8 test başarıyla geçti.
+
 ### `Neo-Brutalist Prosedürel Shader Dokuları, Sıfır Çıkmaz Boş Durumlar, Dar Ekran (<340dp) Taşma Koruması ve Slopsuz Açıklamalar (§SPEC-2026-UI-UX-PRO-MAX-SHADERS-OVERFLOWS-ZERO-SLOP)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:

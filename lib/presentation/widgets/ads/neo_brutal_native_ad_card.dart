@@ -762,7 +762,6 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
           borderRadius: BorderRadius.circular(10),
           child: ConstrainedBox(
             constraints: const BoxConstraints(
-              minWidth: 320,
               minHeight: 320,
               maxHeight: 360,
             ),
