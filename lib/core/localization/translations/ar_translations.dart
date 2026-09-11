@@ -5530,6 +5530,7 @@ const Map<String, String> arTranslations = {
     'auction_sell_no_cars_detail': 'يمكنك طرح المركبات المؤهلة من مرآبك للبيع بالمزاد هنا. لا يمكن بيع المركبات المؤجرة أو المقفلة في واجهة العرض.',
     'auction_sell_go_to_market_btn': 'الذهاب إلى سوق المركبات',
     'btn_send_to_auction': 'بيع في المزاد',
+    'auction_closed_sell_redirect_toast': 'قاعة المزاد مغلقة حاليا! تابع جدول الجلسة من القاعة الرئيسية.',
     'leaderboard_offline_badge': 'وضع عدم الاتصال • الترتيب المحلي',
     'real_estate_empty_listings_desc': 'لا توجد عقارات مطابقة للفلتر المحدد حاليا. حدّث السوق لاستكشاف عروض جديدة.',
     'real_estate_empty_listings_cta': 'تحديث السوق',

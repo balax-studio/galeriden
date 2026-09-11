@@ -66,7 +66,20 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
   @override
   void initState() {
     super.initState();
-    _selectedTabIndex = widget.initialTabIndex;
+    final isWindowOpen = ref.read(auctionSessionProvider).isWindowOpen;
+    if (widget.initialTabIndex == 3 && !isWindowOpen) {
+      _selectedTabIndex = 0;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          NotificationService.showWarning(
+            context,
+            context.tr('auction_closed_sell_redirect_toast'),
+          );
+        }
+      });
+    } else {
+      _selectedTabIndex = widget.initialTabIndex;
+    }
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -706,6 +719,15 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                       Expanded(
                         child: GestureDetector(
                           onTap: () {
+                            if (!auctionState.isWindowOpen) {
+                              HapticFeedback.mediumImpact();
+                              NotificationService.showWarning(
+                                context,
+                                context.tr('auction_closed_sell_redirect_toast'),
+                              );
+                              setState(() => _selectedTabIndex = 0);
+                              return;
+                            }
                             HapticFeedback.selectionClick();
                             setState(() => _selectedTabIndex = 3);
                           },
@@ -741,7 +763,9 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
-                                        Icons.sell_rounded,
+                                        !auctionState.isWindowOpen
+                                            ? Icons.lock_clock_rounded
+                                            : Icons.sell_rounded,
                                         size: 13,
                                         color: _selectedTabIndex == 3
                                             ? Colors.black
@@ -775,44 +799,55 @@ class _AuctionScreenState extends ConsumerState<AuctionScreen>
                   ),
                 ),
                 Expanded(
-                  child: (_selectedTabIndex == 0 || _selectedTabIndex == 1)
-                      ? (!auctionState.isWindowOpen
-                          ? AuctionClosedWindowView(
-                              isDark: isDark,
-                              closedCountdown: auctionState.closedCountdown,
-                              isOfficerConsulted: auctionState.isOfficerConsulted,
-                              officerSpeech: auctionState.officerSpeech,
-                              onRefresh: () async {
-                                HapticFeedback.mediumImpact();
-                                await Future.delayed(const Duration(milliseconds: 350));
-                                if (mounted) {
-                                  ref.read(auctionSessionProvider.notifier).refreshWindow();
-                                }
-                              },
-                              onConsultOfficer: (speech) {
-                                ref.read(auctionSessionProvider.notifier).consultOfficer(speech);
-                              },
-                              onBypassWithAd: () {
-                                ref.read(auctionSessionProvider.notifier).bypassClosedCooldownWithAd();
-                              },
-                            )
-                          : AuctionLiveBiddingView(
-                              auction: auctionState.auction,
-                              bidLogs: auctionState.bidLogs,
-                              isDark: isDark,
-                              playerBalance: game.balance,
-                              hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
-                              onPlaceBid: _placePlayerBid,
-                              onBluff: _executeTrollBluff,
-                            ))
-                      : (_selectedTabIndex == 2
-                          ? AuctionUpcomingCatalogTab(
-                              upcomingLots: auctionState.upcomingLots,
-                              isDark: isDark,
-                            )
-                          : AuctionSellTab(
-                              isDark: isDark,
-                            )),
+                  child: Builder(
+                    builder: (context) {
+                      if (!auctionState.isWindowOpen &&
+                          (_selectedTabIndex == 0 ||
+                              _selectedTabIndex == 1 ||
+                              _selectedTabIndex == 3)) {
+                        return AuctionClosedWindowView(
+                          isDark: isDark,
+                          closedCountdown: auctionState.closedCountdown,
+                          isOfficerConsulted: auctionState.isOfficerConsulted,
+                          officerSpeech: auctionState.officerSpeech,
+                          onRefresh: () async {
+                            HapticFeedback.mediumImpact();
+                            await Future.delayed(const Duration(milliseconds: 350));
+                            if (mounted) {
+                              ref.read(auctionSessionProvider.notifier).refreshWindow();
+                            }
+                          },
+                          onConsultOfficer: (speech) {
+                            ref.read(auctionSessionProvider.notifier).consultOfficer(speech);
+                          },
+                          onBypassWithAd: () {
+                            ref.read(auctionSessionProvider.notifier).bypassClosedCooldownWithAd();
+                          },
+                        );
+                      }
+
+                      if (_selectedTabIndex == 0 || _selectedTabIndex == 1) {
+                        return AuctionLiveBiddingView(
+                          auction: auctionState.auction,
+                          bidLogs: auctionState.bidLogs,
+                          isDark: isDark,
+                          playerBalance: game.balance,
+                          hasPlayerEnteredBid: auctionState.hasPlayerEnteredBid,
+                          onPlaceBid: _placePlayerBid,
+                          onBluff: _executeTrollBluff,
+                        );
+                      } else if (_selectedTabIndex == 2) {
+                        return AuctionUpcomingCatalogTab(
+                          upcomingLots: auctionState.upcomingLots,
+                          isDark: isDark,
+                        );
+                      } else {
+                        return AuctionSellTab(
+                          isDark: isDark,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ],
             ),

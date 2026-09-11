@@ -5537,6 +5537,7 @@ const Map<String, String> enTranslations = {
     'auction_sell_no_cars_detail': 'You can auction eligible vehicles from your garage here. Rented or showcase-locked vehicles cannot be sold at auction.',
     'auction_sell_go_to_market_btn': 'Go to Vehicle Market',
     'btn_send_to_auction': 'Sell at Auction',
+    'auction_closed_sell_redirect_toast': 'The auction hall is currently closed! Follow the session schedule from the main hall.',
     'leaderboard_offline_badge': 'Offline Mode • Local Standings',
     'real_estate_empty_listings_desc': 'No real estate listings currently match your filter. Refresh the market to explore new properties.',
     'real_estate_empty_listings_cta': 'Refresh Market',

@@ -14,6 +14,7 @@ import '../../../../data/models/dealership_model.dart';
 import '../../../../data/models/expertise_model.dart';
 import '../../../../data/models/theme_palette_model.dart';
 import '../../../../domain/usecases/visitor_queue_engine.dart';
+import '../../../providers/auction_session_provider.dart';
 import '../../../providers/game_provider.dart';
 import '../../../providers/tutorial_provider.dart';
 import '../../../widgets/animated_rolling_counter.dart';
@@ -1275,16 +1276,37 @@ class ShowroomCarCard extends ConsumerWidget {
                   _buildVasitaActionButton(context, ref, isDark)!,
                 if (game.isFeatureUnlocked('/auction') && !car.isRented && !car.isLockedInShowcase) ...[
                   const SizedBox(height: 8),
-                  NeoBrutalButton(
-                    label: context.tr('btn_send_to_auction'),
-                    icon: Icons.gavel_rounded,
-                    backgroundColor: const Color(0xFF38BDF8),
-                    textColor: Colors.black,
-                    fontSize: 11,
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    fullWidth: true,
-                    onPressed: () {
-                      context.push('/auction?tab=3');
+                  Builder(
+                    builder: (btnCtx) {
+                      final isAuctionOpen = ref.watch(auctionSessionProvider.select((s) => s.isWindowOpen));
+                      return NeoBrutalButton(
+                        label: isAuctionOpen
+                            ? context.tr('btn_send_to_auction')
+                            : '${context.tr('btn_send_to_auction')} • ${context.tr('auction_closed_badge')}',
+                        icon: isAuctionOpen ? Icons.gavel_rounded : Icons.lock_clock_rounded,
+                        backgroundColor: isAuctionOpen
+                            ? const Color(0xFF38BDF8)
+                            : (isDark ? const Color(0xFF1E2330) : const Color(0xFFE2E8F0)),
+                        textColor: isAuctionOpen
+                            ? Colors.black
+                            : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                        fontSize: 11,
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        fullWidth: true,
+                        onPressed: () {
+                          final openNow = ref.read(auctionSessionProvider).isWindowOpen;
+                          if (!openNow) {
+                            HapticFeedback.mediumImpact();
+                            NotificationService.showWarning(
+                              context,
+                              context.tr('auction_closed_sell_redirect_toast'),
+                            );
+                            context.push('/auction');
+                            return;
+                          }
+                          context.push('/auction?tab=3');
+                        },
+                      );
                     },
                   ),
                 ],

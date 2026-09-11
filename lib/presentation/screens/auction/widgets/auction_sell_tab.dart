@@ -8,9 +8,11 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/services/game_sound_haptic_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../domain/usecases/consignment_auction_engine.dart';
+import '../../../providers/auction_session_provider.dart';
 import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
@@ -43,6 +45,16 @@ class _AuctionSellTabState extends ConsumerState<AuctionSellTab> {
   }
 
   void _startAuction(CarModel car, double reservePrice) {
+    final isWindowOpen = ref.read(auctionSessionProvider).isWindowOpen;
+    if (!isWindowOpen) {
+      HapticFeedback.mediumImpact();
+      NotificationService.showWarning(
+        context,
+        context.tr('auction_closed_sell_redirect_toast'),
+      );
+      return;
+    }
+
     HapticFeedback.heavyImpact();
     GameSoundHapticService.playAuctionHammer();
 

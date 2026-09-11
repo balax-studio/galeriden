@@ -5529,6 +5529,7 @@ const Map<String, String> deTranslations = {
     'auction_sell_no_cars_detail': 'Hier können Sie geeignete Fahrzeuge aus Ihrer Garage versteigern. Vermietete oder gesperrte Fahrzeuge können nicht versteigert werden.',
     'auction_sell_go_to_market_btn': 'Zum Fahrzeugmarkt',
     'btn_send_to_auction': 'Auf Auktion verkaufen',
+    'auction_closed_sell_redirect_toast': 'Der Auktionssaal ist derzeit geschlossen! Verfolge den Zeitplan im Hauptsaal.',
     'leaderboard_offline_badge': 'Offline-Modus • Lokale Rangliste',
     'real_estate_empty_listings_desc': 'Derzeit entsprechen keine Immobilienangebote Ihrem Filter. Aktualisieren Sie den Markt, um neue Objekte zu entdecken.',
     'real_estate_empty_listings_cta': 'Markt aktualisieren',

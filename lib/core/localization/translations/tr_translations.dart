@@ -5534,6 +5534,7 @@ const Map<String, String> trTranslations = {
     'auction_sell_no_cars_detail': 'Garajınızdaki uygun araçları burada açık artırmaya çıkarabilirsiniz. Kiralanmış veya vitrine kilitlenmiş araçlar müzayedede satılamaz.',
     'auction_sell_go_to_market_btn': 'Vasıta Pazarına Git',
     'btn_send_to_auction': 'Müzayedede Sat',
+    'auction_closed_sell_redirect_toast': 'Müzayede salonu şu anda kapalı! Mezat saatini ana salondan takip edin.',
     'leaderboard_offline_badge': 'Çevrimdışı Mod • Yerel Sıralama',
     'real_estate_empty_listings_desc': 'Şu anda filtrenize uygun satılık gayrimenkul ilanı bulunmuyor. İlanları yenileyerek yeni portföyleri keşfedebilirsiniz.',
     'real_estate_empty_listings_cta': 'Piyasayı Yenile',

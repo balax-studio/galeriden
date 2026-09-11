@@ -5529,6 +5529,7 @@ const Map<String, String> ptTranslations = {
     'auction_sell_no_cars_detail': 'Voce pode leiloar veiculos elegiveis da sua garagem aqui. Veiculos alugados ou bloqueados na vitrine nao podem ser vendidos em leilao.',
     'auction_sell_go_to_market_btn': 'Ir para o Mercado de Veiculos',
     'btn_send_to_auction': 'Vender em Leilao',
+    'auction_closed_sell_redirect_toast': 'O salao de leiloes esta fechado no momento! Acompanhe o horario no salao principal.',
     'leaderboard_offline_badge': 'Modo Offline • Classificação Local',
     'real_estate_empty_listings_desc': 'Nenhum imóvel corresponde ao seu filtro no momento. Atualize o mercado para descobrir novas oportunidades.',
     'real_estate_empty_listings_cta': 'Atualizar Mercado',

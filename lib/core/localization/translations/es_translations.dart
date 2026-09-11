@@ -5529,6 +5529,7 @@ const Map<String, String> esTranslations = {
     'auction_sell_no_cars_detail': 'Aqui puede subastar vehiculos elegibles de su garaje. Los vehiculos alquilados o bloqueados en escaparate no se pueden vender en subasta.',
     'auction_sell_go_to_market_btn': 'Ir al Mercado de Vehiculos',
     'btn_send_to_auction': 'Vender en Subasta',
+    'auction_closed_sell_redirect_toast': 'La sala de subastas esta cerrada actualmente! Consulta el horario en la sala principal.',
     'leaderboard_offline_badge': 'Modo Sin Conexión • Clasificación Local',
     'real_estate_empty_listings_desc': 'Actualmente no hay inmuebles que coincidan con su filtro. Actualice el mercado para explorar nuevas ofertas.',
     'real_estate_empty_listings_cta': 'Actualizar Mercado',

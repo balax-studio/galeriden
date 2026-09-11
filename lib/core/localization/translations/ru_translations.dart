@@ -5530,6 +5530,7 @@ const Map<String, String> ruTranslations = {
     'auction_sell_no_cars_detail': 'Здесь вы можете выставить на аукцион подходящие автомобили из гаража. Арендованные или заблокированные автомобили нельзя продать на аукционе.',
     'auction_sell_go_to_market_btn': 'Перейти на авторынок',
     'btn_send_to_auction': 'Продать на аукционе',
+    'auction_closed_sell_redirect_toast': 'Аукционный зал сейчас закрыт! Следите за расписанием сессий в главном зале.',
     'leaderboard_offline_badge': 'Офлайн режим • Локальный рейтинг',
     'real_estate_empty_listings_desc': 'В настоящее время нет объектов, соответствующих вашему фильтру. Обновите рынок для новых предложений.',
     'real_estate_empty_listings_cta': 'Обновить рынок',

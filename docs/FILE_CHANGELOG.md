@@ -22,6 +22,39 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Müzayede Satış Kısayolu Kaçak Önleme, Mezat Kapalı Durum Gating ve 7 Dil Senkronizasyonu (§SPEC-2026-AUCTION-CLOSED-SELL-GUARD)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  1. Galeri araç kartlarındaki "Müzayedede Sat" butonunun, mezat salonu kapalıyken (`!isWindowOpen`) kural dışı doğrudan Tab 3'e (`/auction?tab=3`) yönlendirme açığının kapatılması.
+  2. Müzayede kapalıyken galeri kartındaki butonun kilitli mezat durumu rozeti (`MEZAT KAPALI`) ve kilit saati ikonu (`Icons.lock_clock_rounded`) ile pasif/bilgilendirici duruma geçmesi.
+  3. Müzayede kapalıyken bu butona tıklandığında doğrudan satış tabına geçmek yerine kullanıcıya uyarı bildirimi verilmesi ve geri sayım ile güvenlik görevlisinin bulunduğu mezat ana salonuna (`/auction` Tab 0) yönlendirilmesi.
+  4. `AuctionScreen` içerisinde `initialTabIndex: 3` ile giriş yapılması durumunda mezat kapalıysa Tab 0'a zorunlu geri çekilerek uyarı verilmesi; Tab 3 sekme başlığının kilit ikonu göstermesi ve tıklandığında uyararak ana salonda tutulması.
+  5. Mezat salonu kapalıyken sekme gövdesinin Tab 3 için de `AuctionClosedWindowView` render etmesinin sağlanması ve `AuctionSellTab._startAuction` fonksiyonuna da ikincil güvenlik bariyeri eklenmesi.
+  6. `auction_closed_sell_redirect_toast` anahtarının 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) parantezsiz ve emojisiz olarak senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/showroom/widgets/showroom_car_card.dart`:
+    - "Müzayedede Sat" butonu `auctionSessionProvider.isWindowOpen` kontrolüne bağlandı; kapalıyken buton etiketi `Müzayedede Sat • MEZAT KAPALI`, ikonu `Icons.lock_clock_rounded` yapıldı.
+    - Kapalıyken tıklandığında `NotificationService.showWarning` ile toast gösterilip mezat ana sayfasına (`/auction`) yönlendirme sağlandı; açıkken doğrudan `tab=3`e yönlendirildi.
+  - `lib/presentation/screens/auction/auction_screen.dart`:
+    - `initState` içinde `widget.initialTabIndex == 3 && !isWindowOpen` durumunda sekme 0'a çekildi ve uyarı toast'u tetiklendi.
+    - Tab 3 sekme başlığına kapalı mezat kontrolü eklendi; tıklandığında uyarı verilip Tab 0'da kalması sağlandı ve ikonu `Icons.lock_clock_rounded` olarak güncellendi.
+    - Sekme gövdesi Builder mimarisine geçirilerek mezat kapalıyken sekme 0, 1 ve 3 için `AuctionClosedWindowView` zorunlu kılındı.
+  - `lib/presentation/screens/auction/widgets/auction_sell_tab.dart`:
+    - `_startAuction` fonksiyonuna `ref.read(auctionSessionProvider).isWindowOpen` kontrolü eklenerek kapalı mezat sırasında satış başlatma denemelerine karşı savunma katmanı sağlandı.
+  - `lib/core/localization/translations/*.dart`:
+    - 7 dilde `auction_closed_sell_redirect_toast` anahtarı eklendi.
+  - `test/auction_closed_shortcut_guard_test.dart`:
+    - 7 dil senkronizasyonu, sıfır emoji & sıfır parantez kuralları, kapalı/açık mezat tab 3 yönlendirme ve kilit davranışı için 5 adet otomatik test yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Widget testlerinde `pulseController` animasyonu ve toast bildirim pausable timer'larının widget unmount öncesi drain edilmemesi nedeniyle pending timer assertion oluştu.
+- **Kök Neden**:
+  - Flutter test framework'ü aktif timer ve controller'lar yok edilmeden widget ağacı kapatıldığında `!timersPending` hatası fırlatır.
+- **Uygulanan Çözüm**:
+  - Testlerde `tester.pump(const Duration(seconds: 3))` ile timer'lar drain edildi ve unmount öncesi kontroller sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` çalıştırıldı: 0 sorun (No issues found).
+  - `flutter test` ile toplam 27 müzayede testi başarıyla tamamlandı.
+
 ### `Görsel Taşma Düzeltmeleri, Emlak Portföyü Buton Renk Çakışması & Prosedürel Dokular (§SPEC-2026-UI-OVERFLOWS-REAL-ESTATE-POLISH)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:
