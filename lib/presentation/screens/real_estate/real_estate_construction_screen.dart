@@ -436,7 +436,7 @@ class _RealEstateConstructionScreenState
         const SizedBox(height: 14),
 
         // FINALIZE OR NEXT STAGE ACTION
-        if (isFinished) ...[
+        if (isFinished || (land.constructionMode == 'contractor' && land.constructionDaysRemaining <= 0 && land.constructionStage >= 8)) ...[
           _buildFinalizeCard(context, theme, land, isDark),
         ] else if (land.constructionMode == 'selfBuild') ...[
           _buildSelfBuildAdvanceCard(
@@ -1264,8 +1264,8 @@ class _RealEstateConstructionScreenState
           const SizedBox(height: 10),
 
           ...stages.map((stage) {
-            final isStagePassed = currentStage > stage.stageNumber;
-            final isCurrentStage = currentStage == stage.stageNumber;
+            final isStagePassed = isFinished || currentStage > stage.stageNumber;
+            final isCurrentStage = !isFinished && currentStage == stage.stageNumber;
             final hasActiveSub = land.activeSubcontractorName != null &&
                 land.activeSubcontractorName!.isNotEmpty;
             final isWorking = isCurrentStage &&
@@ -2646,6 +2646,9 @@ class _RealEstateConstructionScreenState
   // --- CONTRACTOR WAIT CARD ---
   Widget _buildContractorWaitCard(
       BuildContext context, ThemeData theme, RealEstateModel land, bool isDark) {
+    if (land.constructionDaysRemaining <= 0 && land.constructionStage >= 8) {
+      return _buildFinalizeCard(context, theme, land, isDark);
+    }
     final currentWeather = ref.watch(gameProvider.select((s) => s.currentWeather));
     final isWeatherFrozen = (currentWeather == WeatherType.rainy || currentWeather == WeatherType.snowy) &&
         (land.constructionStage == 2 || land.constructionStage == 3);

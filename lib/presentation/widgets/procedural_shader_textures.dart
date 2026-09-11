@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+export 'blueprint_grid_background.dart' show BlueprintPatternType, BlueprintGridBackground;
 
 /// Lightweight procedural canvas textures providing authentic tactile grit,
 /// retro-futuristic CRT scanlines, Bayer matrix dithering, and neo-brutalist stamps

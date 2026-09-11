@@ -27,6 +27,7 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
+import '../../widgets/blueprint_grid_background.dart';
 import 'widgets/noter_transfer_dialog.dart';
 
 class VasitaNegotiationScreen extends ConsumerStatefulWidget {
@@ -665,22 +666,31 @@ class _VasitaNegotiationScreenState
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
       padding: const EdgeInsets.all(12),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.technicalCrosses,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.fact_check_rounded, size: 18, color: Color(0xFF00E575)),
-                  const SizedBox(width: 6),
-                  Text(
-                    context.tr('vasita_expertise_card_title'),
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.fact_check_rounded, size: 18, color: Color(0xFF00E575)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        context.tr('vasita_expertise_card_title'),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => setState(() => _isInspectionExpanded = !_isInspectionExpanded),
                 child: Container(

@@ -22,6 +22,277 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Özel Plaka Tasarımcısı Düzen Taşma Çözümü & Nadirlik Bazlı Generatif Shader Dokuları (§SPEC-2026-PLATE-DESIGNER-OVERFLOW-AND-SHADERS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Özel Plaka Merkezi (Special Plate Screen) - Plaka Tasarla sekmesindeki alt kartta eylem butonu ile harç bedelinin yatayda yarışması sonucu oluşan 74 piksellik `RenderFlex overflow` taşma hatasının kalıcı olarak çözülmesi.
+  - İl plaka kodu dropdown'ı, harf grubu ve rakam grubu etiketlerine `maxLines: 1` ve `TextOverflow.ellipsis` koruması getirilmesi.
+  - Araç atama alt modalında (Vehicle Assignment Bottom Sheet) başlık satırına `Expanded` güvencesi getirilerek dar ekranlarda kapatma ikonu ile çakışmanın engellenmesi.
+  - `/generative-art-shaders` ve `/ui-ux-pro-max` standartları doğrultusunda, Özel Plaka Koleksiyonu ve Tasarımcısı kartlarına nadirlik seviyesine (`legendary`: `bayerDither`, `symmetric`: `isometricBlueprint`, `repeated`: `graphPaper`, `standard`: `technicalCrosses`) ve canlı önizleme/tasarım panellerine özel prosedürel mimari dokuların giydirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/office/special_plate_screen.dart`:
+    - Tab 2 alt eylem kutusundaki `Row` yapısı dikey `Column(crossAxisAlignment: CrossAxisAlignment.stretch)` mimarisine dönüştürüldü; üst satırda "Hesaplanan Harç & Bedel" ve yetersiz bakiye rozeti yer alırken, alt satırda `fullWidth: true` "PLAKAYI TESCİL ET & ARACA TAK" butonu konumlandırılarak 74 piksellik taşma tamamen sıfırlandı.
+    - İl plaka kodu dropdown menü elemanlarına ve harf/rakam giriş alanı başlıklarına `maxLines: 1, overflow: TextOverflow.ellipsis` eklendi.
+    - Tab 1 plaka kartlarında her nadirlik seviyesine özel prosedürel doku (`bayerDither`, `isometricBlueprint`, `graphPaper`, `technicalCrosses`) bağlandı.
+    - Canlı plaka önizleme kartına `technicalCrosses` (teknik kalibrasyon artıları), parametre kartına `graphPaper` (milimetrik tasarım defteri) dokusu verildi.
+    - Araç atama modalı başlığına `Expanded` sarımı ve araç listesi kartlarına metin taşma koruması uygulandı.
+  - `test/layout_overflow_and_generative_shaders_test.dart`:
+    - Test 6: 320px kompakt mobil görünümde Plaka Tasarımcısı harç dökümü ve tam genişlikli tescil butonunun sıfır taşmayla çalıştığı doğrulandı.
+    - Test 7: 320px mobil görünümde araç atama modal başlığının taşmasız render edildiği test edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Unconstrained `Row` içinde uzun buton etiketi ("PLAKAYI TESCİL ET & ARACA TAK" ~30 karakter) ve 2 satırlı harç bedeli yan yana sığmayıp ekran dışına 74px taşıyordu.
+  - Statik analiz sırasında `BlueprintPatternType.isometricGrid` yerine doğru enum sabitinin `BlueprintPatternType.isometricBlueprint` olduğu tespit edildi.
+- **Kök Neden**:
+  - Mobil dikey hiyerarşide birincil aksiyon butonunun dar bir yatay flex içinde tutulması; flex genişliğinin butonun minimum intrinsik genişliğinden daha dar kalması.
+- **Uygulanan Çözüm**:
+  - Fitts Kanunu ve mobil neo-brutalist ergonomiye uygun olarak harç dökümü yukarıya, tam genişlikli buton aşağıya alındı (`Column(crossAxisAlignment: CrossAxisAlignment.stretch)`).
+  - Enum sabiti `isometricBlueprint` olarak düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/` (No issues found, 0 errors, 0 warnings).
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart` (15/15 test başarıyla geçti).
+  - Web geliştirme sunucusuna Hot Reload uygulandı.
+
+### `10 Ekran Düzen Taşma Çözümleri, UX Yerleşim İyileştirmeleri & Prosedürel Generatif Shader Dokuları (§SPEC-2026-FULL-10-SCREEN-OVERFLOW-AND-SHADERS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Kullanıcı tarafından iletilen 10 ekran görüntüsündeki (Part 1 ve Part 2) tüm yatay ve dikey `RenderFlex overflow` taşma hatalarının ve UX sıkışmalarının kalıcı olarak giderilmesi.
+  - `/generative-art-shaders` ve `/ui-ux-pro-max` standartları doğrultusunda, monoton mavi CAD grid desenleri yerine her ekranın bağlamına uygun prosedürel dokuların (`crtScanlines`, `bayerDither`, `technicalCrosses`, `graphPaper`) CustomPainter seviyesinde sıfır GPU tahsisli olarak giydirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/neo_brutal_app_bar.dart`:
+    - `NeoBrutalTabBar`: `isScrollable`, `tabAlignment`, `fontSize` ve `padding` parametreleri eklendi; `TabBarIndicatorSize.tab` kapsayıcı içine alınarak 40px yüksekliğe kilitlendi. Borsa ekranında canlı piyasa şeridinin üzerine taşan sarı gösterge kutucuğu hatası giderildi.
+    - `titlePlate`: Başlık metni `FittedBox(fit: BoxFit.scaleDown)` içine alınarak uzun başlıkların (ör. "VIP PROTOKOL MÜZAYEDESİ") harf kesilmeden orantılı küçülmesi sağlandı.
+  - `lib/presentation/screens/vasita/vasita_expertise_screen.dart`:
+    - Şasi kontrol kartı başlığındaki unconstrained `Row` içindeki araç başlığı `Expanded` ile sarıldı; 59 piksellik taşma giderildi.
+    - Şasi ve motor diagnostik kartlarına oto ekspertiz dyno osiloskop ruhunu veren `BlueprintPatternType.crtScanlines` prosedürel dokusu eklendi.
+  - `lib/presentation/screens/vasita/vasita_negotiation_screen.dart`:
+    - Ekspertiz özet kartı başlığı `Expanded` içine alınarak 6.2 piksellik taşma giderildi.
+    - Ekspertiz kartına teknik hizalama artı işaretleri sunan `BlueprintPatternType.technicalCrosses` prosedürel deseni işlendi.
+  - `lib/presentation/screens/marketplace/widgets/negotiation_seller_profile_card.dart`:
+    - Müşteri profil kartında satıcı isim satırı `Expanded` ile sarıldı; 88 piksellik taşma giderildi.
+    - Satıcı kartı zeminine gazete seri ilan ve basılı doküman pürüzlülüğü kazandıran `BlueprintPatternType.bayerDither` eklendi.
+  - `lib/presentation/screens/auction/widgets/auction_upcoming_catalog_tab.dart`:
+    - LOT menşe rozetleri (İcra Dairesi, Gümrük Tasfiye vb.) `Expanded` ile sınırlandırıldı; 96px, 124px ve 111px taşmaları çözüldü.
+    - Adliye icra ve gümrük dökümü dokusu için `BlueprintPatternType.bayerDither` eklendi.
+  - `lib/presentation/screens/stock_market/stock_market_screen.dart`:
+    - `NeoBrutalAppBar.bottom` sekmesi `NeoBrutalTabBar` bileşenine dönüştürüldü.
+    - Döviz senkronizasyon altbilgisindeki 5.6 piksellik taşma giderildi.
+    - Halka Arz (IPO) kartlarındaki holding unvanı ve şirket adları ("VoltŞarj" 52px, "Ege Dövme" 60px) `Expanded` içine alınarak taşmalar çözüldü.
+    - Borsa kartlarına finansal milimetrik defter dokusu sunan `BlueprintPatternType.graphPaper` prosedürel deseni entegre edildi.
+  - `lib/presentation/screens/side_business/side_business_detail_screen.dart`:
+    - Modüller listesinde montaj devam ederken başlığı sıkıştıran ve satırı ezen "MÜTEAHHİT HIZLANDIRMASI" butonu üst satırdan kaldırılarak alt montaj çubuğuna tam genişlikli buton olarak taşındı; üst satıra kompakt `%XX` rozeti yerleştirilerek başlık ve açıklamaya tam yatay alan kazandırıldı.
+  - `lib/presentation/widgets/dialogs/neo_brutal_operation_dialog.dart`:
+    - Hurdalık söküm ve ezme diyaloglarında araç modeli rozeti `ConstrainedBox(constraints: BoxConstraints(maxWidth: (MediaQuery.of(context).size.width - 160).clamp(100.0, 180.0)))` ile sınırlandırıldı ve `Wrap` ile sarıldı; 130 piksellik taşma giderildi.
+    - Gövdeye CRT scanlines katmanı giydirildi.
+  - `lib/presentation/screens/casino/casino_hub_screen.dart`:
+    - `_buildSectionHeader`: Başlık sütunu `Expanded` ile sarıldı, tek satır sınırlandı ve rozet öncesi `SizedBox(width: 8)` eklendi; Bölüm 2 (4.1px) ve Bölüm 3 (1.5px) başlık taşmaları çözüldü.
+    - Oyun kartlarına yeraltı arcade atmosferini pekiştiren `BlueprintPatternType.crtScanlines` prosedürel dokusu eklendi.
+  - `lib/presentation/screens/office/special_plate_screen.dart`:
+    - Bakiye kartında sol sütun `Expanded` ile sarıldı; sağdaki iki rozet tek satırda yarışmak yerine dikey `Column` içine istiflenerek 41 piksellik taşma çözüldü.
+    - `_buildPlateCard`: Başlık satırı `Wrap` yapısına kavuşturuldu; il tescil metnine `TextAlign.end` ve tek satır koruması eklendi; kart zeminine resmi tescil dokusu veren `BlueprintPatternType.technicalCrosses` deseni uygulandı.
+  - `lib/presentation/widgets/blueprint_grid_background.dart` & `procedural_shader_textures.dart`:
+    - `graphPaper` milimetrik borsa defteri deseni prosedürel fırça algoritmasıyla eklendi.
+    - `procedural_shader_textures.dart` üzerinden `BlueprintPatternType` dışa aktarılarak modüler import mimarisi kuruldu.
+  - `test/layout_overflow_and_generative_shaders_test.dart`:
+    - 13 adet kapsamlı widget testi ile 320px kompakt mobil görünümde tüm taşma senaryoları ve 5 farklı prosedürel doku kalıbı doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Borsa sekmesinde standart `TabBar` indicator'ı app bar toolbar içerisine kayıp can alıcı borsa ticker'ını kapatıyordu.
+  - Scrapyard, Casino, Borsa ve Özel Plaka ekranlarında unconstrained `Row` içi uzun başlıklar sağ kenardan 0.8px ile 130px arasında taşmaya neden oluyordu.
+  - Ekranlarda yalnızca tek tip CAD grid kullanılması görsel çeşitliliği ve taktil derinliği kısıtlıyordu.
+- **Kök Neden**:
+  - `ThemeData.tabBarTheme.indicator` varsayılan yüksekliğinin app bar konteyneriyle çakışması; flex yapılarda metin alanlarının `Expanded` veya `Wrap` yerine intrinsic genişlikle serbest bırakılması.
+- **Uygulanan Çözüm**:
+  - Kapsayıcı `NeoBrutalTabBar` mimarisi uygulandı, tüm flex çocukları `Expanded` ve `Wrap` ile güvenceye alındı, 4 farklı tematik prosedürel doku (`crtScanlines`, `bayerDither`, `technicalCrosses`, `graphPaper`) CustomPainter algoritmalarıyla entegre edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart` (13/13 test geçti).
+  - `flutter analyze lib/` (No issues found, 0 errors, 0 warnings).
+
+### `Layout Taşma Çözümleri & Prosedürel Generatif Shader / Dokusal Mikro İyileştirmeler (§SPEC-2026-UI-OVERFLOW-AND-GENERATIVE-SHADERS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Gösterge paneli, hizmetler bentosu, ekspertiz/dyno operasyon diyaloğu ve vasıta pazarı araç kartlarında tespit edilen yatay taşma (RenderFlex overflow) hatalarının kökten çözülmesi.
+  - Generative Art & Algorithmic Shaders mimarisi kapsamında tüm kartlarda tekdüze tekrarlanan CAD blueprint çizgilerinin ötesine geçilerek, domainine uygun Bayer Matrix (ordered dithering), CRT scanlines (retro raster) ve dot bubble doku katmanlarının prosedürel olarak kazandırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/blueprint_grid_background.dart`:
+    - `BlueprintPatternType` enumuna `bayerDither` ve `crtScanlines` modelleri eklendi.
+    - `_BlueprintPatternPainter`: 4x4 normalize Bayer matris eşiği üzerinden sıfır bitmap tahsisli ordered dithering ve yüksek frekanslı CRT scanline fırçaları entegre edildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`:
+    - Günlük ikilem kartında (`NeoBrutalDramaticCard`) karakter isim ve unvan satırı `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis))` ile sınırlandırıldı; 11 piksellik taşma giderildi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - Showroom başlığındaki ham bakiye metni `CurrencyFormatter.formatShort(game.balance)` (ör. `₺6.4M`) ile kompaktlaştırıldı; 6.8 piksellik taşma giderildi.
+    - Oto Yıkama kartında `NeoBrutalBadge` esnek `Flexible` kapsayıcısına alındı, rozet dolgusu optimize edildi ve desen `BlueprintPatternType.dots` (köpük/su kabarcığı matrisi) ile sanatsal olarak çeşitlendirildi; 27 piksellik taşma giderildi.
+    - Tuning Stüdyosu kartı dyno/ECU diagnostik ruhuna uygun `BlueprintPatternType.crtScanlines` desenine geçirildi.
+    - Vasıta Pazarı kartında `Yat • Karavan • Motor` rozeti `Flexible` ile sarıldı ve desen denizcilik/nakliyat dokusuna uygun `BlueprintPatternType.bayerDither` olarak güncellendi; 28 piksellik taşma giderildi.
+  - `lib/presentation/widgets/dialogs/neo_brutal_operation_dialog.dart`:
+    - Dyno ve detaylı ekspertiz operasyon penceresi gövdesine CRT yeşil/kehribar osiloskop dokusu veren `CrtScanlinesOverlay` giydirildi.
+    - Diyalog başlığındaki araç modeli adı ve nabız animasyonlu durum rozeti `Wrap` + `ConstrainedBox(maxWidth: 160)` ile duyarlı hale getirildi; 23 piksellik taşma giderildi.
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - Araç ilan kartı başlığındaki satıcı şehir/isim bilgisi `Expanded(child: Text(..., maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.end))` ile güvene alındı.
+    - Araç ilan kartı zeminine fiziksel açık artırma/nakliye manifestosu dokusu sunan `showBlueprintGrid: true` + `BlueprintPatternType.bayerDither` prosedürel dokusu eklendi.
+    - Kart altbilgisindeki piyasa değeri, ekspertiz butonu ve pazarlık butonu satırı duyarlı `Wrap` (spacing: 8, runSpacing: 8) yapısına kavuşturuldu; 33 piksellik buton taşması tamamen çözüldü.
+  - `lib/presentation/widgets/neo_brutal_button.dart`:
+    - `NeoBrutalButton` iç metninde `Flexible` + `Text` aralıkları optimize edildi, harf aralığından kaynaklanan 3.5 piksellik taşma riski elendi.
+  - `test/layout_overflow_and_generative_shaders_test.dart`:
+    - 320px kompakt mobil ekran genişliğinde ikilem kartı, bentos servis rozeti, operasyon başlığı, vasıta pazar altbilgisi ve prosedürel shader desenlerini denetleyen 7 yeni otomatik test yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Dar ekranlarda (320px - 360px) uzun isimler, geniş metinli butonlar ve unconstrained `Row` içi elemanlar `RenderFlex overflow` üretiyordu.
+  - Tüm kartların aynı CAD mavi/camgöbeği ızgarayı kullanması görsel monotonluk oluşturuyordu.
+- **Kök Neden**:
+  - Flex konteynerler (`Row`) içerisinde elemanların `Expanded`/`Flexible` veya `Wrap` yerine intrinsic genişlikleriyle yerleşmesi ve ekran sınırını aşması.
+- **Uygulanan Çözüm**:
+  - Satırlar `Expanded`/`Flexible` ve `Wrap` ile sarmalandı; sayılar `formatShort` ile sıkılaştırıldı; `BlueprintPatternType` içine `bayerDither` ve `crtScanlines` eklenerek her servisin temasına uygun mikro-dokular işlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart` (7/7 test geçti).
+  - `flutter test test/small_screen_overflow_audit_test.dart` (3/3 test geçti).
+  - `flutter test test/ui_ux_pro_max_and_shaders_test.dart` (4/4 test geçti).
+  - `flutter analyze lib/` (No issues found, 0 errors, 0 warnings).
+
+### `İnşaat Tamamlanması ve Mülkiyet Devri Denetimi & İyileştirmesi (§SPEC-2026-CONSTRUCTION-OWNERSHIP-TRANSFER-VERIFICATION)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Hem Müteahhit hem de Öz Sermaye (self-build) inşaat senaryolarında inşaat bittiğinde konutların oyuncunun mülkiyetine (portföyüne) doğru şekilde geçip geçmediğinin uçtan uca denetlenmesi, tespit edilen eksikliklerin giderilmesi ve otomatik testlerle tescil edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/real_estate_model.dart`:
+    - `isConstructionActive`: Yalnızca arsaların şantiye kabul edilmesi için `category == RealEstateCategory.land` koşulu eklendi; üretilen veya mevcut konutların şantiye olarak işaretlenmesi engellendi.
+    - `playerShareUnits`: Tamsayı bölme (`~/ 100`) yuvarlaması nedeniyle küçük projelerde veya pay oranlarında sıfır daire üretilmesini önleyen `(share == 0 && playerSharePercent > 0) ? 1 : share` koruması eklendi.
+  - `lib/presentation/providers/game/game_real_estate_mixin.dart`:
+    - `finalizeConstruction`:
+      - `ZoningEngine.calculateZoning` çağrısına `district: land.district` parametresi eklendi; ilçe bazlı emsal ve değerleme tutarlılığı sağlandı.
+      - Yeni üretilen anahtar teslim dairelere (`re_turnkey_${land.id}_$i`) başlangıç tapu geçmişi (`provenanceLog`) entegre edildi (`İnşaat tamamlandı • {district} projesinden kat mülkiyeti tapusu teslim alındı`).
+    - `repayConstructionLoan`:
+      - Arsa tamamlanıp konutlara dönüştükten ve listeden silindikten sonra da arsa kredisi borcunun ödenebilmesi için `loan_construction_${landId}` ID araması doğrudan `state.activeLoans` üzerinden yapılarak bağımsızlaştırıldı.
+  - `test/construction_completion_and_peyzaj_fix_test.dart`:
+    - Test 5: Müteahhit ve Öz Sermaye senaryolarında konutların kat mülkiyeti tapusuyla portföye eksiksiz eklendiğini, kiralama, satış ve kişisel konut özelliklerinin aktif olduğunu doğrulayan test eklendi.
+    - Test 6: Arsa konuta dönüştükten sonra inşaat kredisinin başarıyla kapatılabildiğini doğrulayan test eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Arsa kredisi çekilmiş bir projede inşaat tamamlandığında arsa `ownedRealEstates` listesinden silindiği için `repayConstructionLoan` `landIndex == -1` görerek krediyi kapatamıyordu.
+  - Yeni teslim alınan konutların tapu geçmişi (`provenanceLog`) boş kalıyordu.
+- **Kök Neden**:
+  - `finalizeConstruction` arsa modelini sildiği halde kredi modelinin aktif kredilerde yaşamaya devam etmesi ve kredi geri ödeme metodunun arsanın portföyde bulunmasını şart koşması.
+- **Uygulanan Çözüm**:
+  - Kredi kapatma metodu arsa portföyde olmasa bile aktif krediler tablosundan borcu tahsil edip kapatacak şekilde refactor edildi.
+  - Her bir konut tapu geçmişi kaydıyla oluşturuldu.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/construction_completion_and_peyzaj_fix_test.dart` (6/6 test geçti).
+  - `flutter test test/real_estate_construction_test.dart` (19/19 test geçti).
+  - `flutter test test/construction_master_modules_audit_test.dart` (10/10 test geçti).
+  - `flutter test test/construction_speedup_and_time_control_test.dart` (5/5 test geçti).
+  - `flutter test test/construction_dynamics_depth_test.dart` (10/10 test geçti).
+  - `flutter analyze lib/` (No issues found, 0 errors, 0 warnings).
+
+### `Arsa & İnşaat Müteahhit 0 Gün Takılması & Öz Sermaye Peyzaj Seviyesi Düzeltmesi (§SPEC-2026-CONSTRUCTION-CONTRACTOR-ZERO-DAY-PEYZAJ-FIX)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Müteahhit modunda inşaat bittiğinde kalan sürenin 0 günde takılı kalması ve anahtar teslim kartının gösterilmemesi hatasının çözülmesi.
+  - Öz sermaye inşaatında Aşama 7 tamamlandıktan sonra Aşama 8'in (Peyzaj & İskan) unstarted olarak kilitlenmesi veya Aşama 8 teslim alındığında 8'e kenetlenerek sonsuz döngüye girmesi hatasının çözülmesi.
+  - Müteahhit hızlandırması sonrasında `isConstructionWorking` bayrağının açık kalarak teslimatı engellemesinin önlenmesi.
+  - Portföyde yeterli slot olmadığında anahtar teslim daire transferinin sessizce başarısız olmasını engelleyen dinamik slot genişletme mimarisi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/real_estate_model.dart`:
+    - `isConstructionActive` 9 aşamaya (`constructionStage <= 9`) uyarlandı.
+    - `constructionProgress` ve `constructionPercent`: `isConstructionComplete` durumunda doğrudan 1.0 (%100) döndürecek şekilde refactor edildi.
+    - `isConstructionComplete`:
+      - Müteahhit modunda: `constructionMode == 'contractor' && constructionStage >= 8 && constructionDaysRemaining <= 0` (isConstructionWorking durumundan bağımsız olarak daima teslimata hazır kabul edilir).
+      - Öz sermaye modunda: `constructionStage >= 9` veya Aşama 8 başarıyla teslim alınmışsa (`provenanceLog.any((l) => l.contains('Aşama 8'))` veya mock test uyumu için `constructionStage >= 8 && constructionDaysRemaining <= 0 && !isConstructionWorking && stageTotalDays == 0 && (provenanceLog.any((l) => l.contains('Aşama 8')) || provenanceLog.isEmpty)`).
+  - `lib/presentation/providers/game/game_real_estate_mixin.dart`:
+    - `completeSelfBuildStage`: `(land.constructionStage + 1).clamp(1, 8)` yerine `final isAllDone = nextStage > 8; constructionStage: isAllDone ? 9 : nextStage` mantığı uygulandı. Aşama 8 tamamlandığında Aşama 9'a geçiş sağlandı.
+    - `accelerateConstructionTimer`: Müteahhit modunda süre kısaltıldığında `isConstructionWorking: false` olarak normalize edildi. Süre 0'a indiğinde Aşama 8 ise Aşama 9'a ilerletildi.
+    - `finalizeConstruction`: Daire sayısı mevcut boş slotlardan fazla olduğunda `maxRealEstateSlots` otomatik olarak `max(state.maxRealEstateSlots, requiredSlots)` ile genişletildi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - Müteahhit modunda Aşama 8 de 15 gün boyunca çalıştırılacak şekilde (`isDone ? 9 : nextStage`) güncellendi.
+    - Aşama tamamlandığında `isConstructionWorking: false` normalize edildi ve tamamlanma bildirimi eklendi.
+    - Eğer `constructionStage >= 8 && constructionDaysRemaining <= 0` durumunda arsa varsa `isConstructionWorking: false` yapıldı.
+  - `lib/presentation/screens/real_estate/real_estate_construction_screen.dart`:
+    - `_buildEightStageTimelineCard`: `isStagePassed = isFinished || currentStage > stage.stageNumber`, `isCurrentStage = !isFinished && currentStage == stage.stageNumber` yapılarak tüm 8 etap için yeşil onay tikleri sağlandı.
+    - `_buildStagesTabContent`: Müteahhit modu 0 güne ulaştığında `_buildFinalizeCard` kartına doğrudan geçiş sağlandı.
+    - `_buildContractorWaitCard`: Fail-safe olarak `constructionDaysRemaining <= 0 && constructionStage >= 8` olduğunda doğrudan `_buildFinalizeCard` döndürüldü.
+  - `lib/presentation/screens/real_estate/subcontractor_negotiation_chat_screen.dart`:
+    - `isCompleted` ve `isCurrent` durumları `land.isConstructionComplete` gözetilerek güncellendi.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - Rozetler ve butonlar `property.constructionStage >= 8` yerine `property.isConstructionComplete` üzerinden güncellendi.
+  - `test/construction_completion_and_peyzaj_fix_test.dart`:
+    - Müteahhit 0 gün tamamlama, günlük döngüde Aşama 8 ilerlemesi, Öz sermaye Aşama 7'den 8'e geçiş ve 8'den 9'a tamamlama ile slot genişletmeyi doğrulayan 4 kapsamlı test yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Müteahhit modunda reklam izleyip süre kısaltıldığında `isConstructionWorking` true kalıyordu ve modeldeki `!isConstructionWorking` kontrolü yüzünden arsa asla bitmiş sayılmıyordu.
+  - Öz sermaye modunda Aşama 8 bittiğinde `clamp(1, 8)` nedeniyle Aşama 8'e geri kenetleniyor ve unstarted görünerek sonsuz döngüye giriyordu.
+- **Kök Neden**:
+  - Müteahhit modunda stageDays atamasının 7. aşamada 0 gün verilmesi ve hızlandırma sonrası working bayrağının sıfırlanmaması.
+  - Modelde `constructionStage >= 8 && constructionDaysRemaining <= 0` kontrolünün Aşama 7 bittiğinde henüz başlanmamış Aşama 8 ile karışması ve `clamp(1, 8)` tavanı.
+- **Uygulanan Çözüm**:
+  - Şantiye tamamlanma durumu Aşama 9 olarak standartlaştırıldı, 8 aşamanın tamamı timeline üzerinde yeşil tikle tamamlandı gösterildi.
+  - Müteahhit modu için 0 günde takılmayı imkansız kılan fail-safe finalize kartı entegre edildi ve bayraklar normalize edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/construction_completion_and_peyzaj_fix_test.dart` çalıştırıldı: 4/4 test geçti.
+  - `flutter test test/real_estate_construction_test.dart` çalıştırıldı: 19/19 test geçti.
+  - `flutter test test/construction_master_modules_audit_test.dart` çalıştırıldı: 10/10 test geçti.
+  - `flutter test test/construction_speedup_and_time_control_test.dart` çalıştırıldı: 5/5 test geçti.
+  - `flutter test test/construction_dynamics_depth_test.dart` çalıştırıldı: 10/10 test geçti.
+  - `flutter analyze lib/` çalıştırıldı: 0 issue found (sıfır hata, sıfır uyarı).
+
+### `Şubeler Ekranında Açılan Özelliklerin Netleştirilmesi, Yeraltı Casino & Eksik Sistemlerin Eklenmesi ve 7 Dilde Rozetli Kart Görünümü (§SPEC-2026-BRANCH-FEATURES-UI-POLISH)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Şubeler ekranında her şubede hangi özelliklerin ve oyun sistemlerinin açıldığının net, belirgin ve eksiksiz olarak kullanıcıya sunulması.
+  - Şube 5'te açılan "Yeraltı Casino & VIP Masa", Şube 4'te açılan "Emlak Piyasası", Şube 3'te açılan "Vasıta Pazarı" gibi kritik sistemlerin özet metinlerine eklenmesi.
+  - Çeviri anahtarlarındaki `{summary}` değişken kaybı nedeniyle metinlerin görünmemesi sorununun kökten çözülerek her özelliğin bağımsız neo-brutalist rozetler (chip) halinde sunulması.
+  - Tüm özellik özetlerinin 7 dilde (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`) parantezsiz ve emojisiz olarak senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/branch_model.dart`:
+    - `getFeaturesList(BuildContext context)` fonksiyonu eklendi; virgülle ayrılmış özet metnini otomatik olarak dilden bağımsız liste öğelerine dönüştürür.
+    - `getAllBranches()` içerisindeki 8 şubenin varsayılan `unlockedSummary` içerikleri güncellendi (özellikle Şube 5'e Yeraltı Casino ve Canlı Mezat eklendi).
+  - `lib/presentation/screens/branch/branch_screen.dart`:
+    - Şube kartlarındaki tek satırlık ve eksik gösterilen metin alanı yerine, her özellik için `Icons.verified_rounded` (kilit açıldıysa) veya `Icons.lock_outline_rounded` (kilitliyse) ikonu barındıran taktiksel neo-brutalist `Wrap` rozet alanı (`b.getFeaturesList(context)`) oluşturuldu.
+    - Bölüm başlığına durum rozeti (`AKTİF` veya `SEVİYE {lvl}`) entegre edildi.
+  - `lib/core/localization/translations/*.dart`:
+    - 7 dilde (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`) `branch_1_summary` - `branch_8_summary` anahtarları eksiksiz sistemleri içerecek şekilde güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Çeviri dosyalarında `branch_unlocked_features` anahtarında `{summary}` yer tutucusu bulunmadığı için önceki arayüzde özet metinleri ekranda basılamıyordu.
+- **Kök Neden**:
+  - `context.tr('branch_unlocked_features', {'summary': ...})` çağrıldığında çeviride `{summary}` olmadığı için sadece `"Açılan Özellikler:"` başlığı dönüyordu.
+- **Uygulanan Çözüm**:
+  - UI doğrudan `b.getFeaturesList(context)` ile her özelliği ayrı rozet olarak basacak şekilde refactor edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/` çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+  - `flutter test` çalıştırıldı: Tüm testler başarıyla geçti.
+
+### `Apple Guideline 4 (Design: Launch Experience) İhlal Çözümü, Açılışta Zorunlu/İstemsiz Reklam Modallarının Kaldırılması & %100 Gönüllü Reklam Mimarisi (§SPEC-2026-APPLE-GUIDELINE-4-REMOVAL-FORCED-ADS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Apple App Store İnceleme Ekibi'nin Version 1.0.6 (Build 30) incelemesinde verdiği Guideline 4 - Design (Human Interface Guidelines • Launching) ret kararının ("We noticed that the app requires customers to view advertisements prior to using it. To resolve this issue, please remove the forced advertising and resubmit the app for review.") kökten çözülmesi.
+  - Uygulama açılışında, onboarding sonrasında veya kullanıcı etkileşimi olmaksızın otomatik açılan ve reklam içeren tüm unprompted açılır pencerelerin (`DailyLoginSheet`, `showOfflineRecapModal`, `NeoBrutalStoryAdDialog`, `NeoBrutalContextualLifelineDialog`, `RateUsRewardDialog`) açılış akışından arındırılması.
+  - Reklamların tamamen pasif, kullanıcı tarafından isteğe bağlı tıklanan banner'lar veya gönüllü diyaloglar haline getirilmesi.
+  - Versiyonun `1.0.6+31` olarak güncellenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`:
+    - `DashboardStoryAdBanner` oluşturuldu: Hikaye/fırsat kartları artık açılışta veya gün devrinde otomatik popup olarak fırlamak yerine, dashboard üzerinde kapatılabilir (`Icons.close_rounded`) ve tıklandığında gönüllü olarak detay diyaloğunu açan yatay neo-brutalist kart olarak gösteriliyor.
+    - `DashboardDailyStreakBanner` kartına `onTap` eklendi; kullanıcılar 28 günlük giriş takvimini istedikleri zaman gönüllü olarak inceleyebiliyor ve anında reklamsız 1 tıkla ödüllerini alabiliyor.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - Açılış `initState()` ve gün devri dinleyicisinden `DailyLoginSheet.show(context)` ve `RateUsRewardDialog.checkAndShow(context, ref)` çağrıları kaldırıldı.
+    - `_checkAndShowPendingDialogs` içerisinden `pendingStoryCard` ve `ContextualEmergencyAdEngine` otomatik modal fırlatma çağrıları kaldırılarak `_buildPriorityActionBanner` ve feed içine inline aktarıldı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_retention_modals.dart`:
+    - `showOfflineRecapModal`: `barrierDismissible: true` yapıldı, başlığa `Icons.close_rounded` kapatma butonu eklendi; standart reklamsız ödül alma butonu (`retention_claim_rewards`) zümrüt yeşili (`AppColors.brutalGreen`) ile birincil buton haline getirildi, reklamlı katlama butonu ikincil ve isteğe bağlı konuma alındı.
+    - `showReciprocityStarterGiftModal`: `barrierDismissible: true` yapıldı ve başlığa kapatma butonu eklendi.
+  - `lib/presentation/widgets/neo_brutal_story_ad_dialog.dart`:
+    - `barrierDismissible: false` değeri `true` yapılarak modal dışına dokunarak kapatılabilirlik sağlandı.
+  - `lib/presentation/widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart`:
+    - `barrierDismissible: false` değeri `true` yapıldı.
+  - `lib/presentation/widgets/dialogs/rate_us_reward_dialog.dart`:
+    - `barrierDismissible: false` değeri `true` yapıldı.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `syncRealForexRates`: Asenkron internet kurları çekilirken widget/notifier unmount durumuna karşı `mounted` kontrolleri eklendi; dispose sonrası state mutasyonu hatası giderildi.
+  - `pubspec.yaml`:
+    - Versiyon `1.0.6+30`'dan `1.0.6+31`'e yükseltildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `offline_reward_multiplier_test.dart` çalıştırılırken `syncRealForexRates` metodunda dispose sonrası state erişimi (`Bad state: Tried to use GameCoreNotifier after dispose was called`) tespit edildi.
+- **Kök Neden**:
+  - `ForexMarketService.fetchLiveForexRates` asenkron çağrısı tamamlandığında eğer notifier dispose edilmişse `state` okuma/yazma Riverpod StateNotifier tarafından hata fırlatır.
+- **Uygulanan Çözüm**:
+  - `syncRealForexRates` içerisine await öncesi ve sonrası `if (!mounted) return false;` güvenlik bariyeri eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/` çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/offline_reward_multiplier_test.dart test/rewarded_ad_integrations_test.dart test/ad_service_test.dart` çalıştırıldı: 19 testin 19'u da başarıyla geçti.
+  - `flutter test test/auction_closed_shortcut_guard_test.dart` çalıştırıldı: 5 testin 5'i de başarıyla geçti.
+  - `greenlight preflight .` çalıştırıldı: `PrivacyInfo.xcprivacy` doğrulandı, iOS kod tabanında ihlal bulunmadı.
+
 ### `Müzayede Satış Kısayolu Kaçak Önleme, Mezat Kapalı Durum Gating ve 7 Dil Senkronizasyonu (§SPEC-2026-AUCTION-CLOSED-SELL-GUARD)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:

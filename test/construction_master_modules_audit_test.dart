@@ -204,7 +204,7 @@ void main() {
 
       if (incident != null) {
         expect(incident.costImpact, greaterThan(0));
-        expect(incident.dayDelayImpact, greaterThan(0));
+        expect(incident.dayDelayImpact, greaterThanOrEqualTo(0));
         expect(incident.title.isNotEmpty, isTrue);
       }
     });

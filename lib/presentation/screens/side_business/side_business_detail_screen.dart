@@ -871,47 +871,11 @@ class SideBusinessDetailScreen extends ConsumerWidget {
                             ),
                           ),
                           if (isInstalling)
-                            NeoBrutalButton(
-                              label: context.tr('side_biz_btn_rush'),
-                              icon: Icons.bolt_rounded,
+                            NeoBrutalBadge(
+                              text: '%${(upgrade.totalUpgradeDays > 0 ? ((1.0 - (upgrade.upgradeDaysRemaining / upgrade.totalUpgradeDays)) * 100).round() : 100)}',
                               backgroundColor: AppColors.brutalYellow,
                               textColor: Colors.black,
-                              fontSize: 10.5,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 6),
-                              onPressed: () {
-                                GenericRushJobDialog.show(
-                                  context,
-                                  titleBadge:
-                                      context.tr('rush_lore_sub_upgrade_title'),
-                                  targetTitle:
-                                      '${business.type.getLocalizedName(lang)} • ${upgrade.title}',
-                                  targetSubtitle: context
-                                      .tr('rush_lore_days_remaining', {
-                                    'days': upgrade.upgradeDaysRemaining
-                                        .toString()
-                                  }),
-                                  loreDescription:
-                                      context.tr('rush_lore_sub_upgrade_desc'),
-                                  icon: _getUpgradeIconData(upgrade.iconName),
-                                  badgeColor: AppColors.brutalYellow,
-                                  actionButtonLabel:
-                                      context.tr('rush_lore_sub_upgrade_btn'),
-                                  onRushSuccess: () {
-                                    final success = ref
-                                        .read(gameProvider.notifier)
-                                        .completeSideBusinessSubUpgrade(
-                                            business.id, upgrade.id);
-                                    if (success) {
-                                      NotificationService.showSuccess(
-                                        context,
-                                        context.tr(
-                                            'side_biz_sub_upgrade_success'),
-                                      );
-                                    }
-                                  },
-                                );
-                              },
+                              fontSize: 10,
                             )
                           else if (isInstalled)
                             NeoBrutalBadge(
@@ -964,7 +928,7 @@ class SideBusinessDetailScreen extends ConsumerWidget {
                         ],
                       ),
                       if (isInstalling) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -973,19 +937,62 @@ class SideBusinessDetailScreen extends ConsumerWidget {
                                 'days': '${upgrade.upgradeDaysRemaining}'
                               }),
                               style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w800,
                                   color: AppColors.brutalYellow),
                             ),
                             Text(
                               '%${(upgrade.totalUpgradeDays > 0 ? ((1.0 - (upgrade.upgradeDaysRemaining / upgrade.totalUpgradeDays)) * 100).round() : 100)}',
                               style: const TextStyle(
-                                fontSize: 10,
+                                fontSize: 10.5,
                                 fontWeight: FontWeight.w900,
                                 color: AppColors.brutalYellow,
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                        NeoBrutalButton(
+                          label: context.tr('side_biz_btn_rush'),
+                          icon: Icons.bolt_rounded,
+                          backgroundColor: AppColors.brutalYellow,
+                          textColor: Colors.black,
+                          fontSize: 11,
+                          padding: const EdgeInsets.symmetric(vertical: 7),
+                          fullWidth: true,
+                          onPressed: () {
+                            GenericRushJobDialog.show(
+                              context,
+                              titleBadge:
+                                  context.tr('rush_lore_sub_upgrade_title'),
+                              targetTitle:
+                                  '${business.type.getLocalizedName(lang)} • ${upgrade.title}',
+                              targetSubtitle: context
+                                  .tr('rush_lore_days_remaining', {
+                                'days': upgrade.upgradeDaysRemaining
+                                    .toString()
+                              }),
+                              loreDescription:
+                                  context.tr('rush_lore_sub_upgrade_desc'),
+                              icon: _getUpgradeIconData(upgrade.iconName),
+                              badgeColor: AppColors.brutalYellow,
+                              actionButtonLabel:
+                                  context.tr('rush_lore_sub_upgrade_btn'),
+                              onRushSuccess: () {
+                                final success = ref
+                                    .read(gameProvider.notifier)
+                                    .completeSideBusinessSubUpgrade(
+                                        business.id, upgrade.id);
+                                if (success) {
+                                  NotificationService.showSuccess(
+                                    context,
+                                    context.tr(
+                                        'side_biz_sub_upgrade_success'),
+                                  );
+                                }
+                              },
+                            );
+                          },
                         ),
                       ],
                     ],

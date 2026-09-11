@@ -9,6 +9,7 @@ import '../../widgets/app_vector_icons.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import 'widgets/valet_baccarat_modal.dart';
 import 'widgets/street_craps_modal.dart';
 import 'widgets/hilo_vites_modal.dart';
@@ -368,22 +369,30 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15),
-            ),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.white60,
-                  fontWeight: FontWeight.w700),
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14.5),
+              ),
+              if (subtitle.isNotEmpty)
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.white60,
+                      fontWeight: FontWeight.w700),
+                ),
+            ],
+          ),
         ),
+        const SizedBox(width: 8),
         NeoBrutalBadge(
           label: tierBadge,
           color: isUnlocked ? AppColors.brutalGreen : const Color(0xFF64748B),
@@ -414,6 +423,8 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
       borderWidth: 2.5,
       borderRadius: 10.0,
       padding: const EdgeInsets.all(14),
+      showBlueprintGrid: !isLocked,
+      patternType: BlueprintPatternType.crtScanlines,
       onTap: isLocked ? null : onTap,
       child: Row(
         children: [
@@ -467,6 +478,7 @@ class _CasinoHubScreenState extends ConsumerState<CasinoHubScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     NeoBrutalBadge(
                       label: badgeText,
                       color: isLocked ? const Color(0xFF6B7280) : color,

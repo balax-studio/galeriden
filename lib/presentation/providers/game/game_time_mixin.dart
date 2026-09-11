@@ -910,9 +910,13 @@ mixin GameTimeMixin on GameBaseNotifier {
 
       if (currentProp.isConstructionActive) {
         if (currentProp.constructionMode == 'contractor') {
-          // C1: If already complete (stage >= 8), skip! Do not decrement, do not spam notifications
-          if (currentProp.constructionStage >= 8) {
-            // Already complete, waiting for player to finalize turnkey
+          // C1: If already complete (stage >= 9 or stage >= 8 with 0 days), skip! Do not decrement, do not spam notifications
+          if (currentProp.constructionStage >= 9 ||
+              (currentProp.constructionStage >= 8 && currentProp.constructionDaysRemaining <= 0)) {
+            // Ensure isConstructionWorking is normalized to false so turnkey claim is never blocked
+            if (currentProp.isConstructionWorking) {
+              currentProp = currentProp.copyWith(isConstructionWorking: false);
+            }
           } else {
             // F2: Weather check for contractor: rainy/snowy during concrete or excavation
             final isWeatherFrozen = (state.currentWeather == WeatherType.rainy || state.currentWeather == WeatherType.snowy) &&
@@ -958,13 +962,15 @@ mixin GameTimeMixin on GameBaseNotifier {
 
               if (adjustedDays <= 0) {
                 final nextStage = currentProp.constructionStage + 1;
+                final isDone = nextStage > 8;
                 final stageDays = currentProp.contractorStageDays > 0 ? currentProp.contractorStageDays : 15;
                 currentProp = currentProp.copyWith(
-                  constructionStage: nextStage,
-                  constructionDaysRemaining: nextStage < 8 ? stageDays : 0,
+                  constructionStage: isDone ? 9 : nextStage,
+                  constructionDaysRemaining: isDone ? 0 : stageDays,
+                  isConstructionWorking: false,
                   provenanceLog: updatedLogs,
                 );
-                if (nextStage >= 8) {
+                if (isDone) {
                   final eventId = 'construction_ready_${currentProp.id}_stage8';
                   if (!events.any((e) => e.id == eventId) && !updatedEvents.any((e) => e.id == eventId)) {
                     updatedEvents.insert(
@@ -1648,8 +1654,9 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   /// Syncs real market foreign exchange and gold rates with background fetch and cache fallback.
   Future<bool> syncRealForexRates({bool force = false}) async {
-    if (!state.useRealForexRates) return false;
+    if (!mounted || !state.useRealForexRates) return false;
     final rates = await ForexMarketService.fetchLiveForexRates(force: force);
+    if (!mounted) return false;
     if (rates != null && rates.isNotEmpty) {
       state = state.copyWith(
         marketForex: rates,

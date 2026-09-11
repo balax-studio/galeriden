@@ -1233,20 +1233,19 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
     final land = state.ownedRealEstates[index];
     if (land.constructionMode != 'selfBuild') return false;
-    if (land.constructionDaysRemaining > 0) return false; // Must wait for duration to finish
-
-    final nextStage = (land.constructionStage + 1).clamp(1, 8);
+    final nextStage = land.constructionStage + 1;
+    final isAllDone = nextStage > 8;
     final nowStr = DateTime.now().toIso8601String().split('T').first;
 
     final updatedLand = land.copyWith(
-      constructionStage: nextStage,
+      constructionStage: isAllDone ? 9 : nextStage,
       constructionDaysRemaining: 0,
       stageTotalDays: 0,
       isConstructionWorking: false,
       clearActiveSubcontractor: true,
       provenanceLog: [
         ...land.provenanceLog,
-        '$nowStr • Aşama ${land.constructionStage} başarıyla teslim alındı ve denetimden geçti • Sonraki etaba hazır',
+        '$nowStr • Aşama ${land.constructionStage} başarıyla teslim alındı ve denetimden geçti • ${isAllDone ? 'Tüm etaplar tamamlandı • Anahtar teslime hazır' : 'Sonraki etaba hazır'}',
       ],
     );
 
@@ -1326,17 +1325,30 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     final newDaysRemaining = (land.constructionDaysRemaining - effectiveDaysToReduce).clamp(0, 999);
 
     RealEstateModel updatedLand;
-    if (land.constructionMode == 'contractor' && newDaysRemaining == 0) {
-      final nextStage = (land.constructionStage + 1).clamp(1, 8);
-      final stageDays = land.contractorStageDays > 0 ? land.contractorStageDays : 15;
-      updatedLand = land.copyWith(
-        constructionStage: nextStage,
-        constructionDaysRemaining: nextStage < 8 ? stageDays : 0,
-        provenanceLog: [
-          ...land.provenanceLog,
-          '$nowStr • Müteahhit ekibine takviye sağlandı • Aşama hızlandırılarak tamamlandı',
-        ],
-      );
+    if (land.constructionMode == 'contractor') {
+      if (newDaysRemaining == 0) {
+        final nextStage = land.constructionStage + 1;
+        final isDone = nextStage > 8;
+        final stageDays = land.contractorStageDays > 0 ? land.contractorStageDays : 15;
+        updatedLand = land.copyWith(
+          constructionStage: isDone ? 9 : nextStage,
+          constructionDaysRemaining: isDone ? 0 : stageDays,
+          isConstructionWorking: false,
+          provenanceLog: [
+            ...land.provenanceLog,
+            '$nowStr • Müteahhit ekibine takviye sağlandı • ${isDone ? 'İnşaat tamamen bitti • Anahtar teslime hazır' : 'Aşama hızlandırılarak tamamlandı'}',
+          ],
+        );
+      } else {
+        updatedLand = land.copyWith(
+          constructionDaysRemaining: newDaysRemaining,
+          isConstructionWorking: false,
+          provenanceLog: [
+            ...land.provenanceLog,
+            '$nowStr • Çift vardiya ekip desteği sağlandı • $effectiveDaysToReduce gün hızlandırıldı • Kalan: $newDaysRemaining Gün',
+          ],
+        );
+      }
     } else {
       updatedLand = land.copyWith(
         constructionDaysRemaining: newDaysRemaining,
@@ -1398,19 +1410,19 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (land.constructionStage < 8) return [];
     if (land.constructionDaysRemaining > 0) return [];
 
+    final nowStr = DateTime.now().toIso8601String().split('T').first;
     final unitsToCreate = land.playerShareUnits;
 
-    // Slot capacity guard (C2)
-    final availableSlots = state.maxRealEstateSlots - (state.ownedRealEstates.length - 1);
-    if (unitsToCreate > availableSlots) {
-      return [];
-    }
+    // Slot capacity auto-expansion guard (ensures claim never fails silently due to slot limit)
+    final requiredSlots = (state.ownedRealEstates.length - 1) + unitsToCreate;
+    final targetMaxSlots = max(state.maxRealEstateSlots, requiredSlots);
 
     final createdApartments = <RealEstateModel>[];
 
     // Zoning calculations & fallback unit mix (C5, C6)
     final zoning = ZoningEngine.calculateZoning(
       parcelSquareMeters: land.squareMeters.toDouble(),
+      district: land.district,
       baseMarketValue: land.baseMarketValue,
       customUnitMix: land.customUnitMix != null ? ZoningUnitMix.fromMap(land.customUnitMix!) : null,
     );
@@ -1540,6 +1552,9 @@ mixin GameRealEstateMixin on GameBaseNotifier {
           renovationStage: 3,
           hasWaterLeakRisk: hasHiddenDefect, // F3·3: Düşük kalitede gizli su kaçağı kusuru
           qualityScore: land.qualityScore,
+          provenanceLog: [
+            '$nowStr • İnşaat tamamlandı • ${land.district} projesinden kat mülkiyeti tapusu teslim alındı',
+          ],
         ),
       );
     }
@@ -1548,7 +1563,10 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     updatedList.removeAt(index);
     updatedList.addAll(createdApartments);
 
-    state = state.copyWith(ownedRealEstates: updatedList);
+    state = state.copyWith(
+      maxRealEstateSlots: targetMaxSlots,
+      ownedRealEstates: updatedList,
+    );
     addXP(500);
     saveState();
     return createdApartments;
@@ -1606,19 +1624,20 @@ mixin GameRealEstateMixin on GameBaseNotifier {
 
   /// Repays the construction loan and releases the mortgage on the land (F2·6, F5)
   bool repayConstructionLoan(String landId) {
-    final landIndex = state.ownedRealEstates.indexWhere((r) => r.id == landId);
-    if (landIndex == -1) return false;
-
-    final land = state.ownedRealEstates[landIndex];
-    if (!land.isMortgaged) return false;
-
-    final loanId = 'loan_construction_${land.id}';
+    final loanId = 'loan_construction_$landId';
     final loanIndex = state.activeLoans.indexWhere((l) => l.id == loanId);
+    final landIndex = state.ownedRealEstates.indexWhere((r) => r.id == landId);
+
     if (loanIndex == -1) {
-      final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
-      updatedLands[landIndex] = land.copyWith(isMortgaged: false);
-      state = state.copyWith(ownedRealEstates: updatedLands);
-      saveState();
+      if (landIndex != -1) {
+        final land = state.ownedRealEstates[landIndex];
+        if (land.isMortgaged) {
+          final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
+          updatedLands[landIndex] = land.copyWith(isMortgaged: false);
+          state = state.copyWith(ownedRealEstates: updatedLands);
+          saveState();
+        }
+      }
       return true;
     }
 
@@ -1626,18 +1645,19 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     if (state.balance < loan.remainingAmount) return false;
 
     final nowStr = DateTime.now().toIso8601String().split('T').first;
-    final updatedLand = land.copyWith(
-      isMortgaged: false,
-      provenanceLog: [
-        ...land.provenanceLog,
-        '$nowStr • İnşaat kredisi kapatıldı • Arsa üzerindeki banka ipoteği kaldırıldı',
-      ],
-    );
-
-    final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
-    updatedLands[landIndex] = updatedLand;
-
     final updatedLoans = List<LoanModel>.from(state.activeLoans)..removeAt(loanIndex);
+    final updatedLands = List<RealEstateModel>.from(state.ownedRealEstates);
+
+    if (landIndex != -1) {
+      final land = state.ownedRealEstates[landIndex];
+      updatedLands[landIndex] = land.copyWith(
+        isMortgaged: false,
+        provenanceLog: [
+          ...land.provenanceLog,
+          '$nowStr • İnşaat kredisi kapatıldı • Arsa üzerindeki banka ipoteği kaldırıldı',
+        ],
+      );
+    }
 
     state = state.copyWith(
       balance: state.balance - loan.remainingAmount,

@@ -250,17 +250,31 @@ class RealEstateModel {
 
   /// Arsa inşaat durumu hesaplanan özellikleri (8 Aşamalı Döngü)
   bool get isConstructionActive =>
-      constructionMode != null || (constructionStage > 0 && constructionStage <= 8);
-  double get constructionProgress => (constructionStage / 8.0).clamp(0.0, 1.0);
+      category == RealEstateCategory.land &&
+      (constructionMode != null || (constructionStage > 0 && constructionStage <= 9));
+  double get constructionProgress =>
+      isConstructionComplete ? 1.0 : (constructionStage / 8.0).clamp(0.0, 1.0);
   int get constructionPercent => (constructionProgress * 100).round();
 
   /// Şantiye tamamen bitti mi (Etap 8 tamamlandı ve gün 0)
   bool get isConstructionComplete =>
       category == RealEstateCategory.land &&
       isConstructionActive &&
-      constructionStage >= 8 &&
-      constructionDaysRemaining <= 0 &&
-      !isConstructionWorking;
+      (constructionStage >= 9 ||
+          (constructionMode == 'contractor' &&
+              constructionStage >= 8 &&
+              constructionDaysRemaining <= 0) ||
+          (constructionMode == 'selfBuild' &&
+              ((constructionStage >= 8 &&
+                      provenanceLog.any((l) => l.contains('Aşama 8'))) ||
+                  (constructionStage >= 8 &&
+                      constructionDaysRemaining <= 0 &&
+                      !isConstructionWorking &&
+                      (activeSubcontractorName == null ||
+                          activeSubcontractorName!.isEmpty) &&
+                      stageTotalDays == 0 &&
+                      (provenanceLog.any((l) => l.contains('Aşama 8')) ||
+                          provenanceLog.isEmpty)))));
 
   /// Durum makinesi fazı (Tek birincil buton mimarisi • E0)
   LandPhase get landPhase {
@@ -307,7 +321,8 @@ class RealEstateModel {
 
   int get playerShareUnits {
     if (totalProjectUnits <= 0) return 0;
-    final totalShare = (totalProjectUnits * playerSharePercent ~/ 100);
+    final int share = totalProjectUnits * playerSharePercent ~/ 100;
+    final totalShare = (share == 0 && playerSharePercent > 0) ? 1 : share;
     return (totalShare - soldPreSaleUnits).clamp(0, totalProjectUnits);
   }
 

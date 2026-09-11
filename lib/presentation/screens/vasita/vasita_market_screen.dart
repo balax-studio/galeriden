@@ -14,6 +14,7 @@ import '../../../data/models/vehicle_category.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/vasita_market_provider.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/blueprint_grid_background.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
@@ -476,6 +477,8 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
       borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
       borderRadius: 14,
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.bayerDither,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -496,13 +499,18 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 textColor: isDark ? Colors.white70 : Colors.black87,
                 fontSize: 9.5,
               ),
-              const Spacer(),
-              Text(
-                '${listing.sellerCity} • ${listing.sellerName}',
-                style: const TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF64748B),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  '${listing.sellerCity} • ${listing.sellerName}',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF64748B),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -620,10 +628,15 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
           const SizedBox(height: 12),
 
           // Footer: Price & Action Buttons
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     context.tr('car_card_market_value'),
@@ -636,52 +649,57 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                   Text(
                     CurrencyFormatter.format(listing.askingPrice),
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 15.5,
                       fontWeight: FontWeight.w900,
                       color: canAfford ? const Color(0xFF00E575) : const Color(0xFFEF4444),
                     ),
                   ),
                 ],
               ),
-              const Spacer(),
-              NeoBrutalButton.info(
-                icon: Icons.assignment_outlined,
-                label: context.tr('btn_inspect_expertise'),
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  context.push(
-                    '/vasita-ekspertiz/${listing.id}',
-                    extra: listing,
-                  );
-                },
-              ),
-              const SizedBox(width: 6),
-              NeoBrutalButton.primary(
-                icon: isLocked ? Icons.block_rounded : Icons.handshake_rounded,
-                label: isLocked
-                    ? context.tr('vasita_badge_locked_today')
-                    : (maxSlotsReached
-                        ? context.tr('vasita_btn_garage_full')
-                        : context.tr('vasita_btn_start_negotiation')),
-                backgroundColor: isLocked
-                    ? const Color(0xFF64748B)
-                    : (maxSlotsReached
-                        ? const Color(0xFF94A3B8)
-                        : null),
-                textColor: isLocked ? Colors.white : null,
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                onPressed: (maxSlotsReached || isLocked)
-                    ? null
-                    : () {
-                        HapticFeedback.mediumImpact();
-                        context.push(
-                          '/vasita-pazarlik/${listing.id}',
-                          extra: listing,
-                        );
-                      },
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  NeoBrutalButton.info(
+                    icon: Icons.assignment_outlined,
+                    label: context.tr('btn_inspect_expertise'),
+                    fontSize: 10.5,
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      context.push(
+                        '/vasita-ekspertiz/${listing.id}',
+                        extra: listing,
+                      );
+                    },
+                  ),
+                  NeoBrutalButton.primary(
+                    icon: isLocked ? Icons.block_rounded : Icons.handshake_rounded,
+                    label: isLocked
+                        ? context.tr('vasita_badge_locked_today')
+                        : (maxSlotsReached
+                            ? context.tr('vasita_btn_garage_full')
+                            : context.tr('vasita_btn_start_negotiation')),
+                    backgroundColor: isLocked
+                        ? const Color(0xFF64748B)
+                        : (maxSlotsReached
+                            ? const Color(0xFF94A3B8)
+                            : null),
+                    textColor: isLocked ? Colors.white : null,
+                    fontSize: 10.5,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                    onPressed: (maxSlotsReached || isLocked)
+                        ? null
+                        : () {
+                            HapticFeedback.mediumImpact();
+                            context.push(
+                              '/vasita-pazarlik/${listing.id}',
+                              extra: listing,
+                            );
+                          },
+                  ),
+                ],
               ),
             ],
           ),

@@ -489,17 +489,21 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
               const SizedBox(width: 5),
             ],
             Flexible(
-              child: Text(
-                widget.title.toUpperCase(),
-                style: GoogleFonts.outfit(
-                  fontSize: widget.subtitle != null ? 11.5 : 13.0,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.6,
-                  color: titleColor,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  widget.title.toUpperCase(),
+                  style: GoogleFonts.outfit(
+                    fontSize: widget.subtitle != null ? 11.5 : 13.0,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.6,
+                    color: titleColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
               ),
             ),
           ],
@@ -759,11 +763,19 @@ class _RevBarStrobeIndicator extends StatelessWidget {
 class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
   final TabController? controller;
   final List<String> tabs;
+  final bool isScrollable;
+  final TabAlignment? tabAlignment;
+  final double fontSize;
+  final EdgeInsetsGeometry? padding;
 
   const NeoBrutalTabBar({
     super.key,
     this.controller,
     required this.tabs,
+    this.isScrollable = false,
+    this.tabAlignment,
+    this.fontSize = 12.0,
+    this.padding,
   });
 
   @override
@@ -779,6 +791,7 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       height: 40,
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+      padding: padding,
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF141721) : const Color(0xFFE2E8F0),
         borderRadius: BorderRadius.circular(8),
@@ -789,6 +802,8 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: TabBar(
         controller: controller,
+        isScrollable: isScrollable,
+        tabAlignment: tabAlignment ?? (isScrollable ? TabAlignment.start : TabAlignment.fill),
         indicator: BoxDecoration(
           color: accentColor,
           borderRadius: BorderRadius.circular(6),
@@ -809,14 +824,14 @@ class NeoBrutalTabBar extends StatelessWidget implements PreferredSizeWidget {
         labelColor: const Color(0xFF0F172A),
         unselectedLabelColor:
             isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontWeight: FontWeight.w900,
-          fontSize: 12,
+          fontSize: fontSize,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: const TextStyle(
+        unselectedLabelStyle: TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 12,
+          fontSize: fontSize,
         ),
         tabs: tabs.map((t) => Tab(text: t.toUpperCase())).toList(),
       ),

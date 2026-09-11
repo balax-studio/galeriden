@@ -38,6 +38,16 @@ class BranchModel {
   String getLocalizedSummary(BuildContext context) =>
       context.tr('${id}_summary');
 
+  List<String> getFeaturesList(BuildContext context) {
+    final summary = getLocalizedSummary(context);
+    if (summary.isEmpty) return const [];
+    return summary
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
   static List<BranchModel> getAllBranches({
     int currentSlotCount = 3,
     int currentLevel = 1,
@@ -55,7 +65,7 @@ class BranchModel {
         targetLevel: 1,
         profitMultiplier: 1.0,
         vectorIcon: 'craftsman',
-        unlockedSummary: 'İkinci El Pazarı, Showroom Vitrini, Ekspertiz',
+        unlockedSummary: 'İkinci El Pazarı, Showroom Vitrini, Ekspertiz, Galeri Kimliği',
         isUnlocked: true,
         deedCost: 750000.0,
         isDeedOwned: ownedDeeds.contains('branch_1'),
@@ -85,7 +95,7 @@ class BranchModel {
         targetLevel: 3,
         profitMultiplier: 1.25,
         vectorIcon: 'workshop',
-        unlockedSummary: 'Atölye & Tamirhane, Personel Kadrosu & Akademi',
+        unlockedSummary: 'Atölye & Tamirhane, Personel Kadrosu & Akademi, Vasıta Pazarı',
         isUnlocked: unlockedBuildings.contains('property_tier_3'),
         deedCost: 4500000.0,
         isDeedOwned: ownedDeeds.contains('branch_3'),
@@ -100,7 +110,7 @@ class BranchModel {
         targetLevel: 4,
         profitMultiplier: 1.40,
         vectorIcon: 'tuning',
-        unlockedSummary: 'Tuning & Modifiye Stüdyosu, Showroom Mimari Dekorasyon',
+        unlockedSummary: 'Tuning & Modifiye Stüdyosu, Showroom Dekorasyonu, Emlak Piyasası',
         isUnlocked: unlockedBuildings.contains('property_tier_4'),
         deedCost: 9000000.0,
         isDeedOwned: ownedDeeds.contains('branch_4'),
@@ -115,7 +125,7 @@ class BranchModel {
         targetLevel: 5,
         profitMultiplier: 1.60,
         vectorIcon: 'auction',
-        unlockedSummary: 'Canlı İhale Masası, Finans Masası & Banka Kredileri, Müşteri Yorumları',
+        unlockedSummary: 'Canlı Mezat Salonu, Yeraltı Casino & VIP Masa, Finans Masası & Krediler, Müşteri Yorumları',
         isUnlocked: unlockedBuildings.contains('property_tier_5'),
         deedCost: 18000000.0,
         isDeedOwned: ownedDeeds.contains('branch_5'),
@@ -130,7 +140,7 @@ class BranchModel {
         targetLevel: 6,
         profitMultiplier: 1.85,
         vectorIcon: 'shield',
-        unlockedSummary: 'Borsa & Portföy Yatırımları, Banka Mevduat Fonları',
+        unlockedSummary: 'Borsa & Portföy Yatırımları, Banka Vadeli Mevduat Fonları, Halka Arz',
         isUnlocked: unlockedBuildings.contains('property_tier_6'),
         deedCost: 35000000.0,
         isDeedOwned: ownedDeeds.contains('branch_6'),
@@ -145,7 +155,7 @@ class BranchModel {
         targetLevel: 7,
         profitMultiplier: 2.10,
         vectorIcon: 'fleet',
-        unlockedSummary: 'Rent-a-Car Filosu, Karaborsa & Gece Pazarı Ağı, Semt Hakimiyeti',
+        unlockedSummary: 'Rent-a-Car Filosu, Karaborsa & Gece Pazarı, Semt Hakimiyeti, Dedikodu Hattı',
         isUnlocked: unlockedBuildings.contains('property_tier_7'),
         deedCost: 70000000.0,
         isDeedOwned: ownedDeeds.contains('branch_7'),
@@ -160,7 +170,7 @@ class BranchModel {
         targetLevel: 8,
         profitMultiplier: 2.50,
         vectorIcon: 'rare',
-        unlockedSummary: 'Hurdalık & Yedek Parça İmparatorluğu, Yan İşletmeler Holdingi, Konsinye Pazarı, İthalat & Gümrük',
+        unlockedSummary: 'Hurdalık & Yedek Parça, Yan İşletmeler Holdingi, Konsinye Pazarı, İthalat & Gümrük, 2. Şube İzni',
         isUnlocked: unlockedBuildings.contains('property_tier_8'),
         deedCost: 150000000.0,
         isDeedOwned: ownedDeeds.contains('branch_8'),

@@ -50,7 +50,7 @@ class RateUsRewardDialog extends ConsumerWidget {
   static Future<bool?> show(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) => const RateUsRewardDialog(),
     );
   }

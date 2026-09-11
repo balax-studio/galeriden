@@ -765,8 +765,11 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                       0.0,
                       (sum, b) => sum + (b.isOwned && !b.isUnderConstruction ? b.effectiveDailyIncome : 0.0),
                     );
+                    final displayVal = totalPassiveDaily > 0
+                        ? '+${CurrencyFormatter.formatShort(totalPassiveDaily)} / d'
+                        : CurrencyFormatter.formatShort(game.balance);
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF00E575).withValues(alpha: isDark ? 0.2 : 0.15),
                         borderRadius: BorderRadius.circular(6),
@@ -776,9 +779,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                         ),
                       ),
                       child: Text(
-                        totalPassiveDaily > 0
-                            ? '+₺${totalPassiveDaily.toStringAsFixed(0)} / d'
-                            : '₺${game.balance.toStringAsFixed(0)}',
+                        displayVal,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
@@ -1006,7 +1007,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         bottomRight: Radius.circular(8),
       ),
       showBlueprintGrid: true,
-      patternType: BlueprintPatternType.isometricBlueprint,
+      patternType: BlueprintPatternType.dots,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/car-wash');
         context.push('/car-wash');
@@ -1037,17 +1038,19 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                 const SizedBox(width: 5),
                 _buildNotificationDot(isDark),
               ],
-              const Spacer(),
-              NeoBrutalBadge(
-                text: dirtyCars > 0
-                    ? context.tr('telemetry_dirty_count', {'count': '$dirtyCars'})
-                    : context.tr('deck_wash_foam_ready'),
-                backgroundColor: dirtyCars > 0
-                    ? const Color(0xFFEF4444)
-                    : const Color(0xFF00F0FF),
-                textColor: dirtyCars > 0 ? Colors.white : Colors.black,
-                fontSize: 8.5,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              const SizedBox(width: 4),
+              Flexible(
+                child: NeoBrutalBadge(
+                  text: dirtyCars > 0
+                      ? context.tr('telemetry_dirty_count', {'count': '$dirtyCars'})
+                      : context.tr('deck_wash_foam_ready'),
+                  backgroundColor: dirtyCars > 0
+                      ? const Color(0xFFEF4444)
+                      : const Color(0xFF00F0FF),
+                  textColor: dirtyCars > 0 ? Colors.white : Colors.black,
+                  fontSize: 8.5,
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                ),
               ),
             ],
           ),
@@ -1264,7 +1267,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         bottomRight: Radius.circular(22),
       ),
       showBlueprintGrid: true,
-      patternType: BlueprintPatternType.diagonalHatch,
+      patternType: BlueprintPatternType.crtScanlines,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/tuning-studio');
         context.push('/tuning-studio');
@@ -1670,7 +1673,7 @@ class _DashboardServicesGridContent extends ConsumerWidget {
         bottomRight: Radius.circular(20),
       ),
       showBlueprintGrid: true,
-      patternType: BlueprintPatternType.isometricBlueprint,
+      patternType: BlueprintPatternType.bayerDither,
       onTap: () {
         ref.read(gameProvider.notifier).markFeatureSeen('/vasita');
         context.push('/vasita');
@@ -1697,16 +1700,19 @@ class _DashboardServicesGridContent extends ConsumerWidget {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(width: 5),
-              if (game.isFeatureNew('/vasita'))
+              if (game.isFeatureNew('/vasita')) ...[
+                const SizedBox(width: 5),
                 _buildNotificationDot(isDark),
-              const Spacer(),
-              NeoBrutalBadge(
-                text: context.tr('deck_vasita_luxury_badge'),
-                backgroundColor: const Color(0xFF06B6D4),
-                textColor: Colors.white,
-                fontSize: 8.5,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              ],
+              const SizedBox(width: 4),
+              Flexible(
+                child: NeoBrutalBadge(
+                  text: context.tr('deck_vasita_luxury_badge'),
+                  backgroundColor: const Color(0xFF06B6D4),
+                  textColor: Colors.white,
+                  fontSize: 8.5,
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                ),
               ),
             ],
           ),

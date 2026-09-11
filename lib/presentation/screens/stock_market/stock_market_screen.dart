@@ -18,6 +18,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_locked_feature_view.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../widgets/blueprint_grid_background.dart';
 import '../../../core/services/ad_service.dart';
 import '../../../core/services/ad_reward_calculator.dart';
 import 'widgets/forex_trade_modal.dart';
@@ -106,22 +107,15 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
             ),
           ),
         ],
-        bottom: TabBar(
+        bottom: NeoBrutalTabBar(
           controller: _tabController,
           isScrollable: true,
-          labelColor: Colors.black,
-          unselectedLabelColor:
-              isDark ? Colors.white70 : const Color(0xFF64748B),
-          indicatorColor: Colors.black,
-          indicatorWeight: 3.5,
-          indicatorSize: TabBarIndicatorSize.label,
-          labelStyle:
-              const TextStyle(fontWeight: FontWeight.w900, fontSize: 11.5),
+          fontSize: 11.5,
           tabs: [
-            Tab(text: context.tr('tab_stocks')),
-            Tab(text: context.tr('tab_portfolio')),
-            Tab(text: context.tr('tab_commodities')),
-            Tab(text: context.tr('tab_ipo')),
+            context.tr('tab_stocks'),
+            context.tr('tab_portfolio'),
+            context.tr('tab_commodities'),
+            context.tr('tab_ipo'),
           ],
         ),
       ),
@@ -1039,29 +1033,36 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        NeoBrutalBadge(
-                          text: context.tr('forex_live_badge'),
-                          backgroundColor: AppColors.toxicLime,
-                          textColor: Colors.black,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          game.lastForexSyncTimestamp != null
-                              ? context.tr('forex_last_sync', {
-                                  'time':
-                                      '${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).hour.toString().padLeft(2, '0')}:${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).minute.toString().padLeft(2, '0')}'
-                                })
-                              : '',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white60 : Colors.black54,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          NeoBrutalBadge(
+                            text: context.tr('forex_live_badge'),
+                            backgroundColor: AppColors.toxicLime,
+                            textColor: Colors.black,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              game.lastForexSyncTimestamp != null
+                                  ? context.tr('forex_last_sync', {
+                                      'time':
+                                          '${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).hour.toString().padLeft(2, '0')}:${DateTime.fromMillisecondsSinceEpoch(game.lastForexSyncTimestamp!).minute.toString().padLeft(2, '0')}'
+                                    })
+                                  : '',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? Colors.white60 : Colors.black54,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 6),
                     InkWell(
                       onTap: () async {
                         HapticFeedback.mediumImpact();
@@ -1140,6 +1141,8 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
               borderColor:
                   isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
+              showBlueprintGrid: true,
+              patternType: BlueprintPatternType.graphPaper,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1314,45 +1317,56 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
           borderColor:
               isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
           borderRadius: 14,
+          showBlueprintGrid: true,
+          patternType: BlueprintPatternType.graphPaper,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.brutalYellow,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.black, width: 1.5),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.brutalYellow,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.black, width: 1.5),
+                          ),
+                          child: const Icon(Icons.apartment_rounded,
+                              color: Colors.black, size: 20),
                         ),
-                        child: const Icon(Icons.apartment_rounded,
-                            color: Colors.black, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.tr('company_holding_title',
-                                {'name': game.dealershipName}),
-                            style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w900),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('company_holding_title',
+                                    {'name': game.dealershipName}),
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w900),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                context.tr('company_ipo_desk'),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w700),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
-                          Text(
-                            context.tr('company_ipo_desk'),
-                            style: const TextStyle(
-                                fontSize: 11,
-                                color: Color(0xFF64748B),
-                                fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   NeoBrutalBadge(
                     text: game.isCompanyListedOnBist
                         ? context.tr('company_ipo_listed_badge')
@@ -1494,25 +1508,36 @@ class _StockMarketScreenState extends ConsumerState<StockMarketScreen>
               borderColor:
                   isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 12,
+              showBlueprintGrid: true,
+              patternType: BlueprintPatternType.graphPaper,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          NeoBrutalBadge(
-                              text: ipo.symbol,
-                              backgroundColor: AppColors.brutalYellow,
-                              textColor: Colors.black,
-                              fontSize: 11),
-                          const SizedBox(width: 8),
-                          Text(ipo.companyName,
-                              style: const TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w900)),
-                        ],
+                      Expanded(
+                        child: Row(
+                          children: [
+                            NeoBrutalBadge(
+                                text: ipo.symbol,
+                                backgroundColor: AppColors.brutalYellow,
+                                textColor: Colors.black,
+                                fontSize: 11),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                ipo.companyName,
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w900),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       NeoBrutalBadge(
                         text: ipo.isListed
                             ? context.tr('ipo_status_trading')

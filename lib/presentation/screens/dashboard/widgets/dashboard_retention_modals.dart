@@ -94,7 +94,7 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) => StatefulBuilder(
         builder: (dialogContext, setState) {
           return Dialog(
@@ -136,6 +136,29 @@ class DashboardRetentionModals {
                                 context.tr('retention_offline_title'),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w900, fontSize: 15),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(ctx),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF1E2330)
+                                  : const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
                           ),
                         ),
                       ],
@@ -225,7 +248,26 @@ class DashboardRetentionModals {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    NeoBrutalButton(
+                      label: context.tr('retention_claim_rewards'),
+                      icon: Icons.check_circle_rounded,
+                      backgroundColor: const Color(0xFF00E575),
+                      textColor: Colors.black,
+                      fullWidth: true,
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        if (earnedIncome > 0) {
+                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
+                            earnedIncome,
+                            label: 'Kazanılan Pasif Gelir!',
+                          );
+                          GameSoundHapticService.playCashSuccess();
+                          HapticFeedback.mediumImpact();
+                        }
+                      },
+                    ),
                     if (earnedIncome > 0) ...[
+                      const SizedBox(height: 8),
                       NeoBrutalButton(
                         label: context.tr('retention_offline_multiplier_btn',
                             {'multiplier': multiplierFormatted}),
@@ -269,32 +311,7 @@ class DashboardRetentionModals {
                                 );
                               },
                       ),
-                      const SizedBox(height: 8),
                     ],
-                    NeoBrutalButton(
-                      label: context.tr('retention_claim_rewards'),
-                      icon: Icons.check_circle_rounded,
-                      backgroundColor: earnedIncome > 0
-                          ? (isDark
-                              ? const Color(0xFF1E2330)
-                              : const Color(0xFFE2E8F0))
-                          : const Color(0xFF00E575),
-                      textColor: earnedIncome > 0
-                          ? (isDark ? Colors.white : Colors.black87)
-                          : Colors.black,
-                      fullWidth: true,
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        if (earnedIncome > 0) {
-                          FloatingMoneyOverlay.of(context)?.showMoneyPopUp(
-                            earnedIncome,
-                            label: 'Kazanılan Pasif Gelir!',
-                          );
-                          GameSoundHapticService.playCashSuccess();
-                          HapticFeedback.mediumImpact();
-                        }
-                      },
-                    ),
                   ],
                 ),
               ),
@@ -410,7 +427,7 @@ class DashboardRetentionModals {
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: const EdgeInsets.symmetric(horizontal: 18),
@@ -448,6 +465,29 @@ class DashboardRetentionModals {
                       gift['title'] as String,
                       style: const TextStyle(
                           fontWeight: FontWeight.w900, fontSize: 14),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(ctx),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? const Color(0xFF1E2330)
+                            : const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: isDark
+                              ? const Color(0xFF333B4F)
+                              : const Color(0xFF0F172A),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
                     ),
                   ),
                 ],

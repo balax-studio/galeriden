@@ -6,6 +6,7 @@ import '../../../../data/models/auction_model.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
 import '../../../widgets/ads/neo_brutal_native_ad_card.dart';
+import '../../../widgets/blueprint_grid_background.dart';
 
 class AuctionUpcomingCatalogTab extends StatelessWidget {
   final List<UpcomingLotModel> upcomingLots;
@@ -59,6 +60,8 @@ class AuctionUpcomingCatalogTab extends StatelessWidget {
               borderColor:
                   isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
               borderRadius: 14,
+              showBlueprintGrid: true,
+              patternType: BlueprintPatternType.bayerDither,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -145,12 +148,16 @@ class AuctionUpcomingCatalogTab extends StatelessWidget {
                         color: Color(0xFF64748B),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        '${lot.customsNote.legalStatus} • ${lot.customsNote.riskRewardFactor}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w700,
+                      Expanded(
+                        child: Text(
+                          '${lot.customsNote.legalStatus} • ${lot.customsNote.riskRewardFactor}',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

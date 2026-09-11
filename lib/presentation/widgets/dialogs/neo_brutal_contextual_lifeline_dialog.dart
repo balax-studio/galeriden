@@ -31,7 +31,7 @@ class NeoBrutalContextualLifelineDialog extends ConsumerWidget {
   }) {
     return showDialog<bool>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (ctx) => NeoBrutalContextualLifelineDialog(
         encounter: encounter,
         onAccepted: onAccepted,

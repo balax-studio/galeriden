@@ -376,8 +376,8 @@ class _SubcontractorNegotiationChatScreenState
           // 4 Stages List
           ...stages.map((stage) {
             final stageCost = (land.baseMarketValue * stage.costPercentage).roundToDouble();
-            final isCompleted = land.constructionStage > stage.stageNumber;
-            final isCurrent = land.constructionStage == stage.stageNumber;
+            final isCompleted = land.isConstructionComplete || land.constructionStage > stage.stageNumber;
+            final isCurrent = !land.isConstructionComplete && land.constructionStage == stage.stageNumber;
             final hasActiveSub = land.activeSubcontractorName != null &&
                 land.activeSubcontractorName!.isNotEmpty;
             final isWorking = isCurrent &&

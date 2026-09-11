@@ -16,13 +16,8 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
-import '../../widgets/neo_brutal_story_ad_dialog.dart';
 import '../../widgets/whats_new_dialog.dart';
-import '../../widgets/dialogs/daily_login_sheet.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
-import '../../widgets/dialogs/rate_us_reward_dialog.dart';
-import '../../widgets/dialogs/neo_brutal_contextual_lifeline_dialog.dart';
-import '../../../domain/usecases/contextual_emergency_ad_engine.dart';
 import '../marketplace/marketplace_screen.dart';
 import '../showroom/showroom_screen.dart';
 import '../../../core/theme/app_colors.dart';
@@ -56,25 +51,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final route = ModalRoute.of(context);
     if (route != null && !route.isCurrent) return;
 
-    if (game.pendingStoryCard != null) {
-      _isModalShowing = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) {
-          _isModalShowing = false;
-          return;
-        }
-        await NeoBrutalStoryAdDialog.show(context, game.pendingStoryCard!);
-        _isModalShowing = false;
-        if (mounted) {
-          _checkAndShowPendingDialogs(ref.read(gameProvider));
-        }
-      });
-      return;
-    }
-
-    // pendingDramaticCard is displayed directly on the dashboard via DashboardDramaticCardBanner.
-    // The user opens it manually by tapping the banner, preventing intrusive popups on launch or after onboarding.
-
+    // pendingDramaticCard and pendingStoryCard are displayed directly on the dashboard
+    // via DashboardDramaticCardBanner and DashboardStoryAdBanner.
+    // The user opens them manually by tapping the banner, preventing intrusive popups on launch or after onboarding.
 
     if (game.activeCrmEvent != null) {
       _isModalShowing = true;
@@ -90,37 +69,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       });
       return;
-    }
-
-    // Contextual Emergency Lifeline check (Unprompted intelligent detection for 7 bottleneck scenarios)
-    if (game.tutorialCompleted &&
-        ContextualEmergencyAdEngine.canTriggerUnprompted(currentDay: game.currentDay)) {
-      final encounter = ContextualEmergencyAdEngine.evaluateNeed(game: game);
-      if (encounter != null &&
-          encounter.needType != EmergencyNeedType.purchaseShortfall) {
-        _isModalShowing = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (!mounted) {
-            _isModalShowing = false;
-            return;
-          }
-          await NeoBrutalContextualLifelineDialog.show(
-            context,
-            encounter: encounter,
-            onAccepted: () {
-              ContextualEmergencyAdEngine.markTriggered(currentDay: game.currentDay);
-            },
-            onDismissed: () {
-              ContextualEmergencyAdEngine.markTriggered(currentDay: game.currentDay);
-            },
-          );
-          _isModalShowing = false;
-          if (mounted) {
-            _checkAndShowPendingDialogs(ref.read(gameProvider));
-          }
-        });
-        return;
-      }
     }
   }
 
@@ -157,13 +105,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ref: ref);
         }
 
-        // Check 28-Day Monthly Daily Streak
-        final now = DateTime.now();
-        final todayStr =
-            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-        if (game.canClaimTodayStreak(todayStr) && mounted) {
-          DailyLoginSheet.show(context);
-        }
+        // Note: 28-Day Monthly Daily Streak is now passively surfaced via DashboardDailyStreakBanner
+        // on the dashboard, allowing direct ad-free 1-tap claim or voluntary sheet opening without launch popups.
 
         // Check Post-Update What's New Dialog
         if (mounted) {
@@ -215,13 +158,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       }
 
-      if (previous != null && next.currentDay > previous.currentDay) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted && !_isModalShowing) {
-            RateUsRewardDialog.checkAndShow(context, ref);
-          }
-        });
-      }
 
       _checkAndShowPendingDialogs(next);
     });
@@ -385,6 +321,13 @@ class _DashboardHomeTab extends ConsumerWidget {
               palette: p,
             ),
           ],
+          if (game.pendingStoryCard != null) ...[
+            const SizedBox(height: 12),
+            DashboardStoryAdBanner(
+              card: game.pendingStoryCard!,
+              palette: p,
+            ),
+          ],
           const SizedBox(height: 14),
           _buildSectionHeader(
             title: context.tr('showroom_tab_cars', {'count': game.ownedCars.length}),
@@ -505,7 +448,14 @@ class _DashboardHomeTab extends ConsumerWidget {
         palette: p,
       );
     }
-    // 3. First Day Quest Guide (if fresh player with 0 sales)
+    // 3. Pending Optional Story Ad Opportunity (Voluntary in-feed banner)
+    if (game.pendingStoryCard != null) {
+      return DashboardStoryAdBanner(
+        card: game.pendingStoryCard!,
+        palette: p,
+      );
+    }
+    // 4. First Day Quest Guide (if fresh player with 0 sales)
     if (game.carsSold == 0) {
       return DashboardFirstDayQuestBanner(
         game: game,

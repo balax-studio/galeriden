@@ -22,7 +22,7 @@ class NeoBrutalStoryAdDialog extends ConsumerWidget {
   static Future<void> show(BuildContext context, StoryCardModel card) {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (context) => NeoBrutalStoryAdDialog(card: card),
     );
   }

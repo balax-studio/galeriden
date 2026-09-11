@@ -8,6 +8,9 @@ enum BlueprintPatternType {
   technicalCrosses,
   diagonalHatch,
   isometricBlueprint,
+  bayerDither,
+  crtScanlines,
+  graphPaper,
 }
 
 /// Dynamic Neo-Brutalist Background Canvas Widget
@@ -162,6 +165,59 @@ class _BlueprintPatternPainter extends CustomPainter {
           canvas.drawLine(Offset(x, 0), Offset(x - dx, size.height), paint);
         }
         canvas.restore();
+        break;
+
+      case BlueprintPatternType.bayerDither:
+        final dotPaint = Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
+        const bayer4x4 = [
+          0.0, 8.0 / 16.0, 2.0 / 16.0, 10.0 / 16.0,
+          12.0 / 16.0, 4.0 / 16.0, 14.0 / 16.0, 6.0 / 16.0,
+          3.0 / 16.0, 11.0 / 16.0, 1.0 / 16.0, 9.0 / 16.0,
+          15.0 / 16.0, 7.0 / 16.0, 13.0 / 16.0, 5.0 / 16.0,
+        ];
+        final step = spacing.clamp(4.0, 10.0);
+        final dot = (strokeWidth * 1.3).clamp(1.0, 2.2);
+        int r = 0;
+        for (double y = 0; y < size.height; y += step, r++) {
+          int c = 0;
+          for (double x = 0; x < size.width; x += step, c++) {
+            final idx = (r % 4) * 4 + (c % 4);
+            if (bayer4x4[idx] >= 0.40) {
+              canvas.drawRect(Rect.fromLTWH(x, y, dot, dot), dotPaint);
+            }
+          }
+        }
+        break;
+
+      case BlueprintPatternType.crtScanlines:
+        final lineStep = (spacing * 0.25).clamp(3.0, 6.0);
+        final crtPaint = Paint()
+          ..color = color
+          ..strokeWidth = strokeWidth.clamp(0.8, 1.5)
+          ..style = PaintingStyle.stroke;
+        for (double y = 0; y <= size.height; y += lineStep) {
+          canvas.drawLine(Offset(0, y), Offset(size.width, y), crtPaint);
+        }
+        break;
+
+      case BlueprintPatternType.graphPaper:
+        final majorPaint = Paint()
+          ..color = color.withValues(alpha: (color.a * 1.8).clamp(0.0, 1.0))
+          ..strokeWidth = strokeWidth * 1.2
+          ..style = PaintingStyle.stroke;
+        final subSpacing = (spacing * 0.25).clamp(4.0, 12.0);
+        int gx = 0;
+        for (double x = 0; x <= size.width; x += subSpacing, gx++) {
+          canvas.drawLine(Offset(x, 0), Offset(x, size.height),
+              (gx % 4 == 0) ? majorPaint : paint);
+        }
+        int gy = 0;
+        for (double y = 0; y <= size.height; y += subSpacing, gy++) {
+          canvas.drawLine(Offset(0, y), Offset(size.width, y),
+              (gy % 4 == 0) ? majorPaint : paint);
+        }
         break;
     }
   }

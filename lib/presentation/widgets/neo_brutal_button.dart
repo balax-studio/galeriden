@@ -449,18 +449,15 @@ class _NeoBrutalButtonState extends State<NeoBrutalButton> {
                     const SizedBox(width: 6),
                   ],
                   Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        displayLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: effectiveText,
-                          fontSize: widget.fontSize,
-                          fontWeight: widget.fontWeight,
-                          letterSpacing: 0.5,
-                        ),
+                    child: Text(
+                      displayLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: effectiveText,
+                        fontSize: widget.fontSize,
+                        fontWeight: widget.fontWeight,
+                        letterSpacing: 0.2,
                       ),
                     ),
                   ),

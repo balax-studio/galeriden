@@ -1422,13 +1422,13 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                     }),
                     if (property.isConstructionActive)
                       NeoBrutalBadge(
-                        text: property.constructionStage >= 8
+                        text: property.isConstructionComplete
                             ? context.tr('real_estate_construction_badge_ready')
                             : '${context.tr('real_estate_construction_badge_active')} • %${property.constructionPercent}',
-                        backgroundColor: property.constructionStage >= 8
+                        backgroundColor: property.isConstructionComplete
                             ? const Color(0xFFD1FAE5)
                             : const Color(0xFFFEF3C7),
-                        textColor: property.constructionStage >= 8
+                        textColor: property.isConstructionComplete
                             ? const Color(0xFF065F46)
                             : const Color(0xFF92400E),
                       )
@@ -1614,7 +1614,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.black,
                         backgroundColor: property.isConstructionActive
-                            ? (property.constructionStage >= 8
+                            ? (property.isConstructionComplete
                                 ? const Color(0xFFD1FAE5)
                                 : const Color(0xFFFEF3C7))
                             : const Color(0xFFE0E7FF),
@@ -1624,7 +1624,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
                       ),
                       label: Text(
                         property.isConstructionActive
-                            ? (property.constructionStage >= 8
+                            ? (property.isConstructionComplete
                                 ? context.tr('real_estate_construction_badge_ready')
                                 : '${context.tr('real_estate_btn_manage_construction')} • %${property.constructionPercent}')
                             : context.tr('real_estate_btn_start_construction'),

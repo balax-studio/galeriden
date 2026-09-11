@@ -15,6 +15,7 @@ import '../../widgets/neo_brutal_app_bar.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
+import '../../widgets/procedural_shader_textures.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 
 class SpecialPlateScreen extends ConsumerStatefulWidget {
@@ -97,52 +98,61 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFDE59),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF333B4F)
-                                : const Color(0xFF0F172A),
-                            width: 2.0,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFDE59),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isDark
+                                  ? const Color(0xFF333B4F)
+                                  : const Color(0xFF0F172A),
+                              width: 2.0,
+                            ),
+                          ),
+                          child: const Icon(Icons.confirmation_number_rounded,
+                              color: Colors.black, size: 20),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('plate_balance_label'),
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white60
+                                      : const Color(0xFF64748B),
+                                ),
+                              ),
+                              Text(
+                                CurrencyFormatter.format(game.balance),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: const Icon(Icons.confirmation_number_rounded,
-                            color: Colors.black, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.tr('plate_balance_label'),
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              color: isDark
-                                  ? Colors.white60
-                                  : const Color(0xFF64748B),
-                            ),
-                          ),
-                          Text(
-                            CurrencyFormatter.format(game.balance),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w900,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF0F172A),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  Row(
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       NeoBrutalBadge(
                         text: context.tr('plate_cars_in_garage_badge',
@@ -153,15 +163,15 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                             : const Color(0xFFE2E8F0),
                         textColor:
                             isDark ? Colors.white : const Color(0xFF0F172A),
-                        fontSize: 10,
+                        fontSize: 9.5,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(height: 4),
                       NeoBrutalBadge(
                         text: context.tr('plate_value_boost_header_badge'),
                         icon: Icons.trending_up_rounded,
                         backgroundColor: const Color(0xFFFFDE59),
                         textColor: Colors.black,
-                        fontSize: 10,
+                        fontSize: 9.5,
                       ),
                     ],
                   ),
@@ -355,23 +365,28 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
 
     Color rarityColor;
     String rarityBadgeText;
+    BlueprintPatternType cardPattern;
 
     switch (plate.rarity) {
       case 'legendary':
         rarityColor = AppColors.brutalYellow;
         rarityBadgeText = context.tr('plate_rarity_legendary');
+        cardPattern = BlueprintPatternType.bayerDither;
         break;
       case 'symmetric':
         rarityColor = const Color(0xFF38BDF8);
         rarityBadgeText = context.tr('plate_rarity_symmetric');
+        cardPattern = BlueprintPatternType.isometricBlueprint;
         break;
       case 'repeated':
         rarityColor = AppColors.brutalOrange;
         rarityBadgeText = context.tr('plate_rarity_repeated');
+        cardPattern = BlueprintPatternType.graphPaper;
         break;
       default:
         rarityColor = const Color(0xFF94A3B8);
         rarityBadgeText = context.tr('plate_rarity_custom');
+        cardPattern = BlueprintPatternType.technicalCrosses;
     }
 
     return Padding(
@@ -381,16 +396,24 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
         backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
         borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
         borderRadius: 14,
+        showBlueprintGrid: true,
+        patternType: cardPattern,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Top Row: Badges & City
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
               children: [
-                Row(
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    if (isAlreadyOwned) ...[
+                    if (isAlreadyOwned)
                       NeoBrutalBadge(
                         text: context.tr('plate_btn_in_use'),
                         icon: Icons.lock_outline_rounded,
@@ -398,9 +421,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                         textColor: Colors.white,
                         fontSize: 9.5,
                         fontWeight: FontWeight.w900,
-                      ),
-                      const SizedBox(width: 6),
-                    ] else ...[
+                      )
+                    else ...[
                       NeoBrutalBadge(
                         text: rarityBadgeText,
                         backgroundColor: rarityColor,
@@ -408,7 +430,6 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                         fontSize: 9.5,
                         fontWeight: FontWeight.w900,
                       ),
-                      const SizedBox(width: 6),
                       NeoBrutalBadge(
                         text: context.tr('plate_value_bonus_badge',
                             {'percent': plate.valueBonusPercent}),
@@ -421,17 +442,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                     ],
                   ],
                 ),
-                Expanded(
-                    child: Text(
+                Text(
                   context.tr('plate_city_registration', {'city': plate.city}),
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10.5,
                     fontWeight: FontWeight.w700,
                     color: isDark
                         ? const Color(0xFF94A3B8)
                         : const Color(0xFF64748B),
                   ),
-                )),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -569,6 +592,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
           borderColor:
               isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
+          showBlueprintGrid: true,
+          patternType: BlueprintPatternType.technicalCrosses,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -687,6 +712,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
           borderColor:
               isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
           borderRadius: 14,
+          showBlueprintGrid: true,
+          patternType: BlueprintPatternType.graphPaper,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -710,8 +737,10 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                       children: [
                         Text(
                           context.tr('plate_city_code_label'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 10.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: isDark
                                 ? Colors.white70
@@ -747,6 +776,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                                   value: e.key,
                                   child: Text(
                                     '${e.key} • ${e.value}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
@@ -779,6 +810,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                       children: [
                         Text(
                           context.tr('plate_letters_label'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -837,6 +870,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                       children: [
                         Text(
                           context.tr('plate_digits_label'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w700,
@@ -904,35 +939,52 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                     width: 1.5,
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          context.tr('plate_calculated_fee_label'),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: isDark
-                                ? Colors.white60
-                                : const Color(0xFF64748B),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                context.tr('plate_calculated_fee_label'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isDark
+                                      ? Colors.white60
+                                      : const Color(0xFF64748B),
+                                ),
+                              ),
+                              Text(
+                                CurrencyFormatter.format(customPlate.price),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? const Color(0xFFFFDE59)
+                                      : const Color(0xFFB45309),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          CurrencyFormatter.format(customPlate.price),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: isDark
-                                ? const Color(0xFFFFDE59)
-                                : const Color(0xFFB45309),
+                        if (!canAfford && !isAlreadyOwned)
+                          NeoBrutalBadge.danger(
+                            text: context.tr('plate_insufficient_funds_btn'),
+                            fontSize: 9.5,
                           ),
-                        ),
                       ],
                     ),
+                    const SizedBox(height: 10),
                     NeoBrutalButton(
+                      fullWidth: true,
                       label: isAlreadyOwned
                           ? context.tr('plate_btn_in_use')
                           : (canAfford
@@ -953,9 +1005,9 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                           : (canAfford
                               ? Colors.black
                               : const Color(0xFF94A3B8)),
-                      fontSize: 11,
+                      fontSize: 11.5,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
+                          horizontal: 14, vertical: 10),
                       onPressed: (!isAlreadyOwned && canAfford)
                           ? () => _openVehicleAssignmentSheet(customPlate)
                           : null,
@@ -1008,45 +1060,53 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppColors.brutalYellow,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF333B4F)
-                                  : const Color(0xFF0F172A),
-                              width: 2.0,
-                            ),
-                          ),
-                          child: const Icon(Icons.directions_car_rounded,
-                              size: 20, color: Colors.black),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr('plate_assign_modal_title'),
-                              style: const TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.w900),
-                            ),
-                            Text(
-                              '${context.tr('plate_new_plate_label')}: ${plate.plateNumber}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.brutalYellow,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
                                 color: isDark
-                                    ? AppColors.brutalYellow
-                                    : const Color(0xFFB45309),
+                                    ? const Color(0xFF333B4F)
+                                    : const Color(0xFF0F172A),
+                                width: 2.0,
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                            child: const Icon(Icons.directions_car_rounded,
+                                size: 20, color: Colors.black),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  context.tr('plate_assign_modal_title'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 16, fontWeight: FontWeight.w900),
+                                ),
+                                Text(
+                                  '${context.tr('plate_new_plate_label')}: ${plate.plateNumber}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark
+                                        ? AppColors.brutalYellow
+                                        : const Color(0xFFB45309),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -1148,6 +1208,8 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                 children: [
                   Text(
                     '${car.modelYear} ${car.brand} ${car.modelName}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w900,
@@ -1157,15 +1219,19 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      Text(
-                        context.tr('plate_old_plate_label',
-                            {'plate': car.plateNumber}),
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
+                      Expanded(
+                        child: Text(
+                          context.tr('plate_old_plate_label',
+                              {'plate': car.plateNumber}),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? const Color(0xFF94A3B8)
+                                : const Color(0xFF64748B),
+                          ),
                         ),
                       ),
                     ],
@@ -1173,14 +1239,18 @@ class _SpecialPlateScreenState extends ConsumerState<SpecialPlateScreen>
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Text(
-                        context.tr('plate_value_increase_label', {
-                          'amount': CurrencyFormatter.formatShort(profitGain)
-                        }),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.brutalGreen,
+                      Expanded(
+                        child: Text(
+                          context.tr('plate_value_increase_label', {
+                            'amount': CurrencyFormatter.formatShort(profitGain)
+                          }),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.brutalGreen,
+                          ),
                         ),
                       ),
                     ],

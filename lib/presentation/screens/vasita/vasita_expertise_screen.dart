@@ -14,6 +14,7 @@ import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_stamp.dart';
+import '../../widgets/blueprint_grid_background.dart';
 import 'vasita_negotiation_screen.dart';
 import 'widgets/vasita_diagnostic_dialog.dart';
 
@@ -626,16 +627,23 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
       borderRadius: 12,
       borderWidth: 3.0,
       shadowOffset: const Offset(4, 4),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.crtScanlines,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                context.tr('vasita_exp_chassis_card_title'),
-                style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+              Expanded(
+                child: Text(
+                  context.tr('vasita_exp_chassis_card_title'),
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w900),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               NeoBrutalBadge(
                 text: isCompleted
                     ? (exp.isChassisAligned ? context.tr('vasita_exp_chassis_aligned') : context.tr('vasita_exp_chassis_damaged'))
@@ -778,6 +786,8 @@ class _VasitaExpertiseScreenState extends ConsumerState<VasitaExpertiseScreen> {
       borderRadius: 12,
       borderWidth: 2.5,
       shadowOffset: const Offset(4, 4),
+      showBlueprintGrid: true,
+      patternType: BlueprintPatternType.crtScanlines,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

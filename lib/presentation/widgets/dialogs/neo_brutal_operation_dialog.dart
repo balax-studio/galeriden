@@ -6,6 +6,7 @@ import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../neo_brutal_badge.dart';
+import '../procedural_shader_textures.dart';
 
 extension OperationSuspenseUiExtension on OperationSuspenseType {
   IconData get icon {
@@ -250,78 +251,89 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
               ),
             ],
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Row
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: accent,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: const Color(0xFF0F172A),
-                          width: 2.0,
+          child: CrtScanlinesOverlay(
+            opacity: isDark ? 0.06 : 0.035,
+            lineSpacing: 3.5,
+            scanlineColor: isDark ? accent : Colors.black,
+            child: Material(
+              color: Colors.transparent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Row
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: accent,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFF0F172A),
+                            width: 2.0,
+                          ),
+                        ),
+                        child: Icon(
+                          widget.operationType.icon,
+                          color: Colors.black,
+                          size: 24,
                         ),
                       ),
-                      child: Icon(
-                        widget.operationType.icon,
-                        color: Colors.black,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.2,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.2,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Row(
-                            children: [
-                              NeoBrutalBadge(
-                                text: widget.carName,
-                                backgroundColor: isDark
-                                    ? const Color(0xFF1E2330)
-                                    : const Color(0xFFE2E8F0),
-                                textColor: isDark ? Colors.white : Colors.black,
-                                fontSize: 10,
-                              ),
-                              const SizedBox(width: 6),
-                              AnimatedBuilder(
-                                animation: _pulseController,
-                                builder: (ctx, child) {
-                                  return Opacity(
-                                    opacity: 0.6 + (_pulseController.value * 0.4),
-                                    child: NeoBrutalBadge(
-                                      text: context.tr('op_status_progress'),
-                                      backgroundColor: accent,
-                                      textColor: Colors.black,
-                                      fontSize: 9.5,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
+                            const SizedBox(height: 3),
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: (MediaQuery.of(context).size.width - 160).clamp(100.0, 180.0),
+                                  ),
+                                  child: NeoBrutalBadge(
+                                    text: widget.carName,
+                                    backgroundColor: isDark
+                                        ? const Color(0xFF1E2330)
+                                        : const Color(0xFFE2E8F0),
+                                    textColor: isDark ? Colors.white : Colors.black,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                AnimatedBuilder(
+                                  animation: _pulseController,
+                                  builder: (ctx, child) {
+                                    return Opacity(
+                                      opacity: 0.6 + (_pulseController.value * 0.4),
+                                      child: NeoBrutalBadge(
+                                        text: context.tr('op_status_progress'),
+                                        backgroundColor: accent,
+                                        textColor: Colors.black,
+                                        fontSize: 9.5,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
 
                 // Stepped Progress Bar with Percentage Counter
                 Row(
@@ -435,6 +447,7 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

@@ -318,42 +318,133 @@ class BranchScreen extends ConsumerWidget {
                         )),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: isDark
                             ? const Color(0xFF0F1118)
-                            : const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(8),
+                            : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF2A3142)
-                              : const Color(0xFFCBD5E1),
+                          color: (isCurrent || b.isUnlocked)
+                              ? const Color(0xFF10B981)
+                              : (isDark
+                                  ? const Color(0xFF2A3142)
+                                  : const Color(0xFFCBD5E1)),
                           width: 1.5,
                         ),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                              isLevelUnlocked
-                                  ? Icons.lock_open_rounded
-                                  : Icons.lock_rounded,
-                              size: 14,
-                              color: isLevelUnlocked
-                                  ? AppColors.brutalGreen
-                                  : const Color(0xFF64748B)),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              context.tr('branch_unlocked_features',
-                                  {'summary': b.getLocalizedSummary(context)}),
-                              style: const TextStyle(
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF64748B)),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    (isCurrent || b.isUnlocked)
+                                        ? Icons.check_circle_rounded
+                                        : Icons.lock_rounded,
+                                    size: 14,
+                                    color: (isCurrent || b.isUnlocked)
+                                        ? AppColors.brutalGreen
+                                        : const Color(0xFF64748B),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    context.tr('branch_unlocked_features'),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      color: (isCurrent || b.isUnlocked)
+                                          ? (isDark
+                                              ? Colors.white
+                                              : const Color(0xFF0F172A))
+                                          : const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              NeoBrutalBadge(
+                                text: (isCurrent || b.isUnlocked)
+                                    ? context.tr('status_active')
+                                    : context.tr('branch_badge_level',
+                                        {'lvl': '${b.targetLevel}'}),
+                                backgroundColor: (isCurrent || b.isUnlocked)
+                                    ? AppColors.brutalGreen
+                                    : (isDark
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFE2E8F0)),
+                                textColor: (isCurrent || b.isUnlocked)
+                                    ? Colors.black
+                                    : (isDark
+                                        ? const Color(0xFF94A3B8)
+                                        : const Color(0xFF64748B)),
+                                fontSize: 9.5,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: b.getFeaturesList(context).map((feature) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: (isCurrent || b.isUnlocked)
+                                      ? (isDark
+                                          ? const Color(0xFF132F24)
+                                          : const Color(0xFFDCFCE7))
+                                      : (isDark
+                                          ? const Color(0xFF1E2330)
+                                          : const Color(0xFFF1F5F9)),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: (isCurrent || b.isUnlocked)
+                                        ? const Color(0xFF10B981)
+                                        : (isDark
+                                            ? const Color(0xFF334155)
+                                            : const Color(0xFFCBD5E1)),
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      (isCurrent || b.isUnlocked)
+                                          ? Icons.verified_rounded
+                                          : Icons.lock_outline_rounded,
+                                      size: 11,
+                                      color: (isCurrent || b.isUnlocked)
+                                          ? (isDark
+                                              ? const Color(0xFF34D399)
+                                              : const Color(0xFF059669))
+                                          : const Color(0xFF64748B),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      feature,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: (isCurrent || b.isUnlocked)
+                                            ? (isDark
+                                                ? const Color(0xFFECFDF5)
+                                                : const Color(0xFF065F46))
+                                            : (isDark
+                                                ? const Color(0xFF94A3B8)
+                                                : const Color(0xFF475569)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),

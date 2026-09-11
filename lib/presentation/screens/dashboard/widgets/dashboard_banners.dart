@@ -21,6 +21,10 @@ import '../../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../../widgets/pulsing_dot.dart';
 import '../../../widgets/zeigarnik_progress_bar.dart';
 import 'dashboard_retention_modals.dart';
+import '../../../../data/models/story_card_model.dart';
+import '../../../widgets/app_vector_icons.dart';
+import '../../../widgets/dialogs/daily_login_sheet.dart';
+import '../../../widgets/neo_brutal_story_ad_dialog.dart';
 
 /// 1. Profile & Dealership Banner
 class DashboardProfileBanner extends StatelessWidget {
@@ -416,15 +420,19 @@ class DashboardDramaticCardBanner extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Text(
-                '${card.characterName} • ${card.characterRole}',
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
-                  color: catColor,
+              Expanded(
+                child: Text(
+                  '${card.characterName} • ${card.characterRole}',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    color: catColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               NeoBrutalButton(
                 label: context.tr('banner_dramatic_dilemma_action'),
                 icon: Icons.touch_app_rounded,
@@ -448,6 +456,138 @@ class DashboardDramaticCardBanner extends StatelessWidget {
     );
   }
 }
+
+/// Voluntary In-Feed Story Encounter Card Banner (Zero Unprompted Popups)
+class DashboardStoryAdBanner extends ConsumerWidget {
+  final StoryCardModel card;
+  final ThemePaletteModel palette;
+
+  const DashboardStoryAdBanner({
+    super.key,
+    required this.card,
+    required this.palette,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = palette.isDark;
+    const accentColor = Color(0xFFF59E0B);
+
+    return NeoBrutalCard(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        NeoBrutalStoryAdDialog.show(context, card);
+      },
+      padding: const EdgeInsets.all(12),
+      backgroundColor:
+          isDark ? const Color(0xFF1E1A16) : const Color(0xFFFFFBEB),
+      borderColor: accentColor,
+      borderRadius: 14,
+      borderWidth: 2.5,
+      shadowOffset: const Offset(4, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF2A231B)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF4A3B2C)
+                        : const Color(0xFF0F172A),
+                    width: 1.8,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: AvatarIconWidget(
+                  avatar: card.characterAvatar,
+                  size: 24,
+                  color: isDark ? accentColor : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        NeoBrutalBadge(
+                          text: context.tr('badge_special_encounter'),
+                          backgroundColor: accentColor,
+                          textColor: Colors.black,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        const SizedBox(width: 6),
+                        NeoBrutalBadge(
+                          text: context.tr('badge_optional_opportunity'),
+                          backgroundColor: isDark
+                              ? const Color(0xFF2A3444)
+                              : const Color(0xFFE2E8F0),
+                          textColor:
+                              isDark ? Colors.white70 : const Color(0xFF475569),
+                          fontSize: 8.5,
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            ref
+                                .read(gameProvider.notifier)
+                                .dismissPendingStoryCard();
+                          },
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: isDark
+                                ? Colors.white54
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      card.title,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${card.characterName} • ${card.rewardDescription}',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: isDark
+                            ? const Color(0xFFCBD5E1)
+                            : const Color(0xFF475569),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// First Day Quest Guide Banner
 class DashboardFirstDayQuestBanner extends StatelessWidget {
   final DealershipModel game;
@@ -1087,6 +1227,10 @@ class DashboardDailyStreakBanner extends ConsumerWidget {
     }
 
     return NeoBrutalCard(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        DailyLoginSheet.show(context);
+      },
       padding: const EdgeInsets.all(10),
       backgroundColor: const Color(0xFFFFDE59),
       borderColor: const Color(0xFF0F172A),

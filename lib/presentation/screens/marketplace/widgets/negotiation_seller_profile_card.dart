@@ -7,6 +7,7 @@ import '../../../../data/models/listing_model.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/blueprint_grid_background.dart';
 
 class NegotiationSellerProfileCard extends StatelessWidget {
   final ListingModel listing;
@@ -40,6 +41,8 @@ class NegotiationSellerProfileCard extends StatelessWidget {
           borderWidth: 2.5,
           borderRadius: 12,
           shadowOffset: const Offset(3.5, 3.5),
+          showBlueprintGrid: true,
+          patternType: BlueprintPatternType.bayerDither,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -75,16 +78,21 @@ class NegotiationSellerProfileCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              customer.name,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: isDark
-                                    ? Colors.white
-                                    : const Color(0xFF0F172A),
+                            Expanded(
+                              child: Text(
+                                customer.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark
+                                      ? Colors.white
+                                      : const Color(0xFF0F172A),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            const SizedBox(width: 8),
                             NeoBrutalBadge(
                               text: customer.archetypeTitle,
                               backgroundColor: isDark
