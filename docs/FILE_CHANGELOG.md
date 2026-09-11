@@ -22,6 +22,39 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
   - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
 
+### `Arayüz Taşma Problemleri (RenderFlex Overflow), Prosedürel Dokuların 4 Ekrana Entegrasyonu ve 7 Dilli Yerelleştirme (§SPEC-2026-LAYOUT-OVERFLOW-AND-SHADERS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Dashboard (Showroom & Galeri), Oto Yıkama (Paket 4), Şantiye (Telsiz ve Canlı Anons) ve Gece Pazarı (Drag Yarış Eşleşmesi) ekranlarındaki yatay `RenderFlex overflowed` taşma hatalarının `Flexible`, `Expanded` ve `maxLines` sınırlandırmalarıyla 320px gibi dar mobil ekranlarda sıfırlanması; oto yıkama "UYGULANDI" butonundaki metin kesilmesinin önlenmesi; ayrıca neo-brutalist prosedürel gölgelendirici desenlerin (CRT scanlines) ilgili kartlara entegre edilmesi ve hardcoded metinlerin 7 dilde senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_services_grid.dart`:
+    - `service_showroom` metni `Flexible` içine alındı ve `TextOverflow.ellipsis` eklendi.
+    - `branchName` metnine `maxLines: 1` ve `overflow: TextOverflow.ellipsis` eklendi.
+    - Rozetler arasına `const SizedBox(width: 6)` eklenerek 3.0 piksellik yatay taşma giderildi.
+  - `lib/presentation/screens/car_wash/car_wash_screen.dart`:
+    - `BlueprintPatternType.crtScanlines` prosedürel dokusu paket kartına entegre edildi.
+    - Paket 4 bonus rozeti `Flexible` ile sarmalanarak fontu 9.0 ve padding'i kompakt hale getirildi; 5.7 piksellik taşma çözüldü.
+    - Uygulandı/Satın Al butonuna `BoxConstraints(minWidth: 86, maxWidth: 110)` ve `fontSize: 11.0` uygulanarak "UYGULAN..." kırpılması önlendi.
+  - `lib/presentation/screens/real_estate/real_estate_construction_screen.dart`:
+    - Telsiz anonsu kartına CRT scanlines prosedürel dokusu uygulandı.
+    - Başlık satırı `Expanded`, telsiz rozeti `Flexible(child: NeoBrutalBadge(...))` içine alınarak 20 piksellik yatay taşma sıfırlandı.
+  - `lib/presentation/screens/night_market/night_market_screen.dart`:
+    - Eşleşme ve oranlar başlık satırı `Expanded` içine alındı, hak ve rakip rozetleri gruplanarak 13 piksellik taşma giderildi.
+    - Hardcoded `'Rakip Değiş'` butonu `context.tr('night_market_change_rival')` ile 7 dilde senkronize yerelleştirildi.
+  - `lib/core/localization/translations/*.dart`:
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerine `night_market_change_rival` ve 9 yeni `changelog_item_*` anahtarı eksiksiz eklendi.
+  - `test/layout_overflow_and_generative_shaders_test.dart`:
+    - 320px dar ekran simülasyonu altında 11 adet taşma ve doku testi yazıldı ve güncellendi; 19 testin tamamı yeşil geçti.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Test 10'da (`Construction Radio Dispatch Card on 320px viewport`), kart içi `NeoBrutalBadge` rozetinin `Flexible` ile sarmalanmaması nedeniyle 20px taşma hatası tespit edildi.
+- **Kök Neden**:
+  - 320px genişlikte kartın 16px iç dolgusu sonrasında kalan alanda serbest genişlikli rozetin başlıkla yarışarak toplam genişliği aşması.
+- **Uygulanan Çözüm**:
+  - `real_estate_construction_screen.dart` ve test mock'unda `NeoBrutalBadge` `Flexible` ile sarmalandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/layout_overflow_and_generative_shaders_test.dart`: 19/19 test passed (100%).
+  - `flutter analyze lib/`: 0 hata, 0 uyarı (No issues found).
+
 ### `İnşaat 8. Aşama (İskan Ruhsatı & Kat Mülkiyeti) İlerleme, 0-Gün Sayacı ve Daire Tapusu Doğrulama Onarımı (§SPEC-2026-CONSTRUCTION-STAGE8-HANDOVER)`
 - **Tarih**: 2026-09-11
 - **Değişiklik Amacı**:
