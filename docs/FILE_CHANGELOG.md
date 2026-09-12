@@ -21,6 +21,56 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `GA4 Telemetri Düzeltmesi, İlk Kullanıcı Deneyimi (FTUE) Çıkmazı Çözümü ve Seviye 1 Sponsor Desteği Monetizasyonu (§TELEMETRY-FTUE-REMEDIATION-2026-09-12)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Google Analytics 4 (GA4) verilerinde tespit edilen %70.98 `MainActivity` ekran toplanması, pazar alımlarında eksik `car_purchased` çağrıları ve funnel dönüşümünü sıfırlayan `first_car_purchased` / `first_car_sold` tetikleme hatalarının giderilmesi.
+  - Oyuncuların %62.5'inin ilk arabayı satamamasından kaynaklanan FTUE çıkmazının (Level 1'de tamirhanenin kilitli olmasına rağmen ilk görevin tamir istemesi, donmuş eğitim kartı, 8 dakikayı bulan organik teklif bekleme süresi) çözülmesi.
+  - Seviye 1 oyuncuları için vitrinde bekleyen araçlara yumuşak psikolojik dille ("Sponsor Desteği Al • Alıcı Çağır") ödüllü reklam erişimi sağlanarak reklam gelirinin ($0.79) ve ilk satış akışının canlandırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/analytics_service.dart`:
+    - `logTutorialStep`: Eğitim adımı takibi için parametreli (`step_name`, `step_index`) telemetri metodu eklendi.
+    - `logTutorialCompleted`: Eğitim tamamlama telemetrisi eklendi (`logTutorialComplete` ve `tutorial_finished_custom`).
+    - `logOfferReceived`: Gelen alıcı teklifleri ve ilk satış durumu telemetri metodu eklendi.
+    - `logBankruptcy`: Eksik kapatma parantezi hatası düzeltildi.
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `buyCarDirectly`, `buyCar`, `buyCarWithNoter`: `state.ownedCars.isEmpty` mantıksal kontrolü yerine persistent durumdaki `!state.completedFirstTimeActions.contains(FirstTimeActionKeys.firstCarBuy)` kontrolüne geçildi. Böylece oyuncu dede mirası arabasını henüz satmadan pazardan araba aldığında `first_car_purchased` hunisi artık %100 doğrulukla tetiklenir.
+    - `buyCar` ve `buyCarWithNoter` içerisine eksik olan `AnalyticsService.instance.logCarPurchased` ve `logFirstCarAction(isBuy: true)` çağrıları entegre edildi.
+  - `lib/presentation/providers/game/game_base_notifier.dart` & `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `triggerOrganicOffers({String? targetCarId})`: İsteğe bağlı `targetCarId` parametresi eklendi. Hedef araç verildiğinde teklif doğrudan o araç için üretilir. Teklif üretildiğinde `AnalyticsService.instance.logOfferReceived` çağrılır.
+    - Araç satış metodunda `state.salesHistory.isEmpty` kontrolü `state.copyWith` öncesine çekilerek `final bool isFirstSaleEver = state.salesHistory.isEmpty;` olarak kaydedildi ve `first_car_sold` hunisi onarıldı.
+  - `lib/data/models/dealership_model.dart`:
+    - Başlangıç kariyer görevi `m_heritage_1` açıklaması "Miras arabayı onarıp ilk satışını yap" yerine "Dede mirası arabanı vitrine koy ve ilk satışını yap" olarak güncellendi.
+  - `lib/presentation/providers/tutorial_provider.dart`:
+    - `setStep`, `nextStep`, `skipTutorial` içine `AnalyticsService.instance.logTutorialStep`, `completeTutorial` içine `logTutorialCompleted` entegre edildi.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `initState` ve sekme geçiş dinleyicisi `ref.listen<int>(dashboardTabProvider)` içine `AnalyticsService.instance.logScreenView` eklendi.
+    - `_buildTutorialHeroCard`: Canlı oyun durumuna göre dinamikleştirildi; ilan verilmemişse `/create-listing` ekranına doğrudan yönlendiren buton, teklif geldiğinde Showroom sekmesine geçiş ve tamamlandığında Pazaryerine yönlendirme sağlandı.
+  - `lib/presentation/screens/showroom/create_listing_screen.dart`:
+    - İlk satışta ilan verildiğinde `dashboardTabProvider.notifier.state = 1` yapılarak oyuncu doğrudan oluşturulan anlık teklifi görebileceği Vitrin sekmesine taşındı.
+  - `lib/presentation/screens/showroom/widgets/showroom_car_card.dart`:
+    - Araç ilanda, kiralanmamış, vitrine kilitlenmemiş ve henüz teklif almamışken gösterilen `btn_sponsor_fast_offer` ("Sponsor Desteğiyle Alıcı Çağır") butonu eklendi. Ödüllü reklam tamamlandığında `triggerOrganicOffers(targetCarId: car.id)` çağrılarak tam olarak o karta anında organik teklif üretimi sağlandı.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`):
+    - `tut_dashboard_guide_desc` 7 dilde "tamir" yanılsamasından arındırıldı.
+    - `btn_sponsor_fast_offer` ve `sponsor_offer_triggered_toast` 7 dilde sıfır emoji ve sıfır parantez kuralına uygun şekilde eklendi.
+  - `test/analytics_service_test.dart`:
+    - Yeni eklenen eğitim ve teklif telemetri metotları için birim testleri eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `analytics_service.dart` derleme hatası: `logBankruptcy` metodunun kapanış süslü parantezinin eksik kalması nedeniyle sınıfın erken kapanması.
+  - `first_car_purchased` ve `first_car_sold` eventlerinin Firebase konsolunda hiç görünmemesi.
+- **Kök Neden**:
+  - Durum güncellemesi (`state.copyWith`) sonrasında liste boşluğu kontrol edildiğinden (`state.ownedCars.isEmpty` veya `salesHistory.isEmpty`), eleman eklendikten sonra kontrol yapıldığı için sonuç her zaman `false` çıkıyordu.
+  - Seviye 1'de tamirhane kilitliyken dede mirası aracın tamir edilmesinin istenmesi oyuncuda çıkmaza neden oluyordu.
+- **Uygulanan Çözüm**:
+  - Durum mutasyonundan önce yerel bayraklar tanımlandı.
+  - Başlangıç görevi metinleri ve yönlendirmeleri düzeltildi.
+  - Seviye 1 oyuncularına beklemeden teklif alma sağlayan reklam destek butonu sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/analytics_service_test.dart`: Başarılı.
+  - `flutter test test/first_core_loop_tutorial_test.dart`: Başarılı (`first_car_sold` ve eğitim adımları doğrulandı).
+  - `flutter test test/core_loop_funnel_and_dilemma_test.dart test/first_time_action_and_quest_economy_test.dart`: Başarılı (14/14).
+  - `flutter test test/localization_integrity_guard_test.dart test/translation_key_coverage_test.dart`: Başarılı (7 dil simetrisi, sıfır emoji, sıfır parantez).
+
 ### `Kapsamlı Test Paketi Taraması, 1081 Testin %100 Başarımı, Dinamik Reklam Ödül Kalibrasyonu & İnşaat Teslim Düzeltmesi (§BUGFIX-FULL-SUITE-1081-PASS-2026-09-12)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

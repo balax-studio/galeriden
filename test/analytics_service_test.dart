@@ -124,6 +124,25 @@ void main() {
         ),
         completes,
       );
+      await expectLater(
+        service.logTutorialStep(
+          stepName: 'test_step',
+          stepIndex: 1,
+        ),
+        completes,
+      );
+      await expectLater(
+        service.logTutorialCompleted(),
+        completes,
+      );
+      await expectLater(
+        service.logOfferReceived(
+          carId: 'car_123',
+          offerAmount: 250000.0,
+          isFirstSale: true,
+        ),
+        completes,
+      );
     });
   });
 }

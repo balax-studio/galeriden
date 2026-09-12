@@ -148,11 +148,23 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedAlbum =
         <String>{...state.discoveredCarModelIds, modelKey}.toList();
 
+    final bool isFirstCarEver =
+        !state.completedFirstTimeActions.contains(FirstTimeActionKeys.firstCarBuy);
     state = state.copyWith(
       balance: updatedBalance,
       ownedCars: updatedCars,
       discoveredCarModelIds: updatedAlbum,
     );
+
+    AnalyticsService.instance.logCarPurchased(
+      brand: purchasedCar.brand,
+      model: purchasedCar.modelName,
+      price: finalPurchasePrice,
+      modelYear: purchasedCar.modelYear,
+    );
+    if (isFirstCarEver) {
+      AnalyticsService.instance.logFirstCarAction(isBuy: true);
+    }
 
     addXP(50);
     checkAchievement('first_buy');
@@ -223,11 +235,23 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedAlbum =
         <String>{...state.discoveredCarModelIds, modelKey}.toList();
 
+    final bool isFirstCarEver =
+        !state.completedFirstTimeActions.contains(FirstTimeActionKeys.firstCarBuy);
     state = state.copyWith(
       balance: updatedBalance,
       ownedCars: updatedCars,
       discoveredCarModelIds: updatedAlbum,
     );
+
+    AnalyticsService.instance.logCarPurchased(
+      brand: purchasedCar.brand,
+      model: purchasedCar.modelName,
+      price: effectiveAgreedPrice,
+      modelYear: purchasedCar.modelYear,
+    );
+    if (isFirstCarEver) {
+      AnalyticsService.instance.logFirstCarAction(isBuy: true);
+    }
 
     addXP(50);
     checkAchievement('first_buy');
@@ -525,6 +549,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedAlbum =
         <String>{...state.discoveredCarModelIds, modelKey}.toList();
 
+    final bool isFirstCarEver =
+        !state.completedFirstTimeActions.contains(FirstTimeActionKeys.firstCarBuy);
     state = state.copyWith(
       balance: state.balance - price,
       ownedCars: [...state.ownedCars, finalCar],
@@ -536,7 +562,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
       price: price,
       modelYear: finalCar.modelYear,
     );
-    if (state.ownedCars.isEmpty) {
+    if (isFirstCarEver) {
       AnalyticsService.instance.logFirstCarAction(isBuy: true);
     }
     addXP(30);

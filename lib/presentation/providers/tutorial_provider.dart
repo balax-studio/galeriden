@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/services/analytics_service.dart';
 
 enum TutorialStep {
   inspectHeritageCar, // 0: Dede mirası arabayı incele
@@ -45,31 +46,48 @@ class TutorialNotifier extends StateNotifier<TutorialState> {
   void nextStep() {
     final nextIndex = state.step.index + 1;
     if (nextIndex < TutorialStep.values.length) {
+      final newStep = TutorialStep.values[nextIndex];
       state = TutorialState(
-        step: TutorialStep.values[nextIndex],
+        step: newStep,
         isActive: nextIndex < TutorialStep.completed.index,
+      );
+      AnalyticsService.instance.logTutorialStep(
+        stepName: newStep.name,
+        stepIndex: newStep.index,
       );
     }
   }
 
   void setStep(TutorialStep newStep) {
+    if (state.step == newStep) return;
     state = TutorialState(
       step: newStep,
       isActive: newStep != TutorialStep.completed,
     );
+    AnalyticsService.instance.logTutorialStep(
+      stepName: newStep.name,
+      stepIndex: newStep.index,
+    );
   }
 
   void completeTutorial() {
+    if (state.step == TutorialStep.completed) return;
     state = const TutorialState(
       step: TutorialStep.completed,
       isActive: false,
     );
+    AnalyticsService.instance.logTutorialCompleted();
   }
 
   void skipTutorial() {
+    if (state.step == TutorialStep.completed) return;
     state = const TutorialState(
       step: TutorialStep.completed,
       isActive: false,
+    );
+    AnalyticsService.instance.logTutorialStep(
+      stepName: 'skipped',
+      stepIndex: -1,
     );
   }
 }

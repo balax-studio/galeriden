@@ -1507,7 +1507,7 @@ class DealershipModel {
         MissionModel(
           id: 'm_heritage_1',
           title: 'Dede Mirası',
-          description: 'Miras arabayı onarıp ilk satışını yap',
+          description: 'Dede mirası arabanı vitrine koy ve ilk satışını yap',
           type: MissionType.sellCars,
           currentProgress: 0,
           targetGoal: 1,

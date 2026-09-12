@@ -652,7 +652,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Organic buyer offers trigger over time ONLY for listed, non-rented cars with < 3 active offers
   @override
-  void triggerOrganicOffers() {
+  void triggerOrganicOffers({String? targetCarId}) {
     if (state.ownedCars.isEmpty) return;
 
     final eligibleCars = <CarModel>[];
@@ -682,7 +682,15 @@ mixin GameMarketMixin on GameBaseNotifier {
     if (eligibleCars.isEmpty) return;
 
     final bool isFirstEverSale = state.salesHistory.isEmpty;
-    final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
+    CarModel randomCar;
+    if (targetCarId != null) {
+      randomCar = eligibleCars.firstWhere(
+        (c) => c.id == targetCarId,
+        orElse: () => eligibleCars[random.nextInt(eligibleCars.length)],
+      );
+    } else {
+      randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
+    }
     final multipliers = _calculateOfferMultipliersForCar(randomCar);
 
     // Guaranteed first sale profit calibration: ensures enthusiastic, profitable buyer offer for newcomers
@@ -704,6 +712,11 @@ mixin GameMarketMixin on GameBaseNotifier {
       currentDay: state.currentDay,
     );
     state = state.copyWith(incomingOffers: [...state.incomingOffers, offer]);
+    AnalyticsService.instance.logOfferReceived(
+      carId: randomCar.id,
+      offerAmount: offer.offeredAmount,
+      isFirstSale: isFirstEverSale,
+    );
     saveState();
   }
 
@@ -1043,6 +1056,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final double finalProfit = profit + gulfBonus;
     final double finalCashReceived = cashReceived + gulfBonus;
     final double profitToAdd = finalProfit > 0 ? finalProfit : 0.0;
+    final bool isFirstSaleEver = state.salesHistory.isEmpty;
 
     state = state.copyWith(
       balance: state.balance + finalCashReceived,
@@ -1075,7 +1089,7 @@ mixin GameMarketMixin on GameBaseNotifier {
       salePrice: offer.offeredAmount,
       profit: profit,
     );
-    if (state.salesHistory.isEmpty) {
+    if (isFirstSaleEver) {
       AnalyticsService.instance.logFirstCarAction(isBuy: false);
     }
     updateMissionProgress(MissionType.sellCars, 1);

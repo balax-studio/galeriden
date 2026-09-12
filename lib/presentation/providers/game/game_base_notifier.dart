@@ -21,7 +21,7 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
     int bonusXP = 5,
   });
   void refreshMarketTrends();
-  void triggerOrganicOffers();
+  void triggerOrganicOffers({String? targetCarId});
   void completeTutorial();
   void skipTutorial();
   void markFeatureSeen(String route);

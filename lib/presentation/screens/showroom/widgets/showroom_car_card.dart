@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/game_constants.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/notification_service.dart';
 import '../../../../data/models/car_model.dart';
@@ -1269,6 +1270,31 @@ class ShowroomCarCard extends ConsumerWidget {
                                   {'car': '${car.brand} ${car.modelName}'}),
                         );
                       }
+                    },
+                  ),
+                ],
+                if (car.isListed && !car.isRented && !car.isLockedInShowcase && !hasOffer) ...[
+                  const SizedBox(height: 8),
+                  NeoBrutalButton(
+                    label: context.tr('btn_sponsor_fast_offer'),
+                    icon: Icons.campaign_rounded,
+                    backgroundColor: const Color(0xFF00E575),
+                    textColor: Colors.black,
+                    fontSize: 11,
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    fullWidth: true,
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      AdService.instance.showRewardedAdWithFallback(
+                        context: context,
+                        onRewardEarned: () {
+                          ref.read(gameProvider.notifier).triggerOrganicOffers(targetCarId: car.id);
+                          NotificationService.showSuccess(
+                            context,
+                            context.tr('sponsor_offer_triggered_toast'),
+                          );
+                        },
+                      );
                     },
                   ),
                 ],

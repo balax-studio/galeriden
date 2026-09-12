@@ -368,4 +368,61 @@ class AnalyticsService {
       debugPrint('[AnalyticsService] logBankruptcy error: $e');
     }
   }
+
+  /// Logs player progress through onboarding and tutorial steps.
+  Future<void> logTutorialStep({
+    required String stepName,
+    required int stepIndex,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'tutorial_step',
+        parameters: {
+          'step_name': stepName,
+          'step_index': stepIndex,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] tutorial_step: $stepIndex • $stepName');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logTutorialStep error: $e');
+    }
+  }
+
+  /// Logs successful tutorial completion.
+  Future<void> logTutorialCompleted() async {
+    try {
+      await _analytics?.logTutorialComplete();
+      await _analytics?.logEvent(name: 'tutorial_finished_custom');
+      if (kDebugMode) {
+        debugPrint('[Analytics] tutorial_complete');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logTutorialCompleted error: $e');
+    }
+  }
+
+  /// Logs incoming customer buyer offer generation.
+  Future<void> logOfferReceived({
+    required String carId,
+    required double offerAmount,
+    required bool isFirstSale,
+  }) async {
+    try {
+      await _analytics?.logEvent(
+        name: 'offer_received',
+        parameters: {
+          'car_id': carId,
+          'offer_amount': offerAmount,
+          'is_first_sale': isFirstSale ? 1 : 0,
+        },
+      );
+      if (kDebugMode) {
+        debugPrint('[Analytics] offer_received: $offerAmount (First: $isFirstSale)');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] logOfferReceived error: $e');
+    }
+  }
 }

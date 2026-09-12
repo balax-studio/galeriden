@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/analytics_service.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/theme_palette_model.dart';
@@ -196,6 +197,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (mounted) {
           _checkAndShowPendingDialogs(ref.read(gameProvider));
         }
+
+        if (mounted) {
+          AnalyticsService.instance.logScreenView('Dashboard • Ana Sayfa');
+        }
       }
     });
   }
@@ -207,11 +212,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    // Listen for tab changes back to home to surface queued cards
+    // Listen for tab changes back to home to surface queued cards and log screen view
     ref.listen<int>(dashboardTabProvider, (previous, next) {
       if (next == 0) {
         _checkAndShowPendingDialogs(ref.read(gameProvider));
       }
+      final tabScreenName = switch (next) {
+        0 => 'Dashboard • Ana Sayfa',
+        1 => 'Showroom • Galerim',
+        2 => 'Marketplace • Pazar Yeri',
+        3 => 'Office • Galeri Yonetimi',
+        _ => 'Dashboard • Tab $next',
+      };
+      AnalyticsService.instance.logScreenView(tabScreenName);
     });
 
     // Listen for level-ups, story ad encounters, dramatic decision cards & random events
@@ -659,22 +672,59 @@ class _DashboardHomeTab extends ConsumerWidget {
     final tutorial = ref.watch(tutorialProvider);
     final isDark = p.isDark;
 
+    // Dynamically resolve actual tutorial progression from live game state
+    final heritageCar = game.ownedCars.where((c) => c.id == 'car_heritage_dede').firstOrNull;
+    final bool hasHeritageCar = heritageCar != null;
+    final bool hasOffer = hasHeritageCar &&
+        game.incomingOffers.any((o) => o.carId == heritageCar.id && !o.isExpiredForDay(game.currentDay));
+    final bool isSold = game.salesHistory.isNotEmpty || !hasHeritageCar;
+
+    final TutorialStep dynamicStep;
+    if (isSold || game.tutorialCompleted) {
+      dynamicStep = TutorialStep.completed;
+    } else if (hasOffer) {
+      dynamicStep = TutorialStep.acceptFirstOffer;
+    } else {
+      dynamicStep = TutorialStep.listCarForSale;
+    }
+
+    if (tutorial.step != dynamicStep && !game.tutorialCompleted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(tutorialProvider.notifier).setStep(dynamicStep);
+      });
+    }
+
     String currentStepText;
-    switch (tutorial.step) {
+    IconData stepIcon;
+    VoidCallback onAction;
+
+    switch (dynamicStep) {
       case TutorialStep.inspectHeritageCar:
-        currentStepText = context.tr('tut_step_inspect_title');
-        break;
       case TutorialStep.repairEnginePart:
-        currentStepText = context.tr('tut_step_repair_title');
-        break;
       case TutorialStep.listCarForSale:
         currentStepText = context.tr('tut_step_list_title');
+        stepIcon = Icons.publish_rounded;
+        onAction = () {
+          if (heritageCar != null) {
+            context.push('/create-listing', extra: heritageCar);
+          } else {
+            ref.read(dashboardTabProvider.notifier).state = 1;
+          }
+        };
         break;
       case TutorialStep.acceptFirstOffer:
         currentStepText = context.tr('tut_step_sell_title');
+        stepIcon = Icons.local_fire_department_rounded;
+        onAction = () {
+          ref.read(dashboardTabProvider.notifier).state = 1;
+        };
         break;
       case TutorialStep.completed:
         currentStepText = context.tr('tut_celebration_title');
+        stepIcon = Icons.storefront_rounded;
+        onAction = () {
+          ref.read(dashboardTabProvider.notifier).state = 2;
+        };
         break;
     }
 
@@ -767,17 +817,17 @@ class _DashboardHomeTab extends ConsumerWidget {
           const SizedBox(height: 14),
           TutorialPulseTarget(
             isEnabled: true,
-            pulseColor: AppColors.brutalYellow,
+            pulseColor: dynamicStep == TutorialStep.acceptFirstOffer
+                ? const Color(0xFF00E575)
+                : AppColors.brutalYellow,
             child: NeoBrutalButton.trade(
               label: currentStepText,
-              icon: Icons.touch_app_rounded,
+              icon: stepIcon,
               fullWidth: true,
               shadowOffset: const Offset(3.5, 3.5),
               fontSize: 13,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              onPressed: () {
-                ref.read(dashboardTabProvider.notifier).state = 1;
-              },
+              onPressed: onAction,
             ),
           ),
         ],

@@ -9,6 +9,7 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
 import '../../../data/models/car_model.dart';
 import '../../../data/models/expertise_model.dart';
+import '../../providers/dashboard_provider.dart';
 import '../../providers/game_provider.dart';
 import '../../widgets/industrial_rocker_switch.dart';
 import '../../widgets/neo_brutal_app_bar.dart';
@@ -1525,6 +1526,8 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
           shadowOffset: const Offset(3.5, 3.5),
           onPressed: () {
             HapticFeedback.mediumImpact();
+            final bool isFirstEverSale =
+                ref.read(gameProvider).salesHistory.isEmpty;
             ref.read(gameProvider.notifier).updateCarListingDetails(
                   activeCar.id,
                   customPrice: clampedPrice,
@@ -1547,6 +1550,9 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
               context,
               context.tr('toast_listing_updated_success'),
             );
+            if (isFirstEverSale) {
+              ref.read(dashboardTabProvider.notifier).state = 1;
+            }
             context.pop();
           },
         ),
