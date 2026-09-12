@@ -14,8 +14,8 @@ import '../neo_brutal_card.dart';
 class DailyLoginSheet extends ConsumerStatefulWidget {
   const DailyLoginSheet({super.key});
 
-  static void show(BuildContext context) {
-    showModalBottomSheet(
+  static Future<T?> show<T>(BuildContext context) {
+    return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

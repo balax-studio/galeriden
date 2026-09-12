@@ -19,6 +19,7 @@ import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/neo_brutal_segmented_gauge.dart';
 import '../../widgets/neo_brutal_slider.dart';
 import '../../widgets/tutorial_pulse_target.dart';
+import '../../widgets/dialogs/notification_primer_dialog.dart';
 
 class CreateListingScreen extends ConsumerStatefulWidget {
   final CarModel car;
@@ -1553,7 +1554,14 @@ class _CreateListingScreenState extends ConsumerState<CreateListingScreen> {
             if (isFirstEverSale) {
               ref.read(dashboardTabProvider.notifier).state = 1;
             }
+            final rootNavContext = Navigator.of(context, rootNavigator: true).context;
             context.pop();
+            // Baglamsal Halil Usta On Izni: Arac vitrine ciktiginda kibarca sor
+            Future.delayed(const Duration(milliseconds: 600), () {
+              if (rootNavContext.mounted) {
+                NotificationPrimerDialog.checkAndShow(rootNavContext, ref);
+              }
+            });
           },
         ),
       ),

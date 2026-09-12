@@ -17,10 +17,8 @@ import '../../widgets/floating_money_overlay.dart';
 import '../../widgets/marquee_ticker_widget.dart';
 import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
-import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
 import '../../widgets/dialogs/daily_login_sheet.dart';
-import '../../widgets/dialogs/notification_primer_dialog.dart';
 import '../../widgets/neo_brutal_dramatic_dialog.dart';
 import '../../widgets/emergency_bailout_dialog.dart';
 import '../../widgets/smart_mentor_dialog.dart';
@@ -173,53 +171,40 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         return;
       }
 
-      // Secondary modals gated until first core loop is completed to prevent cognitive overload
+      // Sequential Return Experience (§SPEC-2026-09-12-SEQUENTIAL-RETENTION-ORCHESTRATION)
       if (game.tutorialCompleted) {
-        // Check Reciprocity Starter Gift (§4.3)
-        final hasSeenReciprocity =
-            prefs.getBool('has_seen_reciprocity_gift') ?? false;
-        if (!hasSeenReciprocity && game.currentDay <= 1) {
-          await prefs.setBool('has_seen_reciprocity_gift', true);
-          if (mounted) {
-            DashboardRetentionModals.showReciprocityStarterGiftModal(
-                context, ref);
-          }
-        }
-
-        // Check Offline Progression Recap
+        // 1. Öncelik: Çevrimdışı İlerleme Özeti (Kazanılan para hissi en önce verilir)
         final recap =
             ref.read(gameProvider.notifier).consumePendingOfflineRecap();
         if (recap != null && mounted) {
-          DashboardRetentionModals.showOfflineRecapModal(context, recap,
+          await DashboardRetentionModals.showOfflineRecapModal(context, recap,
               ref: ref);
-        }
-
-        // Check Daily Login Streak Modal (Aşama 5: Açılışta coşkulu karşılama)
-        final now = DateTime.now();
-        bool canClaimDaily = true;
-        if (game.lastRewardClaimDate != null) {
-          final lastClaim = game.lastRewardClaimDate!;
-          if (lastClaim.year == now.year &&
-              lastClaim.month == now.month &&
-              lastClaim.day == now.day) {
-            canClaimDaily = false;
+          // Çevrimdışı özet kapatıldıktan sonra yumuşak geçiş için 350ms bekle
+          if (mounted) {
+            await Future.delayed(const Duration(milliseconds: 350));
           }
         }
-        if (canClaimDaily && mounted) {
-          DailyLoginSheet.show(context);
-        }
 
-        // Check Post-Update What's New Dialog
+        // 2. Öncelik: Günlük Giriş Takvimi (Sadece çevrimdışı özet kapandıktan sonra yumuşakça açılır)
         if (mounted) {
-          WhatsNewDialog.checkAndShow(context, ref);
+          final now = DateTime.now();
+          final latestGame = ref.read(gameProvider);
+          bool canClaimDaily = true;
+          if (latestGame.lastRewardClaimDate != null) {
+            final lastClaim = latestGame.lastRewardClaimDate!;
+            if (lastClaim.year == now.year &&
+                lastClaim.month == now.month &&
+                lastClaim.day == now.day) {
+              canClaimDaily = false;
+            }
+          }
+          if (canClaimDaily && mounted) {
+            await DailyLoginSheet.show(context);
+          }
         }
 
-        // Check Contextual Notification Pre-Permission Primer (Halil Usta)
-        if (mounted) {
-          NotificationPrimerDialog.checkAndShow(context, ref);
-        }
-
-        // Check and trigger pending decision/event modals
+        // 3. Öncelik: Ön izin (NotificationPrimerDialog) ve diğer pencereler AÇILIŞTA DEĞİL,
+        // sadece ilgili bağlamsal eylem tetiklendiğinde (örneğin vitrine araç konulduğunda) gösterilir!
         if (mounted) {
           _checkAndShowPendingDialogs(ref.read(gameProvider));
         }

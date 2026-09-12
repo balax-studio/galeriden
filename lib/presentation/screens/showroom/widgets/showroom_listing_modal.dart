@@ -16,6 +16,7 @@ import '../../../providers/game_provider.dart';
 import '../../../widgets/neo_brutal_badge.dart';
 import '../../../widgets/neo_brutal_button.dart';
 import '../../../widgets/neo_brutal_card.dart';
+import '../../../widgets/dialogs/notification_primer_dialog.dart';
 
 class ShowroomListingModal {
   // =========================================================================
@@ -1232,6 +1233,12 @@ class ShowroomListingModal {
                           context.tr('listing_updated_toast',
                               {'car': '${car.brand} ${car.modelName}'}),
                         );
+                        // Baglamsal Halil Usta On Izni: Arac vitrine ciktigi anda kibarca sor
+                        Future.delayed(const Duration(milliseconds: 600), () {
+                          if (context.mounted) {
+                            NotificationPrimerDialog.checkAndShow(context, ref);
+                          }
+                        });
                       },
                     ),
                   ],

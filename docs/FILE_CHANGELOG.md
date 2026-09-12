@@ -21,6 +21,37 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Sıralı Tutundurma Deneyimi ve Taktil Çevrimdışı Gelir Tasarımı (§SPEC-2026-09-12-SEQUENTIAL-RETENTION-ORCHESTRATION)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Açılışta 5 pop-up'ın aynı anda tetiklenerek ekranı kilitlemesini (Diyalog Fırtınası) engellemek, çevrimdışı ilerleme özetini taktil üretken dither ve esnaf banknot dalgalarıyla zenginleştirmek ve bildirim ön izinlerini yalnızca bağlamsal eylem anına (vitrine araç ilanı verildiği ana) taşımak.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/tactile_cash_pattern_painter.dart`:
+    - [YENİ]: `TactileCashPatternOverlay` ve `_TactileCashPainter` bileşeni eklendi. Guilloché sinüs dalgaları ve 4x4 Bayer dither matriksi ile banknot dokusu ve fiziksel para bereketi hissi sıfır bitmap maliyetiyle oluşturuldu.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_retention_modals.dart`:
+    - `showOfflineRecapModal` metodu `Future<bool?>` döndürecek şekilde güncellendi ve `await` edilebilir hale getirildi.
+    - Çevrimdışı kazanç kahraman paneline `TactileCashPatternOverlay`, 26px devasa nakit göstergesi, yumuşak psikolojik dil kullanan reklam katlayıcı ("SPONSOR DESTEĞİ İLE KATLA") ve dokunsal ses-haptik geri bildirimler entegre edildi.
+    - Biriken vitrin teklifleri metin satırı yerine sarı çerçeveli görsel fırsat kartlarına dönüştürüldü.
+  - `lib/presentation/widgets/dialogs/daily_login_sheet.dart`:
+    - `DailyLoginSheet.show(context)` metodu `Future<T?>` döndürecek şekilde güncellendi.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - Açılıştaki 5 pencereli pop-up yığılması kaldırıldı.
+    - Sıralı yürütücü kuruldu: 1. Öncelik olarak Çevrimdışı Özet gösterilir ve kapatılana kadar beklenir. Kapatıldıktan 350 milisaniye sonra 2. Öncelik olarak Günlük Giriş Takvimi yumuşakça açılır.
+    - Ön izin (`NotificationPrimerDialog`) ve `WhatsNewDialog` açılış kuyruğundan tamamen çıkarıldı.
+  - `lib/presentation/screens/showroom/widgets/showroom_listing_modal.dart` & `create_listing_screen.dart`:
+    - `NotificationPrimerDialog.checkAndShow` vitrine araç ilanı verildiği ana taşındı; oyuncu tam ilan açtığı anda Halil Usta dükkan loruyla izin istenir.
+  - `test/modal_queue_sequence_test.dart`:
+    - [YENİ]: `TactileCashPatternOverlay` tuval çizim testi ve `Future` imza doğrulama birim testleri yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Diskte yeterli yer kalmaması nedeniyle derleyici geçici dosya yazamadı (OS Error: Diskte yeterli yer yok, errno = 112).
+- **Kök Neden**:
+  - Proje `build/` klasörünün 2.7 GB yer kaplaması ve Windows geçici dosyalarının disk alanını tüketmesi.
+- **Uygulanan Çözüm**:
+  - `flutter clean` çalıştırılarak 20 GB boş disk alanı açıldı; bağımlılıklar temizlendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı.
+  - `flutter test`: 13/13 birim testi başarıyla geçti.
+
 ### `Zamana Duyarlı Çoklu Bildirim Diyalog Havuzu (§SPEC-2026-09-12-TIME-SENSITIVE-NOTIFICATIONS)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:
