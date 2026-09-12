@@ -1240,11 +1240,14 @@ mixin GameInventoryMixin on GameBaseNotifier {
     updatedCars[carIndex] = updatedCar;
 
     var newIncomingOffers = List<OfferModel>.from(state.incomingOffers);
-    // If during tutorial the player lists their car, generate an instant buyer offer!
-    if (!state.tutorialCompleted && !wasListedBefore && updatedCar.isListed) {
+    // If during tutorial or first ever sale the player lists their car, generate an instant profitable buyer offer!
+    if ((!state.tutorialCompleted || state.salesHistory.isEmpty) && !wasListedBefore && updatedCar.isListed) {
       final instantOffer = NegotiationEngine.generateBuyerOffer(
         updatedCar,
-        updatedCar.listingPrice,
+        (updatedCar.currentPurchasePrice * 1.14).clamp(
+          updatedCar.currentPurchasePrice + 5000.0,
+          updatedCar.currentPurchasePrice + 250000.0,
+        ),
         isFinanceUnlocked: false,
         branchMultiplier: state.branchProfitMultiplier,
         currentDay: state.currentDay,
@@ -1257,6 +1260,16 @@ mixin GameInventoryMixin on GameBaseNotifier {
       ownedCars: updatedCars,
       incomingOffers: newIncomingOffers,
     );
+    saveState();
+  }
+
+  /// Directly updates an existing owned car model in inventory
+  void updateCar(CarModel updatedCar) {
+    final carIndex = state.ownedCars.indexWhere((c) => c.id == updatedCar.id);
+    if (carIndex == -1) return;
+    final updatedCars = List<CarModel>.from(state.ownedCars);
+    updatedCars[carIndex] = updatedCar;
+    state = state.copyWith(ownedCars: updatedCars);
     saveState();
   }
 

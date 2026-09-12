@@ -19,8 +19,252 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Uygulanan Çözüm**:
   - Problemin nasıl giderildiği
 - **Doğrulama / Test Durumu**:
-  - Çalıştırılan testler, derleme veya analiz sonuçları
 ```
+
+### `Önceki Konuşmadan Kalan Sorunların Çözümü • Akıllı Rehber Test Derleme Hataları, Yerelleştirme Bütünlüğü & 7 Dil Simetrisi (§BUGFIX-2026-09-12-SESSION-RECOVERY)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Önceki konuşmadan kalan derleme/analiz hatalarının (smart_mentor_engine_test içindeki 13 analyzer hatası), gün sayacı bağlam eksikliğinin (dayNumber null), hardcoded Türkçe dizgelerin (quick_listing_bottom_sheet ve contract_tuning_screen) ve 7 dil çeviri asimetrilerinin kökten giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `test/smart_mentor_engine_test.dart`:
+    - Var olmayan `domain/models/dealership_model.dart` import'u kaldırıldı; eksik `flutter_localizations`, `expertise_model` ve `theme_palette_model` importları eklendi.
+    - Kullanılmayan `app_localizations.dart` import uyarısı temizlendi. 13 analyzer hatası tamamen giderildi.
+  - `lib/domain/usecases/dramatic_card_engine.dart`:
+    - `generateDailyDilemma` metodunda `ContextualDilemmaPool.selectContextualCard` çıktısına `.copyWith(dayNumber: day)` entegre edilerek gün atlamalarında kart gün sayacının `null` gelmesi sorunu çözüldü.
+  - `lib/presentation/screens/showroom/widgets/quick_listing_bottom_sheet.dart`:
+    - Standart dışı anahtarlar canonical 7 dil anahtarlarıyla değiştirildi (`quick_listing_title`, `quick_listing_subtitle`, `quick_listing_asking_price_label`, `quick_listing_btn_confirm`).
+    - Hardcoded `'2X TEKLİF'` etiketi `context.tr('quick_listing_doping_badge')` ile yerelleştirildi.
+  - `lib/presentation/screens/workshop/contract_tuning_screen.dart`:
+    - Hardcoded atölye teslim metni `context.tr('tuning_outsourced_pickup_desc', {'studio': studioName})` ile yerelleştirildi.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`):
+    - `tr_translations.dart` içine eksik olan `real_estate_vacate_sell_dialog_title`, `real_estate_vacate_sell_dialog_desc` ve `real_estate_vacate_sell_confirm_btn` anahtarları eklendi.
+    - DE, PT, ES, RU, AR dillerine podyum ve liderlik tablosu anahtarları (`podium_dialog_badge_completed`, `podium_no_perks_desc`, `leaderboard_season_badge`, `leaderboard_remaining_label`, `time_unit_day_short`, `time_unit_hour_short`, `time_unit_minute_short`, `office_active_perk_default`) eklendi.
+    - 7 dilin tamamına `status_active`, `rent_customer_demand_rate`, `quick_listing_bought_for`, `quick_listing_doping_badge`, `tuning_outsourced_pickup_desc`, `common_level` ve `common_minutes_short` anahtarları sıfır emoji ve sıfır parantez kuralına uygun şekilde eklenerek %100 dil simetrisi sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `smart_mentor_engine_test.dart` derlenemiyordu (13 analyzer error).
+  - `localization_integrity_guard_test.dart` 2 yeni hardcoded Türkçe string tespit edip başarısız oluyordu.
+  - `translation_key_coverage_test.dart` diller arasında asimetrik ve eksik anahtarlar nedeniyle hata veriyordu.
+  - `day_progression_and_dramatic_cards_test.dart` içinde `dayNumber` null dönüyordu.
+- **Kök Neden**:
+  - Önceki oturumda hızlı prototipleme sırasında test importlarının eksik bırakılması, doğrudan hardcoded string kullanımı ve yeni ekran anahtarlarının 7 dile eşzamanlı işlenmemesi.
+- **Uygulanan Çözüm**:
+  - Test kütüphanesi eksiksiz import edildi, unlocalized stringler context.tr ile değiştirildi, gün numarası kopyalandı ve tüm çeviri dosyaları %100 simetrik hale getirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` -> 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/localization_integrity_guard_test.dart` -> Geçti (1/1).
+  - `flutter test test/translation_key_coverage_test.dart` -> Geçti (6/6).
+  - `flutter test test/smart_mentor_engine_test.dart test/contract_tuning_test.dart test/core_loop_funnel_and_dilemma_test.dart test/dynamic_dilemma_expansion_test.dart test/hyper_car_market_test.dart test/day_progression_and_dramatic_cards_test.dart test/dramatic_cards_engine_test.dart test/layout_overflow_and_generative_shaders_test.dart test/localization_integrity_guard_test.dart test/translation_key_coverage_test.dart` -> 84/84 test başarıyla geçti (%100).
+
+### `Usta Cemil • 8-Bit Akıllı Esnaf Rehberi & Durumsal Yönlendirme Pop-up Sistemi (§SPEC-2026-09-12-SMART-MENTOR-GUIDANCE)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Oyuncuların oyunun başında veya ara evrelerinde sıkışmasını (araçları ilana koymayı unutma, parasız kalma, garajı boş bırakma), yeni açılan özellikleri kaçırmasını veya şube yükseltmelerini fark etmemesini önlemek.
+  - Sağ üst köşesinde prosedürel 8-bit neo-brutalist "Usta Cemil" karakteri ve retro CRT scanline tarama efekti barındıran, dokunsal neo-brutalist tasarıma sahip akıllı bir rehber pop-up sistemi oluşturulması.
+  - Oyuncuyu duruma göre galeri, pazar, oto yıkama, ekspertiz, modifiye, personel, vasıta ilanları, emlak veya liderlik tablosuna yumuşak yönlendirme butonlarıyla sevk etmek.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/widgets/pixel_mentor_avatar.dart`:
+    - Prosedürel 12x12 piksel matrisiyle kasketli, bıyıklı ve gözlüklü retro esnaf usta avatarı (`PixelMentorAvatarPainter`) çizildi.
+    - CRT tarama çizgileri (`ScanlineShaderEffect`) ve neo-brutalist 2.5px siyah çerçeve ile donatıldı.
+  - `lib/domain/usecases/smart_mentor_engine.dart`:
+    - `SmartMentorEngine.evaluateAdvice(state)` karar motoru kodlandı.
+    - 7 temel durum teşhisi: `stuck_broke_no_car`, `stuck_no_listing`, `branch_upgrade_ready`, `branch_upgraded_celebration`, `new_feature_unlocked`, `leaderboard_nudge`, `stuck_idle_garage`.
+    - `DealershipModel` üzerindeki `isFeatureNew`, `isFeatureUnlocked` ve `currentBranchTier` verileriyle tam entegre çalışması sağlandı.
+  - `lib/presentation/widgets/smart_mentor_dialog.dart`:
+    - 2.5px solid border, 4px sıfır-bulanıklık sert gölge (`blurRadius: 0`), parlak sarı sticker rozet ve sarı/cyan/lime başlık blokları.
+    - Sağ üst köşede 8-bit Usta Cemil avatarı, konuşma balonu tipografisi ve `SoundService` entegrasyonu (`playCash()`).
+    - Yönlendirme butonuna basıldığında hedef rotaya `context.push(advice.targetRoute)` ile yumuşak geçiş ve özelliği görüldü (`markFeatureSeen`) olarak işaretleme.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `_checkAndShowPendingDialogs` akışına `_checkSmartMentorAdvice` entegre edildi.
+    - Günlük spam'i önlemek için gün bazlı `_lastMentorAdviceDay` ve `isDismissed` kontrolü sağlandı.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) & `app_localizations.dart`:
+    - Usta Cemil'e ait tüm rehberlik başlıkları, tavsiye metinleri, buton etiketleri ve rozetler 7 dilde eksiksiz ve sıfır emoji, sıfır parantez kuralına uygun şekilde senkronize edildi.
+  - `test/smart_mentor_engine_test.dart`:
+    - Karar motorunun 7 farklı oyuncu senaryosundaki doğru tavsiye üretimini ve öncelik hiyerarşisini doğrulayan 8 birim test yazıldı ve başarıyla geçti.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `AppLocalizations` içinde `mentorTitleBranchUpgrade` parametreli bir metot (`(int tier)`) olarak tanımlanmışken ilk testte getter gibi çağrılmıştı.
+  - `seenFeatureRoutes` `DealershipModel` üzerinde `List<String>` tipindeydi, `markFeatureSeen` ile senkronizasyon sağlandı.
+- **Kök Neden**:
+  - Parametreli yerelleştirme metot imzası uyumsuzluğu.
+- **Uygulanan Çözüm**:
+  - `loc.mentorTitleBranchUpgrade(advice.branchTier ?? 2)` olarak parametre aktarımı sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/smart_mentor_engine_test.dart` -> 8/8 test passed.
+  - `flutter analyze lib/domain/usecases/smart_mentor_engine.dart lib/presentation/widgets/pixel_mentor_avatar.dart lib/presentation/widgets/smart_mentor_dialog.dart lib/presentation/screens/dashboard/dashboard_screen.dart test/smart_mentor_engine_test.dart` -> 0 errors.
+
+### `Dinamik Kredi Hibesi, Yadigâr Klasik Araç Mirası & 4 Yeni Durumsal İkilem Havuzu (§SPEC-2026-09-12-DYNAMIC-DILEMMAS-AND-LEGACY-BAILOUT)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Oyuncuların dilemma kartlarında karşılaştığı sabit kredi desteğinin (₺25.000) yüksek seviyelerde yetersiz kalmasını önlemek amacıyla seviyeye ve eksi bakiye açığına göre dinamik ölçeklenen hibe sermaye sisteminin kodlanması.
+  - Miras hikaye kurgusu doğrultusunda oyuncuya peşin dinamik nakit ile 1982 Mercedes-Benz 200D W123 yadigâr klasik aracı ₺0 maliyetle garajına çekme arasında stratejik tercih sunulması.
+  - 4 yeni operasyonel durumsal dilemma havuzunun (Yüksek Nakit ve Varlık, Hasarlı Filo, VIP İtibar ve Satış Sonrası İhtilaf) hayata geçirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/dramatic_card_model.dart`:
+    - `DramaticOutcomeModel` sınıfına `grantHeirloomVehicle` (bool) ve `isDynamicGrant` (bool) alanları, serileştirme ve kopya metotları eklendi.
+  - `lib/domain/usecases/contextual_dilemma_pool.dart`:
+    - `calculateDynamicGrant(DealershipModel state)` statik metodu kodlandı: `max(50000.0, state.level * 40000.0 + deficitCover)`.
+    - `cashCrisisCards` havuzuna `crisis_family_legacy` kartı eklendi: Seçenek A miras payını dinamik nakde çevirirken, Seçenek B yadigâr klasik aracı garaja ekler. `crisis_esnaf_solidarity` kartı dinamik hibe formatına yükseltildi.
+    - 4 yeni durumsal havuz tanımlandı: `highCapitalCards` (Bakiye >= ₺500.000: Vergi denetmeni, gizli ihale), `damagedFleetCards` (2+ hasarlı/yıkanmamış araç: Taksi kooperatifi toptan alım, çıkmacı usta), `vipReputationCards` (İtibar >= 120: Dizi yıldızı ziyareti), `postSaleDisputeCards` (Satış geçmişi olanlar: Kapıya dayanan alıcı ihtilafı).
+    - `selectContextualCard` karar motoru öncelik sıralaması çaylak, sermaye, filo, itibar ve atıl stok durumlarına göre optimize edildi.
+  - `lib/domain/usecases/dramatic_card_engine.dart`:
+    - `resolveChoice` içinde `isDynamicGrant` tespit edildiğinde `calculateDynamicGrant(state)` çağrılarak kasaya dinamik para aktarıldı.
+    - `grantHeirloomVehicle` seçildiğinde 1982 Mercedes-Benz 200D W123 yadigâr aracı (₺0 alış maliyeti, ₺240.000 piyasa değeri, efsanevi plaka) üretilip oyuncunun garajına eklendi.
+  - `test/dynamic_dilemma_expansion_test.dart`:
+    - Dinamik hibe formülü, miras aracı eklenmesi ve 4 durum havuzunun rota seçimlerini doğrulayan 7 birim test yazıldı ve başarıyla geçti.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `DramaticCategory` enum'ında `crisis` değeri bulunmuyordu; `loss` ve `conscience` kategorileriyle düzeltildi.
+  - `DealershipModel` içinde `reputationScore` alanı mevcutken testte `reputation` doğrudan parametre olarak verilmişti; `reputationScore` kullanıldı.
+  - Çaylak havuzu öncelik kontrolünde `currentDay <= 5 || level <= 2` mantıksal VEYA operatörü, 4. seviyedeki oyuncuların erken günlerde çaylak kartı almasına neden oluyordu; `currentDay <= 5 && level <= 2` VE koşuluyla sınırlandırıldı.
+- **Kök Neden**:
+  - Mevcut model alan adları ve öncelik koşulu genişliği.
+- **Uygulanan Çözüm**:
+  - Uygun enum değerleri atandı, test parametreleri güncellendi ve karar motoru koşulu daraltıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/core_loop_funnel_and_dilemma_test.dart test/dynamic_dilemma_expansion_test.dart` -> 12/12 test başarıyla geçti.
+  - `flutter analyze` 6 dosya üzerinde çalıştırıldı -> 0 hata, 0 uyarı (No issues found).
+
+### `Core Loop Funnel, Durumsal İkilem Kartları & İflas Güvenlik Ağı (§SPEC-2026-09-12-CORE-LOOP-FUNNEL-AND-DYNAMIC-DILEMMAS)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - GA4 telemetri verisi analizine (`Events_Event_name.csv`) dayalı olarak tespit edilen temel darboğazların (P0 #1: 16 araç alımına rağmen 0 araç satışı, P0 #2: Seviye 1'deki 1,500 XP bariyeri, P1 #1: 2 oyuncunun 16 kez iflas spam'ine düşmesi, P1 #2: 365 günlük takvimsel ikilem kartlarının dashboard'da fark edilmemesi ve yalnızca 1 seçim yapılması, P2: Erken aşama reklam monetizasyon eksikliği) kökten çözülmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/player_skills.dart`:
+    - `requiredXpForLevel` kademeleri yeniden kalibre edildi: Seviye 1 XP eşiği 1,500 XP'den 250 XP'ye düşürüldü; Seviye 2: 750 XP, Seviye 3: 1,800 XP, Seviye 4: 4,500 XP olarak dengelendi. İlk araç alımı, yıkanması ve satışı tamamlandığında oyuncu anında Seviye 2'ye yükselir.
+  - `lib/domain/usecases/contextual_dilemma_pool.dart`:
+    - Katı ve statik 365 günlük takvim yerine oyuncu durumuna göre dinamik tetiklenen 4 havuz (`rookieCards`, `cashCrisisCards`, `idleInventoryCards`, `generalCards`) ve `selectContextualCard` karar motoru geliştirildi.
+  - `lib/domain/usecases/dramatic_card_engine.dart`:
+    - Statik `daily_life_cards_data.dart` kaldırıldı; `generateDailyDilemma` ve `selectNextCard` metotları `ContextualDilemmaPool`'a bağlandı.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - Negatif bakiye ile gün atlandığında tetiklenen kör `logBankruptcy` spam'i sınırlandı; yalnızca gerçek konkordato veya haciz durumlarında tetiklenmesi sağlandı.
+    - `resolveDramaticCardChoice` içine eksik olan `AnalyticsService.instance.logRandomEventChoice` çağrısı yeniden bağlandı.
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - İlk araç satışında (`state.salesHistory.isEmpty`), `triggerOrganicOffers` içinde gecikmesiz ve karlı (+%15 üzeri) organik müşteri teklifi garantilendi.
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `updateCarListingDetails` metoduna ilk araç ilanı verildiğinde anında alıcı teklifi üreten mekanizma entegre edildi.
+  - `lib/presentation/screens/showroom/widgets/quick_listing_bottom_sheet.dart`:
+    - Noter sonrası araç satın alındığında anında açılan, piyasa rayici +%15 karlı otomatik fiyat hesaplayan, fiyat artır/azalt stepper'ı, tahmini kâr göstergesi ve "Sarı Site Vitrin Dopingi" sponsor boost seçeneği sunan Neo-Brutalist bottom sheet geliştirildi.
+  - `lib/presentation/screens/marketplace/negotiation_screen.dart`:
+    - Noter devir diyaloğu (`onComplete`) sonrasında `QuickListingBottomSheet.show` çağrısı entegre edildi.
+  - `lib/presentation/screens/vasita/vasita_negotiation_screen.dart`:
+    - Vasıta teslim onay modalına "Hemen İlana Koy" taktil Neo-Brutalist butonu eklendi.
+  - `lib/presentation/widgets/emergency_bailout_dialog.dart`:
+    - Kasa eksiye düştüğünde açılan; "Esnaf Can Suyu Desteği" (+₺50,000 hibe sponsor reklamı) ve "Spot Pazara Acil Satış" (en ucuz aracı piyasa değerinin %75'ine anında nakde çevirme) sunan acil durum güvenlik ağı modalı oluşturuldu.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `_checkAndShowPendingDialogs` güncellendi; bakiye eksiye düştüğünde `EmergencyBailoutDialog`, gün atlandığında veya tetiklendiğinde `NeoBrutalDramaticDialog` ana ekranda pop-up olarak gösterildi.
+  - `lib/presentation/screens/marketplace/marketplace_screen.dart`:
+    - Hızlı filtre çubuğuna "Pazarı Yenile • Sponsor Desteği" taktil butonu eklendi.
+  - `lib/core/localization/translations/`:
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin tamamında tüm yeni metin anahtarları sıfır emoji ve sıfır parantez kuralına uygun şekilde eksiksiz senkronize edildi.
+  - `test/core_loop_funnel_and_dilemma_test.dart`:
+    - XP eşiklerini, dinamik ikilem havuzu seçimlerini ve karar motorunu doğrulayan 5 birim test yazıldı ve başarıyla tamamlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `test/core_loop_funnel_and_dilemma_test.dart` derlenirken `ExpertiseReport` zorunlu parametreleri (`isMileageTampered`, `bodyParts`) eksikti.
+  - `dramatic_card_engine.dart` dosyasında `daily_life_cards_data.dart` için `unused_import` uyarısı oluştu.
+  - `negotiation_screen.dart` ve `vasita_negotiation_screen.dart` dosyalarında asenkron `Navigator.pop` sonrası `use_build_context_synchronously` uyarısı alındı.
+- **Kök Neden**:
+  - Tip tanımlarındaki zorunlu alanlar ve Flutter linter kuralları (`mounted` kontrolü State bağlamında yapılmalıdır).
+- **Uygulanan Çözüm**:
+  - Testteki model örnekleri eksiksiz parametrelerle güncellendi.
+  - Kullanılmayan statik takvim import'u temizlendi.
+  - `context.mounted` yerine State sınıfının `mounted` kontrolü uygulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/core_loop_funnel_and_dilemma_test.dart` -> 5/5 test geçti.
+  - `flutter analyze` 12 dosya üzerinde çalıştırıldı -> 0 hata, 0 uyarı (No issues found).
+
+### `VIP Dış Kaynak Modifiye & Performans Evleri (Contract Tuning Houses) Sistemi (§SPEC-2026-09-11-VIP-DIS-KAYNAK-TUNING)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Oyuncuların kendi garajlarının ötesine geçerek araçlarını seviyelerine ve araç uygunluğuna göre 5 farklı parodi bağımsız modifiye atölyesine (Sanayi Çırakları & Yaşar Usta, Tokyo Kaydırak & Maslak JDM, Bavyera Güç & Herr Klaus, Nostalji Sanat & Usta Hilmi, Monaco Hypercraft & Karbon) teslim edebileceği, gerçek oyun süresiyle geri sayan (15 - 120 dakika), gün atlamalarla ilerleyen, ödüllü reklamla kalan süresi yarıya indirilebilen ve proje bittiğinde aracın güç, unvan ve piyasa çarpanı kazanarak envantere döndüğü VIP Dış Kaynak Modifiye sisteminin geliştirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/outsourced_tuning_model.dart`:
+    - `OutsourcedTuningStudio`, `TuningOrder`, `TuningOrderStatus` ve `StudioDeal` modelleri oluşturuldu; JSON serileştirme ve kopya metotları eklendi.
+  - `lib/data/models/car_model.dart`:
+    - `isOutsourcedTuning` (bool) ve `activeTuningOrderId` (String?) alanları eklendi.
+    - `isListed` getter'ı modifiyedeki araçların ilana verilmesini engelleyecek şekilde güncellendi.
+    - `copyWith()`, `toJson()` ve `fromJson()` entegre edildi.
+  - `lib/domain/usecases/outsourced_tuning_engine.dart`:
+    - 5 parodi stüdyo tanımı ve marka/kategori kısıt kuralları oluşturuldu.
+    - Dinamik maliyet ve katma değer güvenliği formülleri (`calculateCost`, `calculateExpectedValueGain`) kodlandı.
+    - `createOrder`, `applySpeedup`, `advanceDayForOrder` ve `applyCompletedTuning` use case'leri hayata geçirildi.
+  - `lib/presentation/providers/outsourced_tuning_provider.dart`:
+    - `OutsourcedTuningNotifier` (Riverpod) oluşturuldu; 1 saniyelik `Timer.periodic` ile aktif sayaç takibi, SharedPreferences persistansı, AdMob hızlandırma işleyicisi ve teslim alma entegrasyonu sağlandı.
+  - `lib/presentation/screens/workshop/widgets/carbon_weave_painter.dart`:
+    - `/generative-art-shaders` protokolüne uygun olarak 45 derece çift yönlü karbon dimi dokuma ve CRT telemetri tarama çizgileri üreten `CustomPainter` shader'ı oluşturuldu.
+  - `lib/presentation/screens/workshop/contract_tuning_screen.dart`:
+    - Neo-brutalist taktil UI gramerine uygun (0-blur sert gölgeler, 2.5px siyah bordürler, basma kompresyonu, sıfır emoji, sıfır parantez) stüdyo kartları, araç seçim bottom sheet'i, canlı geri sayım kartı, "Ustaya Çay Ismarla" hızlandırma butonu ve teslimat kutlama modalı inşa edildi.
+  - `lib/presentation/screens/workshop/tuning_studio_screen.dart`:
+    - VIP Dış Kaynak Atölyelerine yönlendiren taktil geçiş kartı ve üst bar aksiyonu eklendi.
+  - `lib/app/router.dart`:
+    - `/contract-tuning` rotası tescil edildi.
+  - `lib/core/localization/translations/`:
+    - Tüm anahtarlar 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı olarak yerelleştirildi.
+  - `test/contract_tuning_test.dart`:
+    - Stüdyo kayıtları, araç uygunluk filtreleri, maliyet sınırları, sayaç hızlandırma ve tamamlanma yükseltmelerini doğrulayan 10 birim test yazıldı ve başarıyla geçti.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `AdService.showRewardedAd` metodunda `onReward` yerine `onRewardEarned` adlandırılmış parametresi bekleniyordu.
+  - `ExpertiseReport` oluşturulurken `tramerAmount` parametresi `int` türü beklerken `0.0` (double) verilmişti.
+  - `collection` paket bağımlılığı doğrudan pubspec'te olmadığından `firstWhereOrNull` yerine standart Dart döngüsü kuruldu.
+- **Kök Neden**:
+  - Proje mimarisindeki mevcut tip tanımları ve paket bağımlılık kısıtları.
+- **Uygulanan Çözüm**:
+  - `AdService.showRewardedAdWithFallback` çağrısı `onRewardEarned` parametresiyle güncellendi.
+  - Testlerde `tramerAmount: 0` olarak düzeltildi ve `OutsourcedTuningEngine.applyCompletedTuning` fonksiyonuna `badgeKey` rozet eklemesi tamamlandı.
+  - `firstWhereOrNull` yerine sıfır bağımlılıklı standart Dart döngüleri kullanıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/contract_tuning_test.dart`: 10/10 test başarıyla geçti (%100).
+  - `flutter analyze lib/data/models/outsourced_tuning_model.dart lib/domain/usecases/outsourced_tuning_engine.dart lib/presentation/providers/outsourced_tuning_provider.dart lib/presentation/screens/workshop/contract_tuning_screen.dart lib/presentation/screens/workshop/widgets/carbon_weave_painter.dart lib/app/router.dart test/contract_tuning_test.dart`: 0 hata, 0 uyarı (No issues found).
+
+### `Pazar Dengeleme, Doğal Çeşitlilik ve Hiper Araç Pity Oranı Kalibrasyonu (§SPEC-2026-09-11-PAZAR-DENGELEME-VE-PITY)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Yüksek sermayeli (₺50M - ₺955M+) oyuncunun pazarında aşırı pahalı araç enflasyonunu ("full pahalı araç oldu") engellemek; ₺15M/₺35M altındaki araçları yok eden agresif filtreyi kaldırarak BMW, Mercedes, Porsche, Audi gibi günlük/lüks araç çeşitliliğini korumak ve hiper araç oranını tam olarak hedeflenen "10 - 15 araçta 1 adet" seviyesine dengelemek.
+- **Yapılan Değişiklikler**:
+  - `lib/domain/usecases/market_engine.dart`:
+    - `_generateSingleListing` içerisindeki bakiye >= 50M durumunda ₺15M (%98) ve ₺35M (%75) altını eleyen katı re-roll filtresi kaldırıldı; yerine yalnızca ₺500k altı düşük bütçeli araçları eleyen hafif filtre bırakıldı.
+    - `_selectWeightedBrand` içerisinde ₺50M+ bakiye segment ağırlıkları dengelendi: `hiper` (1.0, ~%7 - %8), `egzotik` (3.0), `süperspor` (3.5), `lüks` (4.0), `premium` (3.0), `elektrikli` (1.5), `popüler`/`güvenilir` (1.0), `halk` (0.3).
+    - 12 araçlık kayar blok acıma (pity counter) mekanizması korunarak her 10-12 araçta doğal olarak tam 1 adet hiper araç çıkması sağlandı.
+  - `test/hyper_car_market_test.dart`:
+    - 40 araçlık pazar testinde hiper araç sayısının tam 3 ile 6 adet arasında kaldığı (~10-12 araçta 1 adet) ve pazarın geri kalan en az 34 aracının normal pazar araçlarından oluştuğu doğrulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/hyper_car_market_test.dart`: 6/6 test passed (100%).
+  - `flutter test test/vasita_market_test.dart`: 27/27 test passed (100%).
+  - `flutter analyze lib/domain/usecases/market_engine.dart test/hyper_car_market_test.dart`: 0 hata, 0 uyarı (No issues found).
+
+### `Hiper Araç Havuzu, Kasaya Entegre Koleksiyon Çarpanı ve Pity Sayacı Entegrasyonu (§SPEC-2026-09-11-HIPER-ARAC-VE-KOLEKSIYON)`
+- **Tarih**: 2026-09-11
+- **Değişiklik Amacı**:
+  - Oyunda sermayesi 50 milyon TL ile 1 milyar TL ve üzerine ulaşan oyuncuların yaşadığı ekonomik tavan sorununu çözmek amacıyla; taban değerleri 50M - 150M TL olan yeni 'hiper' segmenti (Bugaç, Köniğ, Pagan, Rolso ve özel Ferro modelleri), zengin oyuncular için her 10 - 15 araçta bir garanti hiper araç düşüren acıma (pity counter) mekanizması, 1/1 Ismarlama, Zırhlı Makam, Karbon Pist ve Kraliyet Garajı dinamik prestij çarpanları, altın neo-brutalist vitrin rozeti ve 7 dilde eşzamanlı yerelleştirme sisteminin entegre edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/constants/game_constants.dart`:
+    - Yeni `'hiper'` segmentiyle 4 parodi hipermarka eklendi: `Bugaç`, `Köniğ`, `Pagan`, `Rolso` (toplam 15 model).
+    - `Ferro` markasına `LaFerro Hibrit V12` ve `Daytona SP3 Safkan` modelleri eklendi.
+  - `lib/core/constants/car_specifications.dart`:
+    - 15 yeni hiper otomobil modeline fabrika çıkış beygir (> 550 HP), tork ve hızlanma (< 5.5s) veritabanı spesifikasyonları eklendi.
+    - Marka bazlı varsayılan fallback motor verileri tanımlandı.
+  - `lib/data/models/car_model.dart`:
+    - `bool get isHyperCar` getter'ı eklendi; marka, model adı ve taban değer kriterleriyle hiper araçları tespit ediyor.
+  - `lib/domain/usecases/market_engine.dart`:
+    - `generateRandomListings` içine 12 araçlık pencerelerde çalışan garanti hiper araç acıma (pity counter) sistemi eklendi (bakiye >= ₺50M).
+    - `_generateForcedHyperListing` ve `_selectHyperBrand` metotları oluşturuldu.
+    - `_calculateBaseValue` içerisine hiper modellerin taban değerleri ve `case 'hiper'` kuralı eklendi.
+    - `_generateSingleListing` içerisine bakiye >= ₺40M/₺50M oyuncular için dinamik prestij koleksiyon çarpanları (1.2x - 1.8x) ve ₺350M - ₺450M aralığı için güvenlik tavanı/tabanı eklendi.
+    - Hiper araçlar için özel başlık ve ilan açıklaması slot kompozitörleri (`hyper_1`..`hyper_5`, `desc_hyper_collector_1`, `seller_profile_hyper_vip`) eklendi.
+    - `_selectWeightedBrand` içerisinde zengin oyuncular için `hiper` ağırlığı (20.0) ve ucuz araç filtreleme kuralları güncellendi.
+  - `lib/presentation/screens/vasita/vasita_market_screen.dart`:
+    - Hiper araçlar için altın kenarlık (`0xFFFFB800`) ve `NeoBrutalBadge` (`badge_hyper_collection`, `Icons.workspace_premium_rounded`) entegre edildi.
+  - `lib/core/localization/translations/*.dart`:
+    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin tamamına `badge_hyper_collection`, `hyper_1`..`hyper_5`, `desc_hyper_collector_1`, `seller_profile_hyper_vip` anahtarları sıfır emoji ve sıfır parantez kuralına uygun olarak eklendi.
+  - `test/hyper_car_market_test.dart`:
+    - ₺955M bakiye pity garantisi (40 araçta en az 3 hiper), ₺50M - ₺450M fiyat aralığı doğrulaması, ₺100k düşük bakiye izolasyonu, `CarSpecifications` performans verileri ve 7 dil değişmez kontrolünü içeren 6 test yazıldı ve başarıyla doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - İlk test çalıştırmasında hypercar asking price'ın ₺1.031.792.458 TL'ye ulaşarak 450M üst sınırını aştığı görüldü.
+- **Kök Neden**:
+  - Karasu ve Divo modellerinin yüksek taban fiyatlarının (220M+) üzerine Spor kasa çarpanı (1.25x), Pristine kondisyon çarpanı (1.15x), Kraliyet koleksiyonu çarpanı (2.6x), efsanevi renk çarpanı (1.18x) ve satıcı marjının (1.20x) ardışık katlanarak birikmesi (double-compounding).
+- **Uygulanan Çözüm**:
+  - Taban değerler 50M - 130M bandına kalibre edildi, dinamik prestij çarpanları 1.2x - 1.8x bandına çekildi, `baseValue` için ₺250M güvenlik tavanı ve `askingPrice` için `[50M, 450M]` kesin sınırlandırması uygulandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/hyper_car_market_test.dart`: 6/6 test passed (100%).
+  - `flutter test test/vasita_market_test.dart`: 27/27 test passed (100%).
+  - `flutter analyze lib/domain/usecases/market_engine.dart test/hyper_car_market_test.dart`: 0 hata, 0 uyarı (No issues found).
 
 ### `Arayüz Taşma Problemleri (RenderFlex Overflow), Prosedürel Dokuların 4 Ekrana Entegrasyonu ve 7 Dilli Yerelleştirme (§SPEC-2026-LAYOUT-OVERFLOW-AND-SHADERS)`
 - **Tarih**: 2026-09-11

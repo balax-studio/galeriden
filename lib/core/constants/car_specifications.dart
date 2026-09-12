@@ -211,6 +211,37 @@ class CarSpecifications {
     'F8': CarSpecsData(horsepower: 720, torqueNm: 770, zeroToHundredSeconds: 2.9),
     'SF-Doksan': CarSpecsData(horsepower: 1000, torqueNm: 800, zeroToHundredSeconds: 2.5),
     'SF90': CarSpecsData(horsepower: 1000, torqueNm: 800, zeroToHundredSeconds: 2.5),
+    'LaFerro': CarSpecsData(horsepower: 963, torqueNm: 900, zeroToHundredSeconds: 2.6),
+    'LaFerrari': CarSpecsData(horsepower: 963, torqueNm: 900, zeroToHundredSeconds: 2.6),
+    'Daytona SP3': CarSpecsData(horsepower: 840, torqueNm: 697, zeroToHundredSeconds: 2.85),
+    'Daytona': CarSpecsData(horsepower: 840, torqueNm: 697, zeroToHundredSeconds: 2.85),
+
+    // --- Bugaç / Bugatti ---
+    'Şiron': CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.3),
+    'Chiron': CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.3),
+    'Veyron': CarSpecsData(horsepower: 1001, torqueNm: 1250, zeroToHundredSeconds: 2.5),
+    'Divo': CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.4),
+    'Karasu': CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.4),
+    'Voiture Noire': CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.4),
+
+    // --- Köniğ / Koenigsegg ---
+    'Agera': CarSpecsData(horsepower: 1160, torqueNm: 1280, zeroToHundredSeconds: 2.6),
+    'Jesko': CarSpecsData(horsepower: 1600, torqueNm: 1500, zeroToHundredSeconds: 2.5),
+    'Regera': CarSpecsData(horsepower: 1500, torqueNm: 2000, zeroToHundredSeconds: 2.8),
+
+    // --- Pagan / Pagani ---
+    'Zonda': CarSpecsData(horsepower: 678, torqueNm: 780, zeroToHundredSeconds: 3.4),
+    'Huayra': CarSpecsData(horsepower: 790, torqueNm: 1100, zeroToHundredSeconds: 2.8),
+    'Ütopya': CarSpecsData(horsepower: 864, torqueNm: 1100, zeroToHundredSeconds: 3.0),
+    'Utopia': CarSpecsData(horsepower: 864, torqueNm: 1100, zeroToHundredSeconds: 3.0),
+
+    // --- Rolso / Rolls-Royce ---
+    'Fantom': CarSpecsData(horsepower: 563, torqueNm: 900, zeroToHundredSeconds: 5.3),
+    'Phantom': CarSpecsData(horsepower: 563, torqueNm: 900, zeroToHundredSeconds: 5.3),
+    'Hayalet': CarSpecsData(horsepower: 592, torqueNm: 900, zeroToHundredSeconds: 4.8),
+    'Ghost': CarSpecsData(horsepower: 592, torqueNm: 900, zeroToHundredSeconds: 4.8),
+    'Kullinan': CarSpecsData(horsepower: 563, torqueNm: 850, zeroToHundredSeconds: 5.2),
+    'Cullinan': CarSpecsData(horsepower: 563, torqueNm: 850, zeroToHundredSeconds: 5.2),
   };
 
   /// Returns authentic factory horsepower for a brand/model
@@ -263,6 +294,10 @@ class CarSpecifications {
       'volvo' || 'çelikvolvo' => 'Çelikvolvo',
       'tofaş' || 'tofas' || 'tofaşk' => 'Tofaşk',
       'togg' || 'milli t-oniks' => 'Milli T-Oniks',
+      'bugatti' || 'bugaç' => 'Bugaç',
+      'koenigsegg' || 'köniğ' || 'konig' => 'Köniğ',
+      'pagani' || 'pagan' => 'Pagan',
+      'rolls-royce' || 'rolls royce' || 'rolso' => 'Rolso',
       _ => brand,
     };
 
@@ -296,6 +331,14 @@ class CarSpecifications {
       case 'Lambo':
       case 'Ferro':
         return const CarSpecsData(horsepower: 650, torqueNm: 750, zeroToHundredSeconds: 3.2);
+      case 'Bugaç':
+        return const CarSpecsData(horsepower: 1500, torqueNm: 1600, zeroToHundredSeconds: 2.4);
+      case 'Köniğ':
+        return const CarSpecsData(horsepower: 1400, torqueNm: 1400, zeroToHundredSeconds: 2.6);
+      case 'Pagan':
+        return const CarSpecsData(horsepower: 800, torqueNm: 1000, zeroToHundredSeconds: 3.0);
+      case 'Rolso':
+        return const CarSpecsData(horsepower: 570, torqueNm: 900, zeroToHundredSeconds: 5.0);
       default:
         if (bodyType == 'Spor') {
           return const CarSpecsData(horsepower: 250, torqueNm: 350, zeroToHundredSeconds: 6.2);

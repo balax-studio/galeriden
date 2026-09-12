@@ -18,6 +18,10 @@ import '../../widgets/neo_brutal_badge.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/whats_new_dialog.dart';
 import '../../widgets/dialogs/customer_follow_up_dialog.dart';
+import '../../widgets/neo_brutal_dramatic_dialog.dart';
+import '../../widgets/emergency_bailout_dialog.dart';
+import '../../widgets/smart_mentor_dialog.dart';
+import '../../../domain/usecases/smart_mentor_engine.dart';
 import '../marketplace/marketplace_screen.dart';
 import '../showroom/showroom_screen.dart';
 import '../../../core/theme/app_colors.dart';
@@ -43,6 +47,10 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   bool _isModalShowing = false;
+  int? _lastBailoutDay;
+  int? _lastMentorAdviceDay;
+  SmartMentorAdviceType? _lastMentorAdviceType;
+  int? _lastCelebratedBranchTier;
 
   void _checkAndShowPendingDialogs(DealershipModel game) {
     if (!mounted || _isModalShowing) return;
@@ -51,10 +59,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final route = ModalRoute.of(context);
     if (route != null && !route.isCurrent) return;
 
-    // pendingDramaticCard and pendingStoryCard are displayed directly on the dashboard
-    // via DashboardDramaticCardBanner and DashboardStoryAdBanner.
-    // The user opens them manually by tapping the banner, preventing intrusive popups on launch or after onboarding.
+    // 1. Critical Negative Balance Safety Net
+    if (game.balance < 0 && _lastBailoutDay != game.currentDay) {
+      _isModalShowing = true;
+      _lastBailoutDay = game.currentDay;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await EmergencyBailoutDialog.show(context);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
 
+    // 2. Dynamic Contextual Dilemma Modal (Pops up directly on Dashboard)
+    if (game.pendingDramaticCard != null) {
+      final card = game.pendingDramaticCard!;
+      _isModalShowing = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) {
+          _isModalShowing = false;
+          return;
+        }
+        await NeoBrutalDramaticDialog.show(context, card);
+        _isModalShowing = false;
+        if (mounted) {
+          _checkAndShowPendingDialogs(ref.read(gameProvider));
+        }
+      });
+      return;
+    }
+
+    // 3. Active CRM Follow-Up Event
     if (game.activeCrmEvent != null) {
       _isModalShowing = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -69,6 +110,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         }
       });
       return;
+    }
+
+    // 4. Halil Usta Smart Mentor Guidance
+    if (game.tutorialCompleted) {
+      _lastCelebratedBranchTier ??= game.currentBranchTier;
+      final advice = SmartMentorEngine.evaluateAdvice(
+        game,
+        lastCelebratedBranchTier: _lastCelebratedBranchTier,
+      );
+
+      if (advice != null) {
+        final isDifferentType = _lastMentorAdviceType != advice.type;
+        final isDifferentDay = _lastMentorAdviceDay != game.currentDay;
+        final isStuck = advice.type == SmartMentorAdviceType.stuckBrokeNoCar ||
+            advice.type == SmartMentorAdviceType.stuckNoListing ||
+            advice.type == SmartMentorAdviceType.stuckOverpriced;
+
+        if (isStuck || isDifferentType || isDifferentDay) {
+          _isModalShowing = true;
+          _lastMentorAdviceDay = game.currentDay;
+          _lastMentorAdviceType = advice.type;
+          if (advice.type == SmartMentorAdviceType.branchUpgradedCelebration) {
+            _lastCelebratedBranchTier = game.currentBranchTier;
+          }
+
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (!mounted) {
+              _isModalShowing = false;
+              return;
+            }
+            await SmartMentorDialog.show(context, advice);
+            _isModalShowing = false;
+            if (mounted) {
+              _checkAndShowPendingDialogs(ref.read(gameProvider));
+            }
+          });
+          return;
+        }
+      }
     }
   }
 

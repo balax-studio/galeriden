@@ -28,6 +28,7 @@ import '../../widgets/neo_brutal_card.dart';
 import 'widgets/negotiation_action_buttons.dart';
 import 'widgets/negotiation_dialogue_outcome_card.dart';
 import 'widgets/negotiation_discrepancy_card.dart';
+import '../showroom/widgets/quick_listing_bottom_sheet.dart';
 import 'widgets/negotiation_offer_dial_card.dart';
 import 'widgets/negotiation_seller_profile_card.dart';
 import 'widgets/negotiation_tactical_actions_bar.dart';
@@ -386,7 +387,13 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
             title: context.tr('notary_success_title'),
             description: context.tr('notary_success_desc'),
           ),
-          onComplete: () {
+          onComplete: () async {
+            if (!mounted) return;
+            await QuickListingBottomSheet.show(
+              context,
+              car: currentListing.car.copyWith(currentPurchasePrice: finalPayPrice),
+            );
+            if (!mounted) return;
             if (context.canPop()) {
               context.pop();
             } else {

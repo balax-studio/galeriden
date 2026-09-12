@@ -127,6 +127,26 @@ class MarketEngine {
       ));
     }
 
+    // Hyper-tier guarantee for multi-millionaires and billionaires (₺50M+):
+    // Ensure every 10-15 listings contains at least 1 ultra-luxury hypercar
+    if (playerBalance != null && playerBalance >= 50000000.0 && listings.length >= 10) {
+      const int blockSize = 12;
+      for (int chunkStart = 0; chunkStart < listings.length; chunkStart += blockSize) {
+        final chunkEnd = min(chunkStart + blockSize, listings.length);
+        final sublist = listings.sublist(chunkStart, chunkEnd);
+        final hasHyper = sublist.any((l) => l.car.isHyperCar);
+        if (!hasHyper) {
+          final replaceIndex = chunkStart + _random.nextInt(chunkEnd - chunkStart);
+          listings[replaceIndex] = _generateForcedHyperListing(
+            playerLevel,
+            activeTrend,
+            playerBalance: playerBalance,
+            hasHighNecatiTrust: hasHighNecatiTrust,
+          );
+        }
+      }
+    }
+
     // Soft-lock prevention: If player has low balance, ensure at least one naturally affordable starter model
     final effectiveBalance = (playerBalance != null && playerBalance > 0) ? playerBalance : 75000.0;
     if (effectiveBalance <= 150000.0) {
@@ -138,6 +158,21 @@ class MarketEngine {
     }
 
     return listings;
+  }
+
+  static ListingModel _generateForcedHyperListing(
+    int playerLevel,
+    MarketTrendModel trend, {
+    double? playerBalance,
+    bool hasHighNecatiTrust = false,
+  }) {
+    return _doGenerateSingleListing(
+      playerLevel,
+      trend,
+      playerBalance: playerBalance,
+      hasHighNecatiTrust: hasHighNecatiTrust,
+      forceHyper: true,
+    );
   }
 
   static ListingModel _generateAffordableStarterListing(
@@ -272,10 +307,12 @@ class MarketEngine {
     if (isClassicModel) {
       bodyType = 'Klasik';
       year = 1974 + _random.nextInt(32); // 1974 - 2005
-    } else if (modelName.contains('SUV') || modelName.contains('Keçisi') || modelName.contains('Tuğla') || modelName.contains('Gezgini') || modelName.contains('Hilaks') || modelName.contains('Aslan SUV') || modelName.contains('T-Oniks') || modelName.contains('Kros') || modelName.contains('Boğası')) {
+    } else if (modelName.contains('SUV') || modelName.contains('Keçisi') || modelName.contains('Tuğla') || modelName.contains('Gezgini') || modelName.contains('Hilaks') || modelName.contains('Aslan SUV') || modelName.contains('T-Oniks') || modelName.contains('Kros') || modelName.contains('Boğası') || modelName.contains('Kullinan')) {
       bodyType = 'SUV';
-    } else if (modelName.contains('9-1-2') || modelName.contains('M-Dört') || modelName.contains('Haraççı') || modelName.contains('Canavar') || modelName.contains('V10') || modelName.contains('V12') || modelName.contains('Müstang') || modelName.contains('S-İkiBin') || modelName.contains('Roket')) {
+    } else if (modelName.contains('9-1-2') || modelName.contains('M-Dört') || modelName.contains('Haraççı') || modelName.contains('Canavar') || modelName.contains('V10') || modelName.contains('V12') || modelName.contains('Müstang') || modelName.contains('S-İkiBin') || modelName.contains('Roket') || modelName.contains('Şiron') || modelName.contains('Veyron') || modelName.contains('Divo') || modelName.contains('Karasu') || modelName.contains('Agera') || modelName.contains('Jesko') || modelName.contains('Regera') || modelName.contains('Zonda') || modelName.contains('Huayra') || modelName.contains('Ütopya') || modelName.contains('LaFerro') || modelName.contains('Daytona')) {
       bodyType = 'Spor';
+    } else if (modelName.contains('Fantom') || modelName.contains('Hayalet')) {
+      bodyType = 'Sedan';
     }
     
     return (bodyType, year, isClassicModel);
@@ -296,6 +333,47 @@ class MarketEngine {
   }
 
   static double _calculateBaseValue(String segment, int year, bool isClassicModel, bool isRare, {String modelName = ''}) {
+    // Hypercars and Ultra-Luxury Bespoke Models (₺50M - ₺150M base value, scaling to ₺50M - ₺350M+ with dynamic prestige)
+    if (modelName.contains('Karasu')) {
+      return 130000000.0 + _random.nextInt(15000000);
+    }
+    if (modelName.contains('Divo')) {
+      return 115000000.0 + _random.nextInt(15000000);
+    }
+    if (modelName.contains('Jesko')) {
+      return 110000000.0 + _random.nextInt(15000000);
+    }
+    if (modelName.contains('Şiron') || modelName.contains('Chiron')) {
+      return 95000000.0 + _random.nextInt(15000000);
+    }
+    if (modelName.contains('Ütopya') || modelName.contains('Utopia')) {
+      return 90000000.0 + _random.nextInt(15000000);
+    }
+    if (modelName.contains('Agera')) {
+      return 85000000.0 + _random.nextInt(12000000);
+    }
+    if (modelName.contains('Zonda')) {
+      return 80000000.0 + _random.nextInt(12000000);
+    }
+    if (modelName.contains('Daytona SP3')) {
+      return 80000000.0 + _random.nextInt(12000000);
+    }
+    if (modelName.contains('LaFerro') || modelName.contains('LaFerrari')) {
+      return 75000000.0 + _random.nextInt(12000000);
+    }
+    if (modelName.contains('Regera') || modelName.contains('Huayra')) {
+      return 75000000.0 + _random.nextInt(12000000);
+    }
+    if (modelName.contains('Veyro') || modelName.contains('Veyron')) {
+      return 65000000.0 + _random.nextInt(10000000);
+    }
+    if (modelName.contains('Kullinan') || modelName.contains('Fantom')) {
+      return 60000000.0 + _random.nextInt(10000000);
+    }
+    if (modelName.contains('Gost') || modelName.contains('Hayalet') || modelName.contains('Spektr')) {
+      return 52000000.0 + _random.nextInt(8000000);
+    }
+
     // Collectible JDM, German, and domestic sports classics reflect proper enthusiast market valuation
     if (modelName.contains('Supra')) {
       return isRare ? (3800000.0 + _random.nextInt(1200000)) : (2600000.0 + _random.nextInt(800000));
@@ -341,6 +419,8 @@ class MarketEngine {
         return 3500000.0 + (year >= 2010 ? (year - 2010) : 0) * 200000.0;
       case 'egzotik':
         return 6500000.0 + (year >= 2015 ? (year - 2015) : 0) * 400000.0;
+      case 'hiper':
+        return 65000000.0 + (year >= 2018 ? (year - 2018) : 0) * 8000000.0;
       default:
         return 320000.0 + yearDiff * 28000.0;
     }
@@ -349,8 +429,27 @@ class MarketEngine {
   static final AntiRepetitionQueue<String> _titlePrefixQueue = AntiRepetitionQueue<String>(capacity: 10);
   static final AntiRepetitionQueue<String> _descriptionQueue = AntiRepetitionQueue<String>(capacity: 25);
 
-  static ({String title, String? prefixKey}) _generateTitle(int year, String brand, String modelName, bool isBarnFind, bool isRare, {bool isPristine = false}) {
+  static ({String title, String? prefixKey}) _generateTitle(
+    int year,
+    String brand,
+    String modelName,
+    bool isBarnFind,
+    bool isRare, {
+    bool isPristine = false,
+    bool isHyper = false,
+  }) {
     final baseTitle = '$year $brand $modelName';
+    if (isHyper) {
+      final hyperPrefixes = [
+        ('ÖZEL HİPER KOLEKSİYON 1/1', 'hyper_1'),
+        ('KRALİYET GARAJINDAN ÇIKMA', 'hyper_2'),
+        ('EMSALSİZ HİPER OTOMOBİL', 'hyper_3'),
+        ('ZIRHLI ÖZEL MAKAM SERİSİ', 'hyper_4'),
+        ('KARBON PİST CANAVARI', 'hyper_5'),
+      ];
+      final pick = hyperPrefixes[_random.nextInt(hyperPrefixes.length)];
+      return (title: '${pick.$1} • $baseTitle', prefixKey: pick.$2);
+    }
     if (isBarnFind) {
       final prefixes = [
         'SAMANLIK BULUNTUSU KELEPİR',
@@ -401,9 +500,31 @@ class MarketEngine {
     bool isFlashDeal = false,
     bool isRare = false,
     bool isPristine = false,
+    bool isHyper = false,
     ListingDeclarationType declarationType = ListingDeclarationType.honest,
     int tramerAmount = 0,
   }) {
+    if (isHyper) {
+      final slot1 = [
+        'Dünyada sayılı adet üretilen, kapalı iklimlendirmeli özel garajda muhafaza edilen başyapıt.',
+        'Özel siparişle getirtilmiş, koleksiyon değeri her geçen gün katlanan paha biçilemez hiper otomobil.',
+        'Sadece seçkin koleksiyonerlere tahsis edilmiş, fabrikasyon ilk günkü kondisyonunda emsalsiz araç.',
+      ];
+      final slot2 = [
+        'Tüm karbon gövde panelleri ve titanyum detayları ilk günkü parlaklığındadır.',
+        'Fabrika sertifikaları, özel teslimat kiti ve orijinallik belgesi eksiksizdir.',
+        'Mekanik ve elektronik tüm sistemleri fabrika mühendisleri tarafından kalibre edilmiştir.',
+      ];
+      final slot3 = [
+        'Sadece ciddi nakit alıcılar veya teyitli portföy yöneticileri arasın • Pazarlık semboliktir.',
+        'Özel çekici ile adrese teslim edilir • Yeni sahibine büyük prestij getirmesi dileğiyle.',
+        'Kuruş masrafsız, kapalı garajda yeni sahibini bekliyor • Alıcısına hayırlı uğurlu olsun.',
+      ];
+      final res = SlotTextComposer.compose3(slot1: slot1, slot2: slot2, slot3: slot3, randomInstance: _random);
+      _descriptionQueue.push(res);
+      return (description: res, descriptionKey: 'desc_hyper_collector_1');
+    }
+
     if (isBarnFind) {
       final slot1 = [
         'Köydeki dede yadigarı samanlıktan yeni gün yüzüne çıkarıldı.',
@@ -580,7 +701,18 @@ class MarketEngine {
     MarketTrendModel trend, {
     double? playerBalance,
     bool hasHighNecatiTrust = false,
+    bool forceHyper = false,
   }) {
+    if (forceHyper) {
+      return _doGenerateSingleListing(
+        playerLevel,
+        trend,
+        playerBalance: playerBalance,
+        hasHighNecatiTrust: hasHighNecatiTrust,
+        forceHyper: true,
+      );
+    }
+
     // ponytail: Re-roll low-priced listings when player safe balance is high so market scales with wealth
     for (int attempt = 0; attempt < 3; attempt++) {
       final listing = _doGenerateSingleListing(
@@ -592,9 +724,13 @@ class MarketEngine {
 
       if (playerBalance != null && playerBalance > 150000 && attempt < 2) {
         final price = listing.askingPrice;
-        final isCollectible = listing.car.isRare || listing.car.isBarnFind;
+        final isCollectible = listing.car.isRare || listing.car.isBarnFind || listing.car.isHyperCar;
         if (!isCollectible) {
-          if (playerBalance >= 25000000) {
+          if (playerBalance >= 50000000) {
+            // Billionaire / Multi-Millionaire (₺50M+): Keep healthy market variety (BMW, Mercedes, Porsche, Audi, etc.), only filter out low budget clunkers under ₺500k (90%) and under ₺1.2M (50%)
+            if (price < 500000 && _random.nextDouble() < 0.90) continue;
+            if (price < 1200000 && _random.nextDouble() < 0.50) continue;
+          } else if (playerBalance >= 25000000) {
             // Hyper-Tycoon (₺25M+): Suppress cars under ₺2.5M (98%) and under ₺5M (75%)
             if (price < 2500000 && _random.nextDouble() < 0.98) continue;
             if (price < 5000000 && _random.nextDouble() < 0.75) continue;
@@ -632,17 +768,28 @@ class MarketEngine {
     );
   }
 
+  static CarBrandData _selectHyperBrand() {
+    final hyperBrands = GameConstants.carBrands.where((b) => b.segment == 'hiper').toList();
+    if (hyperBrands.isNotEmpty) {
+      return hyperBrands[_random.nextInt(hyperBrands.length)];
+    }
+    return GameConstants.carBrands.first;
+  }
+
   static ListingModel _doGenerateSingleListing(
     int playerLevel,
     MarketTrendModel trend, {
     double? playerBalance,
     bool hasHighNecatiTrust = false,
+    bool forceHyper = false,
   }) {
-    final brandData = _selectWeightedBrand(playerBalance: playerBalance, playerLevel: playerLevel);
+    final brandData = forceHyper
+        ? _selectHyperBrand()
+        : _selectWeightedBrand(playerBalance: playerBalance, playerLevel: playerLevel);
 
     // Deprioritize vintage low-budget clunkers from mainstream brands when player has high cash
     List<String> candidateModels = brandData.models;
-    if (playerBalance != null && playerBalance >= 800000) {
+    if (playerBalance != null && playerBalance >= 800000 && !forceHyper) {
       final nonRetro = brandData.models.where((m) => !_isBudgetRetroModel(m)).toList();
       if (nonRetro.isNotEmpty && (playerBalance >= 3000000 || _random.nextDouble() < 0.85)) {
         candidateModels = nonRetro;
@@ -653,24 +800,41 @@ class MarketEngine {
     final (bodyType, year, isClassicModel) = _determineBodyTypeAndYear(modelName);
     final id = 'car_${DateTime.now().microsecondsSinceEpoch}_${++_idCounter}_${_random.nextInt(99999)}';
 
-    // 28% chance of Pristine ("Hatasız & Boyasız") Vehicle
-    final isPristine = !isClassicModel && (_random.nextDouble() < 0.28);
+    final bool isHyper = brandData.segment == 'hiper' ||
+        modelName.contains('LaFerro') ||
+        modelName.contains('Daytona SP3') ||
+        forceHyper;
 
-    // 12% chance of Rare vehicle drop (or classic model is inherently collectible)
-    final isRare = isClassicModel || (_random.nextDouble() < 0.12);
+    // 28% chance of Pristine ("Hatasız & Boyasız") Vehicle (Hypercars have 70% pristine chance)
+    final isPristine = !isClassicModel && (isHyper ? (_random.nextDouble() < 0.70) : (_random.nextDouble() < 0.28));
+
+    // 12% chance of Rare vehicle drop (Hypercars and classic models are inherently rare/collectible)
+    final isRare = isClassicModel || isHyper || (_random.nextDouble() < 0.12);
 
     // Mileage & Tramer
-    final mileage = isPristine
-        ? (15000 + _random.nextInt(65000))
-        : (isRare ? (12000 + _random.nextInt(180000)) : (5000 + _random.nextInt(345000)));
+    final int mileage;
+    if (isHyper) {
+      mileage = 800 + _random.nextInt(12000); // 800 - 12.800 km garage jewel
+    } else if (isPristine) {
+      mileage = 15000 + _random.nextInt(65000);
+    } else if (isRare) {
+      mileage = 12000 + _random.nextInt(180000);
+    } else {
+      mileage = 5000 + _random.nextInt(345000);
+    }
 
-    final hasTramer = isPristine ? false : (isRare ? (_random.nextDouble() < 0.3) : (_random.nextDouble() < 0.55));
-    final tramerAmount = hasTramer ? (1500 + _random.nextInt(43500)) : 0;
+    final bool hasTramer;
+    if (isHyper || isPristine) {
+      hasTramer = isHyper ? (_random.nextDouble() < 0.08) : false;
+    } else {
+      hasTramer = isRare ? (_random.nextDouble() < 0.3) : (_random.nextDouble() < 0.55);
+    }
+    final tramerAmount = hasTramer ? (1500 + _random.nextInt(isHyper ? 85000 : 43500)) : 0;
     
     // Seller Honesty Distribution (§2.2):
     // 40% Honest, 35% Minor flaw hidden, 25% Major flaw hidden
     final ListingDeclarationType declarationType;
-    if (isPristine) {
+    if (isPristine || isHyper) {
       declarationType = ListingDeclarationType.honest;
     } else {
       final honestyRoll = _random.nextDouble();
@@ -688,7 +852,7 @@ class MarketEngine {
     final isTampered = (declarationType == ListingDeclarationType.tamperedMileageClaim);
 
     final Map<String, PartStatus> bodyParts;
-    if (isPristine) {
+    if (isPristine || isHyper) {
       bodyParts = <String, PartStatus>{
         'Kaput': PartStatus.original,
         'Tavan': PartStatus.original,
@@ -720,15 +884,15 @@ class MarketEngine {
       };
     }
 
-    final engineCondition = isPristine
-        ? (88.0 + _random.nextInt(13)).clamp(85.0, 100.0)
+    final engineCondition = (isPristine || isHyper)
+        ? (90.0 + _random.nextInt(11)).clamp(88.0, 100.0)
         : (40.0 + _random.nextInt(61)).clamp(40.0, 100.0);
-    final transCondition = isPristine
-        ? (88.0 + _random.nextInt(13)).clamp(85.0, 100.0)
+    final transCondition = (isPristine || isHyper)
+        ? (90.0 + _random.nextInt(11)).clamp(88.0, 100.0)
         : (45.0 + _random.nextInt(56)).clamp(45.0, 100.0);
 
     final isChassisAligned = bodyParts['Şasi/Podye'] == PartStatus.original;
-    final hasAirbag = (!isChassisAligned && _random.nextDouble() < 0.70) || (tramerAmount > 45000 && _random.nextDouble() < 0.60);
+    final hasAirbag = !isHyper && ((!isChassisAligned && _random.nextDouble() < 0.70) || (tramerAmount > 45000 && _random.nextDouble() < 0.60));
 
     final expertise = ExpertiseReport(
       engineCondition: engineCondition.toDouble(),
@@ -761,16 +925,39 @@ class MarketEngine {
       baseValue *= 1.35;
     }
 
+    // Dynamic Prestige & Collection Multiplier (₺50M+ player balance or hyper tier):
+    if (isHyper && (playerBalance == null || playerBalance >= 40000000.0)) {
+      final roll = _random.nextDouble();
+      if (roll < 0.25) {
+        // 1/1 Birebir Ismarlama
+        baseValue *= (1.4 + _random.nextDouble() * 0.25); // 1.4x - 1.65x
+      } else if (roll < 0.50) {
+        // Zırhlı Devlet Makamı
+        baseValue *= (1.25 + _random.nextDouble() * 0.2); // 1.25x - 1.45x
+      } else if (roll < 0.75) {
+        // Karbon Pist Paketi
+        baseValue *= (1.2 + _random.nextDouble() * 0.15); // 1.2x - 1.35x
+      } else {
+        // Kraliyet Koleksiyonu Çıkması
+        baseValue *= (1.5 + _random.nextDouble() * 0.3); // 1.5x - 1.8x
+      }
+
+      // Safety ceiling to maintain balanced tycoon progression (max ~₺250M base value)
+      if (baseValue > 250000000.0) {
+        baseValue = 250000000.0;
+      }
+    }
+
     // Seller profile & Flash Deal chance (Necati Dayı perk increases kelepir deals to 22%)
     final sellerProfile = GameConstants.sellerProfiles[_random.nextInt(GameConstants.sellerProfiles.length)];
     final flashChance = hasHighNecatiTrust ? 0.22 : 0.12;
-    final isFlashDeal = !isPristine && (_random.nextDouble() < flashChance);
+    final isFlashDeal = !isPristine && !isHyper && (_random.nextDouble() < flashChance);
 
     // Barn Find chance (Necati Dayı perk increases barn finds to 10%)
     final barnBaseChance = hasHighNecatiTrust ? 0.10 : 0.04;
     final classicBarnChance = (playerBalance != null && playerBalance >= 1000000) ? 0.08 : 0.40;
     final isClassicBarnCandidate = isClassicModel && (_random.nextDouble() < classicBarnChance);
-    final isBarnFind = !isPristine && (isClassicBarnCandidate || _random.nextDouble() < barnBaseChance);
+    final isBarnFind = !isPristine && !isHyper && (isClassicBarnCandidate || _random.nextDouble() < barnBaseChance);
 
     final cityData = GameConstants.cities[_random.nextInt(GameConstants.cities.length)];
     final sellerCity = cityData.trName;
@@ -779,13 +966,15 @@ class MarketEngine {
     final plate = generateLicensePlate(city: sellerCity);
 
     final sellerData = _getRandomSellerData();
-    final sellerProfileKey = isPristine
-        ? 'pristine'
-        : (isBarnFind
-            ? 'barn_find'
-            : (isRare
-                ? 'rare'
-                : (isFlashDeal ? 'flash_deal' : (sellerProfile['key'] ?? 'urgent_cash'))));
+    final sellerProfileKey = isHyper
+        ? 'hyper_vip'
+        : (isPristine
+            ? 'pristine'
+            : (isBarnFind
+                ? 'barn_find'
+                : (isRare
+                    ? 'rare'
+                    : (isFlashDeal ? 'flash_deal' : (sellerProfile['key'] ?? 'urgent_cash')))));
 
     final carTemp = CarModel(
       id: id,
@@ -795,12 +984,12 @@ class MarketEngine {
       bodyType: bodyType,
       colorHex: paint.hex,
       colorDisplayName: paint.name,
-      colorRarity: paint.rarity,
+      colorRarity: isHyper ? 'legendary' : paint.rarity,
       plateNumber: plate.number,
-      plateRarity: plate.rarity,
+      plateRarity: isHyper ? 'legendary' : plate.rarity,
       baseMarketValue: baseValue,
       currentPurchasePrice: baseValue,
-      isRare: isRare || isBarnFind || isPristine,
+      isRare: isRare || isBarnFind || isPristine || isHyper,
       isBarnFind: isBarnFind,
       declarationType: declarationType,
       expertise: isBarnFind
@@ -832,21 +1021,40 @@ class MarketEngine {
 
     // Realistic seller asking price between 70% and 130% of fair market value
     double randomMarginFactor = 0.70 + (_random.nextDouble() * 0.60); // 0.70 to 1.30
-    if (isPristine) randomMarginFactor = 1.05 + (_random.nextDouble() * 0.15); // Clean pristine pricing
-    if (isFlashDeal) randomMarginFactor = 0.65 + (_random.nextDouble() * 0.15); // 0.65 to 0.80
-    if (isBarnFind) randomMarginFactor = 0.35 + (_random.nextDouble() * 0.20); // 0.35 to 0.55 (Dirt cheap kelepir!)
+    if (isHyper) {
+      randomMarginFactor = 0.95 + (_random.nextDouble() * 0.25); // 0.95 to 1.20 for Hypercars
+    } else if (isPristine) {
+      randomMarginFactor = 1.05 + (_random.nextDouble() * 0.15); // Clean pristine pricing
+    } else if (isFlashDeal) {
+      randomMarginFactor = 0.65 + (_random.nextDouble() * 0.15); // 0.65 to 0.80
+    } else if (isBarnFind) {
+      randomMarginFactor = 0.35 + (_random.nextDouble() * 0.20); // 0.35 to 0.55 (Dirt cheap kelepir!)
+    }
 
     double askingPrice = (carTemp.estimatedRealValue * randomMarginFactor).roundToDouble();
     if (askingPrice < 35000) askingPrice = 35000;
+    if (isHyper) {
+      if (askingPrice < 50000000.0) askingPrice = 50000000.0 + _random.nextInt(5000000);
+      if (askingPrice > 450000000.0) askingPrice = 450000000.0;
+    }
 
     final car = carTemp.copyWith(currentPurchasePrice: askingPrice);
 
-    final titleData = _generateTitle(year, brandData.name, modelName, isBarnFind, isRare, isPristine: isPristine);
+    final titleData = _generateTitle(
+      year,
+      brandData.name,
+      modelName,
+      isBarnFind,
+      isRare,
+      isPristine: isPristine,
+      isHyper: isHyper,
+    );
     final descData = _generateDescription(
       isBarnFind: isBarnFind,
       isFlashDeal: isFlashDeal,
       isRare: isRare,
       isPristine: isPristine,
+      isHyper: isHyper,
       declarationType: declarationType,
       tramerAmount: tramerAmount,
     );
@@ -854,14 +1062,18 @@ class MarketEngine {
     return ListingModel(
       id: 'listing_$id',
       car: car,
-      sellerName: isPristine
-          ? 'Titiz Sahibinden • ${sellerData.trName}'
-          : '${sellerProfile['name']} • ${sellerData.trName}',
-      sellerTrait: isPristine
-          ? 'Hatasız & Orijinal Garaj Arabası'
-          : (isBarnFind
-              ? 'Terk Edilmiş Kelepir Araç'
-              : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!))),
+      sellerName: isHyper
+          ? 'VIP Koleksiyoner • ${sellerData.trName}'
+          : (isPristine
+              ? 'Titiz Sahibinden • ${sellerData.trName}'
+              : '${sellerProfile['name']} • ${sellerData.trName}'),
+      sellerTrait: isHyper
+          ? 'VIP Portföy • Seçkin Koleksiyoner'
+          : (isPristine
+              ? 'Hatasız & Orijinal Garaj Arabası'
+              : (isBarnFind
+                  ? 'Terk Edilmiş Kelepir Araç'
+                  : (isRare ? 'Koleksiyonluk Nadir Araç' : (isFlashDeal ? 'Fırsat İlanı! Çok Acele' : sellerProfile['trait']!)))),
       sellerCity: sellerCity,
       title: titleData.title,
       description: descData.description,
@@ -885,6 +1097,8 @@ class MarketEngine {
       if (playerBalance < 150000) {
         // Low budget (under ₺150k): Economy, Legend, Classic, and Common brands heavily favored
         switch (segment) {
+          case 'hiper':
+            return 0.0;
           case 'efsane':
           case 'klasik':
           case 'ekonomi':
@@ -906,6 +1120,8 @@ class MarketEngine {
       } else if (playerBalance < 600000) {
         // Growing budget (₺150k - ₺600k): Mainstream, reliable, and economy, legends start decreasing
         switch (segment) {
+          case 'hiper':
+            return 0.0;
           case 'halk':
           case 'popüler':
           case 'güvenilir':
@@ -927,6 +1143,8 @@ class MarketEngine {
       } else if (playerBalance < 2000000) {
         // Established auto gallery (₺600k - ₺2M): Budget clunkers reduced dramatically, premium/luxury rise
         switch (segment) {
+          case 'hiper':
+            return 0.0;
           case 'premium':
           case 'lüks':
           case 'güvenlik':
@@ -953,6 +1171,8 @@ class MarketEngine {
       } else if (playerBalance < 6000000) {
         // Wealthy dealer (₺2M - ₺6M): Almost no cheap clunkers, market dominated by luxury & sport
         switch (segment) {
+          case 'hiper':
+            return 0.005;
           case 'premium':
           case 'lüks':
           case 'güvenlik':
@@ -978,6 +1198,8 @@ class MarketEngine {
       } else if (playerBalance < 10000000) {
         // Tycoon (₺6M - ₺10M): Supercars, exotics, electrics, top-tier luxury. Cheap clunkers vanish.
         switch (segment) {
+          case 'hiper':
+            return 0.05;
           case 'süperspor':
             return 5.0;
           case 'egzotik':
@@ -1003,6 +1225,8 @@ class MarketEngine {
       } else if (playerBalance < 25000000) {
         // Mega-Tycoon (₺10M - ₺25M): Hypercars, exotics dominate, mainstream cars heavily suppressed.
         switch (segment) {
+          case 'hiper':
+            return 1.5;
           case 'süperspor':
             return 8.0;
           case 'egzotik':
@@ -1026,9 +1250,11 @@ class MarketEngine {
           default:
             return 0.1;
         }
-      } else {
-        // Sovereign Baron (₺25M+): Pure hypercars, exotics, flagship luxury. No everyday clunkers.
+      } else if (playerBalance < 50000000) {
+        // Sovereign Baron (₺25M - ₺50M): Pure hypercars, exotics, flagship luxury. No everyday clunkers.
         switch (segment) {
+          case 'hiper':
+            return 8.0;
           case 'süperspor':
             return 12.0;
           case 'egzotik':
@@ -1050,6 +1276,33 @@ class MarketEngine {
             return 0.0001;
           default:
             return 0.05;
+        }
+      } else {
+        // Ultra Tycoon & Billionaire (₺50M+): Balanced market with authentic hypercar rarity (1 in 10-15)
+        switch (segment) {
+          case 'hiper':
+            return 1.0;
+          case 'egzotik':
+            return 3.0;
+          case 'süperspor':
+            return 3.5;
+          case 'lüks':
+            return 4.0;
+          case 'premium':
+            return 3.0;
+          case 'elektrikli':
+            return 1.5;
+          case 'popüler':
+          case 'güvenilir':
+            return 1.0;
+          case 'halk':
+            return 0.3;
+          case 'ekonomi':
+          case 'efsane':
+          case 'klasik':
+            return 0.1;
+          default:
+            return 0.5;
         }
       }
     }

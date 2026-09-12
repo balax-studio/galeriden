@@ -471,11 +471,14 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
     final canAfford = gameBalance >= listing.askingPrice;
     final lockedListings = ref.watch(vasitaLockedListingsProvider);
     final isLocked = lockedListings.contains(listing.id);
+    final isHyper = car.isHyperCar;
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(14),
       backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
-      borderColor: isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A),
+      borderColor: isHyper
+          ? const Color(0xFFFFB800)
+          : (isDark ? const Color(0xFF2A3142) : const Color(0xFF0F172A)),
       borderRadius: 14,
       showBlueprintGrid: true,
       patternType: BlueprintPatternType.bayerDither,
@@ -494,9 +497,12 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
               ),
               const SizedBox(width: 6),
               NeoBrutalBadge(
-                text: context.tr(cat.rarityKey),
-                backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                textColor: isDark ? Colors.white70 : Colors.black87,
+                text: isHyper ? context.tr('badge_hyper_collection') : context.tr(cat.rarityKey),
+                icon: isHyper ? Icons.workspace_premium_rounded : null,
+                backgroundColor: isHyper
+                    ? const Color(0xFFFFD700)
+                    : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                textColor: isHyper ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
                 fontSize: 9.5,
               ),
               const SizedBox(width: 8),
@@ -504,10 +510,10 @@ class _VasitaMarketScreenState extends ConsumerState<VasitaMarketScreen> {
                 child: Text(
                   '${listing.sellerCity} • ${listing.sellerName}',
                   textAlign: TextAlign.end,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF64748B),
+                    color: isHyper ? const Color(0xFFD97706) : const Color(0xFF64748B),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

@@ -4,7 +4,7 @@ import '../../data/models/dealership_model.dart';
 import '../../data/models/dramatic_card_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/staff_model.dart';
-import 'daily_life_cards_data.dart';
+import 'contextual_dilemma_pool.dart';
 
 class DramaticResolutionResult {
   final DramaticCardModel card;
@@ -21,11 +21,9 @@ class DramaticResolutionResult {
 }
 
 class DramaticCardEngine {
-  /// Generates the daily dilemma card for the specified calendar day • Day 1 to 365+
+  /// Generates the contextual dilemma card based on player state and context
   static DramaticCardModel generateDailyDilemma(int day, DealershipModel state, {Random? randomInstance}) {
-    final dayIndex = ((day - 1) % 365) + 1;
-    final cardDef = DailyLifeCardsData.getCardForDay(dayIndex);
-    return cardDef.toCard(day);
+    return ContextualDilemmaPool.selectContextualCard(state, seenIds: state.seenDramaticCardIds).copyWith(dayNumber: day);
   }
 
   /// Selects the next appropriate dramatic dilemma card based on player state and cycle history
@@ -59,6 +57,9 @@ class DramaticCardEngine {
     // Strict upfront cost deduction - prevent ₺0 balance exploit where expensive choices are taken for free
     final double upfrontCost = choice.upfrontCost;
     double newBalance = state.balance - upfrontCost + selectedOutcome.moneyDelta;
+    if (selectedOutcome.isDynamicGrant) {
+      newBalance += ContextualDilemmaPool.calculateDynamicGrant(state);
+    }
 
     int newReputation = (state.reputation + selectedOutcome.reputationDelta).clamp(0, 1000);
     int newXP = state.experience + selectedOutcome.xpReward;
@@ -137,6 +138,34 @@ class DramaticCardEngine {
         ),
       );
       updatedCars.add(bargainCar);
+    }
+
+    // Handle grant heirloom vehicle
+    if (selectedOutcome.grantHeirloomVehicle) {
+      final heirloomCar = CarModel(
+        id: 'heirloom_classic_${DateTime.now().millisecondsSinceEpoch}',
+        brand: 'Mercedes-Benz',
+        modelName: '200D W123',
+        modelYear: 1982,
+        bodyType: 'Sedan',
+        colorHex: '#2E4053',
+        colorDisplayName: 'Dede Yadigârı Gece Mavisi',
+        colorRarity: 'rare',
+        plateNumber: '06 DEDE 82',
+        plateRarity: 'legendary',
+        currentPurchasePrice: 0.0,
+        baseMarketValue: 240000.0,
+        isHeroShowcase: true,
+        expertise: ExpertiseReport(
+          engineCondition: 68.0,
+          transmissionCondition: 72.0,
+          tramerAmount: 0,
+          mileage: 285000,
+          isMileageTampered: false,
+          bodyParts: const {},
+        ),
+      );
+      updatedCars.add(heirloomCar);
     }
 
     // Update seen card IDs

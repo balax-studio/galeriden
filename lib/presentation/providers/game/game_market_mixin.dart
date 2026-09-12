@@ -679,13 +679,23 @@ mixin GameMarketMixin on GameBaseNotifier {
 
     if (eligibleCars.isEmpty) return;
 
+    final bool isFirstEverSale = state.salesHistory.isEmpty;
     final randomCar = eligibleCars[random.nextInt(eligibleCars.length)];
     final multipliers = _calculateOfferMultipliersForCar(randomCar);
+
+    // Guaranteed first sale profit calibration: ensures enthusiastic, profitable buyer offer for newcomers
+    final double targetListingPrice = isFirstEverSale
+        ? (randomCar.currentPurchasePrice * 1.14).clamp(
+            randomCar.currentPurchasePrice + 5000.0,
+            randomCar.currentPurchasePrice + 250000.0,
+          )
+        : randomCar.listingPrice;
+
     final offer = NegotiationEngine.generateBuyerOffer(
       randomCar,
-      randomCar.listingPrice,
+      targetListingPrice,
       isFinanceUnlocked: state.isFeatureUnlocked('/finance'),
-      districtMultiplier: multipliers.$1,
+      districtMultiplier: isFirstEverSale ? 1.05 : multipliers.$1,
       gossipMultiplier: multipliers.$2,
       weatherMultiplier: multipliers.$3,
       branchMultiplier: state.branchProfitMultiplier,

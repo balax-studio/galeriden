@@ -33,6 +33,7 @@ import '../presentation/screens/side_business/side_business_screen.dart';
 import '../presentation/screens/side_business/side_business_detail_screen.dart';
 import '../presentation/screens/stock_market/stock_market_screen.dart';
 import '../presentation/screens/workshop/tuning_studio_screen.dart';
+import '../presentation/screens/workshop/contract_tuning_screen.dart';
 import '../presentation/screens/finance/bank_investments_screen.dart';
 import '../presentation/screens/staff/staff_academy_screen.dart';
 import '../presentation/screens/branch/showroom_decor_screen.dart';
@@ -121,6 +122,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/tuning-studio',
       pageBuilder: (context, state) => _buildCupertinoPage(const TuningStudioScreen(), state),
+    ),
+    GoRoute(
+      path: '/contract-tuning',
+      pageBuilder: (context, state) => _buildCupertinoPage(const ContractTuningScreen(), state),
     ),
     GoRoute(
       path: '/bank-investments',

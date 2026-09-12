@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:galeriden/core/localization/app_localizations.dart';
 import 'package:galeriden/core/theme/app_colors.dart';
 import 'package:galeriden/core/utils/currency_formatter.dart';
 import 'package:galeriden/presentation/widgets/blueprint_grid_background.dart';

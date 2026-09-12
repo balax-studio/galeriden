@@ -29,6 +29,7 @@ import '../../widgets/neo_brutal_card.dart';
 import '../../widgets/neo_brutal_page_background.dart';
 import '../../widgets/blueprint_grid_background.dart';
 import 'widgets/noter_transfer_dialog.dart';
+import '../showroom/widgets/quick_listing_bottom_sheet.dart';
 
 class VasitaNegotiationScreen extends ConsumerStatefulWidget {
   final ListingModel listing;
@@ -393,6 +394,20 @@ class _VasitaNegotiationScreenState
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             onPressed: () {
               Navigator.of(dialogCtx).pop();
+              context.go('/showroom');
+            },
+          ),
+          NeoBrutalButton(
+            label: context.tr('quick_listing_title'),
+            icon: Icons.flash_on_rounded,
+            backgroundColor: const Color(0xFFFFDE59),
+            textColor: Colors.black,
+            fontSize: 12,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            onPressed: () async {
+              Navigator.of(dialogCtx).pop();
+              await QuickListingBottomSheet.show(context, car: widget.listing.car);
+              if (!mounted) return;
               context.go('/showroom');
             },
           ),

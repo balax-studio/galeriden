@@ -69,6 +69,8 @@ class CarModel {
   final VehicleCategory vehicleCategory;
   final bool isVasitaUpgraded;
   final bool hasCertifiedExpertise;
+  final bool isOutsourcedTuning;
+  final String? activeTuningOrderId;
 
   CarModel({
     required this.id,
@@ -130,6 +132,8 @@ class CarModel {
     this.vehicleCategory = VehicleCategory.car,
     this.isVasitaUpgraded = false,
     this.hasCertifiedExpertise = false,
+    this.isOutsourcedTuning = false,
+    this.activeTuningOrderId,
   }) : modelName = sanitizeModelName(brand, modelName);
 
   /// True if vehicle is currently in the paint oven curing
@@ -242,11 +246,38 @@ class CarModel {
   @pragma('vm:entry-point')
   String get carModelName => '$brand $modelName';
 
-  /// Check if car is actively listed for sale (strictly false if rented or showcase locked)
-  bool get isListed => !isRented && !isLockedInShowcase && customListingPrice != null && customListingPrice! > 0;
+  /// Check if car is actively listed for sale (strictly false if rented, showcase locked, or in outsourced tuning)
+  bool get isListed => !isRented && !isLockedInShowcase && !isOutsourcedTuning && customListingPrice != null && customListingPrice! > 0;
 
   /// Effective listing price (custom if set by player, otherwise estimated real value)
   double get listingPrice => customListingPrice ?? estimatedRealValue;
+
+  /// True if vehicle belongs to the ultra-luxury or hypercar tier
+  bool get isHyperCar {
+    final b = brand.toLowerCase().trim();
+    if (b.contains('bugaç') ||
+        b.contains('bugatti') ||
+        b.contains('köniğ') ||
+        b.contains('koenigsegg') ||
+        b.contains('pagan') ||
+        b.contains('pagani') ||
+        b.contains('rolso') ||
+        b.contains('rolls')) {
+      return true;
+    }
+    if (modelName.contains('LaFerro') ||
+        modelName.contains('LaFerrari') ||
+        modelName.contains('Daytona SP3') ||
+        modelName.contains('Karasu') ||
+        modelName.contains('Divo') ||
+        modelName.contains('Jesko') ||
+        modelName.contains('Şiron') ||
+        modelName.contains('Chiron') ||
+        modelName.contains('Zonda')) {
+      return true;
+    }
+    return baseMarketValue >= 50000000.0;
+  }
 
   /// Authentic factory horsepower from automotive specifications database
   int get factoryHorsepower => CarSpecifications.getFactoryHorsepower(brand, modelName, bodyType: bodyType);
@@ -515,6 +546,8 @@ class CarModel {
       'vehicleCategory': vehicleCategory.name,
       'isVasitaUpgraded': isVasitaUpgraded,
       'hasCertifiedExpertise': hasCertifiedExpertise,
+      'isOutsourcedTuning': isOutsourcedTuning,
+      'activeTuningOrderId': activeTuningOrderId,
     };
   }
 
@@ -586,6 +619,8 @@ class CarModel {
       vehicleCategory: VehicleCategory.fromString(json['vehicleCategory'] as String?),
       isVasitaUpgraded: json['isVasitaUpgraded'] as bool? ?? false,
       hasCertifiedExpertise: json['hasCertifiedExpertise'] as bool? ?? false,
+      isOutsourcedTuning: json['isOutsourcedTuning'] as bool? ?? false,
+      activeTuningOrderId: json['activeTuningOrderId'] as String?,
     );
   }
 
@@ -651,6 +686,9 @@ class CarModel {
     VehicleCategory? vehicleCategory,
     bool? isVasitaUpgraded,
     bool? hasCertifiedExpertise,
+    bool? isOutsourcedTuning,
+    String? activeTuningOrderId,
+    bool clearActiveTuningOrder = false,
   }) {
     return CarModel(
       id: id ?? this.id,
@@ -712,6 +750,8 @@ class CarModel {
       vehicleCategory: vehicleCategory ?? this.vehicleCategory,
       isVasitaUpgraded: isVasitaUpgraded ?? this.isVasitaUpgraded,
       hasCertifiedExpertise: hasCertifiedExpertise ?? this.hasCertifiedExpertise,
+      isOutsourcedTuning: isOutsourcedTuning ?? this.isOutsourcedTuning,
+      activeTuningOrderId: clearActiveTuningOrder ? null : (activeTuningOrderId ?? this.activeTuningOrderId),
     );
   }
 }

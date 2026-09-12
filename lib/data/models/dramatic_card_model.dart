@@ -31,6 +31,8 @@ class DramaticOutcomeModel {
   final bool makeFamilyHeirloom;
   final bool spawnBargainCar;
   final double? staffSalaryMultiplier;
+  final bool grantHeirloomVehicle;
+  final bool isDynamicGrant;
 
   const DramaticOutcomeModel({
     required this.probability,
@@ -45,6 +47,8 @@ class DramaticOutcomeModel {
     this.makeFamilyHeirloom = false,
     this.spawnBargainCar = false,
     this.staffSalaryMultiplier,
+    this.grantHeirloomVehicle = false,
+    this.isDynamicGrant = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +64,8 @@ class DramaticOutcomeModel {
         'makeFamilyHeirloom': makeFamilyHeirloom,
         'spawnBargainCar': spawnBargainCar,
         'staffSalaryMultiplier': staffSalaryMultiplier,
+        'grantHeirloomVehicle': grantHeirloomVehicle,
+        'isDynamicGrant': isDynamicGrant,
       };
 
   factory DramaticOutcomeModel.fromJson(Map<String, dynamic> json) => DramaticOutcomeModel(
@@ -75,6 +81,8 @@ class DramaticOutcomeModel {
         makeFamilyHeirloom: json['makeFamilyHeirloom'] as bool? ?? false,
         spawnBargainCar: json['spawnBargainCar'] as bool? ?? false,
         staffSalaryMultiplier: (json['staffSalaryMultiplier'] as num?)?.toDouble(),
+        grantHeirloomVehicle: json['grantHeirloomVehicle'] as bool? ?? false,
+        isDynamicGrant: json['isDynamicGrant'] as bool? ?? false,
       );
 }
 

@@ -31,6 +31,7 @@ import '../../widgets/pulsing_dot.dart';
 import '../../widgets/staggered_item_entry.dart';
 import '../../widgets/ads/neo_brutal_native_ad_card.dart';
 import '../../../core/services/ad_service.dart';
+import '../../../core/utils/notification_service.dart';
 import 'sms_tramer_sheet.dart';
 import '../../widgets/cracked_glass_badge.dart';
 
@@ -289,6 +290,8 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     Icons.account_balance_wallet_rounded, p, isDark),
                 const SizedBox(width: 8),
                 _buildSortMenuButton(p, isDark),
+                const SizedBox(width: 8),
+                _buildSponsorRefreshButton(p, isDark),
               ],
             ),
           ),
@@ -1110,6 +1113,74 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     ? Colors.black
                     : (isDark ? Colors.white : const Color(0xFF0F172A)),
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                fontSize: 11.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleMarketRefresh({bool withSponsor = false}) async {
+    if (withSponsor) {
+      AdService.instance.showRewardedAdWithFallback(
+        context: context,
+        customRewardTitle: context.tr('market_sponsor_refresh_title'),
+        onRewardEarned: () {
+          HapticFeedback.heavyImpact();
+          setState(() => _isRefreshing = true);
+          ref.read(gameProvider.notifier).refreshMarketTrends();
+          ref.read(marketProvider.notifier).refreshMarket();
+          if (mounted) {
+            setState(() => _isRefreshing = false);
+            NotificationService.showSuccess(
+              context,
+              context.tr('market_sponsor_refresh_success'),
+            );
+          }
+        },
+      );
+    } else {
+      HapticFeedback.lightImpact();
+      setState(() => _isRefreshing = true);
+      ref.read(gameProvider.notifier).refreshMarketTrends();
+      ref.read(marketProvider.notifier).refreshMarket();
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (mounted) setState(() => _isRefreshing = false);
+    }
+  }
+
+  Widget _buildSponsorRefreshButton(ThemePaletteModel p, bool isDark) {
+    return GestureDetector(
+      onTap: () => _handleMarketRefresh(withSponsor: true),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFDE59),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
+            width: 2.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isDark ? Colors.black : const Color(0xFF0F172A),
+              offset: const Offset(2, 2),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.bolt_rounded, size: 14, color: Colors.black),
+            const SizedBox(width: 4),
+            Text(
+              context.tr('market_sponsor_refresh_btn'),
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w900,
                 fontSize: 11.5,
               ),
             ),

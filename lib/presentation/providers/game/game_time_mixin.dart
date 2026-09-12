@@ -143,7 +143,8 @@ mixin GameTimeMixin on GameBaseNotifier {
     final activeLoansAfterBk = bkResult.$3;
     final updatedDynastyHistory = bkResult.$4;
     newEvents = bkResult.$5;
-    if (newBalance < 0) {
+    // Real bankruptcy log only when formal concordat or bailiff seizure takes place
+    if (newBalance < 0 && updatedDynastyHistory.length > state.dynastyHistoryLog.length) {
       AnalyticsService.instance.logBankruptcy(
         day: nextDay,
         balance: newBalance,
@@ -2232,6 +2233,10 @@ mixin GameTimeMixin on GameBaseNotifier {
       choice,
       fixedRoll: fixedRoll,
       randomInstance: random,
+    );
+    AnalyticsService.instance.logRandomEventChoice(
+      eventId: card.id,
+      choiceId: choice.id,
     );
     state = result.updatedState;
     saveState();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
@@ -352,6 +353,16 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
         titleBadgeColor: const Color(0xFFF43F5E),
         titleTextColor: Colors.white,
         headerAnimation: NeoBrutalHeaderAnimation.revBarFlash,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.precision_manufacturing_rounded, color: Colors.black),
+              tooltip: context.tr('tuning_outsourced_screen_title'),
+              onPressed: () => context.push('/contract-tuning'),
+            ),
+          ),
+        ],
       ),
       body: NeoBrutalPageBackground(
         watermark: ThematicWatermarkType.workshop,
@@ -359,6 +370,95 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
           padding: const EdgeInsets.all(14),
           physics: const BouncingScrollPhysics(),
           children: [
+            // VIP Outsource Banner Card
+            Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black, width: 2.0),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black,
+                    offset: Offset(3, 3),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: const Color(0xFF00E5FF),
+                child: InkWell(
+                  onTap: () => context.push('/contract-tuning'),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: const Icon(
+                            Icons.precision_manufacturing_rounded,
+                            color: Color(0xFF00E5FF),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    context.tr('tuning_outsourced_banner_title'),
+                                    style: const TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    color: Colors.black,
+                                    child: const Text(
+                                      'VIP',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFFFFD600),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                context.tr('tuning_outsourced_banner_subtitle'),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.black,
+                          size: 16,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           // 1. Header Banner
           NeoBrutalCard(
             padding: const EdgeInsets.all(14),
@@ -405,6 +505,79 @@ class _TuningStudioScreenState extends ConsumerState<TuningStudioScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // VIP Outsourced Tuning Banner
+          GestureDetector(
+            onTap: () => context.push('/contract-tuning'),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              backgroundColor: isDark ? const Color(0xFF1E142B) : const Color(0xFFFAF5FF),
+              borderColor: isDark ? const Color(0xFFD946EF) : const Color(0xFF7E22CE),
+              borderRadius: 12,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD946EF),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black, width: 2),
+                    ),
+                    child: const Icon(Icons.stars_rounded, color: Colors.black, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              context.tr('tuning_outsourced_screen_title'),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.toxicLime,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.black, width: 1.5),
+                              ),
+                              child: const Text(
+                                'VIP',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          context.tr('tuning_outsourced_banner_subtitle'),
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? const Color(0xFFD8B4FE) : const Color(0xFF7E22CE),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 14),

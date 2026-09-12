@@ -264,6 +264,8 @@ class GameConstants {
         'Dört-Beş-Sekiz İtalyano',
         'F-Sekiz Haraççı',
         'SF-Doksan Hibrit',
+        'LaFerro Hibrit V12',
+        'Daytona SP3 Safkan',
       ],
     ),
     CarBrandData(
@@ -294,6 +296,49 @@ class GameConstants {
       models: [
         '10X Akıllı SUV',
         'T-Sekiz Sedan Prototip',
+      ],
+    ),
+
+    // Hiper Otomobiller & Ultra-Lüks Koleksiyon
+    CarBrandData(
+      name: 'Bugaç',
+      segment: 'hiper',
+      popularityWeight: 5,
+      models: [
+        'Şiron Pur Sport W16',
+        'Veyron Süper Spor',
+        'Divo Pist Şaheseri',
+        'Karasu La Vatuar Noar',
+      ],
+    ),
+    CarBrandData(
+      name: 'Köniğ',
+      segment: 'hiper',
+      popularityWeight: 5,
+      models: [
+        'Agera RS Megavat',
+        'Jesko Hücum V8',
+        'Regera Hibrit Fırtına',
+      ],
+    ),
+    CarBrandData(
+      name: 'Pagan',
+      segment: 'hiper',
+      popularityWeight: 4,
+      models: [
+        'Zonda Cinque Karbon',
+        'Huayra BC Rüzgar V12',
+        'Ütopya Safkan Manuel',
+      ],
+    ),
+    CarBrandData(
+      name: 'Rolso',
+      segment: 'hiper',
+      popularityWeight: 5,
+      models: [
+        'Fantom Makam V12',
+        'Hayalet Karartma Black Badge',
+        'Kullinan Zırhlı Saray',
       ],
     ),
   ];
