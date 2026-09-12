@@ -451,6 +451,9 @@ class DashboardMentorCard extends ConsumerWidget {
                             ref.read(gameProvider.notifier).claimMentorQuest(activeQuest.id);
                           },
                         ),
+                      ] else ...[
+                        const SizedBox(height: 6),
+                        _buildQuestQuickAction(context, ref, activeQuest.id, isDark),
                       ],
                     ],
                   ),
@@ -562,6 +565,59 @@ class DashboardMentorCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildQuestQuickAction(
+    BuildContext context,
+    WidgetRef ref,
+    String questId,
+    bool isDark,
+  ) {
+    String label;
+    IconData icon;
+    VoidCallback onTap;
+
+    switch (questId) {
+      case MentorQuestEngine.questFirstPurchase:
+        label = context.tr('quest_action_goto_market');
+        icon = Icons.storefront_rounded;
+        onTap = () {
+          HapticFeedback.selectionClick();
+          ref.read(dashboardTabProvider.notifier).state = 2;
+        };
+        break;
+      case MentorQuestEngine.questFirstProfitSale:
+        label = context.tr('quest_action_goto_showroom');
+        icon = Icons.directions_car_filled_rounded;
+        onTap = () {
+          HapticFeedback.selectionClick();
+          ref.read(dashboardTabProvider.notifier).state = 1;
+        };
+        break;
+      case MentorQuestEngine.questReachLevelTwo:
+      default:
+        label = context.tr('quest_action_view_status');
+        icon = Icons.trending_up_rounded;
+        onTap = () {
+          HapticFeedback.selectionClick();
+          ref.read(dashboardTabProvider.notifier).state = 0;
+        };
+        break;
+    }
+
+    return NeoBrutalButton(
+      label: label,
+      icon: icon,
+      fontSize: 10.0,
+      fontWeight: FontWeight.w900,
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      backgroundColor: isDark ? const Color(0xFF262C3D) : const Color(0xFFF1F5F9),
+      textColor: isDark ? Colors.white : const Color(0xFF0F172A),
+      borderColor: isDark ? const Color(0xFF475569) : Colors.black,
+      borderWidth: 2.0,
+      shadowOffset: const Offset(2.0, 2.0),
+      onPressed: onTap,
     );
   }
 }

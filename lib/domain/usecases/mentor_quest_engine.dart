@@ -66,11 +66,17 @@ class MentorNarrativeQuest {
 
 /// Halil Usta Anlatı Görevleri Motoru
 class MentorQuestEngine {
+  static const String questFirstPurchase = 'm_quest_halil_first_purchase';
+  static const String questFirstProfitSale = 'm_quest_halil_first_profit_sale';
+  static const String questReachLevelTwo = 'm_quest_halil_reach_level_two';
   static const String questHeritageRestore = 'm_quest_halil_heritage_restore';
   static const String questBargainSniper = 'm_quest_halil_bargain_sniper';
   static const String questTeaHospitality = 'm_quest_halil_tea_hospitality';
 
   static const List<String> allQuestIds = [
+    questFirstPurchase,
+    questFirstProfitSale,
+    questReachLevelTwo,
     questHeritageRestore,
     questBargainSniper,
     questTeaHospitality,
@@ -105,20 +111,26 @@ class MentorQuestEngine {
     CarModel car,
     double purchasePrice,
   ) {
+    final memory = Map<String, dynamic>.from(game.mentorMemory);
+    final boughtCount = ((memory['carsBoughtCount'] as num?)?.toInt() ?? 0) + 1;
+    memory['carsBoughtCount'] = boughtCount;
+
+    final completed = Set<String>.from(
+      (memory['completedQuestIds'] as List<dynamic>?)?.map((e) => e.toString()) ?? const [],
+    );
+    completed.add(questFirstPurchase);
+
     if (purchasePrice <= car.baseMarketValue * 0.80) {
-      final memory = Map<String, dynamic>.from(game.mentorMemory);
       final count = ((memory['bargainsBoughtCount'] as num?)?.toInt() ?? 0) + 1;
       memory['bargainsBoughtCount'] = count;
 
       if (count >= 2) {
-        final completed = Set<String>.from(
-          (memory['completedQuestIds'] as List<dynamic>?)?.map((e) => e.toString()) ?? const [],
-        )..add(questBargainSniper);
-        memory['completedQuestIds'] = completed.toList();
+        completed.add(questBargainSniper);
       }
-      return game.copyWith(mentorMemory: memory);
     }
-    return game;
+
+    memory['completedQuestIds'] = completed.toList();
+    return game.copyWith(mentorMemory: memory);
   }
 
   /// Garajdaki araçlar kontrol edilerek restorasyon görevi tamamlandıysa hafızaya kalıcı işler
@@ -128,19 +140,30 @@ class MentorQuestEngine {
       (memory['completedQuestIds'] as List<dynamic>?)?.map((e) => e.toString()) ?? const [],
     );
 
-    if (completed.contains(questHeritageRestore)) return game;
-
-    final hasRestored = game.ownedCars.any((c) =>
-        c.expertise.engineCondition >= 85 &&
-        c.expertise.transmissionCondition >= 80 &&
-        !c.expertise.bodyParts.values.any((p) => p == PartStatus.damaged));
-
-    if (hasRestored) {
-      completed.add(questHeritageRestore);
-      memory['completedQuestIds'] = completed.toList();
-      return game.copyWith(mentorMemory: memory);
+    // İlk kârlı satış kontrolü
+    if (game.salesHistory.any((s) => s.netProfit > 0)) {
+      completed.add(questFirstProfitSale);
     }
-    return game;
+
+    // Seviye 2 kontrolü
+    if (game.level >= 2) {
+      completed.add(questReachLevelTwo);
+    }
+
+    // Restorasyon kontrolü
+    if (!completed.contains(questHeritageRestore)) {
+      final hasRestored = game.ownedCars.any((c) =>
+          c.expertise.engineCondition >= 85 &&
+          c.expertise.transmissionCondition >= 80 &&
+          !c.expertise.bodyParts.values.any((p) => p == PartStatus.damaged));
+
+      if (hasRestored) {
+        completed.add(questHeritageRestore);
+      }
+    }
+
+    memory['completedQuestIds'] = completed.toList();
+    return game.copyWith(mentorMemory: memory);
   }
 
   static MentorNarrativeQuest _buildQuestInstance(
@@ -151,6 +174,55 @@ class MentorQuestEngine {
     final memory = game.mentorMemory;
 
     switch (questId) {
+      case questFirstPurchase:
+        final bool hasBought = (memory['carsBoughtCount'] as num? ?? 0) >= 1 ||
+            game.salesHistory.isNotEmpty ||
+            game.ownedCars.any((c) => c.id != 'car_heritage_dede');
+        final completed = isCompletedAlready || hasBought;
+        return MentorNarrativeQuest(
+          id: questFirstPurchase,
+          titleKey: 'quest_halil_first_purchase_title',
+          descriptionKey: 'quest_halil_first_purchase_desc',
+          loreKey: 'quest_halil_first_purchase_lore',
+          targetGoal: 1,
+          currentProgress: completed ? 1 : 0,
+          rewardMoney: 15000,
+          rewardXP: 100,
+          rewardBadge: 'badge_first_deal',
+          isCompleted: completed,
+        );
+
+      case questFirstProfitSale:
+        final bool hasProfited = game.salesHistory.any((s) => s.netProfit > 0);
+        final completed = isCompletedAlready || hasProfited;
+        return MentorNarrativeQuest(
+          id: questFirstProfitSale,
+          titleKey: 'quest_halil_first_sale_title',
+          descriptionKey: 'quest_halil_first_sale_desc',
+          loreKey: 'quest_halil_first_sale_lore',
+          targetGoal: 1,
+          currentProgress: completed ? 1 : 0,
+          rewardMoney: 25000,
+          rewardXP: 150,
+          rewardBadge: 'badge_smart_merchant',
+          isCompleted: completed,
+        );
+
+      case questReachLevelTwo:
+        final completed = isCompletedAlready || game.level >= 2;
+        return MentorNarrativeQuest(
+          id: questReachLevelTwo,
+          titleKey: 'quest_halil_level_two_title',
+          descriptionKey: 'quest_halil_level_two_desc',
+          loreKey: 'quest_halil_level_two_lore',
+          targetGoal: 2,
+          currentProgress: game.level.clamp(1, 2),
+          rewardMoney: 35000,
+          rewardXP: 200,
+          rewardBadge: 'badge_dealership_level_two',
+          isCompleted: completed,
+        );
+
       case questHeritageRestore:
         // Garajda motor ve kaporta kondisyonu >= 85 olan restore edilmiş araç var mı?
         final hasRestored = game.ownedCars.any((c) =>

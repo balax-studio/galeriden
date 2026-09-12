@@ -12,6 +12,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme_extension.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/notification_service.dart';
+import '../../../core/services/local_notification_service.dart';
 import '../../providers/game_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/dialogs/language_selector_dialog.dart';
@@ -197,6 +198,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       activeTrackColor: AppColors.brutalYellow,
                       onChanged: (_) =>
                           ref.read(settingsProvider.notifier).toggleAudio(),
+                    ),
+                  ],
+                ),
+                const Divider(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('notifications_title'),
+                          style: const TextStyle(
+                              fontSize: 13.5, fontWeight: FontWeight.w900),
+                        ),
+                        Text(
+                          context.tr('notifications_desc'),
+                          style: const TextStyle(
+                              fontSize: 11, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                    Switch(
+                      value: settings.isNotificationsEnabled,
+                      activeTrackColor: AppColors.brutalYellow,
+                      onChanged: (_) async {
+                        final willEnable = !settings.isNotificationsEnabled;
+                        await ref.read(settingsProvider.notifier).toggleNotifications();
+                        if (willEnable) {
+                          await LocalNotificationService.instance.requestPermissions();
+                        } else {
+                          await LocalNotificationService.instance.cancelAllReminders();
+                        }
+                      },
                     ),
                   ],
                 ),

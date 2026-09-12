@@ -67,8 +67,8 @@ class OfflineProgression {
     // 1. Calculate simulated days (30 offline minutes = 1 in-game day, capped at max 3 days / §3.6)
     final simulatedDays = (elapsedMinutes / 30).floor().clamp(0, 3);
 
-    // 2. Property Daily Burn calculation (honors deed ownership)
-    final double propertyDailyBurn = dealership.dailyPropertyRentBurn;
+    // 2. Property Daily Burn calculation (honors deed ownership & early-game grace immunity)
+    final double propertyDailyBurn = dealership.level <= 2 ? 0.0 : dealership.dailyPropertyRentBurn;
 
     // 3. Staff Salaries
     double totalDailySalaries = dealership.hiredStaff.fold(0.0, (sum, s) => sum + s.dailySalary);
@@ -106,11 +106,13 @@ class OfflineProgression {
         totalPassiveEarned += rental.dailyRate;
       }
 
-      // Expenses: property burn + salaries + daily tax
-      final dailyTax = LoanSettlementEngine.calculateDailyTax(
-        dealership.level,
-        totalLiquidWealth: newBalance + dealership.bankDepositBalance,
-      );
+      // Expenses: property burn + salaries + daily tax (Level 1-2 exempt from offline tax/burn)
+      final dailyTax = dealership.level <= 2
+          ? 0.0
+          : LoanSettlementEngine.calculateDailyTax(
+              dealership.level,
+              totalLiquidWealth: newBalance + dealership.bankDepositBalance,
+            );
       final dayExpense = propertyDailyBurn + totalDailySalaries + dailyTax;
       if (newBalance >= dayExpense) {
         newBalance -= dayExpense;
@@ -164,7 +166,8 @@ class OfflineProgression {
 
     // Organic offers during absence (100% efficiency)
     int repLevel = dealership.skills.reputation;
-    int minutesPerOffer = 60;
+    // Erken evre hızlandırması: Seviye 1-2 oyuncular için çevrimdışıyken 25 dakikada bir teklif birikir
+    int minutesPerOffer = dealership.level <= 2 ? 25 : 60;
     if (repLevel >= 3) minutesPerOffer = 40;
     if (repLevel >= 4) minutesPerOffer = 25;
 
@@ -177,7 +180,8 @@ class OfflineProgression {
     if (dealership.unlockedBuildings.contains('property_tier_7')) maxOffersLimit = 18;
     if (dealership.unlockedBuildings.contains('property_tier_8')) maxOffersLimit = 20;
 
-    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(1, 10);
+    final int minFloorOffers = (dealership.level <= 2 && elapsedMinutes >= 30) ? 2 : 1;
+    int potentialOffers = (elapsedMinutes / minutesPerOffer).floor().clamp(minFloorOffers, 10);
 
     var updatedOffers = List<OfferModel>.from(dealership.incomingOffers);
     int newOffersGenerated = 0;

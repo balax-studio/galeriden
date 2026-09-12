@@ -61,6 +61,7 @@ mixin GameTimeMixin on GameBaseNotifier {
   static const int inGameDayDurationSeconds = 120;
 
   Timer? _organicOfferTimer;
+  Timer? _earlyCadenceTimer;
   bool _isOrganicTimerExplicitlyStopped = false;
   DateTime _lastDayAdvanceTime = DateTime.now();
   DateTime get lastDayAdvanceTime => _lastDayAdvanceTime;
@@ -68,6 +69,7 @@ mixin GameTimeMixin on GameBaseNotifier {
   void startPeriodicOrganicOfferTimer() {
     if (_isOrganicTimerExplicitlyStopped) return;
     _organicOfferTimer?.cancel();
+    _earlyCadenceTimer?.cancel();
     _lastDayAdvanceTime = DateTime.now();
     _organicOfferTimer = Timer.periodic(
         const Duration(seconds: inGameDayDurationSeconds), (timer) {
@@ -80,10 +82,27 @@ mixin GameTimeMixin on GameBaseNotifier {
       // Organik müşteri teklifleri (Rank 3 Vitrin Dopingi: 2 kat teklif sıklığı)
       final bool hasShowcaseBoost = state.activePodiumPerks?.isActive == true &&
           state.activePodiumPerks?.hasShowcaseBoost == true;
-      final double baseChance = hasShowcaseBoost ? 0.50 : 0.25;
+      final bool isEarlyStage = state.level <= 2 || state.salesHistory.length < 5;
+      final double baseChance = hasShowcaseBoost
+          ? 0.50
+          : (isEarlyStage ? 0.60 : 0.25);
       if (state.ownedCars.isNotEmpty &&
           random.nextDouble() < (baseChance * dayFactor)) {
         triggerOrganicOffers();
+      }
+    });
+
+    // Erken oyun oturum temposu: Seviye 1-2 veya ilk 5 satış için 45 saniyede bir hızlı teklif kontrolü
+    _earlyCadenceTimer = Timer.periodic(const Duration(seconds: 45), (timer) {
+      final bool isEarlyStage = state.level <= 2 || state.salesHistory.length < 5;
+      if (isEarlyStage &&
+          state.ownedCars.any((c) => c.isListed && !c.isRented && !c.isLockedInShowcase)) {
+        final int activeOffers = state.incomingOffers
+            .where((o) => !o.isExpiredForDay(state.currentDay))
+            .length;
+        if (activeOffers < 3) {
+          triggerOrganicOffers();
+        }
       }
     });
   }
@@ -91,6 +110,7 @@ mixin GameTimeMixin on GameBaseNotifier {
   void stopPeriodicOrganicOfferTimer() {
     _isOrganicTimerExplicitlyStopped = true;
     _organicOfferTimer?.cancel();
+    _earlyCadenceTimer?.cancel();
   }
 
   void resumePeriodicOrganicOfferTimer() {

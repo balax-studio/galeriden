@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app/app.dart';
 import 'core/services/ad_service.dart';
 import 'core/services/analytics_service.dart';
+import 'core/services/local_notification_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -24,6 +25,7 @@ void main() async {
     debugPrint('[Firebase] Initialization error: $e');
   }
   await AdService.instance.initialize();
+  await LocalNotificationService.instance.initialize();
   
   ErrorWidget.builder = (FlutterErrorDetails details) {
     return Material(

@@ -14,11 +14,13 @@ class SettingsState {
   final ThemeMode themeMode;
   final String languageCode; // 'tr', 'en', 'de', 'pt', 'es', 'ru', 'ar'
   final bool isAudioEnabled;
+  final bool isNotificationsEnabled;
 
   SettingsState({
     required this.themeMode,
     required this.languageCode,
     required this.isAudioEnabled,
+    this.isNotificationsEnabled = true,
   });
 
   AppLanguage get currentLanguage => AppLanguage.fromCode(languageCode);
@@ -28,11 +30,14 @@ class SettingsState {
     ThemeMode? themeMode,
     String? languageCode,
     bool? isAudioEnabled,
+    bool? isNotificationsEnabled,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       languageCode: languageCode ?? this.languageCode,
       isAudioEnabled: isAudioEnabled ?? this.isAudioEnabled,
+      isNotificationsEnabled:
+          isNotificationsEnabled ?? this.isNotificationsEnabled,
     );
   }
 }
@@ -43,6 +48,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
           themeMode: ThemeMode.dark,
           languageCode: 'tr',
           isAudioEnabled: true,
+          isNotificationsEnabled: true,
         )) {
     _loadSettings();
   }
@@ -65,6 +71,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
     }
 
     final audio = prefs.getBool('audio_enabled') ?? true;
+    final notifications = prefs.getBool('notifications_enabled') ?? true;
 
     CurrencyFormatter.currentLanguageCode = lang;
 
@@ -72,6 +79,7 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       languageCode: lang,
       isAudioEnabled: audio,
+      isNotificationsEnabled: notifications,
     );
   }
 
@@ -97,5 +105,13 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('audio_enabled', newAudio);
+  }
+
+  Future<void> toggleNotifications() async {
+    final newNotifications = !state.isNotificationsEnabled;
+    state = state.copyWith(isNotificationsEnabled: newNotifications);
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', newNotifications);
   }
 }

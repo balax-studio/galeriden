@@ -21,6 +21,112 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Zamana Duyarlı Çoklu Bildirim Diyalog Havuzu (§SPEC-2026-09-12-TIME-SENSITIVE-NOTIFICATIONS)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Bildirimlerin monotonluğunu kırmak ve gerçek saat dilimlerine (sabah siftahı, öğle pazarı telaşı, akşam hesap kesimi) uyumlu otantik Halil Usta esnaf diyalogları sunmak.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/local_notification_service.dart`:
+    - `NotificationTimeSlot` enum'ı eklendi (`morning`: 09:00-11:59, `afternoon`: 12:00-16:59, `evening`: 17:00-21:59).
+    - `getTimeSlot(int hour)` fonksiyonuyla bildirimin ekrana düşeceği saat dilimi tespit edildi.
+    - `resolveShowroomCopy` ve `resolveDailyCopy` metotları her zaman dilimi için çoklu varyantlı (sabah 3 varyant, öğle 3 varyant, akşam 3 varyant) zengin diyalog havuzuna genişletildi.
+    - Vitrin teklifleri ve günlük esnaf destek bildirimleri 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) sıfır emoji ve sıfır parantez kuralına uygun olarak esnaf kültürüne göre yerelleştirildi (105 farklı şablon varyantı).
+    - Gün ve araç adına bağlı deterministik tohumlama (`(now.day + carTitle.hashCode) % 3`) ile art arda aynı bildirimin gelmesi engellendi.
+  - `test/notification_quiet_hours_test.dart`:
+    - `Time-Sensitive Notification Dialogue Pool Tests` test grubu eklendi: saat dilimi tespiti, sabah/öğle/akşam loru doğrulaması ve tüm 7 dilde sıfır emoji ve sıfır parantez invariant kontrolü yapıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Çözümleyici içinde tekil bir return ifadesinde noktalı virgül eksikliği statik analiz hatası verdi.
+- **Kök Neden**:
+  - Şablon bloğu birleşimindeki küçük sözdizimi atlaması.
+- **Uygulanan Çözüm**:
+  - Noktalı virgül eklendi ve statik analiz hatası giderildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/core/services/local_notification_service.dart test/notification_quiet_hours_test.dart`: 0 hata, 0 uyarı.
+  - `flutter test test/retention_recovery_roadmap_test.dart test/notification_quiet_hours_test.dart`: 11/11 test başarıyla geçti.
+
+### `Yerel Bildirim Sertleştirmesi, Gece Koruyucusu ve Etik İzin Mimarisi (§SPEC-2026-09-12-NOTIFICATION-HARDENING)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyuncu tutundurma bildirimlerinin teknik (Android 13+ izinleri, yeniden başlatma koruması), zamansal (22:00 - 09:00 sessiz saat koruması) ve etik (dark pattern denetimi, kullanıcı otonomisi, Halil Usta bağlamsal ön izin diyalogu) boyutlarıyla sertleştirilmesi.
+- **Yapılan Değişiklikler**:
+  - `android/app/src/main/AndroidManifest.xml`:
+    - Android 13 (API 33+) için zorunlu `android.permission.POST_NOTIFICATIONS`, cihaz açılışında bildirimlerin korunması için `android.permission.RECEIVE_BOOT_COMPLETED` ve dokunsal titreşim için `android.permission.VIBRATE` izinleri eklendi.
+  - `lib/core/services/local_notification_service.dart`:
+    - `calculateSafeScheduledTime(DateTime now, Duration delay)` metodu yazıldı: Gece 22:00 ile sabah 09:00 arasına denk gelen tüm bildirimler uykuyu bölmemek için otomatik olarak sabah 09:30'a ötelendi.
+    - Vitrin teklif metinlerine dinamik araç adı entegre edildi (`$carTitle için hevesli bir alıcı geldi • Teklif masada bekliyor!`).
+    - Bildirime dokunulduğunda doğrudan ilgili bölüme götüren `payloadStream` mimarisi kuruldu (`route_showroom`, `route_daily_login`).
+    - Ayarlardan kapatıldığında tüm zamanlanmış bildirimleri sıfırlayan `cancelAllReminders` fonksiyonu eklendi.
+  - `lib/presentation/providers/settings_provider.dart`:
+    - `SettingsState` ve `SettingsNotifier` içine `isNotificationsEnabled` durumu ve `toggleNotifications()` fonksiyonu eklendi; SharedPreferences ile kalıcı hale getirildi.
+  - `lib/presentation/screens/settings/settings_screen.dart`:
+    - Ayarlar ekranına Neo-Brutalist dokunsal bildirim açma kapama anahtarı eklendi. Kapatıldığında tüm bekleyen bildirimleri anında iptal eden, açıldığında ise kibarca izin isteyen çift taraflı yaşam döngüsü bağlandı.
+  - `lib/presentation/widgets/dialogs/notification_primer_dialog.dart`:
+    - Halil Usta bağlamsal ön izin diyalogu (Pre-Permission Primer) yazıldı: Vitrine ilk araba konulduğunda oyuncuya dükkan loruyla ("Evlat, vitrindeki arabana müşteri geldiğinde dükkandan haber uçurayım mı?") kibarca soruldu.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - Pano açılışında vitrinde ilanı olan araç varsa `NotificationPrimerDialog.checkAndShow` çağrısı tetiklendi.
+  - `lib/app/app.dart`:
+    - Yalnızca gerçek arka plan duraklamasında (`AppLifecycleState.paused`) çalışacak şekilde yaşam döngüsü filtresi sadeleştirildi (`inactive` durumu elendi).
+    - `settings.isNotificationsEnabled` kapalıysa zamanlayıcıların tetiklenmesi engellendi ve mevcut bildirimler temizlendi.
+    - Bildirime tıklandığında ilgili ekrana yönlendirme yapan `payloadStream` dinleyicisi kuruldu.
+  - `lib/core/localization/translations/*.dart`:
+    - Bildirim başlığı, açıklaması ve Halil Usta ön izin metinleri 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) sıfır emoji ve sıfır parantez kurallarına uygun olarak senkronize edildi.
+  - `test/notification_quiet_hours_test.dart`:
+    - Sessiz saat koruması (gece 22:30, gece 21:00, sabah 06:00, gündüz 14:00 ve 24 saatlik döngü) birim testleri yazılarak doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `settings_screen.dart` dosyasında toast bildirimi için kullanılan `NotificationService` ile yerel bildirimler için kullanılan `LocalNotificationService` isim benzerliğinden ötürü çakışma yaşandı.
+  - `notification_primer_dialog.dart` içinde `NeoBrutalButton` parametrelerinde `label` yerine `text` ve `minHeight` yerine `height` kullanılması statik analiz uyarısı verdi.
+- **Kök Neden**:
+  - Farklı servislerin benzer isimlendirmeleri ve `NeoBrutalButton` API kontratı.
+- **Uygulanan Çözüm**:
+  - Her iki import `settings_screen.dart` dosyasına eklendi. `NeoBrutalButton` parametreleri `label` ve `minHeight` olarak düzeltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` çalıştırıldı: 0 hata, 0 uyarı.
+  - `flutter test test/notification_quiet_hours_test.dart test/retention_recovery_roadmap_test.dart` çalıştırıldı: 8/8 test başarıyla geçti.
+
+### `Erken Dönem Oyuncu Tutundurma (Retention Recovery) Yol Haritası (§SPEC-2026-09-12-RETENTION-RECOVERY-ROADMAP)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - D1 (%15.7), D7 (%1.5), D14 (%0.4) seviyesine düşen oyuncu tutundurma oranını toparlamak amacıyla 5 aşamalı aksiyon planının eksiksiz uygulanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `updateCarListingDetails` metoduna erken evre mekaniği eklendi: Toplam satış sayısı 3'ün altındaysa (`salesHistory.length < 3`) ve bekleyen teklif yoksa, ilana çıkıldıktan sonra 8 ila 15 saniye içinde kârlı bir garanti alıcı teklifi (`OfferModel`) oluşturularak oyuncunun bekleme süresi ortadan kaldırıldı.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - Seviye 1 ve 2 için 45 saniyede bir çalışan özel erken organik teklif döngüsü (`_earlyCadenceTimer`) eklendi. Teklif gelme ihtimali %25'ten %60'a yükseltildi.
+    - `stopPeriodicOrganicOfferTimer` metodu widget testlerinde zamanlayıcı sızıntısını önlemek için hem genel hem erken döngüyü sıfırlayacak şekilde güncellendi (İnvaryant Kural 6).
+  - `lib/domain/usecases/offline_progression.dart`:
+    - Seviye 1 ve 2 oyuncuları için çevrimdışı kira ve vergi kesintisi (`propertyDailyBurn` ve `dailyTax`) sıfırlandı; yeni oyuncuların oyuna döndüklerinde kasa bakiyelerinin erimesi engellendi.
+    - Çevrimdışı kalınan ilk 2 saat içinde (en az 30 dk çevrimdışı kalındığında) vitrinde ilanı olan araçlar için taban en az 2 cazip teklif garanti edildi (`minFloorOffers = 2`).
+  - `lib/domain/usecases/mentor_quest_engine.dart`:
+    - Seviye 3 atölye restorasyonu öncesine Seviye 1-2 için 3 yeni erişilebilir görev eklendi: `questFirstPurchase` (Pazardan İlk Aracı Al), `questFirstProfitSale` (İlk Kârlı Satışını Yap), `questReachLevelTwo` (Galeri Seviye 2'ye Ulaş).
+    - `onCarPurchased` ve `checkAndPersistRestorationProgress` metotları bu görevlerin ilerlemesini ve tamamlanmasını otomatik takip edecek şekilde güncellendi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - Halil Usta kartına görev türüne göre doğrudan ilgili ekrana yönlendiren hızlı aksiyon butonu eklendi (`_buildQuestQuickAction`).
+    - Neo-Brutalist tasarım kurallarına uygun olarak 2.5px siyah kenarlık, 0-blur gölge ve dokunsal basma efekti uygulandı. Sıfır emoji ve sıfır parantez kuralları korundu.
+  - `pubspec.yaml`:
+    - `flutter_local_notifications: ^17.2.3` bağımlılığı eklendi.
+  - `lib/core/services/local_notification_service.dart`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) çevrimdışı yerel bildirim servisi yazıldı.
+    - 90. dakikada vitrin hatırlatıcı bildirimi (`notification_early_showroom_reminder_title` / `body`) ve 24. saatte günlük esnaf desteği bildirimi (`notification_daily_support_title` / `body`) planlama fonksiyonları eklendi.
+  - `lib/main.dart`:
+    - Uygulama başlangıcında `LocalNotificationService.instance.initialize()` çağrısı başlatıldı.
+  - `lib/app/app.dart`:
+    - Uygulama arka plana geçtiğinde (`AppLifecycleState.paused` / `inactive`) yerel bildirimlerin planlanması, ön plana döndüğünde (`resumed`) bildirimlerin iptal edilmesi sağlandı.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - Oyuncu panosu açıldığında günlük ödül hakkı varsa (`canClaimDaily`), `DailyLoginSheet` otomatik olarak açılarak kutlama ve geri dönüş alışkanlığı tetiklendi.
+  - `lib/core/localization/translations/*.dart`:
+    - 12 yeni yerelleştirme anahtarı (`quest_halil_first_purchase_*`, `quest_halil_first_sale_*`, `quest_halil_level_two_*`, `quest_action_*`, `notification_*`) 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) sıfır emoji ve sıfır parantez kuralına uygun olarak eklendi.
+  - `test/retention_recovery_roadmap_test.dart`:
+    - Aşama 2 (sıfır çevrimdışı masraf, en az 2 teklif birikmesi) ve Aşama 3 (Halil Usta görev zinciri ilerlemesi) kapsamlı birim testleri yazılarak doğrulandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `SaleRecordModel` sınıfında `profit` ve `carId` yerine `netProfit` alanının bulunması ve `ExpertiseReport.clean()` kurucusunun olmaması derleme uyarısı verdi.
+  - `MentorQuestEngine.getActiveQuest` metodunun `tutorialCompleted == false` durumunda `null` dönmesi birim testinde tespit edildi.
+- **Kök Neden**:
+  - Model alan adları farkı ve test senaryosunda `tutorialCompleted` bayrağının başlatılmaması.
+- **Uygulanan Çözüm**:
+  - `mentor_quest_engine.dart` içinde `s.netProfit > 0` kontrolüne geçildi. Testte `ExpertiseReport` kurucusu ve `tutorialCompleted: true` güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/retention_recovery_roadmap_test.dart` çalıştırıldı: 3/3 test başarıyla geçti.
+
 ### `docs/superpowers/specs/2026-09-12-early-game-rewarded-ads-research.md`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

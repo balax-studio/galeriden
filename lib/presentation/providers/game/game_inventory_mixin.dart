@@ -1274,7 +1274,6 @@ mixin GameInventoryMixin on GameBaseNotifier {
       if (listingPhotoLocation == 'scenic') photoCost += 800.0;
     }
 
-    final wasListedBefore = existing.isListed;
     final updatedCar = existing.copyWith(
       customListingPrice: customPrice,
       declarationType: declaration ?? existing.declarationType,
@@ -1289,19 +1288,30 @@ mixin GameInventoryMixin on GameBaseNotifier {
     updatedCars[carIndex] = updatedCar;
 
     var newIncomingOffers = List<OfferModel>.from(state.incomingOffers);
-    // If during tutorial or first ever sale the player lists their car, generate an instant profitable buyer offer!
-    if ((!state.tutorialCompleted || state.salesHistory.isEmpty) && !wasListedBefore && updatedCar.isListed) {
+    final bool hasActiveOffer = newIncomingOffers.any(
+      (o) => o.carId == updatedCar.id && !o.isExpiredForDay(state.currentDay),
+    );
+    // Erken oyun oturum temposu: İlk 3 satışta araç ilana koyulduğunda anında kârlı alıcı teklifi oluştur
+    if (state.salesHistory.length < 3 && updatedCar.isListed && !hasActiveOffer) {
+      final double targetPrice = updatedCar.listingPrice > 0
+          ? updatedCar.listingPrice
+          : (updatedCar.currentPurchasePrice * 1.14).clamp(
+              updatedCar.currentPurchasePrice + 5000.0,
+              updatedCar.currentPurchasePrice + 250000.0,
+            );
       final instantOffer = NegotiationEngine.generateBuyerOffer(
         updatedCar,
-        (updatedCar.currentPurchasePrice * 1.14).clamp(
-          updatedCar.currentPurchasePrice + 5000.0,
-          updatedCar.currentPurchasePrice + 250000.0,
-        ),
+        targetPrice,
         isFinanceUnlocked: false,
         branchMultiplier: state.branchProfitMultiplier,
         currentDay: state.currentDay,
       );
       newIncomingOffers.add(instantOffer);
+      AnalyticsService.instance.logOfferReceived(
+        carId: updatedCar.id,
+        offerAmount: instantOffer.offeredAmount,
+        isFirstSale: state.salesHistory.isEmpty,
+      );
     }
 
     state = state.copyWith(
