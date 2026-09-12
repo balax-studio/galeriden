@@ -9,8 +9,11 @@ import '../core/services/local_notification_service.dart';
 import '../data/models/car_model.dart';
 import '../presentation/providers/game_provider.dart';
 import '../presentation/providers/market_provider.dart';
+import '../presentation/providers/outsourced_tuning_provider.dart';
+import '../presentation/providers/real_estate_market_provider.dart';
 import '../presentation/providers/settings_provider.dart';
 import '../presentation/providers/theme_provider.dart';
+import '../presentation/providers/vasita_market_provider.dart';
 import '../presentation/widgets/neo_brutal_touch_feedback_overlay.dart';
 import 'router.dart';
 
@@ -68,6 +71,9 @@ class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBinding
     if (state == AppLifecycleState.paused) {
       ref.read(gameProvider.notifier).onAppPaused();
       ref.read(marketProvider.notifier).onAppPaused();
+      ref.read(vasitaMarketProvider.notifier).onAppPaused();
+      ref.read(realEstateMarketProvider.notifier).onAppPaused();
+      ref.read(outsourcedTuningProvider.notifier).onAppPaused();
 
       final game = ref.read(gameProvider);
       final settings = ref.read(settingsProvider);
@@ -94,6 +100,9 @@ class _GaleridenAppState extends ConsumerState<GaleridenApp> with WidgetsBinding
     } else if (state == AppLifecycleState.resumed) {
       ref.read(gameProvider.notifier).onAppResumed();
       ref.read(marketProvider.notifier).onAppResumed();
+      ref.read(vasitaMarketProvider.notifier).onAppResumed();
+      ref.read(realEstateMarketProvider.notifier).onAppResumed();
+      ref.read(outsourcedTuningProvider.notifier).onAppResumed();
       LocalNotificationService.instance.cancelShowroomOfferReminder();
     }
   }

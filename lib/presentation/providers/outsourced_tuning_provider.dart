@@ -56,8 +56,16 @@ class OutsourcedTuningNotifier extends StateNotifier<OutsourcedTuningState> {
 
   void _startTicker() {
     _tickerTimer?.cancel();
+    _tickerTimer = null;
+    if (!state.activeOrders.any((o) => o.status == TuningOrderStatus.inProgress)) {
+      return;
+    }
     _tickerTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.activeOrders.isEmpty) return;
+      if (!state.activeOrders.any((o) => o.status == TuningOrderStatus.inProgress)) {
+        timer.cancel();
+        _tickerTimer = null;
+        return;
+      }
 
       bool hasStatusChange = false;
       final updatedOrders = state.activeOrders.map((order) {
@@ -71,13 +79,29 @@ class OutsourcedTuningNotifier extends StateNotifier<OutsourcedTuningState> {
       state = state.copyWith(activeOrders: updatedOrders);
       if (hasStatusChange) {
         _saveToPrefs();
+        if (!updatedOrders.any((o) => o.status == TuningOrderStatus.inProgress)) {
+          timer.cancel();
+          _tickerTimer = null;
+        }
       }
     });
+  }
+
+  /// Pauses periodic timer when app is paused
+  void onAppPaused() {
+    _tickerTimer?.cancel();
+    _tickerTimer = null;
+  }
+
+  /// Resumes periodic timer when app is foregrounded
+  void onAppResumed() {
+    _startTicker();
   }
 
   @override
   void dispose() {
     _tickerTimer?.cancel();
+    _tickerTimer = null;
     super.dispose();
   }
 
@@ -93,6 +117,7 @@ class OutsourcedTuningNotifier extends StateNotifier<OutsourcedTuningState> {
             .toList();
 
         state = state.copyWith(activeOrders: orders);
+        _startTicker();
       }
     } catch (_) {
       // Graceful fallback on corrupt prefs
@@ -147,6 +172,7 @@ class OutsourcedTuningNotifier extends StateNotifier<OutsourcedTuningState> {
     // Append order to state
     final updatedOrders = List<TuningOrder>.from(state.activeOrders)..add(order);
     state = state.copyWith(activeOrders: updatedOrders);
+    _startTicker();
     _saveToPrefs();
 
     return order;

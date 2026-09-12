@@ -171,6 +171,16 @@ class VasitaMarketNotifier extends StateNotifier<List<ListingModel>> {
     state = state.where((l) => l.id != listingId).toList();
   }
 
+  /// Cancels auto refresh timer when app goes to background
+  void onAppPaused() {
+    _autoRefreshTimer?.cancel();
+  }
+
+  /// Restarts auto refresh timer when app returns to foreground
+  void onAppResumed() {
+    _startAutoRefreshTimer();
+  }
+
   @override
   void dispose() {
     _autoRefreshTimer?.cancel();

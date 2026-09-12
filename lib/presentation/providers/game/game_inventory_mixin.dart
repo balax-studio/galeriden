@@ -525,6 +525,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
     final int newCarsSold = state.carsSold + 1;
     final double profitToAdd = profit > 0 ? profit : 0.0;
+    final updatedSalesHistory = [record, ...state.salesHistory];
     state = state.copyWith(
       balance: state.balance + netCashReceived,
       ownedCars: updatedCars,
@@ -534,7 +535,9 @@ mixin GameInventoryMixin on GameBaseNotifier {
       carsSold: newCarsSold,
       weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
       weeklyCarsSold: state.weeklyCarsSold + 1,
-      salesHistory: [record, ...state.salesHistory],
+      salesHistory: updatedSalesHistory.length > 150
+          ? updatedSalesHistory.sublist(0, 150)
+          : updatedSalesHistory,
     );
 
     final int saleXp = 100 +

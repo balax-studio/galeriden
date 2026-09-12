@@ -1058,6 +1058,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     final double profitToAdd = finalProfit > 0 ? finalProfit : 0.0;
     final bool isFirstSaleEver = state.salesHistory.isEmpty;
 
+    final updatedSalesHistory = [record, ...state.salesHistory];
     state = state.copyWith(
       balance: state.balance + finalCashReceived,
       ownedCars: updatedCars,
@@ -1070,9 +1071,13 @@ mixin GameMarketMixin on GameBaseNotifier {
       carsSold: newCarsSold,
       weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
       weeklyCarsSold: state.weeklyCarsSold + 1,
-      salesHistory: [record, ...state.salesHistory],
+      salesHistory: updatedSalesHistory.length > 150
+          ? updatedSalesHistory.sublist(0, 150)
+          : updatedSalesHistory,
       loyalCustomerNames: updatedLoyals,
-      customerReviews: updatedReviews,
+      customerReviews: updatedReviews.length > 50
+          ? updatedReviews.sublist(0, 50)
+          : updatedReviews,
       reputationScore: newReputation,
     );
 
@@ -1671,8 +1676,11 @@ mixin GameMarketMixin on GameBaseNotifier {
     final newReputation =
         (state.reputationScore + (review.rating >= 4.0 ? 5 : -10))
             .clamp(0, 1000);
+    final updatedReviews = [review, ...state.customerReviews];
     state = state.copyWith(
-      customerReviews: [review, ...state.customerReviews],
+      customerReviews: updatedReviews.length > 50
+          ? updatedReviews.sublist(0, 50)
+          : updatedReviews,
       reputationScore: newReputation,
     );
     saveState();
@@ -1910,9 +1918,12 @@ mixin GameMarketMixin on GameBaseNotifier {
       createdAt: DateTime.now(),
     );
 
+    final updatedReviews = [botReview, ...state.customerReviews];
     state = state.copyWith(
       balance: state.balance - botCost,
-      customerReviews: [botReview, ...state.customerReviews],
+      customerReviews: updatedReviews.length > 50
+          ? updatedReviews.sublist(0, 50)
+          : updatedReviews,
       reputationScore: (state.reputationScore + reputationGain).clamp(0, 1000),
     );
     saveState();

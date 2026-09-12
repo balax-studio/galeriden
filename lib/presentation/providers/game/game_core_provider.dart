@@ -72,7 +72,7 @@ class GameCoreNotifier extends GameBaseNotifier
 
   /// Resumes background periodic timers when app is resumed
   void onAppResumed() {
-    startPeriodicOrganicOfferTimer();
+    resumePeriodicOrganicOfferTimer();
   }
 
   static const String _storageKey = 'dealership_state_v2';

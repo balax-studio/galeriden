@@ -21,6 +21,43 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Sistemik Bellek Sızıntısı, Hayalet Zamanlayıcı ve Yaşam Döngüsü Denetimi (§SPEC-2026-09-12-MEMORY-LEAK-AND-LIFECYCLE-AUDIT)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Projedeki 424 Dart dosyasında bellek sızıntısı (memory leak), askıda kalan hayalet zamanlayıcılar (ghost timers), arka plan pil tüketimi ve Flutter yaşam döngüsü (`setState during build`) risklerinin taranarak kök nedenleriyle cerrahi olarak giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/providers/game/game_core_provider.dart`:
+    - `onAppResumed`: Uygulama arka plandan ön plana döndüğünde `startPeriodicOrganicOfferTimer()` yerine `resumePeriodicOrganicOfferTimer()` çağrıldı. Böylece `onAppPaused` sırasında `true` yapılan `_isOrganicTimerExplicitlyStopped` bayrağı sıfırlandı ve oyun günü / teklif zamanlayıcısının kalıcı olarak durması engellendi.
+  - `lib/presentation/providers/outsourced_tuning_provider.dart`:
+    - `_startTicker`: İşlemde olan sipariş bulunmadığında (`TuningOrderStatus.inProgress` yokken) her saniye periyodik çalışan zamanlayıcı durduruldu. Sadece aktif sipariş varken çalışması ve tüm siparişler bittiğinde zamanlayıcının kapanması sağlandı. `onAppPaused()` ve `onAppResumed()` entegrasyonu eklendi.
+  - `lib/presentation/providers/vasita_market_provider.dart`:
+    - `onAppPaused` ve `onAppResumed` metotları eklenerek 4 dakikalık periyodik piyasa yenileme zamanlayıcısının uygulama arka plandayken gereksiz yere veri üretmesi engellendi.
+  - `lib/presentation/providers/real_estate_market_provider.dart`:
+    - `onAppPaused` ve `onAppResumed` metotları eklenerek 5 dakikalık gayrimenkul piyasa zamanlayıcısı yaşam döngüsüne bağlandı.
+  - `lib/app/app.dart`:
+    - `didChangeAppLifecycleState`: `vasitaMarketProvider`, `realEstateMarketProvider` ve `outsourcedTuningProvider` yaşam döngüsü olaylarına (`paused` / `resumed`) bağlandı.
+  - `lib/presentation/widgets/ads/neo_brutal_native_ad_card.dart`:
+    - `build` metodu içinde senkron olarak çağrılan `_evaluateAdLoading`, `WidgetsBinding.instance.addPostFrameCallback` içine alındı. Böylece `build` sırasında doğrudan `setState()` tetiklenerek arayüz çökmesi veya uyarı verilmesi riski bertaraf edildi.
+  - `lib/presentation/providers/game/game_inventory_mixin.dart` & `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `salesHistory` listesi en güncel 150 kayıtla sınırlandırılarak uzun oyun oturumlarında sınırsız büyümesi ve yığın bellek (heap) şişmesi önlendi.
+    - `customerReviews` listesi en güncel 50 kayıtla sınırlandırılarak durum serileştirme yükü dengelendi.
+  - `test/lifecycle_and_memory_leak_audit_test.dart`:
+    - [YENİ]: Yaşam döngüsü duraklatma/devam etme, zamanlayıcı temizliği ve liste sınırlarını doğrulayan 5 adet regresyon testi yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - 1. Kritik Saat Donması Hatası: Oyuncu uygulamayı simge durumuna küçültüp geri açtığında oyun saati ve vitrin teklifleri oturum boyunca kalıcı olarak duruyordu.
+  - 2. Hayalet İş Parçacığı / Pil Tüketimi: Sanayi modifiyesinde hiçbir sipariş yokken dahi 1 saniyelik `Timer.periodic` durmaksızın CPU'yu uyandırıyordu.
+  - 3. Arka Planda Çalışan Piyasa Zamanlayıcıları: Vasıta ve emlak piyasası arka planda aktif listeleme üretmeye devam ediyordu.
+  - 4. `setState during build` Riski: `NeoBrutalNativeAdCard` render esnasında senkron değerlendirme yaparak doğrudan durum güncellemeye yeltenebiliyordu.
+  - 5. Sınırsız Liste Büyümesi: Yüzlerce araç satışında `salesHistory` ve `customerReviews` sınırsız büyüyerek belleğe ve SharedPreferences/Hive serileştirmesine aşırı yük bindiriyordu.
+- **Kök Neden**:
+  - `onAppPaused` içindeki test hijyen bayrağının (`_isOrganicTimerExplicitlyStopped`) `onAppResumed` sırasında sıfırlanmaması, zamanlayıcıların sipariş durumu ve uygulama yaşam döngüsüyle reaktif bağlanmaması, kart yükleme kontrolünün çizim fazı sonrasına ertelenmemesi ve model koleksiyonlarında maksimum sınır bulunmaması.
+- **Uygulanan Çözüm**:
+  - Yaşam döngüsü senkronizasyonu tamamlandı, post frame callback ile render güvenliği sağlandı, zamanlayıcılar reaktif hale getirildi ve koleksiyonlar sınırlandırıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/lifecycle_and_memory_leak_audit_test.dart`: 5/5 test başarıyla geçti.
+  - Tüm regresyon testleri: 26/26 test başarıyla geçti.
+
 ### `Softlock ve Exploit Kapsamlı Güvenlik Denetimi & Düzeltmeleri (§SPEC-2026-09-12-SOFTLOCK-EXPLOIT-AUDIT)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

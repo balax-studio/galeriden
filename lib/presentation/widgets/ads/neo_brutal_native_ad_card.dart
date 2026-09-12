@@ -652,10 +652,14 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
         final cachedAd = AdService.instance.consumePreloadedNativeAd();
         if (cachedAd != null) {
           _cancelDebounce();
-          _nativeAd = cachedAd;
-          _isAdLoaded = true;
-          _isAdLoading = false;
-          updateKeepAlive();
+          if (mounted) {
+            setState(() {
+              _nativeAd = cachedAd;
+              _isAdLoaded = true;
+              _isAdLoading = false;
+            });
+            updateKeepAlive();
+          }
           return;
         }
       }
@@ -732,7 +736,11 @@ class _NeoBrutalNativeAdCardState extends ConsumerState<NeoBrutalNativeAdCard>
     final shouldShow =
         AdService.shouldShowNativeAdForDay(currentDay, widget.contextType);
 
-    _evaluateAdLoading(currentDay);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _evaluateAdLoading(currentDay);
+      }
+    });
 
     if (!shouldShow) {
       return const SizedBox.shrink();
