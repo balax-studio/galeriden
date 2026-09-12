@@ -22,8 +22,26 @@ class DramaticResolutionResult {
 }
 
 class DramaticCardEngine {
-  /// Generates the daily dilemma card for the specified calendar day • Day 1 to 365+
+  /// Generates the contextual dilemma card based on player state and context
   static DramaticCardModel generateDailyDilemma(int day, DealershipModel state, {Random? randomInstance}) {
+    return ContextualDilemmaPool.selectContextualCard(
+      state,
+      seenIds: state.seenDramaticCardIds,
+    ).copyWith(dayNumber: day);
+  }
+
+  /// Generates a dilemma card ONLY when a genuine critical condition or trigger occurs in the dealership.
+  /// Returns null if operations are normal and no intervention is required.
+  static DramaticCardModel? selectCriticalDilemma(int day, DealershipModel state, {Random? randomInstance}) {
+    final card = ContextualDilemmaPool.selectCriticalCard(
+      state,
+      seenIds: state.seenDramaticCardIds,
+    );
+    return card?.copyWith(dayNumber: day);
+  }
+
+  /// Generates the catalog daily life card for the specified calendar day • Day 1 to 365+
+  static DramaticCardModel generateCalendarDilemma(int day) {
     final dayIndex = ((day - 1) % 365) + 1;
     final cardDef = DailyLifeCardsData.getCardForDay(dayIndex);
     return cardDef.toCard(day);

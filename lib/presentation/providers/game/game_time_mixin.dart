@@ -1767,11 +1767,17 @@ mixin GameTimeMixin on GameBaseNotifier {
   (int, int, DramaticCardModel?) _processDramaticDecision(
       int nextDay, int daysSince, int targetDays, DramaticCardModel? pendingCard) {
     int updatedDays = daysSince + 1;
-    if (pendingCard == null) {
-      pendingCard = DramaticCardEngine.generateDailyDilemma(nextDay, state,
-          randomInstance: random);
+    // Strictly critical triggering: only trigger when a genuine critical situation or bottleneck occurs
+    final criticalCard = DramaticCardEngine.selectCriticalDilemma(
+      nextDay,
+      state,
+      randomInstance: random,
+    );
+    if (criticalCard != null) {
+      pendingCard = criticalCard;
       updatedDays = 0;
-      targetDays = 1;
+    } else if (pendingCard != null && pendingCard.id.startsWith('milestone_')) {
+      pendingCard = null;
     }
     return (updatedDays, targetDays, pendingCard);
   }
@@ -2253,7 +2259,16 @@ mixin GameTimeMixin on GameBaseNotifier {
 
   /// Dismisses a pending dramatic card without making a choice
   void dismissPendingDramaticCard() {
-    state = state.copyWith(clearPendingDramaticCard: true);
+    final cardId = state.pendingDramaticCard?.id;
+    final seen = List<String>.from(state.seenDramaticCardIds);
+    if (cardId != null && !seen.contains(cardId)) {
+      seen.add(cardId);
+    }
+    state = state.copyWith(
+      clearPendingDramaticCard: true,
+      seenDramaticCardIds: seen,
+    );
+    saveState();
   }
 
   List<ScrapyardCar> _generateRandomScrapyardCars(int day) {

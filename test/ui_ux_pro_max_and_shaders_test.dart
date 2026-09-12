@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:galeriden/core/localization/app_localizations.dart';
 import 'package:galeriden/core/theme/app_colors.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_empty_state.dart';
+import 'package:galeriden/presentation/widgets/pixel_mentor_avatar.dart';
 import 'package:galeriden/presentation/widgets/procedural_shader_textures.dart';
 
 void main() {
@@ -186,4 +187,45 @@ void main() {
       expect(actionPressed, isTrue);
     });
   });
+
+  group('PixelMentorAvatar Mood Expressions & CRT Glitch Tests', () {
+    for (final mood in MentorMood.values) {
+      testWidgets('PixelMentorAvatar renders mood ${mood.name} cleanly without errors', (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: PixelMentorAvatar(
+                  size: 64,
+                  mood: mood,
+                  isGlitching: false,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(PixelMentorAvatar), findsOneWidget);
+      });
+    }
+
+    testWidgets('PixelMentorAvatar renders with CRT glitch scanlines and chromatic aberration', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: PixelMentorAvatar(
+                size: 80,
+                mood: MentorMood.worried,
+                isGlitching: true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(PixelMentorAvatar), findsOneWidget);
+    });
+  });
 }
+

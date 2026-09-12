@@ -389,12 +389,14 @@ class _NegotiationScreenState extends ConsumerState<NegotiationScreen> {
           ),
           onComplete: () async {
             if (!mounted) return;
-            await QuickListingBottomSheet.show(
+            final listed = await QuickListingBottomSheet.show(
               context,
               car: currentListing.car.copyWith(currentPurchasePrice: finalPayPrice),
             );
             if (!mounted) return;
-            if (context.canPop()) {
+            if (listed == true) {
+              context.go('/showroom');
+            } else if (context.canPop()) {
               context.pop();
             } else {
               context.go('/marketplace');

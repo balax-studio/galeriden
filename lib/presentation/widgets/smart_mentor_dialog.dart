@@ -49,7 +49,14 @@ class SmartMentorDialog extends ConsumerWidget {
     final p = themeExt.palette;
     final isDark = p.isDark;
 
-    final quoteRaw = context.tr(advice.quoteKey);
+    var quoteRaw = context.tr(advice.quoteKey);
+    if (quoteRaw == advice.quoteKey) {
+      final baseKey = advice.quoteKey.replaceAll(RegExp(r'_v\d$'), '');
+      final fallback = context.tr(baseKey);
+      if (fallback.isNotEmpty && fallback != baseKey) {
+        quoteRaw = fallback;
+      }
+    }
     final quoteText = _formatText(quoteRaw, advice.params);
 
     final tacticalRaw = context.tr(advice.tacticalKey);
@@ -154,6 +161,8 @@ class SmartMentorDialog extends ConsumerWidget {
                           ? const Color(0xFF333B4F)
                           : const Color(0xFF0F172A),
                       animated: animatedAvatar,
+                      mood: advice.mood,
+                      isGlitching: advice.isCriticalModal,
                     ),
                   ],
                 ),
@@ -307,6 +316,7 @@ class SmartMentorDialog extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 13),
                   onPressed: () {
                     HapticFeedback.mediumImpact();
+                    ref.read(gameProvider.notifier).recordMentorAdvice(advice);
                     ref
                         .read(gameProvider.notifier)
                         .markFeatureSeen(advice.targetRoute);
@@ -329,6 +339,7 @@ class SmartMentorDialog extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   onPressed: () {
                     HapticFeedback.lightImpact();
+                    ref.read(gameProvider.notifier).recordMentorAdvice(advice);
                     if (advice.type == SmartMentorAdviceType.featureUnlocked) {
                       ref
                           .read(gameProvider.notifier)

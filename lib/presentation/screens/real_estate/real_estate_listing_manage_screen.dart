@@ -206,6 +206,26 @@ class _RealEstateListingManageScreenState
       return;
     }
 
+    final fairValue = prop.estimatedRealValue;
+    final maxAllowedPrice = fairValue * 1.50;
+    final minAllowedPrice = fairValue * 0.40;
+
+    if (_customPrice > maxAllowedPrice) {
+      NotificationService.showWarning(
+        context,
+        context.tr('real_estate_price_exceeds_ceiling'),
+      );
+      return;
+    }
+
+    if (_customPrice < minAllowedPrice) {
+      NotificationService.showWarning(
+        context,
+        context.tr('real_estate_price_below_floor'),
+      );
+      return;
+    }
+
     final ok = ref.read(gameProvider.notifier).listRealEstateForSale(
           prop.id,
           _customPrice,

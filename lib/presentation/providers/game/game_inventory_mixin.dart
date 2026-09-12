@@ -23,6 +23,7 @@ import '../../../data/models/game_event_model.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/services/ad_reward_calculator.dart';
 import '../../../data/models/offer_model.dart';
+import '../../../domain/usecases/mentor_quest_engine.dart';
 import '../../../domain/usecases/negotiation_engine.dart';
 import '../../../domain/usecases/night_market_engine.dart';
 import '../../../domain/usecases/repair_engine.dart';
@@ -170,6 +171,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     checkAchievement('first_buy');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarBuy);
     updateMissionProgress(MissionType.buyCars, 1);
+    state = MentorQuestEngine.onCarPurchased(state, purchasedCar, finalPurchasePrice);
+    state = MentorQuestEngine.checkAndPersistRestorationProgress(state);
     saveState();
     return outcome;
   }
@@ -257,6 +260,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     checkAchievement('first_buy');
     checkAndAwardFirstTimeAction(FirstTimeActionKeys.firstCarBuy);
     updateMissionProgress(MissionType.buyCars, 1);
+    state = MentorQuestEngine.onCarPurchased(state, purchasedCar, agreedPrice);
+    state = MentorQuestEngine.checkAndPersistRestorationProgress(state);
     saveState();
     return outcome;
   }
@@ -568,6 +573,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     addXP(30);
     checkAchievement('first_buy');
     updateMissionProgress(MissionType.buyCars, 1);
+    state = MentorQuestEngine.onCarPurchased(state, finalCar, price);
+    state = MentorQuestEngine.checkAndPersistRestorationProgress(state);
     saveState();
     return true;
   }
@@ -798,6 +805,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
         updatedCar.isDetailedCleaned) {
       checkAchievement('restoration_king');
     }
+    state = MentorQuestEngine.checkAndPersistRestorationProgress(state);
     saveState();
   }
 

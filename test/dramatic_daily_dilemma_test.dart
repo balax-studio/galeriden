@@ -26,7 +26,7 @@ void main() {
       final seenCardIds = <String>{};
 
       for (int day = 1; day <= 365; day++) {
-        final card = DramaticCardEngine.generateDailyDilemma(day, baseState);
+        final card = DramaticCardEngine.generateCalendarDilemma(day);
 
         expect(card.id, isNotEmpty);
         expect(card.title, isNotEmpty);
@@ -54,55 +54,55 @@ void main() {
 
     test('Milestone and key days produce expected general life narrative cards', () {
       // Day 1: Yanlış Gruba Ses Kaydı
-      final day1 = DramaticCardEngine.generateDailyDilemma(1, baseState);
+      final day1 = DramaticCardEngine.generateCalendarDilemma(1);
       expect(day1.id, equals('life_card_day_1'));
       expect(day1.title, equals('Yanlış Gruba Ses Kaydı'));
       expect(day1.choices.length, greaterThanOrEqualTo(2));
 
       // Day 2: Eski Sevgilinin 4 Yıllık Fotoğrafı
-      final day2 = DramaticCardEngine.generateDailyDilemma(2, baseState);
+      final day2 = DramaticCardEngine.generateCalendarDilemma(2);
       expect(day2.id, equals('life_card_day_2'));
       expect(day2.title, equals('Eski Sevgilinin 4 Yıllık Fotoğrafı'));
 
       // Day 3: Akraba WhatsApp Grubu Kavgası
-      final day3 = DramaticCardEngine.generateDailyDilemma(3, baseState);
+      final day3 = DramaticCardEngine.generateCalendarDilemma(3);
       expect(day3.id, equals('life_card_day_3'));
       expect(day3.title, equals('Akraba WhatsApp Grubu Kavgası'));
 
       // Day 6: Matrix Kırmızı Hap İkilemi
-      final day6 = DramaticCardEngine.generateDailyDilemma(6, baseState);
+      final day6 = DramaticCardEngine.generateCalendarDilemma(6);
       expect(day6.id, equals('life_card_day_6'));
       expect(day6.title, equals('Matrix Kırmızı Hap İkilemi'));
 
       // Day 15: Ezel Replikleriyle Teselli
-      final day15 = DramaticCardEngine.generateDailyDilemma(15, baseState);
+      final day15 = DramaticCardEngine.generateCalendarDilemma(15);
       expect(day15.id, equals('life_card_day_15'));
       expect(day15.title, equals('Ezel Replikleriyle Teselli'));
 
       // Day 30: Ekran Süresi Raporu Şoku
-      final day30 = DramaticCardEngine.generateDailyDilemma(30, baseState);
+      final day30 = DramaticCardEngine.generateCalendarDilemma(30);
       expect(day30.id, equals('life_card_day_30'));
       expect(day30.title, equals('Ekran Süresi Raporu Şoku'));
 
       // Day 61: Kurtlar Vadisi Çakır Ruhu
-      final day61 = DramaticCardEngine.generateDailyDilemma(61, baseState);
+      final day61 = DramaticCardEngine.generateCalendarDilemma(61);
       expect(day61.id, equals('life_card_day_61'));
       expect(day61.title, equals('Kurtlar Vadisi Çakır Ruhu'));
 
       // Day 181: İlk Buluşmada Hesabı Kim Öder
-      final day181 = DramaticCardEngine.generateDailyDilemma(181, baseState);
+      final day181 = DramaticCardEngine.generateCalendarDilemma(181);
       expect(day181.id, equals('life_card_day_181'));
       expect(day181.title, equals('İlk Buluşmada Hesabı Kim Öder'));
 
       // Day 365: Büyük 365 Gün Finali ve Yaşam Zaferi
-      final day365 = DramaticCardEngine.generateDailyDilemma(365, baseState);
+      final day365 = DramaticCardEngine.generateCalendarDilemma(365);
       expect(day365.id, equals('life_card_day_365'));
       expect(day365.title, equals('Büyük 365 Gün Finali ve Yaşam Zaferi'));
       expect(day365.category, equals(DramaticCategory.legacy));
     });
 
     test('Choice resolution returns proper success and failure outcomes', () {
-      final card = DramaticCardEngine.generateDailyDilemma(1, baseState);
+      final card = DramaticCardEngine.generateCalendarDilemma(1);
       final firstChoice = card.choices.first;
 
       final res = DramaticCardEngine.resolveChoice(
@@ -125,7 +125,7 @@ void main() {
       final parenthesesRegex = RegExp(r'[\(\)]');
 
       for (int day = 1; day <= 365; day++) {
-        final card = DramaticCardEngine.generateDailyDilemma(day, baseState);
+        final card = DramaticCardEngine.generateCalendarDilemma(day);
 
         // Check Card Title
         expect(emojiRegex.hasMatch(card.title), isFalse,
@@ -202,7 +202,7 @@ void main() {
     test('Authentic Turkish general life dilemma cards are accessible in calendar cycles', () {
       final generatedTitles = <String>{};
       for (int day = 1; day <= 365; day++) {
-        final card = DramaticCardEngine.generateDailyDilemma(day, baseState);
+        final card = DramaticCardEngine.generateCalendarDilemma(day);
         generatedTitles.add(card.title);
       }
 

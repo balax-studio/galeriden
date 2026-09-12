@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
+import 'package:galeriden/domain/usecases/contextual_dilemma_pool.dart';
 import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 
@@ -29,10 +30,10 @@ void main() {
       expect(state.currentDay, equals(1));
       expect(state.pendingDramaticCard, isNotNull);
       expect(state.pendingDramaticCard!.dayNumber, equals(1));
-      expect(state.pendingDramaticCard!.id, equals('milestone_day_1'));
+      expect(state.pendingDramaticCard!.id, equals('rookie_tea_mahmut'));
     });
 
-    test('2. advanceGameDay advances day counter and generates next day dilemma', () async {
+    test('2. advanceGameDay triggers dilemma only when critical conditions occur', () async {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final notifier = container.read(gameProvider.notifier);
 
@@ -42,25 +43,58 @@ void main() {
       notifier.dismissPendingDramaticCard();
       expect(notifier.state.pendingDramaticCard, isNull);
 
-      // Advance game day
+      // Advance game day to Day 2 (Rookie onboarding critical condition)
       notifier.advanceGameDay();
 
       expect(notifier.state.currentDay, equals(2));
       expect(notifier.state.pendingDramaticCard, isNotNull);
       expect(notifier.state.pendingDramaticCard!.dayNumber, equals(2));
+      expect(notifier.state.pendingDramaticCard!.id, equals('rookie_mentor_cemil'));
+
+      // Dismiss Day 2 card
+      notifier.dismissPendingDramaticCard();
+      expect(notifier.state.pendingDramaticCard, isNull);
+
+      // Advance to Day 3 (Day 3 is rookie onboarding day 3: rookie_first_cleaning)
+      notifier.advanceGameDay(); // Day 3
+      expect(notifier.state.pendingDramaticCard, isNotNull);
+      expect(notifier.state.pendingDramaticCard!.id, equals('rookie_first_cleaning'));
+
+      // Dismiss Day 3 card
+      notifier.dismissPendingDramaticCard();
+      expect(notifier.state.pendingDramaticCard, isNull);
+
+      // Advance to Day 4: Past rookie onboarding (Day 4) and no crises active -> MUST BE NULL
+      notifier.advanceGameDay(); // Day 4
+      expect(notifier.state.pendingDramaticCard, isNull);
     });
 
-    test('3. Consecutive day advancements update currentDay continuously and generate unique dilemmas', () async {
+    test('3. Crisis situations (debt, damaged fleet) reliably trigger critical dilemma cards', () async {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final notifier = container.read(gameProvider.notifier);
 
-      for (int day = 2; day <= 10; day++) {
-        notifier.dismissPendingDramaticCard();
-        notifier.advanceGameDay();
-        expect(notifier.state.currentDay, equals(day));
-        expect(notifier.state.pendingDramaticCard, isNotNull);
-        expect(notifier.state.pendingDramaticCard!.dayNumber, equals(day));
-      }
+      // Clear Day 1 card and move past rookie days
+      notifier.dismissPendingDramaticCard();
+      notifier.state = notifier.state.copyWith(currentDay: 10, level: 3);
+
+      // Normal operations: no pending card
+      notifier.advanceGameDay(); // Day 11
+      expect(notifier.state.pendingDramaticCard, isNull);
+
+      // 1. Cash Crisis: balance drops to ₺12,000
+      notifier.state = notifier.state.copyWith(balance: 12000.0);
+      notifier.advanceGameDay(); // Day 12
+      expect(notifier.state.pendingDramaticCard, isNotNull);
+      expect(
+        ContextualDilemmaPool.cashCrisisCards.any((c) => c.id == notifier.state.pendingDramaticCard!.id),
+        isTrue,
+      );
+
+      // Clear crisis card and restore balance
+      notifier.dismissPendingDramaticCard();
+      notifier.state = notifier.state.copyWith(balance: 100000.0);
+      notifier.advanceGameDay(); // Day 13
+      expect(notifier.state.pendingDramaticCard, isNull);
     });
 
     test('4. Invariant Rules: Zero Unicode Emojis and Zero Parentheses in Day 1 Card & Outcomes', () {

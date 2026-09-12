@@ -19,8 +19,8 @@ class QuickListingBottomSheet extends ConsumerStatefulWidget {
     required this.car,
   });
 
-  static Future<void> show(BuildContext context, {required CarModel car}) {
-    return showModalBottomSheet(
+  static Future<bool?> show(BuildContext context, {required CarModel car}) {
+    return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -90,7 +90,7 @@ class _QuickListingBottomSheetState
     }
 
     if (mounted) {
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
       NotificationService.showSuccess(
         context,
         context.tr('quick_listing_success_toast'),
@@ -389,7 +389,7 @@ class _QuickListingBottomSheetState
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
               fullWidth: true,
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(context).pop(false),
             ),
           ],
         ),

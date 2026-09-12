@@ -7,6 +7,7 @@ import '../../data/models/loan_model.dart';
 import '../../data/models/installment_contract_model.dart';
 import '../../data/models/cheque_model.dart';
 import '../services/daily_staff_processor.dart';
+import 'dramatic_card_engine.dart';
 import 'loan_settlement_engine.dart';
 import 'negotiation_engine.dart';
 
@@ -206,7 +207,17 @@ class OfflineProgression {
     }
 
     DramaticCardModel? updatedCard = dealership.pendingDramaticCard;
-    if (updatedCard != null) {
+    if (simulatedDays > 0 || (updatedCard != null && updatedCard.id.startsWith('milestone_'))) {
+      final criticalCard = DramaticCardEngine.selectCriticalDilemma(
+        nextDay,
+        dealership.copyWith(
+          balance: newBalance,
+          currentDay: nextDay,
+          ownedCars: updatedCars,
+        ),
+      );
+      updatedCard = criticalCard;
+    } else if (updatedCard != null) {
       updatedCard = updatedCard.copyWith(dayNumber: nextDay);
     }
 

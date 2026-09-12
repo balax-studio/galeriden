@@ -32,6 +32,7 @@ import '../../widgets/tutorial_pulse_target.dart';
 import '../../widgets/neo_brutal_button.dart';
 import '../../widgets/neo_brutal_card.dart';
 import 'widgets/dashboard_banners.dart';
+import 'widgets/dashboard_mentor_card.dart';
 import 'widgets/dashboard_missions_section.dart';
 import 'widgets/dashboard_office_view.dart';
 import 'widgets/dashboard_quick_finance_card.dart';
@@ -113,7 +114,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return;
     }
 
-    // 4. Halil Usta Smart Mentor Guidance
+    // 4. Halil Usta Smart Mentor Guidance (Critical Crisis Modals Only)
     if (game.tutorialCompleted) {
       _lastCelebratedBranchTier ??= game.currentBranchTier;
       final advice = SmartMentorEngine.evaluateAdvice(
@@ -121,11 +122,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         lastCelebratedBranchTier: _lastCelebratedBranchTier,
       );
 
-      if (advice != null) {
+      if (advice != null && advice.isCriticalModal) {
         final isDifferentType = _lastMentorAdviceType != advice.type;
         final isDifferentDay = _lastMentorAdviceDay != game.currentDay;
+        final hasCooldownPassed = _lastMentorAdviceDay == null ||
+            (game.currentDay - _lastMentorAdviceDay! >= 3);
 
-        if (isDifferentType || isDifferentDay) {
+        if (isDifferentDay && (isDifferentType || hasCooldownPassed)) {
           _isModalShowing = true;
           _lastMentorAdviceDay = game.currentDay;
           _lastMentorAdviceType = advice.type;
@@ -147,7 +150,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           return;
         }
       } else {
-        _lastMentorAdviceType = null;
+        if (_lastMentorAdviceType != null &&
+            _lastMentorAdviceType !=
+                SmartMentorAdviceType.branchUpgradedCelebration) {
+          _lastMentorAdviceType = null;
+        }
       }
     }
   }
@@ -463,9 +470,11 @@ class _DashboardHomeTab extends ConsumerWidget {
         DashboardProfileBanner(game: game, palette: p),
         const SizedBox(height: 10),
 
-        // 1.05 Unified Priority Action / Announcement Slot (Dilemma > Rescue > Event > Advisor)
+        // 1.05 Unified Priority Action / Announcement Slot
         _buildPriorityActionBanner(context, game, p),
-        const SizedBox(height: 10),
+
+        // Halil Usta Masası • Ambient Strategic Mentor Card
+        const DashboardMentorCard(),
 
         // 2. Retention Hub: Rivals Leaderboard, Album, Prestige
         DashboardRetentionHighlightsRow(game: game, palette: p, ref: ref),
@@ -523,42 +532,43 @@ class _DashboardHomeTab extends ConsumerWidget {
     );
   }
 
-  /// Consolidated Priority Action / Announcement Banner (Dilemma > Rescue > Random Event > Quest/Advisor)
+  /// Consolidated Priority Action / Announcement Banner (Dilemma > Rescue > Story Ad > First Day Quest)
   Widget _buildPriorityActionBanner(
     BuildContext context,
     DealershipModel game,
     ThemePaletteModel p,
   ) {
+    Widget? banner;
     // 1. Critical Financial Emergency
     if (game.balance < 20000) {
-      return DashboardEmergencyRescueBanner(game: game, palette: p);
+      banner = DashboardEmergencyRescueBanner(game: game, palette: p);
     }
     // 2. Pending Interactive Dilemma Card
-    if (game.pendingDramaticCard != null) {
-      return DashboardDramaticCardBanner(
+    else if (game.pendingDramaticCard != null) {
+      banner = DashboardDramaticCardBanner(
         card: game.pendingDramaticCard!,
         palette: p,
       );
     }
     // 3. Pending Optional Story Ad Opportunity (Voluntary in-feed banner)
-    if (game.pendingStoryCard != null) {
-      return DashboardStoryAdBanner(
+    else if (game.pendingStoryCard != null) {
+      banner = DashboardStoryAdBanner(
         card: game.pendingStoryCard!,
         palette: p,
       );
     }
     // 4. First Day Quest Guide (if fresh player with 0 sales)
-    if (game.carsSold == 0) {
-      return DashboardFirstDayQuestBanner(
+    else if (game.carsSold == 0) {
+      banner = DashboardFirstDayQuestBanner(
         game: game,
         onGoToShowroom: () => context.push('/showroom'),
       );
     }
-    // 5. Strategic Advisor Guidance
-    return DashboardAdvisorGuidanceBanner(
-      game: game,
-      palette: p,
-      onGoToShowroom: () => context.push('/showroom'),
+
+    if (banner == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: banner,
     );
   }
 

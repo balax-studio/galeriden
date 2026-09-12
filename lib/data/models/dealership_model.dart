@@ -257,6 +257,9 @@ class DealershipModel {
   // Yeni Açılan Özelliklerin Bildirim Noktası Takibi
   final Set<String> seenFeatureRoutes;
 
+  // Halil Usta Akıllı Mentor Hafızası (§SPEC-2026-09-12-HALIL-USTA-DEEP-MENTOR)
+  final Map<String, dynamic> mentorMemory;
+
   // Son 7 Günlük Operasyonel Aktivite Sayaçları (Doluluk Katsayısı İçin - §1.2)
   final int carsWashedLast7Days;
   final int expertisesPerformedLast7Days;
@@ -1402,6 +1405,7 @@ class DealershipModel {
     this.nextAuctionAvailableDate,
     this.completedFirstTimeActions = const {},
     this.seenFeatureRoutes = const {},
+    this.mentorMemory = const {},
     this.lastOfficeGrantClaimDay = 0,
     this.lastSmartHookUsedDay = 0,
     this.officeSeed = 0,
@@ -1752,67 +1756,56 @@ class DealershipModel {
         '/theme-store',
         '/branches',
       },
+      mentorMemory: const {},
       discoveredCarModelIds: const ['Tofaşk Hacı Murat 124 • Dede Mirası'],
       claimedAlbumMilestones: const [],
-      pendingDopedOffers: const [],
       pendingDramaticCard: const DramaticCardModel(
-        id: 'milestone_day_1',
+        id: 'rookie_tea_mahmut',
         dayNumber: 1,
-        category: DramaticCategory.legacy,
+        category: DramaticCategory.comedy,
         severity: DramaticSeverity.low,
-        title: 'İlk Ruhsat & Tabela Seçimi',
-        characterName: 'Muhtar Şerafettin',
-        characterRole: 'Sanayi Muhtarı',
-        characterAvatar: 'suit',
-        icon: Icons.storefront_rounded,
+        title: 'Çay Ocağı Çırağı Mahmut',
+        characterName: 'Çırak Mahmut',
+        characterRole: 'Sanayi Çay Ocağı',
+        characterAvatar: 'mustache',
+        icon: Icons.local_cafe_rounded,
         dialogue:
-            '"Hayırlı olsun evlat! Galerinin ilk günündesin. Sanayi adetidir; ya esnafa ziyafet verip dualarını alırsın ya da tüm bütçeyi devasa ışıklı tabelaya yatırırsın."',
-        foreshadowHint: 'İlk günün kararı galerinin esnaf arasındaki ilk izlenimini belirler.',
+            'Hayırlı siftahlar abi! Yeni dükkanın ilk demli tavşan kanı çayı ocağımızın hediyesi. Esnaflıkta ağız tatlılığı berekettir der ustam.',
+        foreshadowHint:
+            'Esnafla kurulan sıcak bağlar ileride sana müşteri ve tüyo olarak geri döner.',
+        minPlayerLevel: 1,
         choices: [
           DramaticChoiceModel(
-            id: 'm1_treat',
-            label: 'Esnafa Çay ve Simit İkramı • -₺500',
-            shortDescription: 'Sanayi esnafıyla sıcak bağlar kurulur • +5 İtibar, +30 Deneyim.',
-            upfrontCost: 500.0,
+            id: 'tea_tip',
+            label: 'Bahşiş Ver ve Hatır Say • -₺200',
+            shortDescription: 'Çırağa ₺200 bahşiş vererek esnafa samimi bir merhaba de',
+            upfrontCost: 200.0,
             outcomes: [
               DramaticOutcomeModel(
                 probability: 1.0,
-                title: 'Bereketli Başlangıç',
-                message: 'Sanayi esnafı dükkanına akın etti, hayır dualarını aldın. İtibarın yükseldi!',
+                title: 'Esnaf Dayanışması Başladı',
+                message:
+                    'Mahmut sevinçle teşekkür etti. Sanayi esnafı yeni galericinin cömertliğini konuşuyor.',
                 isSuccess: true,
-                reputationDelta: 5,
-                xpReward: 30,
+                reputationDelta: 4,
+                xpReward: 35,
               ),
             ],
           ),
           DramaticChoiceModel(
-            id: 'm1_sign',
-            label: 'Görkemli Işıklı Tabela • -₺2.500',
-            shortDescription: 'Yoldan geçen müşterilerin dikkatini çeker • +3 İtibar, +80 Deneyim.',
-            upfrontCost: 2500.0,
-            outcomes: [
-              DramaticOutcomeModel(
-                probability: 1.0,
-                title: 'Göz Alıcı Showroom',
-                message: 'Tabela caddenin en parlak noktası oldu. Çevreden geçenler vitrine bakmadan geçmiyor.',
-                isSuccess: true,
-                reputationDelta: 3,
-                xpReward: 80,
-              ),
-            ],
-          ),
-          DramaticChoiceModel(
-            id: 'm1_frugal',
-            label: 'Sade ve Sessiz Başlangıç • Masrafsız',
-            shortDescription: 'Tasarruflu başla ve sermayeni koru • +15 Deneyim.',
+            id: 'tea_thanks',
+            label: 'Teşekkür Et ve İkramı Al • Masrafsız',
+            shortDescription:
+                'Masraf yapmadan kibarca teşekkür ederek işine odaklan',
             upfrontCost: 0.0,
             outcomes: [
               DramaticOutcomeModel(
                 probability: 1.0,
-                title: 'Tasarruflu Adım',
-                message: 'Tek kuruş harcamadan kepengi açtın. Sermayen ilk araç alımın için güvende.',
+                title: 'Sıcak Bir Başlangıç',
+                message: 'Çayı yudumlayıp ilk iş gününün heyecanını yaşadın.',
                 isSuccess: true,
-                xpReward: 15,
+                reputationDelta: 1,
+                xpReward: 20,
               ),
             ],
           ),
@@ -1919,6 +1912,7 @@ class DealershipModel {
       'dailyRacesRemaining': dailyRacesRemaining,
       'completedFirstTimeActions': completedFirstTimeActions.toList(),
       'seenFeatureRoutes': seenFeatureRoutes.toList(),
+      'mentorMemory': mentorMemory,
       'lastOfficeGrantClaimDay': lastOfficeGrantClaimDay,
       'lastSmartHookUsedDay': lastSmartHookUsedDay,
       'officeSeed': officeSeed,
@@ -2149,6 +2143,9 @@ class DealershipModel {
               ?.map((e) => e.toString())
               .toSet() ??
           _defaultSeenFeatureRoutes((json['level'] as num?)?.toInt() ?? 1),
+      mentorMemory: json['mentorMemory'] is Map
+          ? Map<String, dynamic>.from(json['mentorMemory'] as Map)
+          : const {},
       lastOfficeGrantClaimDay: json['lastOfficeGrantClaimDay'] as int? ?? 0,
       lastSmartHookUsedDay: json['lastSmartHookUsedDay'] as int? ?? 0,
       officeSeed: json['officeSeed'] as int? ?? 0,
@@ -2332,6 +2329,7 @@ class DealershipModel {
     int? dailyRacesRemaining,
     Set<String>? completedFirstTimeActions,
     Set<String>? seenFeatureRoutes,
+    Map<String, dynamic>? mentorMemory,
     int? lastOfficeGrantClaimDay,
     int? lastSmartHookUsedDay,
     int? officeSeed,
@@ -2480,6 +2478,7 @@ class DealershipModel {
       dailyRacesRemaining: dailyRacesRemaining ?? this.dailyRacesRemaining,
       completedFirstTimeActions: completedFirstTimeActions ?? this.completedFirstTimeActions,
       seenFeatureRoutes: seenFeatureRoutes ?? this.seenFeatureRoutes,
+      mentorMemory: mentorMemory ?? this.mentorMemory,
       lastOfficeGrantClaimDay: lastOfficeGrantClaimDay ?? this.lastOfficeGrantClaimDay,
       lastSmartHookUsedDay: lastSmartHookUsedDay ?? this.lastSmartHookUsedDay,
       officeSeed: officeSeed ?? this.officeSeed,

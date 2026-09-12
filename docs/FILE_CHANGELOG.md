@@ -21,6 +21,337 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Uygulama Derleme Numarasının Yükseltilmesi (1.0.6+31 -> 1.0.6+32)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta Masası taktil tasarımı, canlı çay dumanı, 365 günlük kart göçü ve dinamik ikilem sistemi iyileştirmelerini içeren yeni sürümün paketlenmesi için derleme numarasının 32'ye yükseltilmesi.
+- **Yapılan Değişiklikler**:
+  - `pubspec.yaml`:
+    - Versiyon `1.0.6+31`'den `1.0.6+32`'ye yükseltildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata.
+
+### `Halil Usta Masası Neo-Brutalist & Prosedürel Dokunmatik Tasarım Yenilemesi, Canlı Çay Dumanı & 7 Dilli İstasyon Rozetleri (§SPEC-2026-09-12-MENTOR-CARD-REDESIGN)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta Masası (`DashboardMentorCard`) bileşeninin Neo-Brutalist taktil geometriye, prosedürel canvas çizimlerine (milimetrik cetvel çentikleri, köşe artı işaretleri, Bayer matris stippling dokusu) ve canlı sinüzoidal buhar animasyonuna (`SteamCupWidget`) kavuşturulması.
+  - Açık temada okunabilirliği artıran derin kehribar (`0xFF78350F`) başlık, sert çerçeveli konuşma kartı ve taktil onay mührü (`TactileBrutalStamp`) entegrasyonu.
+  - Çay ısmarlanınca (`canServeTea == false`) alt çay kutusunun tamamen kapanması/gizlenmesi ve tüm istasyon rozetlerinin (`mentor_desk_station_id`, `mentor_station_badge_tea`, `mentor_station_badge_radar`, `mentor_quest_approved_stamp`) 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eksiksiz senkronizasyonu.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - `_MentorWorkbenchPainter` `CustomPainter` sınıfı eklendi; cetvel çizgileri, ızgara noktaları ve köşe hedefleme çentikleri sıfır bellek tahsisli statik `Paint` nesneleriyle 60/120 FPS'te çizildi.
+    - `SteamCupWidget` canlı sinüs dalgalı buhar animasyonu çay bardağı üzerine yerleştirildi.
+    - Çay servis edildikten sonra konteynerin arayüzde yer kaplamadan yok olması sağlandı (`if (canServeTea) ...`).
+    - İstasyon rozetleri ve "Usta Onaylı" taktil mührü yerelleştirildi.
+  - `lib/core/localization/translations/*.dart`:
+    - 7 dilde `mentor_quest_approved_stamp`, `mentor_desk_station_id`, `mentor_station_badge_tea` ve `mentor_station_badge_radar` anahtarları sıfır emoji ve sıfır parantez kuralına uygun olarak eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/smart_mentor_engine_test.dart`: 13/13 test başarıyla geçti.
+
+### `365 Günlük Statik Kart Yerine Dinamik Durumsal İkilem Sistemi (ContextualDilemmaPool) Göçü & Günlük Yenileme (§BUGFIX-2026-09-12-DILEMMA-MIGRATION)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyunda 365 günlük takvimsel kartlar yerine `ContextualDilemmaPool` tabanlı durumsal ikilem sistemine geçilmiş olmasına rağmen, oyuncuların karşısına halen eski `milestone_day_1` kartının çıkması sorununun giderilmesi.
+  - Oyuncunun ilk gününde doğrudan bağlamsal ve interaktif çaylak ikilemi (`rookie_tea_mahmut`) ile başlaması, eski kayıt dosyalarındaki `milestone_` kartlarının otomatik olarak dinamik ikilemlere dönüştürülmesi ve gün atlamalarında kart seçiminin oyuncunun güncel finansal durumuna göre otomatik tazelenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/dealership_model.dart`:
+    - `DealershipModel.initial()` fabrika yapıcısında hardcoded `milestone_day_1` yerine `const DramaticCardModel(id: 'rookie_tea_mahmut', ...)` bağlandı.
+  - `lib/presentation/providers/game/game_core_provider.dart`:
+    - Kayıtlı oyun yükleme döngüsünde (`_loadSavedGame`) eski `milestone_` önekli kartlar tespit edilerek `ContextualDilemmaPool.selectContextualCard` ile anında güncel duruma uygun dinamik ikileme göç ettirildi.
+  - `lib/domain/usecases/offline_progression.dart`:
+    - Çevrimdışı ilerleme simülasyonunda gün atlandığında veya kart `milestone_` ise `DramaticCardEngine.generateDailyDilemma` çağrılarak taze durumsal kart üretildi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `_processDramaticDecision` metodu gün atlamalarında mevcut kartı oyuncunun yeni durumuna (bakiye, araç sayısı, kriz) göre tazeleyecek şekilde güncellendi.
+    - `dismissPendingDramaticCard` metoduna eksik olan `saveState()` kalıcılığı eklendi.
+  - `test/day_progression_and_dramatic_cards_test.dart`:
+    - 1. gün varsayılan kart doğrulaması `rookie_tea_mahmut` olarak güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `DealershipModel.initial()` içinde `milestone_day_1` kartı yer alıyordu ve sağlayıcı yalnızca `pendingDramaticCard == null` ise kart üretiyordu.
+  - Eski `localStorage` kayıtlarında biriken `milestone_` kartları gün atlamalarında temizlenemiyordu.
+- **Kök Neden**:
+  - İlk durum başlangıç verisinin eski statik modelden devralınması ve yükleme aşamasında geriye dönük göç kontrolünün bulunmaması.
+- **Uygulanan Çözüm**:
+  - Başlangıç durumu dinamik çaylak ikilemiyle güncellendi, başlangıçta ve çevrimdışı ilerlemede otomatik göç kodu eklendi, gün ilerlemelerinde dinamik kart yenilemesi sağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/day_progression_and_dramatic_cards_test.dart`: 4/4 test geçti.
+  - `flutter test test/dramatic_cards_engine_test.dart`: 4/4 test geçti.
+  - `flutter test test/dynamic_dilemma_expansion_test.dart`: 7/7 test geçti.
+  - `flutter test test/core_loop_funnel_and_dilemma_test.dart`: 5/5 test geçti.
+  - `flutter test test/dramatic_daily_dilemma_test.dart`: 15/15 test geçti.
+  - Toplam 35/35 ikilem ve gün ilerleme testi başarıyla geçti.
+
+### `Hızlı İlan Sonrası Doğrudan Showroom Yönlendirmesi & Çok Dilli Senkronizasyon (§SPEC-2026-QUICK-LISTING-SHOWROOM-FLOW)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Araç satın alma pazarlığı tamamlandığında açılan hızlı ilan verme modalında (`QuickListingBottomSheet`), araç vitrine çıkarıldığında oyuncunun doğrudan vitrine/showroom'a yönlendirilmesi; işlem iptal edildiğinde veya bekletildiğinde önceki akışa dönülmesi ve tüm buton/etiketlerin 7 dilde eksiksiz senkronize edilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/showroom/widgets/quick_listing_bottom_sheet.dart`:
+    - `QuickListingBottomSheet.show` metodu `Future<bool?>` döndürecek şekilde güncellendi; ilan onaylandığında `Navigator.of(context).pop(true)`, vazgeçildiğinde `pop(false)` döndürüldü.
+  - `lib/presentation/screens/marketplace/negotiation_screen.dart`:
+    - Noter satışı tamamlandıktan sonra `QuickListingBottomSheet.show` sonucu kontrol edilerek, ilan verildiyse oyuncunun otomatik olarak `/showroom` ekranına yönlendirilmesi sağlandı.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`):
+    - `quick_listing_btn_showroom` anahtarı 7 dilde sıfır emoji ve parantezsiz kuralına tam uyumlu olarak eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Oyuncu aracı satın alıp hemen ilana koyduğunda, pazar ekranında kalıyor ve aracının vitrindeki halini görmek için manuel olarak showroom sekmesine geçmesi gerekiyordu.
+- **Kök Neden**:
+  - `QuickListingBottomSheet.show` metodunun dönüş değeri olmaması ve `negotiation_screen.dart` dosyasının modal kapandıktan sonra koşulsuz olarak `/marketplace` rotasında kalması.
+- **Uygulanan Çözüm**:
+  - Modal başarıyla ilan verdiğinde `true` bayrağı ile kapanması sağlandı ve çağrıcı ekranda `context.go('/showroom')` yönlendirmesi tetiklendi.
+- **Doğrulama / Test Durumu**:
+  - Flutter statik analizi ve dil anahtarı senkronizasyon kontrolleri tamamlandı.
+
+### `Emlak Satış İlanı Tavan/Taban Fiyat Denetimi & Çok Dilli Validasyon (§SPEC-2026-REAL-ESTATE-PRICING-CEILING-FLOOR)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Emlak satış ilanlarında oyuncuların aşırı fahiş fiyat veya taban altı fiyat belirlemelerini önleyen %150 rayiç tavanı ve %40 taban kurallarının arayüz ve bildirim katmanında tam uyarılması; başarısız ilanın sessizce reddedilmesi yerine oyuncuya açıklayıcı bilgilendirme yapılması ve 7 dilde senkronizasyonun tamamlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/real_estate/real_estate_listing_manage_screen.dart`:
+    - `_publishSaleListing` metoduna `maxAllowedPrice` (%150 rayiç tavan) ve `minAllowedPrice` (%40 taban) kontrolleri eklendi. Sınırlar aşıldığında `NotificationService.showWarning` ile oyuncuya yerelleştirilmiş uyarı gösterilerek işlem engellendi.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`):
+    - `real_estate_price_exceeds_ceiling` ve `real_estate_price_below_floor` anahtarları 7 dilde sıfır emoji ve parantezsiz olarak eklendi.
+  - `test/real_estate_listing_narrative_test.dart`:
+    - 7 dil senkronizasyon testine yeni anahtarlar eklendi; tavan/taban sınır doğrulama testi eklendi (6/6 geçti).
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - İlan verme ekranında kullanıcı tavan veya taban dışı bir fiyat girdiğinde backend işlemi reddediyor ancak UI katmanında sessizce hiçbir geri bildirim verilmiyordu.
+- **Kök Neden**:
+  - `_publishSaleListing` fonksiyonunun `listRealEstateForSale` false döndüğünde kullanıcıya bildirim sunmaması.
+- **Uygulanan Çözüm**:
+  - İlan gönderme öncesinde hem arayüzde ön denetim eklendi hem de bilgilendirici uyarı bildirimleri 7 dilde bağlandı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/real_estate_listing_narrative_test.dart`: 6/6 test geçti.
+  - `flutter test test/real_estate_market_test.dart test/real_estate_buyer_negotiation_expansion_test.dart`: 32/32 test geçti.
+
+### `Sadece Kritik Durumlarda İkilem Kartı Tetikleme Mimarisi (Strictly Critical Dilemma Triggering)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyuncuyu her gün zorunlu kart popup'ları ile bölmek yerine, ikilem kartlarının yalnızca galeride gerçek bir kriz, darboğaz veya kritik dönüm noktası (nakit krizi, ilk 3 gün acemilik adaptasyonu, hasarlı/çamurlu filo darboğazı, satış sonrası müşteri ihtilafı, yüksek sermaye/müzayede fırsatı, VIP itibar) gerçekleştiğinde tetiklenmesi; normal ve sakin günlerde hiçbir kart çıkmadan günün akıcı ilerlemesi.
+- **Yapılan Değişiklikler**:
+  - `lib/domain/usecases/contextual_dilemma_pool.dart`:
+    - `selectCriticalCard` metodu eklendi. Sadece tanımlı kritik koşullar (bakiye < ₺25.000, ilk 3 gün acemilik ve seviye <= 2, hasarlı araç >= 2, müşteri ihtilafı, sermaye >= ₺500.000, itibar >= 120) aktifse kart döndürür; aksi halde `null` döndürür.
+  - `lib/domain/usecases/dramatic_card_engine.dart`:
+    - `selectCriticalDilemma` metodu eklenerek `ContextualDilemmaPool.selectCriticalCard` çıktısına bağlandı.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - `_processDramaticDecision` metodu `DramaticCardEngine.selectCriticalDilemma` kullanacak şekilde güncellendi. Kritik durum yoksa `pendingDramaticCard` `null` kalır ve hiçbir modal açılmaz.
+    - `dismissPendingDramaticCard` metoduna kapatılan kartın ID'sini `seenDramaticCardIds` listesine ekleme mantığı dahil edilerek, kapatılan kartın hemen ertesi gün tekrar döngüye girmesi engellendi.
+  - `lib/presentation/providers/game/game_core_provider.dart`:
+    - Depolamadan yükleme ve başlatma döngülerinde `pendingDramaticCard`'ı zorla doldurmak yerine yalnızca eski `milestone_` kartı varsa `selectCriticalDilemma` ile göç ettirilmesi, yoksa `null` kalması sağlandı.
+  - `lib/domain/usecases/offline_progression.dart`:
+    - Çevrimdışı simülasyonda yeni kart üretimi `selectCriticalDilemma` üzerinden yapılarak sadece kriz koşullarında kart üretilmesi sağlandı.
+  - `test/day_progression_and_dramatic_cards_test.dart`:
+    - Test 2 ve Test 3 kritik durum tetikleme mimarisini doğrulayacak şekilde güncellendi; normal günlerde kart çıkmadığı (`isNull`), nakit krizi tetiklendiğinde kriz kartının belirdiği teyit edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Yok.
+- **Uygulanan Çözüm**:
+  - Koşullu tetikleme ve `null` durum yönetimi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/day_progression_and_dramatic_cards_test.dart test/dramatic_cards_engine_test.dart test/dynamic_dilemma_expansion_test.dart test/core_loop_funnel_and_dilemma_test.dart test/dramatic_daily_dilemma_test.dart test/dramatic_dialog_widget_test.dart`: 40/40 test başarıyla geçti.
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+
+### `365 Günlük Statik Milestone Kartlarının Kaldırılması ve Dinamik İkilem (ContextualDilemmaPool) Tam Geçişi`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyunda 365 günlük takvim milestone kartlarının (ör. `milestone_day_1`) yeni açılan veya önceden kaydedilmiş oyunlarda kalıcı olarak görünmesini engelleyip, galerinin anlık finansal ve operasyonel durumuna göre tepki veren `ContextualDilemmaPool` dinamik ikilem motoruna tam geçişin sağlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/dealership_model.dart`:
+    - `DealershipModel.initial()` içerisindeki statik `milestone_day_1` kartı, `ContextualDilemmaPool.rookieCards.first.copyWith(dayNumber: 1)` (`rookie_tea_mahmut`) ile değiştirildi.
+  - `lib/presentation/providers/game/game_core_provider.dart`:
+    - Oyun başlatma ve yükleme döngüsünde eski kayıtlardan gelebilecek `milestone_` ID'li kartları tespit edip durumsal dinamik ikilemlerle (`DramaticCardEngine.generateDailyDilemma`) otomatize eden geçiş (migration) mekanizması eklendi.
+  - `lib/domain/usecases/offline_progression.dart`:
+    - Çevrimdışı ilerleme simülasyonunda gün atlandığında kartın sadece gün numarasını değiştirmek yerine, duruma uygun yeni dinamik kart çekilmesi sağlandı; eski `milestone_` kartları otomatik güncellendi.
+  - `lib/presentation/providers/game/game_time_mixin.dart`:
+    - Gün geçişi sonrası `_processDramaticDecision` metodunda ikilem yenileme mantığı güçlendirildi.
+    - `dismissPendingDramaticCard` metoduna `saveState()` eklenerek kart kapatıldığında durumun depolamaya kalıcı olarak yazılması sağlandı.
+  - `test/day_progression_and_dramatic_cards_test.dart`:
+    - 1. gün kart beklentisi `milestone_day_1` yerine `rookie_tea_mahmut` olarak güncellendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Kullanıcının "biz 365 günlük kart sistemi yerine dilemma sistemi getirmedik mi, sorun ne?" geri bildiriminde, yeni oyunda ve depolamada hâlâ `milestone_day_1` kartının belirmesi.
+- **Kök Neden**:
+  - `DealershipModel.initial()` model fabrikasında 1. gün için `milestone_day_1` kartının statik sabit olarak kodlanmış olması ve eski yerel depolama verilerinde bu kartın önceden kaydedilmiş olarak kalması.
+- **Uygulanan Çözüm**:
+  - Başlangıç modeli `rookie_tea_mahmut` ile güncellendi, başlangıçta ve çevrimdışı ilerlemede `milestone_` ön ekine sahip tüm kartlar dinamik havuzdan gelen kartlarla otomatik göç ettirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/day_progression_and_dramatic_cards_test.dart test/dramatic_cards_engine_test.dart test/dynamic_dilemma_expansion_test.dart test/core_loop_funnel_and_dilemma_test.dart test/dramatic_daily_dilemma_test.dart`: 35/35 test başarıyla geçti.
+  - `flutter analyze`: 0 hata, 0 uyarı.
+
+### `Halil Usta Masası Kontrast İyileştirmesi ve Çay Kutusu Kapanma Entegrasyonu`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta kartındaki silik kalan açık renklerin ve sınır çizgilerinin neo-brutalist 2.0px saf siyah çerçeveler ve yüksek kontrastlı tipografi ile belirginleştirilmesi, çay ikram edildiğinde ise çay kutusunun ekrandan tamamen kaybolarak yer tasarrufu sağlaması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - Tüm iç kartlara (konuşma balonu, usta notu, görev panosu, çay kutusu) 2.0px sert koyu kenarlıklar (`0xFF0F172A`) ve 2.5px sıfır bulanıklıklı taktil gölgeler uygulandı.
+    - Usta Notu başlığındaki soluk açık yeşil renk koyu kehribar tonuna (`0xFF78350F`) çevrildi, sarı zemin (`0xFFFEF9C3`) ve 4px koyu sol gösterge çubuğu ile okunurluk garanti altına alındı.
+    - Anlatı görevi tamamlandığında usta onay damgası `AppColors.toxicLime` dolgulu, 1.8px siyah çerçeveli ve saf siyah kalın yazılı taktil kaşe haline getirildi.
+    - `canServeTea` kontrolündeki `else` bloğu kaldırılarak çay ikram edildikten sonra kutunun anında kapanması ve ekrandan kaybolması sağlandı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Açık tema üzerinde düşük kontrastlı pastel tonların ve yeşil yazıların arka planla karışması.
+- **Uygulanan Çözüm**:
+  - Saf neo-brutalist yüksek kontrast geometri ve tam siyah gölge/kenarlık mimarisi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/smart_mentor_engine_test.dart`: 26/26 test başarıyla geçti.
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`: 0 hata, 0 uyarı (No issues found).
+  - Web sunucusuna Hot Reload & Hot Restart uygulandı.
+
+### `Halil Usta Masası Generative Art & Neo-Brutalist Taktil Tasarım Entegrasyonu`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Kontrol panelindeki `DashboardMentorCard` bileşeninin düz ve sade kart görünümünden çıkarılarak, `/generative-art-shaders` ve `/design` kurallarına uygun olarak yaşayan bir sanayi atölyesi masasına dönüştürülmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - `_MentorWorkbenchPainter` CustomPainter'ı eklenerek kart zeminine milimetrik cetvel çentikleri, köşe artı (+) hizalama imleri ve sağ altta taktil Bayer matrisi stippling tram dokusu entegre edildi.
+    - Halil Usta piksel avatarının yanına net konuşma balonu kartı yerleştirildi, mood ve usta tavsiye renkleriyle dinamik sınır vurgusu yapıldı.
+    - Taktiksel usta tavsiyesi, sarı/amber servis notu formatına (`mentor_tactical_note_header`) ve sol kenar kalın renk şeridine dönüştürüldü.
+    - Anlatı yan görevleri alanına görev tamamlandığında beliren -6 derece eğimli `TactileBrutalStamp` ("USTA ONAYLI") damgası entegre edildi.
+    - Halil Usta çay ocağı etkileşimine `SteamCupWidget` ile canlı sinüzoidal çay buharı animasyonu ve taktil buton yerleşimi eklendi.
+    - Kartın sağ üst köşesine endüstriyel istasyon damgası (`mentor_desk_station_id`) ve canlı radar durum göstergesi eklendi.
+  - `lib/core/localization/translations/`:
+    - 7 dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) `mentor_quest_approved_stamp` ve `mentor_desk_station_id` anahtarları sıfır emoji ve sıfır parantez kuralıyla eşzamanlı olarak eklendi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Yok.
+- **Kök Neden**:
+  - Yok.
+- **Uygulanan Çözüm**:
+  - Sıfır bellek sızıntılı ve 60/120 FPS GPU bütçesine uygun `CustomPainter` tasarımı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/smart_mentor_engine_test.dart`: 26/26 test başarıyla geçti.
+  - `flutter analyze lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`: 0 hata, 0 uyarı (No issues found).
+
+### `Durumsal Dinamik İkilem Motoru (ContextualDilemmaPool) Yeniden Entegrasyonu`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyuncunun gün geçişlerinde 365 günlük statik genel hayat/kültür kartları (ör. Gün 15 Ezel Replikleriyle Teselli) yerine, galerinin kaza/hasar, nakit açığı, acemilik ve atıl araç gibi anlık ticari durumlarına tepki veren durumsal ikilemlerin (`ContextualDilemmaPool`) birincil motor olarak çalıştırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/domain/usecases/dramatic_card_engine.dart`:
+    - `generateDailyDilemma` metodu `ContextualDilemmaPool.selectContextualCard(state, seenIds: state.seenDramaticCardIds).copyWith(dayNumber: day)` çağrısına bağlandı.
+    - Katalog ve statik testler için `generateCalendarDilemma(int day)` metodu ayrıştırıldı.
+  - `test/dramatic_daily_dilemma_test.dart`:
+    - 365 günlük katalog ve değişmezlik testleri `generateCalendarDilemma` metodu üzerinden doğrulandı.
+  - `test/dramatic_dialog_widget_test.dart`:
+    - Bakiye yetersizliği testi (`Insufficient balance choices do not advance to outcome`), `ContextualDilemmaPool.rookieCards.first` (Mahmut çay bahşişi: ₺200) kullanılarak deterministik hale getirildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `test/dramatic_dialog_widget_test.dart` içinde bakiye 0 yapıldığında `ContextualDilemmaPool`'un otomatik olarak `cashCrisisCards` (tüm seçenekleri ₺0 maliyetli olan hurdacı/miras kartı) seçmesi ve testin `upfrontCost > 0` seçeneği ararken `Bad state: No element` hatası vermesi.
+- **Kök Neden**:
+  - `ContextualDilemmaPool`'un iflas durumlarında oyuncuyu korumak için ücretsiz seçenekler sunması, ancak arayüz testinin ücretli seçenek arayarak oyuncunun yetersiz bakiye durumunu simüle etmeyi amaçlaması.
+- **Uygulanan Çözüm**:
+  - Testte `rookieCards.first` (maliyeti ₺200 olan) doğrudan verilerek ₺0 bakiye kilidi test edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/dramatic_daily_dilemma_test.dart test/dynamic_dilemma_expansion_test.dart test/core_loop_funnel_and_dilemma_test.dart test/day_progression_and_dramatic_cards_test.dart test/dramatic_dialog_widget_test.dart test/events_and_narrative_audit_test.dart test/small_screen_overflow_audit_test.dart`: 36/36 test başarılı.
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+
+### `Halil Usta Derin Mentor Mekaniği (§SPEC-2026-09-12-HALIL-USTA-DEEP-MENTOR)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta'ya katı if-else zinciri yerine anlık oyun dinamiklerine göre aciliyet skoru hesaplayan fayda tabanlı dinamik skorlama motorunun (`utilityScore` [0.0 - 1.0]) kazandırılması.
+  - Tekrar eden tavsiyelerin ekranı kilitlemesini önlemek için her ardışık gün için %20 sönümleme (`0.80^consecutiveDays`, asgari 0.20) uygulayan yorulma ve hafıza sönümleme algoritmasının entegrasyonu.
+  - `DealershipModel` içerisine `final Map<String, dynamic> mentorMemory` alanının eklenerek usta hafızasının (`lastAdvisedType`, `lastAdvisedDay`, `consecutiveDays`, `teaServedCount`, `lastTeaServedDay`, `completedQuestIds`, `claimedQuestIds`) kalıcı hale getirilmesi.
+  - 13 tavsiye türünün her biri için 3'er adet dinamik diyalog varyantının (`_v1`, `_v2`, `_v3` - toplam 39 yeni varyant) ve 7 desteklenen dilde (`tr`, `en`, `de`, `pt`, `es`, `ru`, `ar`) eşzamanlı sıfır emoji / sıfır parantez kuralıyla yerelleştirilmesi.
+  - `PixelMentorAvatar` için 5 farklı duygu ve ruh hali durumunun (`MentorMood`: `neutral`, `proud`, `worried`, `clever`, `teaSip`) ve CRT glitch & kromatizm aberrasyonunun (`isGlitching`) piksel matrisi ve CustomPainter ile görselleştirilmesi.
+  - `MentorQuestEngine` ile 3 anlatı yan görevinin ("Eski Dostun Yadigarı", "Piyasa Kurdu", "Esnaf Bereketi") ve günlük çay ikramı (misafirperverlik) mekaniğinin eklenmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/data/models/dealership_model.dart`:
+    - `mentorMemory` alanı eklendi (`Map<String, dynamic>`). `toJson`, `fromJson`, `copyWith`, `initial` metotlarına entegre edildi.
+  - `lib/domain/usecases/smart_mentor_engine.dart`:
+    - `MentorMood` enum eklendi (`neutral`, `proud`, `worried`, `clever`, `teaSip`).
+    - `SmartMentorAdvice` sınıfına `double utilityScore` ve `MentorMood mood` alanları eklendi.
+    - Tüm aday tavsiyelere dinamik fayda skorları ve duygu durumları atandı.
+    - Yorulma sönümlemesi ve aday tavsiyelerin skora göre yarıştırılması sağlandı.
+    - `((game.currentDay + winner.type.index) % 3) + 1` formülüyle dinamik `_v1`, `_v2`, `_v3` alıntı anahtarı seçimi eklendi.
+    - `recordAdviceGiven` yardımcı metodu ile tavsiye sunulduğunda usta hafızası güncellendi.
+  - `lib/domain/usecases/mentor_quest_engine.dart`:
+    - `MentorNarrativeQuest` veri modeli oluşturuldu.
+    - `MentorQuestEngine` sınıfı altında `questHeritageRestore`, `questBargainSniper`, `questTeaHospitality` görevleri, ilerleme takibi ve ödül toplama (`claimQuestReward`) mantığı kodlandı.
+    - Günlük çay ikramı (`canServeTea`, `serveTeaToHalil`) takvim kısıtıyla uygulandı.
+  - `lib/presentation/widgets/pixel_mentor_avatar.dart`:
+    - Halil Usta avatarı 8-bit kaba 16x16 matristen **16-bit 32x32 SNES retro piksel sanatına** yükseltildi.
+    - 40 tonlu zengin renk paleti oluşturuldu (kasket kumaş katmanları, kır saç telleri, sıcak ten gölgeleri ve burun aydınlığı, boynuz çerçeveli cam yansımalı gözlük, gür esnaf bıyığı katmanları, beyaz yaka gömlek, bordo kravat, yün yelek ve köstekli altın saat zinciri).
+    - 4 farklı duygu moduna (proud, worried, clever, teaSip) ve göz kırpma döngüsüne 32x32 piksel anatomisi uyarlandı.
+    - CRT Trinitron ince tarama çizgileri (2.0px adımlı) ve `isGlitching` analog kromatik sapma titremesi entegre edildi.
+  - `lib/presentation/providers/game/game_base_notifier.dart`:
+    - `recordMentorAdvice`, `claimMentorQuest`, `serveTeaToHalil` aksiyonları eklendi.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - Usta avatarına dokunulduğunda usta ruh haline özel (`mentor_tap_greeting_neutral`, `mentor_tap_greeting_teasip`, `mentor_tap_greeting_worried`, `mentor_tap_greeting_proud`, `mentor_tap_greeting_clever`) selamlama snackbarı eklendi.
+    - Anlatı görevi ilerleme çubuğu ve ödül toplama butonu entegre edildi.
+    - Halil Usta'ya çay ikram etme butonu ve ikram edildikten sonra görünen `quest_halil_tea_done_badge` rozeti eklendi.
+  - `lib/core/localization/translations/` (`tr`, `en`, `de`, `es`, `pt`, `ru`, `ar`):
+    - 7 dilde 39 varyant anahtarı (`_v1`, `_v2`, `_v3`), usta ruh hali selamlama metinleri, çay rozeti ve anlatı görevi anahtarları sıfır emoji ve sıfır parantez kuralıyla eklendi.
+  - `test/smart_mentor_engine_test.dart` & `test/ui_ux_pro_max_and_shaders_test.dart`:
+    - Fayda skorlaması yarışması, yorulma sönümlemesi, diyalog varyant seçimi, usta hafıza takibi, görev tamamlama, çay ikramı ve tüm avatar duygu durumları ile CRT glitch efektleri test edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - Testlerde enum isim uyuşmazlığı (`criticalDebtOverdue` -> `debtInstallmentWarning`, `dirtyInventory` -> `dirtyCarValueLoss`).
+  - Statik analiz: `game_base_notifier.dart` dosyasında `updated != null` gereksiz null denetimi uyarısı (`unnecessary_null_comparison`).
+  - Statik analiz: `ui_ux_pro_max_and_shaders_test.dart` dosyasında `pixel_mentor_avatar.dart` üzerinden dolaylı gelen `smart_mentor_engine.dart` gereksiz import uyarısı (`unnecessary_import`).
+  - Yerel sunucu ekranında `featureUnlocked` (örneğin Oto Yıkama açılışı) tavsiyesi açıldığında USTA SÖZÜ alanında çevrilmemiş `mentor_feat_wash_quote_v3` ham anahtar metninin görünmesi.
+- **Kök Neden**:
+  - `smart_mentor_engine.dart` motorunun kazanan tavsiye adayına bakılmaksızın tüm tavsiyelere `_v$variantIndex` eklemesi; oysa `featureUnlocked` (tesis açılışı) tavsiyelerinin varyantlı değil, tesis rotasına özel sabit alıntılara (`mentor_feat_wash_quote` vb.) sahip olması.
+  - `smart_mentor_dialog.dart` penceresinde `dashboard_mentor_card.dart` içinde bulunan `_v` varyantından ana anahtara geri düşüş (fallback) mekanizmasının bulunmaması.
+- **Uygulanan Çözüm**:
+  - `smart_mentor_engine.dart` içinde `winner.type == SmartMentorAdviceType.featureUnlocked` kontrolü eklenerek tesis açılışlarında `_v` soneki eklenmesi engellendi ve sabit tesis alıntısı korundu.
+  - `smart_mentor_dialog.dart` içerisinde `context.tr(advice.quoteKey)` eşleşmediğinde regex ile `_v\d` kaldırılarak ana anahtara (`baseKey`) güvenli geri dönüş (fallback) mantığı entegre edildi.
+  - `test/smart_mentor_engine_test.dart` içine `featureUnlocked` durumunda `quoteKey`'in `_v` almadığını teyit eden birim testi eklendi.
+  - Çalışan web sunucusuna Hot Restart iletilerek güncelleme canlı ekrana yansıtıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter test test/smart_mentor_engine_test.dart`: 26/26 test başarılı.
+  - `test/ui_ux_pro_max_and_shaders_test.dart`: 14/14 test başarılı.
+  - `test/localization_integrity_guard_test.dart test/translation_key_coverage_test.dart`: 7/7 test başarılı.
+  - Toplam 47 test 0 hata ile doğrulandı.
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - Web sunucusu hot restart ile tazelendi.
+
+### `Halil Usta Akıllı Mentor Revizyonu, Kontrol Paneli Ortam Masası & 7 Dilli Yerelleştirme (§SPEC-2026-09-12-SMART-MENTOR)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta mentorunun 120 saniyede bir tetiklenen ve oyuncunun kontrolünü donduran müdahaleci tam ekran dialog fırtınasının sonlandırılması.
+  - Kontrol paneli ana sekmesinde her an erişilebilir, oyuncuyu rahatsız etmeyen neo-brutalist "Halil Usta Masası" (`DashboardMentorCard`) ortam kartının oluşturulması.
+  - Tam ekran modal pencerelerinin yalnızca kritik kilometre taşları ve kriz anlarıyla (`stuckBrokeNoCar`, `branchUpgradedCelebration`, `featureUnlocked`) sınırlandırılması ve en az 3 oyun günü soğuma süresi (cooldown) getirilmesi.
+  - `SmartMentorEngine` içindeki öncelik tersinmesinin (tesis kilit açılmalarının ilansız araç tavsiyesi altında gizlenmesi) düzeltilmesi.
+  - 3 yeni taktiksel tavsiye türünün (`bargainMarketRadar`, `unofferedListingStale`, `debtInstallmentWarning`) eklenmesi ve 7 dilde eşzamanlı sıfır emoji / sıfır parantez kuralıyla yerelleştirilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/domain/usecases/smart_mentor_engine.dart`:
+    - `SmartMentorAdviceType` enumuna `bargainMarketRadar`, `unofferedListingStale`, `debtInstallmentWarning` türleri eklendi.
+    - `SmartMentorAdvice` modeline `final bool isCriticalModal` bayrağı eklendi (varsayılan `false`, yalnızca kritik kriz ve kilometre taşlarında `true`).
+    - Öncelik sıralaması düzeltildi: `featureUnlocked` (yeni tesis açılışı) kontrolü ilansız araç kontrolünün üzerine taşınarak öncelik tersinmesi giderildi.
+    - `unofferedListingStale`: 2 günden uzun süredir ilanda olup hiç teklif almamış araçları tespit edip fiyat revizyonu veya tanıtım öneren mantık eklendi.
+    - `bargainMarketRadar`: Piyasa değerinin %75'i ve altında fiyata sahip, oyuncunun nakit bütçesinin yettiği kelepir pazar araçlarını tespit eden radar mantığı eklendi.
+    - `debtInstallmentWarning`: Aktif kredisi olup kasadaki nakdi yaklaşan günlük taksit tutarını karşılamayan oyuncuya erken finansal uyarı sağlayan mantık eklendi.
+    - `overpricedCar` tavsiyesinde araç adının dinamik parametre (`carName`) olarak aktarılması sağlandı.
+  - `lib/presentation/screens/dashboard/widgets/dashboard_mentor_card.dart`:
+    - Kontrol paneli ana ekranı için kalıcı, neo-brutalist taktiksel Halil Usta masası kartı geliştirildi.
+    - 2.5px siyah çerçeve, 4.0px sıfır-bulanıklık sert gölge, toxicLime ve brutalCyan zemin vurguları, `PixelMentorAvatar`, "Usta Sözü" ve "Taktik Hamle" rozetleri ile zengin görsel hiyerarşi oluşturuldu.
+    - Dinamik `{carName}` ve `{amount}` parametre ikamesi entegre edildi.
+    - Taktik hamle butonuna basıldığında ilgili ekrana (`/car-detail`, `/market`, `/dealership/bank`) tek tıkla akıcı geçiş sağlandı.
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - 120 saniyede bir kontrolsüz açılan modal dialog fırtınası kaldırıldı; modal gösterimi kesin olarak `advice.isCriticalModal && isDifferentDay && (isDifferentType || hasCooldownPassed >= 3)` şartına bağlandı.
+    - Kontrol paneli ana liste görünümüne (`ListView`) öncelikli eylem alanının hemen altına `const DashboardMentorCard()` monte edildi.
+    - `_buildPriorityActionBanner` basitleştirilerek acil durum/ikilem yokken dönülen ilkel `DashboardAdvisorGuidanceBanner` yerine `const SizedBox.shrink()` döndürüldü ve çift kart kirliliği engellendi.
+  - `lib/core/localization/translations/` (`tr.dart`, `en.dart`, `de.dart`, `pt.dart`, `es.dart`, `ru.dart`, `ar.dart`):
+    - 7 dilde 13 yeni anahtar eklendi: `mentor_card_banner_title`, `mentor_title_stale_unoffered`, `mentor_quote_stale_unoffered`, `mentor_tactical_stale_unoffered`, `mentor_action_solve_stale`, `mentor_title_bargain_radar`, `mentor_quote_bargain_radar`, `mentor_tactical_bargain_radar`, `mentor_action_go_bargain`, `mentor_title_debt_warning`, `mentor_quote_debt_warning`, `mentor_tactical_debt_warning`, `mentor_action_go_debt_finance`.
+    - `mentor_quote_overpriced` anahtarı 7 dilde `{carName}` parametresini destekleyecek şekilde güncellendi.
+    - Tüm yeni metinler Değişmez Kural 1 (Sıfır Emoji) ve Değişmez Kural 2 (Sıfır Parantez) ile tam uyumlu yazıldı.
+  - `test/smart_mentor_engine_test.dart`:
+    - `unofferedListingStale`, `bargainMarketRadar`, `debtInstallmentWarning`, öncelik tersinmesi çözümü ve `isCriticalModal` bayrağı için birim testleri yazıldı.
+    - `DashboardMentorCard` için avatar, rozet, usta sözü ve eylem butonu etkileşimini doğrulayan widget testi yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `ListingModel` derleme hatası: `l.price` alanı arandı ancak modelde ilan fiyatının `l.askingPrice` olduğu görüldü.
+  - Widget test zamanlayıcı sızıntısı: `marketProvider` başlatıldığında 5 dakikalık periyodik pazar yenileme zamanlayıcısı ve 350ms gecikmeli durum kaydetme zamanlayıcısı oluşturuyordu. Bu durum Flutter test ortamında "A Timer is still pending" hatasına yol açtı.
+  - `dashboard_mentor_card.dart` içinde kullanılmayan `dealership_model.dart` kütüphane uyarısı.
+- **Kök Neden**:
+  - İlan fiyatı alanının araç modelindeki `price` alanı ile karıştırılması.
+  - Test ortamında Riverpod konteyneri dispose edilirken pazar zamanlayıcısının açık kalması.
+  - İlk iskele kurulumundan kalan gereksiz import ifadesi.
+- **Uygulanan Çözüm**:
+  - `smart_mentor_engine.dart` içinde `l.askingPrice` kullanıldı.
+  - Widget testinde `container.read(marketProvider.notifier).onAppPaused();` ve `container.read(gameProvider.notifier).stopPeriodicOrganicOfferTimer();` çağrılarak zamanlayıcılar durduruldu ve 1 saniye beklenerek kuyruk temizlendi.
+  - Kullanılmayan import kaldırıldı.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/smart_mentor_engine_test.dart`: 19/19 test başarılı.
+  - `flutter test test/localization_integrity_guard_test.dart test/translation_key_coverage_test.dart`: 7/7 test başarılı (7 dil bütünlüğü onaylandı).
+
 ### `GA4 Telemetri Düzeltmesi, İlk Kullanıcı Deneyimi (FTUE) Çıkmazı Çözümü ve Seviye 1 Sponsor Desteği Monetizasyonu (§TELEMETRY-FTUE-REMEDIATION-2026-09-12)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

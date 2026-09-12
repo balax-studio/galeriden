@@ -144,11 +144,15 @@ class GameCoreNotifier extends GameBaseNotifier
           );
         }
 
-        if (updated.pendingDramaticCard == null) {
-          final initialCard = DramaticCardEngine.generateDailyDilemma(
+        if (updated.pendingDramaticCard != null &&
+            updated.pendingDramaticCard!.id.startsWith('milestone_')) {
+          final criticalCard = DramaticCardEngine.selectCriticalDilemma(
               updated.currentDay, updated);
-          updated = updated.copyWith(pendingDramaticCard: initialCard);
-        } else {
+          updated = updated.copyWith(
+            pendingDramaticCard: criticalCard,
+            clearPendingDramaticCard: criticalCard == null,
+          );
+        } else if (updated.pendingDramaticCard != null) {
           updated = updated.copyWith(
             pendingDramaticCard: updated.pendingDramaticCard!.copyWith(
               dayNumber: updated.currentDay,
@@ -179,10 +183,14 @@ class GameCoreNotifier extends GameBaseNotifier
     }
     if (!mounted) return;
     _isLoaded = true;
-    if (state.pendingDramaticCard == null) {
-      final initialCard = DramaticCardEngine.generateDailyDilemma(state.currentDay, state);
-      state = state.copyWith(pendingDramaticCard: initialCard);
-    } else {
+    if (state.pendingDramaticCard != null &&
+        state.pendingDramaticCard!.id.startsWith('milestone_')) {
+      final criticalCard = DramaticCardEngine.selectCriticalDilemma(state.currentDay, state);
+      state = state.copyWith(
+        pendingDramaticCard: criticalCard,
+        clearPendingDramaticCard: criticalCard == null,
+      );
+    } else if (state.pendingDramaticCard != null) {
       state = state.copyWith(
         pendingDramaticCard: state.pendingDramaticCard!.copyWith(
           dayNumber: state.currentDay,

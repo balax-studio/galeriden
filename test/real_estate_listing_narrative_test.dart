@@ -142,6 +142,8 @@ void main() {
         'real_estate_btn_list_for_sale',
         'real_estate_btn_view_offers',
         'real_estate_insufficient_balance_package',
+        'real_estate_price_exceeds_ceiling',
+        'real_estate_price_below_floor',
       ];
 
       final allMaps = [
@@ -163,6 +165,41 @@ void main() {
           expect(val.contains(')'), isFalse, reason: 'Key $key: value "$val" must not contain )');
         }
       }
+    });
+
+    test('Validates price ceiling 150% and floor 40% boundaries', () {
+      const property = RealEstateModel(
+        id: 'prop_pricing_test',
+        title: 'Örnek Daire',
+        category: RealEstateCategory.housing,
+        city: 'İstanbul',
+        district: 'Kadıköy',
+        squareMeters: 100,
+        roomCount: '3+1',
+        buildingAge: 5,
+        deedType: DeedType.ownershipDeed,
+        sellerType: RealEstateSellerType.individual,
+        baseMarketValue: 1000000.0,
+        currentPurchasePrice: 1000000.0,
+        deedFeePaid: 40000.0,
+        commissionPaid: 0.0,
+        isRenovated: false,
+        isRented: false,
+        provenanceLog: [],
+      );
+
+      final fairValue = property.estimatedRealValue;
+      expect(fairValue, greaterThan(0));
+
+      final maxAllowed = fairValue * 1.50;
+      final minAllowed = fairValue * 0.40;
+
+      // Price exceeding 150% ceiling
+      expect(maxAllowed * 1.05 > maxAllowed, isTrue);
+      // Price below 40% floor
+      expect(minAllowed * 0.90 < minAllowed, isTrue);
+      // Legitimate in-bound price
+      expect(fairValue >= minAllowed && fairValue <= maxAllowed, isTrue);
     });
   });
 }

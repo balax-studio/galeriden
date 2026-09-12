@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:galeriden/data/models/dealership_model.dart';
+import 'package:galeriden/domain/usecases/contextual_dilemma_pool.dart';
 import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 import 'package:galeriden/presentation/providers/game_provider.dart';
 import 'package:galeriden/presentation/widgets/neo_brutal_dramatic_dialog.dart';
@@ -149,7 +150,8 @@ void main() {
       final state = DealershipModel.initial().copyWith(balance: 0, currentDay: 1);
       container.read(gameProvider.notifier).state = state;
 
-      final card = DramaticCardEngine.generateDailyDilemma(1, state);
+      // Use rookie card with upfront cost (₺200 tea_tip) to verify insufficient balance lockout
+      final card = ContextualDilemmaPool.rookieCards.first.copyWith(dayNumber: 1);
 
       await tester.pumpWidget(
         _buildTestApp(

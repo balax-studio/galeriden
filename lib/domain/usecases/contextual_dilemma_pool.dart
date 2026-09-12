@@ -788,6 +788,72 @@ class ContextualDilemmaPool {
     ),
   ];
 
+  /// Evaluates dealership operational metrics and returns a dilemma card ONLY if a
+  /// genuine critical event, crisis, or state milestone is triggered.
+  /// Returns null if operations are normal, avoiding disruptive daily interruptions.
+  static DramaticCardModel? selectCriticalCard(
+    DealershipModel state, {
+    List<String> seenIds = const [],
+  }) {
+    // 1. Cash Crisis: Player is broke or in debt (balance < ₺25,000)
+    if (state.balance < 25000.0) {
+      final available = cashCrisisCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+      return cashCrisisCards.first;
+    }
+
+    // 2. Rookie Onboarding: First 3 days AND Level <= 2
+    if (state.level <= 2 && state.currentDay <= 3) {
+      final available = rookieCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+    }
+
+    // 3. Damaged / Muddy Fleet Crisis: 2+ neglected or damaged cars in garage
+    final damagedCount = state.ownedCars.where((c) =>
+      c.expertise.engineCondition < 70.0 ||
+      c.expertise.transmissionCondition < 70.0 ||
+      !c.isWashed ||
+      c.hasMuddyPenalty
+    ).length;
+    if (damagedCount >= 2) {
+      final available = damagedFleetCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+    }
+
+    // 4. Post-Sale Dispute: Has sales history and periodic dispute event
+    if (state.salesHistory.isNotEmpty && (state.currentDay % 5 == 0)) {
+      final available = postSaleDisputeCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+    }
+
+    // 5. High Capital & Wealth: balance >= ₺500,000 on periodic cycle
+    if (state.balance >= 500000.0 && (state.currentDay % 4 == 0)) {
+      final available = highCapitalCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+    }
+
+    // 6. VIP Reputation: reputationScore >= 120 on periodic cycle
+    if (state.reputationScore >= 120 && (state.currentDay % 4 == 2)) {
+      final available = vipReputationCards.where((c) => !seenIds.contains(c.id)).toList();
+      if (available.isNotEmpty) {
+        return available.first;
+      }
+    }
+
+    // Operations are normal: return null so no card interrupts the player
+    return null;
+  }
+
   /// Dynamically resolves the most appropriate dilemma card based on player context.
   static DramaticCardModel selectContextualCard(
     DealershipModel state, {

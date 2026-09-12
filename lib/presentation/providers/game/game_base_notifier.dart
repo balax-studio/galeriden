@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../data/models/dealership_model.dart';
 import '../../../data/models/mission_model.dart';
+import '../../../domain/usecases/mentor_quest_engine.dart';
+import '../../../domain/usecases/smart_mentor_engine.dart';
 
 abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
   GameBaseNotifier(super.state);
@@ -32,6 +34,25 @@ abstract class GameBaseNotifier extends StateNotifier<DealershipModel> {
     final updated = Map<String, int>.from(state.npcRelationships);
     updated[npcId] = newRelation;
     state = state.copyWith(npcRelationships: updated);
+    saveState();
+  }
+
+  void claimMentorQuest(String questId) {
+    state = MentorQuestEngine.claimQuestReward(state, questId);
+    saveState();
+  }
+
+  bool serveTeaToHalil() {
+    if (!MentorQuestEngine.canServeTea(state)) {
+      return false;
+    }
+    state = MentorQuestEngine.serveTeaToHalil(state);
+    saveState();
+    return true;
+  }
+
+  void recordMentorAdvice(SmartMentorAdvice advice) {
+    state = SmartMentorEngine.recordAdviceGiven(state, advice);
     saveState();
   }
 }
