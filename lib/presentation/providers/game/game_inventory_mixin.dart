@@ -103,6 +103,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
   /// Purchase a car from market with RiskEngine check
   PurchaseRiskOutcome? buyCar(CarModel car, double purchasePrice,
       {bool isExpertiseCompleted = false}) {
+    if (purchasePrice <= 0 || purchasePrice.isNaN || purchasePrice.isInfinite) return null;
+
     // Unified buyer acquisition perks (pazarlık, tüccar torunu, pazar kurdu) (C2)
     final double finalPurchasePrice = state.applyBuyerPerks(purchasePrice);
 
@@ -168,6 +170,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     double registrationFee = 850.0,
     bool isExpertiseCompleted = false,
   }) {
+    if (agreedPrice <= 0 || agreedPrice.isNaN || agreedPrice.isInfinite ||
+        noterFee < 0 || noterFee.isNaN || noterFee.isInfinite ||
+        registrationFee < 0 || registrationFee.isNaN || registrationFee.isInfinite) {
+      return null;
+    }
+
     double finalNoterFee = noterFee;
     if (state.activePodiumPerks != null && state.activePodiumPerks!.isActive) {
       final discount = state.activePodiumPerks!.notaryDiscountRate;
@@ -437,6 +445,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
     required double fixedFee,
     required String buyerName,
   }) {
+    if (salePrice <= 0 || salePrice.isNaN || salePrice.isInfinite ||
+        commission < 0 || commission.isNaN || commission.isInfinite ||
+        fixedFee < 0 || fixedFee.isNaN || fixedFee.isInfinite) {
+      return false;
+    }
+
     final carIndex = state.ownedCars.indexWhere((c) => c.id == carId);
     if (carIndex == -1) return false;
 
@@ -496,6 +510,7 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Directly purchase a car
   bool buyCarDirectly(CarModel car, double price) {
+    if (price <= 0 || price.isNaN || price.isInfinite) return false;
     if (state.balance < price) return false;
     if (state.ownedCars.length >= state.maxGarageSlots) return false;
     final logEntry =

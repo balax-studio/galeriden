@@ -17,7 +17,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     if (wageredCar != null) {
       if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
     } else {
-      if (state.balance < betAmount || betAmount <= 0) return null;
+      if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
     }
 
     // Deduct wager initially
@@ -49,7 +49,11 @@ mixin GameCasinoMixin on GameBaseNotifier {
       }
       if (result.wonCar != null) {
         // Player wins bonus supercar
-        updatedCars.add(result.wonCar!);
+        if (updatedCars.length < state.maxGarageSlots) {
+          updatedCars.add(result.wonCar!);
+        } else {
+          currentBalance += result.wonCar!.price;
+        }
       }
     }
 
@@ -94,7 +98,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       if (wageredCar != null) {
         if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
       } else {
-        if (state.balance < betAmount || betAmount <= 0) return null;
+        if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
       }
 
       // Deduct bet at the start of Come-Out roll
@@ -163,7 +167,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
   // 3. HI-LO VİTES
   // ==========================================
   bool startHiLoGame(double betAmount) {
-    if (state.balance < betAmount || betAmount <= 0) return false;
+    if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return false;
     state = state.copyWith(balance: state.balance - betAmount);
     saveState();
     return true;
@@ -174,6 +178,11 @@ mixin GameCasinoMixin on GameBaseNotifier {
     required double payoutAmount,
     required int streak,
   }) {
+    if (initialBet <= 0 || initialBet.isNaN || initialBet.isInfinite ||
+        payoutAmount <= 0 || payoutAmount.isNaN || payoutAmount.isInfinite ||
+        streak <= 0) {
+      return;
+    }
     final oldStats = state.casinoStats;
     final profit = payoutAmount - initialBet;
     final multiplier = initialBet > 0 ? (payoutAmount / initialBet) : 1.0;
@@ -194,6 +203,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
   }
 
   void recordHiLoBust(double initialBet) {
+    if (initialBet <= 0 || initialBet.isNaN || initialBet.isInfinite) return;
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
       totalGamesPlayed: oldStats.totalGamesPlayed + 1,
@@ -210,7 +220,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
   // ==========================================
   PlinkoDropResult? playCasinoPlinko({required double betAmount, bool isFreeAd = false}) {
     if (!isFreeAd) {
-      if (state.balance < betAmount || betAmount <= 0) return null;
+      if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
     }
 
     final result = CasinoEngine.dropPlinkoBuji(betAmount: betAmount);
@@ -248,7 +258,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
       if (wageredCar != null) {
         if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
       } else {
-        if (state.balance < betAmount || betAmount <= 0) return null;
+        if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
       }
     }
 
@@ -278,7 +288,11 @@ mixin GameCasinoMixin on GameBaseNotifier {
     }
 
     if (result.awardedCar != null) {
-      updatedCars.add(result.awardedCar!);
+      if (updatedCars.length < state.maxGarageSlots) {
+        updatedCars.add(result.awardedCar!);
+      } else {
+        currentBalance += result.awardedCar!.price;
+      }
     }
 
     final profit = result.payoutAmount - effectiveBet;
@@ -314,7 +328,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
   // 6. ŞASİ KAZI KAZAN (SCRATCH CARD)
   // ==========================================
   ScratchCardResult? buyAndScratchCard({required double cardCost}) {
-    if (state.balance < cardCost || cardCost <= 0) return null;
+    if (cardCost <= 0 || cardCost.isNaN || cardCost.isInfinite || state.balance < cardCost) return null;
 
     final result = CasinoEngine.generateScratchCard(cardCost: cardCost);
     final profit = result.payoutAmount - cardCost;
@@ -347,6 +361,14 @@ mixin GameCasinoMixin on GameBaseNotifier {
     required bool guessHeads,
     CarModel? wageredCar,
   }) {
+    if (wageredCar != null) {
+      if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return false;
+    } else {
+      if (baseProfit <= 0 || baseProfit.isNaN || baseProfit.isInfinite || state.balance < baseProfit) {
+        return false;
+      }
+    }
+
     final isWin = CasinoEngine.flipDoubleOrNothing(guessHeads: guessHeads);
     final effectiveStake = wageredCar != null ? wageredCar.price : baseProfit;
 
@@ -399,6 +421,12 @@ mixin GameCasinoMixin on GameBaseNotifier {
     required double betAmount,
     CarModel? wageredCar,
   }) {
+    if (wageredCar != null) {
+      if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return;
+    } else {
+      if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return;
+    }
+
     double currentBalance = state.balance;
     List<CarModel> updatedCars = List.from(state.ownedCars);
 
@@ -421,6 +449,11 @@ mixin GameCasinoMixin on GameBaseNotifier {
     CarModel? wageredCar,
     required bool isWin,
   }) {
+    if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite ||
+        multiplier <= 0 || multiplier.isNaN || multiplier.isInfinite) {
+      return;
+    }
+
     final effectiveBet = wageredCar != null ? wageredCar.price : betAmount;
     double currentBalance = state.balance;
     List<CarModel> updatedCars = List.from(state.ownedCars);
@@ -460,6 +493,8 @@ mixin GameCasinoMixin on GameBaseNotifier {
     required double betAmount,
     CarModel? wageredCar,
   }) {
+    if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite) return;
+
     final effectiveBet = wageredCar != null ? wageredCar.price : betAmount;
     final oldStats = state.casinoStats;
     final newStats = oldStats.copyWith(
@@ -489,7 +524,7 @@ mixin GameCasinoMixin on GameBaseNotifier {
     if (wageredCar != null) {
       if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
     } else {
-      if (state.balance < betAmount || betAmount <= 0) return null;
+      if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
     }
 
     double currentBalance = state.balance;

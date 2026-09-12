@@ -5,6 +5,7 @@ import '../../data/models/dramatic_card_model.dart';
 import '../../data/models/expertise_model.dart';
 import '../../data/models/staff_model.dart';
 import 'contextual_dilemma_pool.dart';
+import 'daily_life_cards_data.dart';
 
 class DramaticResolutionResult {
   final DramaticCardModel card;
@@ -21,9 +22,11 @@ class DramaticResolutionResult {
 }
 
 class DramaticCardEngine {
-  /// Generates the contextual dilemma card based on player state and context
+  /// Generates the daily dilemma card for the specified calendar day • Day 1 to 365+
   static DramaticCardModel generateDailyDilemma(int day, DealershipModel state, {Random? randomInstance}) {
-    return ContextualDilemmaPool.selectContextualCard(state, seenIds: state.seenDramaticCardIds).copyWith(dayNumber: day);
+    final dayIndex = ((day - 1) % 365) + 1;
+    final cardDef = DailyLifeCardsData.getCardForDay(dayIndex);
+    return cardDef.toCard(day);
   }
 
   /// Selects the next appropriate dramatic dilemma card based on player state and cycle history

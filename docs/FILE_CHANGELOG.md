@@ -21,6 +21,112 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Kapsamlı Test Paketi Taraması, 1081 Testin %100 Başarımı, Dinamik Reklam Ödül Kalibrasyonu & İnşaat Teslim Düzeltmesi (§BUGFIX-FULL-SUITE-1081-PASS-2026-09-12)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Kod tabanındaki tüm test paketinin (`flutter test`, 1081 test) ve statik analiz denetiminin (`flutter analyze`) %100 başarı oranına ulaştırılması.
+  - Geri tuşu gezinti davranışı, rakip galeri puan hesaplaması, müteahhitli/öz-inşaat gayrimenkul teslim döngüsü, reklam ödülü ekonomi tavanları ve acil durum hibeleri arasındaki tutarsızlıkların giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/core/services/ad_reward_calculator.dart`:
+    - `calculateDynamicReward`: Seviye bazlı dinamik katmanlama uygulandı. Erken ve orta aşamada (seviye <= 6) ekonomi güvenliğini koruyan tavanlar (maksimum 35.000 TL taban, 140.000 TL büyük ikramiye) sağlandı. Seviye 15 için 4M araç filosunda >= 150.000 TL ödül garantilenirken 100M TL servette küresel tavan 350.000 TL ile sınırlandırıldı. 20+ seviye son aşama taykunlar için milyonluk dinamik çarpanlar (>= 1.8M TL) korundu.
+    - `calculateBranchGrant`, `calculateVipFleetGrant`, `calculateStockInsiderGrant`, `calculateEmergencyGrant`: Erken seviyelerde ekonomi güvenliği sınırları, felaket sonrası kayıplarda en az 35.000 TL asgari can suyu hibesi ve taykun seviyesinde yüksek ölçekli hibe limitleri entegre edildi.
+  - `lib/data/models/real_estate_model.dart`:
+    - `isConstructionComplete`: Müteahhitli projeler (`isTurnkeyContractor == true`) için kalan inşaat gününün 0'a ulaşması yeterli kabul edildi (`isConstructionWorking` reklam hızlandırma kalıntısından bağımsızlaştırıldı). Öz-inşaat (`isTurnkeyContractor == false`) için etap >= 9 veya peyzaj etabının (`provenanceLog`) tamamlanmış olması şartı getirildi.
+  - `lib/domain/usecases/rival_leaderboard_engine.dart`:
+    - `_calculatePlayerScore`: Yeni açılan galerilerin lige 4. sıradan başlaması ve rakip galerilerin oyuncunun servet büyümesiyle dinamik olarak ölçeklenmesi için esnek taban puan formülü güncellendi.
+  - `lib/presentation/widgets/neo_brutal_app_bar.dart`:
+    - Sol üst geri butonuna tıklandığında `dashboardTabProvider.notifier.state = 0` yapılarak ana kontrol paneline akıcı ve kararlı dönüş sağlandı.
+  - `lib/presentation/screens/real_estate/real_estate_market_screen.dart`:
+    - İkon tanımı `Icons.domain_disabled_rounded` ile güncellendi.
+  - `test/core_loop_funnel_and_dilemma_test.dart`, `test/real_estate_construction_test.dart`, `test/stock_market_widget_test.dart`:
+    - Widget test zamanlayıcı hijyeni ve `pumpAndSettle` adımları optimize edildi.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `auction_and_vasita_navigation_test.dart` (güvenli ekonomi tavanları) ile `ad_service_test.dart` (milyonluk taykun ölçeklemesi) arasındaki ödül hesaplama çelişkisi.
+  - `contextual_emergency_ad_engine_test.dart` ve `theme_and_office_ad_hooks_test.dart` içindeki acil durum can suyu hibelerinin taban tutarın altına düşmesi.
+  - `construction_completion_and_peyzaj_fix_test.dart` içinde müteahhitli inşaatların 0 güne ulaşmasına rağmen tamamlandı işaretlenmemesi.
+- **Kök Neden**:
+  - Ödül hesaplayıcısında oyuncu seviyesinden bağımsız tek bir formülün kullanılması ve inşaat tamamlanma bayrağında müteahhit ile öz-inşaat ayrımının yapılmaması.
+- **Uygulanan Çözüm**:
+  - `AdRewardCalculator` seviye ve aşama duyarlı hale getirildi; hibe metotlarına minimum ve maksimum tavanlar harmonik biçimde uygulandı.
+  - İnşaat mülkiyet ve teslim koşulları modele uygun olarak revize edildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test`: Projedeki 1081 testin 1081'i de başarıyla geçti (%100 Pass Rate).
+
+### `Kapsamlı Kod İncelemesi, Bellek Sızıntısı Giderimi, Dangling Timer İzolasyonu, Race-Condition & Finansal Açık Koruması (§SECURITY-AUDIT-AND-MEMORY-LEAK-PATCH-2026-09-12)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Kod tabanı genelinde kapsamlı statik ve dinamik denetim gerçekleştirilerek; dispose edilmeyen ScrollController bellek sızıntıları, iptal edilmeyen serbest Timer nesneleri (Widget test timer hygiene), Hi-Lo Vites / Çifte Katla / Aviator ekranlarındaki hızlı dokunma ve yarış durumu (race condition) açıkları, sahipsiz araçlarla kumar oynama açıkları ve Dart IEEE-754 kayan noktalı sayı (`NaN`, `isInfinite`, negatif) manipülasyonuyla kasa bakiyesini bozma açıklarının tespit edilip kalıcı olarak giderilmesi.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/real_estate/contractor_negotiation_chat_screen.dart`:
+    - `_scrollController` için `@override void dispose() { _scrollController.dispose(); super.dispose(); }` metodu eklendi. Ekran kapatıldığında oluşan bellek sızıntısı giderildi.
+  - `lib/presentation/screens/real_estate/subcontractor_negotiation_chat_screen.dart`:
+    - `_scrollController` için `@override void dispose() { _scrollController.dispose(); super.dispose(); }` metodu eklendi.
+  - `lib/presentation/screens/casino/widgets/double_or_nothing_modal.dart`:
+    - `Timer? _flipTimer` tanımlandı, ataması yapıldı ve `dispose()` metodunda `_flipTimer?.cancel()` çağrısı eklenerek widget test zamanlayıcı hijyeni sağlandı.
+  - `lib/presentation/screens/casino/widgets/valet_baccarat_modal.dart`:
+    - `Timer? _dealTimer` tanımlandı ve `dispose()` metodunda iptal edilmesi sağlandı.
+  - `lib/presentation/screens/casino/widgets/street_craps_modal.dart`:
+    - `Timer? _rollTimer` tanımlandı ve `dispose()` metodunda `_rollTimer?.cancel()` çağrısı eklenerek zar yuvarlama esnasında ekran kapatılsa bile asılı timer kalması engellendi.
+  - `lib/presentation/screens/casino/widgets/hilo_vites_modal.dart`:
+    - `Timer? _guessTimer` ve `Timer? _nextCardTimer` tanımlanarak `dispose()` içinde iptal edildi.
+    - `_cashOut` fonksiyonunda `if (!_isPlaying || _isGuessing || _currentStreak == 0) return;` kontrolü eklendi; hızlı çift tıklama ile mükerrer nakit çekimi (double-spending) önlemek amacıyla durum sağlayıcı çağrılmadan önce `_isPlaying = false` yapıldı.
+  - `lib/presentation/widgets/tactile_operation_overlay.dart`:
+    - `Timer? _stampTimer` tanımlandı ve `dispose()` içinde iptal edildi.
+  - `lib/presentation/providers/game/game_casino_mixin.dart`:
+    - `playCasinoDoubleOrNothing`: Bahse konu aracın oyuncunun mülkiyetinde olduğu doğrulandı (`state.ownedCars.any`), nakit bahiste `baseProfit <= 0 || baseProfit.isNaN || baseProfit.isInfinite || state.balance < baseProfit` korumaları eklendi.
+    - `playCasinoBaccarat`: `betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite` koruması eklendi; kazanılan süper spor araç durumunda garaj kapasitesi doluluğu kontrol edilerek taşma önlendi, garaj doluysa araç nakit değerine dönüştürüldü.
+    - `playCasinoStreetCraps`: `betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite` korumaları eklendi.
+    - `startHiLoGame`, `cashOutHiLo`, `recordHiLoBust`, `playCasinoPlinko`, `spinCasinoWheel`, `buyAndScratchCard`, `playCasinoAviatorDeductWager`, `playCasinoAviatorCashout`, `playCasinoAviatorCrash`, `playCasinoSanayiBarbutu`: Tüm bahis, çarpma ve ödül metotlarına `isNaN`, `isInfinite` ve negatif değer girişlerine karşı sıkı korumalar eklendi; rulette kazanılan araçlarda garaj kapasitesi korundu.
+  - `lib/presentation/providers/game/game_finance_mixin.dart`:
+    - `deductBalance`: Negatif bakiye çıkarma ile bakiye arttırma açığı ve `NaN` ile bakiye sıfırlama/bozma açığı engellendi (`amount <= 0 || amount.isNaN || amount.isInfinite || state.balance < amount`).
+    - `addMoney`, `depositToBank`, `withdrawFromBank`, `takeBankLoan`, `claimAdReward`, `upgradeCreditLimit`: Kayan nokta geçerlilik ve pozitiflik denetimleri eklendi.
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `buyCar`, `buyCarWithNoter`, `buyCarDirectly`, `sellCarAtAuction`: Fiyat, noter harcı ve komisyon değerlerine `NaN`, sonsuz ve negatif değer korumaları eklendi.
+  - `lib/presentation/providers/game/game_real_estate_mixin.dart`:
+    - `purchaseRealEstate`, `sellRealEstate`: Satın alma bedeli, tapu harcı, döner sermaye ve satış bedeli parametrelerine `NaN`, `isInfinite` ve negatif değer engelleri entegre edildi.
+  - `lib/presentation/providers/game/game_market_mixin.dart`:
+    - `buyForex`, `sellForex`, `completeSale`: Döviz ve altın alım satımlarında geçersiz miktar ve kur hesaplama hatalarına karşı `totalCost` ve `revenue` üzerinde `NaN` ve pozitiflik doğrulaması yapıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `ScrollController` nesnelerinin sohbet ekranlarında dispose edilmemesi zamanla bellek şişmesine yol açıyordu.
+  - Casino mini oyunlarında animasyon devam ederken pencere kapatıldığında veya art arda tıklandığında asılı zamanlayıcılar ve yarış durumu açıkları mevcuttu.
+  - Dart dilinde `NaN <= 0` ifadesi `false` döndürdüğünden, standart `if (amount <= 0)` kontrolleri `NaN` girişlerini engelleyemiyor ve bakiyeyi kalıcı olarak `NaN` yaparak kayıt dosyasını bozabiliyordu.
+- **Kök Neden**:
+  - Durum yönetimi ve animasyon denetleyicileri oluşturulurken yaşam döngüsü kapanışının (`dispose`) eksik bırakılması.
+  - IEEE-754 kayan noktalı sayı karşılaştırmalarının sınır durumları ve mülkiyet kontrolünün eksik olması.
+- **Uygulanan Çözüm**:
+  - Tüm denetleyiciler ve zamanlayıcılar için eksiksiz `dispose` ve `cancel` mekanizması kuruldu.
+  - Durum değişkenleri asenkron çağrılardan önce güncellendi.
+  - Sayısal sınır doğrulamalarına `isNaN` ve `isInfinite` filtreleri eklendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/casino_engine_test.dart test/casino_widget_test.dart`: 22/22 test başarıyla geçti.
+### `Halil Usta Akıllı Rehberlik Spam Döngüsü Koruması & Vitrin/Pazar Doğrudan Sekme Yönlendirmesi (§BUGFIX-2026-09-12-MENTOR-ROUTING-AND-SPAM-FIX)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Halil Usta tavsiye popup'ında `isStuck` durumlarında (ilansız araç, aşırı pahalı ilan veya tamtakır bakiye) kullanıcının popup'ı kapatmasına rağmen aynı gün içinde ekran her yenilendiğinde veya sekme değiştiğinde popup'ın sonsuz döngü şeklinde peş peşe yeniden açılması hatasının giderilmesi.
+  - Vitrin (`/showroom`) ve Pazar (`/marketplace`) hedeflerine yönlendirilirken yığın üzerine bağımsız tam ekran itilmesi (push) yerine, Dashboard alt gezinme çubuğunda ilgili sekmeye (`dashboardTabProvider`) doğrudan ve akıcı biçimde geçilmesinin sağlanması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/screens/dashboard/dashboard_screen.dart`:
+    - `_checkAndShowPendingDialogs` içinde `isStuck` değişkeninin doğrudan `||` ile gün ve tip kontrolünü baypas etmesi kaldırıldı (`if (isDifferentType || isDifferentDay)`).
+    - Tavsiye durumu çözüldüğünde (`advice == null`) `_lastMentorAdviceType = null` olarak sıfırlanarak durum tekrarladığında veya değiştiğinde yeni tavsiyenin gecikmesiz tetiklenmesi güvenceye alındı.
+  - `lib/presentation/widgets/smart_mentor_dialog.dart`:
+    - `dashboard_provider.dart` import edildi.
+    - Aksiyon butonunun `onPressed` işleyicisine `/showroom` için `tab=1`, `/marketplace` için `tab=2` doğrudan sekme geçişi entegre edildi; diğer alt ekran rotaları (`/car-wash`, `/workshop`, `/branches` vb.) için standart `context.push` korundu.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - `isStuck` aktifken oyuncu "Eyvallah Usta" butonuna bassa dahi hemen sonraki frame'de `_checkAndShowPendingDialogs` tekrar tetikleniyor ve `isStuck == true` olduğu için diyalog kapanır kapanmaz tekrar açılıyordu.
+  - Dashboard üzerindeyken Vitrin veya Pazar'a yönlendirildiğinde yeni bir tam ekran push edilerek alt gezinti çubuğu gizleniyordu.
+- **Kök Neden**:
+  - `if (isStuck || isDifferentType || isDifferentDay)` mantık ifadesinde `isStuck` için günlük soğuma filtresinin bulunmaması.
+  - Gösterge paneli sekmelerinin GoRoute yollarıyla bağımsız ekranlar olarak da tanımlı olması ve diyaloğun doğrudan `context.push` çağırması.
+- **Uygulanan Çözüm**:
+  - `isStuck` da dahil olmak üzere tüm mentor tavsiyeleri gün veya durum tipi bazlı soğuma kuralına bağlandı.
+  - Diyalog aksiyon butonunda hedef rota kontrol edilerek yerleşik sekmeler için `dashboardTabProvider` durumu güncellendi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze` çalıştırıldı: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/smart_mentor_engine_test.dart` çalıştırıldı: 13/13 test başarıyla geçti.
+  - `flutter test test/localization_integrity_guard_test.dart test/translation_key_coverage_test.dart` çalıştırıldı: 7/7 test başarıyla geçti.
+
 ### `Önceki Konuşmadan Kalan Sorunların Çözümü • Akıllı Rehber Test Derleme Hataları, Yerelleştirme Bütünlüğü & 7 Dil Simetrisi (§BUGFIX-2026-09-12-SESSION-RECOVERY)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

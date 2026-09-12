@@ -34,14 +34,14 @@ class LiquidityStatus {
 mixin GameFinanceMixin on GameBaseNotifier {
   /// Deduct balance from dealership capital
   void deductBalance(double amount) {
-    if (state.balance < amount) return;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite || state.balance < amount) return;
     state = state.copyWith(balance: state.balance - amount);
     saveState();
   }
 
   /// Add cash / bonus to dealership capital
   void addMoney(double amount) {
-    if (amount <= 0) return;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite) return;
     state = state.copyWith(balance: state.balance + amount);
     saveState();
   }
@@ -55,7 +55,7 @@ mixin GameFinanceMixin on GameBaseNotifier {
     if (state.activeLoans.length >= 3) {
       return false; // Max 3 active loans
     }
-    if (amount <= 0 || amount > state.bankCreditLimit) {
+    if (amount <= 0 || amount.isNaN || amount.isInfinite || amount > state.bankCreditLimit) {
       return false; // Must be within approved credit limit
     }
 
@@ -261,13 +261,14 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
   /// Add rewarded ad balance boost
   void claimAdReward(double rewardAmount) {
+    if (rewardAmount <= 0 || rewardAmount.isNaN || rewardAmount.isInfinite) return;
     state = state.copyWith(balance: state.balance + rewardAmount);
     saveState();
   }
 
   /// Deposit cash into bank time deposit
   bool depositToBank(double amount) {
-    if (amount <= 0 || state.balance < amount) return false;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite || state.balance < amount) return false;
     state = state.copyWith(
       balance: state.balance - amount,
       bankDepositBalance: state.bankDepositBalance + amount,
@@ -280,7 +281,7 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
   /// Withdraw cash from bank time deposit
   bool withdrawFromBank(double amount) {
-    if (amount <= 0 || state.bankDepositBalance < amount) return false;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite || state.bankDepositBalance < amount) return false;
     state = state.copyWith(
       balance: state.balance + amount,
       bankDepositBalance: state.bankDepositBalance - amount,
@@ -291,7 +292,8 @@ mixin GameFinanceMixin on GameBaseNotifier {
 
   /// Upgrade bank credit limit
   bool upgradeCreditLimit({required double newLimit, required double fee}) {
-    if (state.balance < fee) return false;
+    if (newLimit <= 0 || newLimit.isNaN || newLimit.isInfinite) return false;
+    if (fee <= 0 || fee.isNaN || fee.isInfinite || state.balance < fee) return false;
     state = state.copyWith(
       balance: state.balance - fee,
       bankCreditLimit: newLimit,

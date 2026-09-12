@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
+import '../providers/dashboard_provider.dart';
 import 'hazard_stripe_widget.dart';
 
 /// Screen-specific neo-brutalist micro-animation presets
@@ -165,6 +166,11 @@ class _NeoBrutalAppBarState extends ConsumerState<NeoBrutalAppBar>
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
                             HapticFeedback.lightImpact();
+                            try {
+                              if (ref.read(dashboardTabProvider) != 0) {
+                                ref.read(dashboardTabProvider.notifier).state = 0;
+                              }
+                            } catch (_) {}
                             if (widget.onLeadingPressed != null) {
                               widget.onLeadingPressed!();
                               return;

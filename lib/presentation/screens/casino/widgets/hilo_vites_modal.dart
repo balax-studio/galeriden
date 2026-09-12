@@ -31,6 +31,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
 
   late AnimationController _flipController;
   late AnimationController _pulseController;
+  Timer? _guessTimer;
+  Timer? _nextCardTimer;
 
   final List<double> _quickBets = [
     25000.0,
@@ -56,6 +58,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
 
   @override
   void dispose() {
+    _guessTimer?.cancel();
+    _nextCardTimer?.cancel();
     _flipController.dispose();
     _pulseController.dispose();
     super.dispose();
@@ -94,7 +98,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
     HapticFeedback.mediumImpact();
     _flipController.forward(from: 0.0);
 
-    Timer(const Duration(milliseconds: 650), () {
+    _guessTimer?.cancel();
+    _guessTimer = Timer(const Duration(milliseconds: 650), () {
       if (!mounted) return;
       final res = CasinoEngine.guessHiLo(
         currentCard: _currentCard!,
@@ -112,7 +117,8 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
 
       if (res.isCorrect) {
         HapticFeedback.vibrate();
-        Timer(const Duration(milliseconds: 700), () {
+        _nextCardTimer?.cancel();
+        _nextCardTimer = Timer(const Duration(milliseconds: 700), () {
           if (mounted && !_isBust) {
             setState(() {
               _currentCard = res.nextCard;
@@ -129,19 +135,24 @@ class _HiLoVitesModalState extends ConsumerState<HiLoVitesModal>
   }
 
   void _cashOut() {
-    if (!_isPlaying || _currentStreak == 0) return;
+    if (!_isPlaying || _isGuessing || _currentStreak == 0) return;
+    _guessTimer?.cancel();
+    _nextCardTimer?.cancel();
+
     final totalPayout = _selectedBet * _currentMultiplier;
+    final int streakToRecord = _currentStreak;
+
+    setState(() {
+      _isPlaying = false;
+    });
 
     ref.read(gameProvider.notifier).cashOutHiLo(
           initialBet: _selectedBet,
           payoutAmount: totalPayout,
-          streak: _currentStreak,
+          streak: streakToRecord,
         );
 
     HapticFeedback.vibrate();
-    setState(() {
-      _isPlaying = false;
-    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import '../../core/utils/currency_formatter.dart';
 import '../../data/models/dealership_model.dart';
 
@@ -138,7 +139,25 @@ class RivalLeaderboardEngine {
   static double _calculateLeagueBaseline(DealershipModel playerDealership) {
     // Baseline weekly expectancy scaled to dealership league level
     final effectiveLevel = playerDealership.level.clamp(1, 20);
-    return 45000.0 + (effectiveLevel * 65000.0);
+    final base = 45000.0 + (effectiveLevel * 65000.0);
+    // Rubber-banding: scale baseline with player growth (profit, cars sold, inventory)
+    final inventoryValue = playerDealership.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final playerGrowth = (playerDealership.totalProfit * 0.08) +
+        (playerDealership.carsSold * 8000.0) +
+        (inventoryValue * 0.04);
+    return base + playerGrowth;
+  }
+
+  static double _calculatePlayerScore(DealershipModel playerDealership) {
+    final inventoryValue = playerDealership.ownedCars.fold<double>(0.0, (sum, c) => sum + c.baseMarketValue);
+    final salesScore = playerDealership.carsSold > 0 ? (playerDealership.carsSold * 35000.0) : 0.0;
+    final profitScore = playerDealership.totalProfit * 0.25;
+    final balanceFactor = playerDealership.balance * 0.05;
+    final wealthFactor = inventoryValue * 0.05;
+
+    // Level baseline for player (Day 1 level 1: ~105,000 TL, puts player at rank 4)
+    final levelBase = 45000.0 + (playerDealership.level.clamp(1, 20) * 55000.0);
+    return levelBase + salesScore + profitScore + balanceFactor + wealthFactor;
   }
 
   static double _getDailyVariance(String name, int day) {
@@ -158,9 +177,10 @@ class RivalLeaderboardEngine {
     final playerName = playerDealership.dealershipName.isNotEmpty
         ? playerDealership.dealershipName
         : 'Benim Galerim';
+    final baseScore = _calculatePlayerScore(playerDealership);
     final playerScore = playerDealership.weeklyTurnoverScore > 0
-        ? playerDealership.weeklyTurnoverScore
-        : (playerDealership.carsSold > 0 ? (playerDealership.carsSold * 35000.0) : 0.0);
+        ? math.max(baseScore, playerDealership.weeklyTurnoverScore)
+        : baseScore;
 
     entries.add(LeaderboardEntry(
       name: playerName,

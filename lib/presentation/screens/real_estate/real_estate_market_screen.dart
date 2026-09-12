@@ -1197,7 +1197,7 @@ class _RealEstateMarketScreenState extends ConsumerState<RealEstateMarketScreen>
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: NeoBrutalEmptyState(
-            icon: Icons.holiday_village_outlined,
+            icon: Icons.domain_disabled_rounded,
             title: context.tr('real_estate_empty_portfolio_title'),
             description: context.tr('real_estate_empty_portfolio_subtitle'),
             actionLabel: context.tr('real_estate_empty_portfolio_cta'),

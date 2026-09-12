@@ -21,6 +21,28 @@ void main() {
       tester.view.physicalSize = const Size(1280, 1024);
       tester.view.devicePixelRatio = 1.0;
       final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.stopPeriodicOrganicOfferTimer();
+      notifier.state = notifier.state.copyWith(
+        balance: 500000.0,
+        unlockedBuildings: {'/stock-market', 'property_tier_6'},
+        marketStocks: StockModel.defaultStocks,
+        ownedStocks: [
+          PlayerStockModel(
+            symbol: 'FROTO',
+            quantity: 50,
+            averageCost: 800.0,
+          ),
+        ],
+        ownedForex: [
+          PlayerForexModel(
+            symbol: 'USD/TRY',
+            amount: 1000.0,
+            averageRate: 32.5,
+          ),
+        ],
+      );
+
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -42,9 +64,9 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      final notifier = container.read(gameProvider.notifier);
       notifier.state = notifier.state.copyWith(
         balance: 500000.0,
         unlockedBuildings: {'/stock-market', 'property_tier_6'},
@@ -65,12 +87,13 @@ void main() {
         ],
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      // Screen title and tabs exist
-      expect(find.text('BİST Hisseleri'), findsOneWidget);
-      expect(find.text('Portföyüm'), findsOneWidget);
-      expect(find.text('Döviz & Altın'), findsOneWidget);
+      // Screen title and uppercase tabs exist
+      expect(find.text('BİST Hisseleri'.toUpperCase()), findsOneWidget);
+      expect(find.text('Portföyüm'.toUpperCase()), findsOneWidget);
+      expect(find.text('Döviz & Altın'.toUpperCase()), findsOneWidget);
       expect(find.text('HALKA ARZ • IPO'), findsOneWidget);
 
       expect(tester.takeException(), isNull);

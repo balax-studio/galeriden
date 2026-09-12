@@ -7,6 +7,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_extension.dart';
 import '../../domain/usecases/smart_mentor_engine.dart';
+import '../providers/dashboard_provider.dart';
 import '../providers/game_provider.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
@@ -310,7 +311,13 @@ class SmartMentorDialog extends ConsumerWidget {
                         .read(gameProvider.notifier)
                         .markFeatureSeen(advice.targetRoute);
                     Navigator.of(context).pop();
-                    context.push(advice.targetRoute);
+                    if (advice.targetRoute == '/showroom') {
+                      ref.read(dashboardTabProvider.notifier).state = 1;
+                    } else if (advice.targetRoute == '/marketplace') {
+                      ref.read(dashboardTabProvider.notifier).state = 2;
+                    } else {
+                      context.push(advice.targetRoute);
+                    }
                   },
                 ),
                 const SizedBox(height: 8),

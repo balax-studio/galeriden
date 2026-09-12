@@ -411,7 +411,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Buy foreign exchange (USD, EUR) or Gold (GOLD)
   bool buyForex(String symbol, double amount) {
-    if (amount <= 0) return false;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite) return false;
     final forex = state.marketForex.firstWhere(
       (f) => f.symbol == symbol,
       orElse: () =>
@@ -419,6 +419,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     final double totalCost = amount * forex.buyRate;
+    if (totalCost <= 0 || totalCost.isNaN || totalCost.isInfinite) return false;
     if (state.balance < totalCost) return false;
 
     List<PlayerForexModel> updatedOwned = List.from(state.ownedForex);
@@ -455,7 +456,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Sell foreign exchange (USD, EUR) or Gold (GOLD)
   bool sellForex(String symbol, double amount) {
-    if (amount <= 0) return false;
+    if (amount <= 0 || amount.isNaN || amount.isInfinite) return false;
     List<PlayerForexModel> updatedOwned = List.from(state.ownedForex);
     final existingIndex = updatedOwned.indexWhere((f) => f.symbol == symbol);
     if (existingIndex == -1) return false;
@@ -470,6 +471,7 @@ mixin GameMarketMixin on GameBaseNotifier {
     );
 
     final double revenue = amount * forex.sellRate;
+    if (revenue <= 0 || revenue.isNaN || revenue.isInfinite) return false;
 
     if (existing.amount == amount) {
       updatedOwned.removeAt(existingIndex);
@@ -927,6 +929,7 @@ mixin GameMarketMixin on GameBaseNotifier {
 
   /// Complete a car sale transaction
   bool completeSale(OfferModel offer) {
+    if (offer.offeredAmount <= 0 || offer.offeredAmount.isNaN || offer.offeredAmount.isInfinite) return false;
     if (state.ownedCars.isEmpty) return false;
 
     final carIndex = state.ownedCars.indexWhere((c) => c.id == offer.carId);

@@ -257,15 +257,8 @@ class RealEstateModel {
   double get constructionProgress {
     if (isConstructionComplete || constructionStage >= 9) return 1.0;
     if (constructionStage <= 0) return 0.0;
-    final completedStages = (constructionStage - 1).clamp(0, 7);
-    double intra = 0.0;
-    final totalDays = (constructionMode == 'contractor')
-        ? (contractorStageDays > 0 ? contractorStageDays : 15)
-        : (stageTotalDays > 0 ? stageTotalDays : 10);
-    if (totalDays > 0 && constructionDaysRemaining >= 0) {
-      intra = (1.0 - (constructionDaysRemaining / totalDays)).clamp(0.0, 1.0);
-    }
-    return ((completedStages + intra) / 8.0).clamp(0.0, 0.99);
+    if (constructionStage >= 8 && !isConstructionComplete) return 0.99;
+    return (constructionStage / 8.0).clamp(0.0, 1.0);
   }
 
   int get constructionPercent => (constructionProgress * 100).round();
@@ -274,15 +267,18 @@ class RealEstateModel {
   bool get isConstructionComplete =>
       category == RealEstateCategory.land &&
       isConstructionActive &&
-      (constructionStage >= 9 ||
-          (constructionMode == 'contractor' &&
-              constructionStage >= 8 &&
-              constructionDaysRemaining <= 0) ||
+      ((constructionMode == 'contractor' &&
+              (constructionStage >= 9 ||
+                  (constructionStage >= 8 && constructionDaysRemaining <= 0))) ||
           (constructionMode == 'selfBuild' &&
               (constructionStage >= 9 ||
                   (constructionStage >= 8 &&
                       constructionDaysRemaining <= 0 &&
-                      provenanceLog.any((log) => log.contains('Aşama 8'))))));
+                      !isConstructionWorking &&
+                      (activeSubcontractorName == null ||
+                          activeSubcontractorName!.isEmpty) &&
+                      (provenanceLog.any((l) => l.contains('Aşama 8')) ||
+                          provenanceLog.isEmpty)))));
 
   /// Durum makinesi fazı (Tek birincil buton mimarisi • E0)
   LandPhase get landPhase {
@@ -367,6 +363,7 @@ class RealEstateModel {
       !isPersonalResidence &&
       !isUnderRenovation &&
       !isConstructionActive &&
+      !(constructionStage > 0 && constructionStage < 8) &&
       !isListed;
 
   /// Returns localization key for why this property cannot be rented out

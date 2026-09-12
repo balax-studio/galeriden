@@ -477,11 +477,13 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Switch to Tab 1: KAKS & Tipoloji
       await tester.tap(find.text('KAKS & Tipoloji'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Verify that the confirm button displays 'Proje Onaylandı'
       expect(find.text('Proje Onaylandı'), findsWidgets);

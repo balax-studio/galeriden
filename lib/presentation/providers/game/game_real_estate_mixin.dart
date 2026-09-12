@@ -22,6 +22,12 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     required double deedFee,
     required double commission,
   }) {
+    if (finalPrice <= 0 || finalPrice.isNaN || finalPrice.isInfinite ||
+        deedFee < 0 || deedFee.isNaN || deedFee.isInfinite ||
+        commission < 0 || commission.isNaN || commission.isInfinite) {
+      return false;
+    }
+
     final revolvingFundFee = RealEstateListingModel.revolvingFundFee;
     final totalAcquisitionCost = finalPrice + deedFee + revolvingFundFee + commission;
 
@@ -77,6 +83,8 @@ mixin GameRealEstateMixin on GameBaseNotifier {
     required String realEstateId,
     required double salePrice,
   }) {
+    if (salePrice <= 0 || salePrice.isNaN || salePrice.isInfinite) return false;
+
     final index = state.ownedRealEstates.indexWhere((r) => r.id == realEstateId);
     if (index == -1) return false;
 

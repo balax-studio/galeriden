@@ -93,6 +93,7 @@ class _TactileOperationOverlayState extends State<TactileOperationOverlay>
   late AnimationController _progressController;
   bool _showStamp = false;
   bool _isCompleted = false;
+  Timer? _stampTimer;
 
   @override
   void initState() {
@@ -121,7 +122,8 @@ class _TactileOperationOverlayState extends State<TactileOperationOverlay>
       _showStamp = true;
     });
 
-    Timer(const Duration(milliseconds: 650), () {
+    _stampTimer?.cancel();
+    _stampTimer = Timer(const Duration(milliseconds: 650), () {
       if (!mounted || _isCompleted) return;
       _isCompleted = true;
       widget.onCompleted?.call();
@@ -138,6 +140,7 @@ class _TactileOperationOverlayState extends State<TactileOperationOverlay>
 
   @override
   void dispose() {
+    _stampTimer?.cancel();
     _progressController.dispose();
     super.dispose();
   }

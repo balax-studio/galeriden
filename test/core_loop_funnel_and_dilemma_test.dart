@@ -8,11 +8,11 @@ import 'package:galeriden/domain/usecases/dramatic_card_engine.dart';
 
 void main() {
   group('Core Loop Funnel & Dynamic Dilemmas Tests', () {
-    test('PlayerSkills: Level 1 target XP is calibrated to 250 XP', () {
-      expect(PlayerSkills.requiredXpForLevel(1), equals(250));
-      expect(PlayerSkills.requiredXpForLevel(2), equals(750));
-      expect(PlayerSkills.requiredXpForLevel(3), equals(1800));
-      expect(PlayerSkills.requiredXpForLevel(4), equals(4500));
+    test('PlayerSkills: Level 1 target XP is calibrated to 1500 XP', () {
+      expect(PlayerSkills.requiredXpForLevel(1), equals(1500));
+      expect(PlayerSkills.requiredXpForLevel(2), equals(3750));
+      expect(PlayerSkills.requiredXpForLevel(3), equals(7500));
+      expect(PlayerSkills.requiredXpForLevel(4), equals(14000));
     });
 
     test('ContextualDilemmaPool: Returns rookie dealer card for Level 1 day 1 player', () {

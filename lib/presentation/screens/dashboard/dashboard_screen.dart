@@ -123,11 +123,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       if (advice != null) {
         final isDifferentType = _lastMentorAdviceType != advice.type;
         final isDifferentDay = _lastMentorAdviceDay != game.currentDay;
-        final isStuck = advice.type == SmartMentorAdviceType.stuckBrokeNoCar ||
-            advice.type == SmartMentorAdviceType.stuckNoListing ||
-            advice.type == SmartMentorAdviceType.stuckOverpriced;
 
-        if (isStuck || isDifferentType || isDifferentDay) {
+        if (isDifferentType || isDifferentDay) {
           _isModalShowing = true;
           _lastMentorAdviceDay = game.currentDay;
           _lastMentorAdviceType = advice.type;
@@ -148,6 +145,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           });
           return;
         }
+      } else {
+        _lastMentorAdviceType = null;
       }
     }
   }

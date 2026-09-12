@@ -61,10 +61,12 @@ mixin GameTimeMixin on GameBaseNotifier {
   static const int inGameDayDurationSeconds = 120;
 
   Timer? _organicOfferTimer;
+  bool _isOrganicTimerExplicitlyStopped = false;
   DateTime _lastDayAdvanceTime = DateTime.now();
   DateTime get lastDayAdvanceTime => _lastDayAdvanceTime;
 
   void startPeriodicOrganicOfferTimer() {
+    if (_isOrganicTimerExplicitlyStopped) return;
     _organicOfferTimer?.cancel();
     _lastDayAdvanceTime = DateTime.now();
     _organicOfferTimer = Timer.periodic(
@@ -87,7 +89,13 @@ mixin GameTimeMixin on GameBaseNotifier {
   }
 
   void stopPeriodicOrganicOfferTimer() {
+    _isOrganicTimerExplicitlyStopped = true;
     _organicOfferTimer?.cancel();
+  }
+
+  void resumePeriodicOrganicOfferTimer() {
+    _isOrganicTimerExplicitlyStopped = false;
+    startPeriodicOrganicOfferTimer();
   }
 
   void advanceGameDay() {

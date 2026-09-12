@@ -27,6 +27,7 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal>
 
   late AnimationController _dealController;
   late AnimationController _idleController;
+  Timer? _dealTimer;
 
   final List<double> _quickBets = [
     25000.0,
@@ -52,6 +53,7 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal>
 
   @override
   void dispose() {
+    _dealTimer?.cancel();
     _dealController.dispose();
     _idleController.dispose();
     super.dispose();
@@ -79,7 +81,8 @@ class _ValetBaccaratModalState extends ConsumerState<ValetBaccaratModal>
     HapticFeedback.heavyImpact();
     _dealController.forward(from: 0.0);
 
-    Timer(const Duration(milliseconds: 1600), () {
+    _dealTimer?.cancel();
+    _dealTimer = Timer(const Duration(milliseconds: 1600), () {
       if (!mounted) return;
       final result = ref.read(gameProvider.notifier).playCasinoBaccarat(
             betAmount: _selectedBet,

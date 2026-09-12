@@ -33,6 +33,7 @@ class _StreetCrapsModalState extends ConsumerState<StreetCrapsModal>
   late AnimationController _rollController;
   late AnimationController _idleController;
   Timer? _diceFaceTimer;
+  Timer? _rollTimer;
 
   final List<double> _quickBets = [
     25000.0,
@@ -59,6 +60,7 @@ class _StreetCrapsModalState extends ConsumerState<StreetCrapsModal>
   @override
   void dispose() {
     _diceFaceTimer?.cancel();
+    _rollTimer?.cancel();
     _rollController.dispose();
     _idleController.dispose();
     super.dispose();
@@ -99,7 +101,8 @@ class _StreetCrapsModalState extends ConsumerState<StreetCrapsModal>
       });
     });
 
-    Timer(const Duration(milliseconds: 1200), () {
+    _rollTimer?.cancel();
+    _rollTimer = Timer(const Duration(milliseconds: 1200), () {
       _diceFaceTimer?.cancel();
       if (!mounted) return;
 

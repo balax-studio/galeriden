@@ -33,6 +33,7 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
 
   late AnimationController _flipController;
   late AnimationController _idleController;
+  Timer? _flipTimer;
 
   @override
   void initState() {
@@ -50,6 +51,7 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
 
   @override
   void dispose() {
+    _flipTimer?.cancel();
     _flipController.dispose();
     _idleController.dispose();
     super.dispose();
@@ -67,7 +69,8 @@ class _DoubleOrNothingModalState extends ConsumerState<DoubleOrNothingModal>
     _flipController.reset();
     _flipController.forward();
 
-    Timer(const Duration(milliseconds: 1500), () {
+    _flipTimer?.cancel();
+    _flipTimer = Timer(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
       final win = ref.read(gameProvider.notifier).playCasinoDoubleOrNothing(
             baseProfit: widget.baseProfit,

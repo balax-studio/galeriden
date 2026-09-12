@@ -59,6 +59,12 @@ class _SubcontractorNegotiationChatScreenState
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _startChatWithSubcontractor(SubcontractorProfile sub, double stageCost) {
     _tacticUseCounts.clear();
     final land = ref.read(gameProvider).ownedRealEstates.firstWhere(
