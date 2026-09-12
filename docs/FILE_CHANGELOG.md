@@ -21,6 +21,17 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `docs/superpowers/specs/2026-09-12-early-game-rewarded-ads-research.md`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Galeriden Tycoon erken oyun evresi (Seviye 1-3, Gün 1-7) ödüllü reklam mimarisinin derin araştırma raporunun ve eylem planının oluşturulması (§SPEC-2026-09-12-EARLY-GAME-REWARDED-ADS-RESEARCH).
+- **Yapılan Değişiklikler**:
+  - `docs/superpowers/specs/2026-09-12-early-game-rewarded-ads-research.md`:
+    - Erken evrede ekonomiyi ve ilerleme tatminini bozan kontrolsüz nakit hibelerinin ve erken atölye onarım kancalarının analizi.
+    - Kaldırılacak patolojik reklam noktaları ve yerine konulacak 5 yeni esnaf dayanışması kancasının (Kelepir Radarı, Noter Harcı Muafiyeti, Ücretsiz Ekspertiz Kuponu, Çırak Yıkama Desteği, Cömert Müşteri Dopingi) detaylı teknik tasarımı.
+- **Doğrulama / Test Durumu**:
+  - Dokümantasyon ve mimari doğrulama tamamlandı.
+
 ### `Uygulama Derleme Numarasının Yükseltilmesi (1.0.6+31 -> 1.0.6+32)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:
