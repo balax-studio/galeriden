@@ -18,6 +18,7 @@ mixin GameRentalMixin on GameBaseNotifier {
 
     final car = state.ownedCars[carIndex];
     if (car.isRented ||
+        car.isLockedInShowcase ||
         car.isConsignment ||
         state.activeRentals.any((r) => r.carId == carId)) {
       return false;

@@ -16,6 +16,9 @@ mixin GameCasinoMixin on GameBaseNotifier {
   }) {
     if (wageredCar != null) {
       if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
+      if (wageredCar.isRented || wageredCar.isLockedInShowcase || wageredCar.isConsignment) {
+        return null;
+      }
     } else {
       if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
     }
@@ -74,10 +77,19 @@ mixin GameCasinoMixin on GameBaseNotifier {
           oldStats.vehiclesWonCount + (result.wonCar != null ? 1 : 0),
     );
 
+    final updatedIncomingOffers = (!isWin && wageredCar != null)
+        ? state.incomingOffers.where((o) => o.carId != wageredCar.id).toList()
+        : state.incomingOffers;
+    final updatedPendingOrders = (!isWin && wageredCar != null)
+        ? state.pendingOrders.where((o) => o.carId != wageredCar.id).toList()
+        : state.pendingOrders;
+
     state = state.copyWith(
       balance: currentBalance,
       ownedCars: updatedCars,
       casinoStats: newStats,
+      incomingOffers: updatedIncomingOffers,
+      pendingOrders: updatedPendingOrders,
     );
 
     updateMissionProgress(MissionType.casinoPlay, 1);
@@ -97,6 +109,9 @@ mixin GameCasinoMixin on GameBaseNotifier {
     if (currentPhase == CrapsPhase.comeOut) {
       if (wageredCar != null) {
         if (!state.ownedCars.any((c) => c.id == wageredCar.id)) return null;
+        if (wageredCar.isRented || wageredCar.isLockedInShowcase || wageredCar.isConsignment) {
+          return null;
+        }
       } else {
         if (betAmount <= 0 || betAmount.isNaN || betAmount.isInfinite || state.balance < betAmount) return null;
       }
@@ -152,10 +167,19 @@ mixin GameCasinoMixin on GameBaseNotifier {
             (wageredCar != null && result.isLoss ? 1 : 0),
       );
 
+      final updatedIncomingOffers = (result.isLoss && wageredCar != null)
+          ? state.incomingOffers.where((o) => o.carId != wageredCar.id).toList()
+          : state.incomingOffers;
+      final updatedPendingOrders = (result.isLoss && wageredCar != null)
+          ? state.pendingOrders.where((o) => o.carId != wageredCar.id).toList()
+          : state.pendingOrders;
+
       state = state.copyWith(
         balance: currentBalance,
         ownedCars: updatedCars,
         casinoStats: newStats,
+        incomingOffers: updatedIncomingOffers,
+        pendingOrders: updatedPendingOrders,
       );
       saveState();
     }

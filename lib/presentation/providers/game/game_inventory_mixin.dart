@@ -66,6 +66,11 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedContracts = List<WantedCarContract>.from(state.activeContracts)
       ..removeAt(contractIndex);
 
+    final updatedOffers =
+        state.incomingOffers.where((o) => o.carId != carId).toList();
+    final updatedPendingOrders =
+        state.pendingOrders.where((o) => o.carId != carId).toList();
+
     final double profitToAdd = profit > 0 ? profit : 0.0;
     state = state.copyWith(
       balance: state.balance + totalPayout,
@@ -75,6 +80,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
       weeklyCarsSold: state.weeklyCarsSold + 1,
       ownedCars: updatedCars,
       activeContracts: updatedContracts,
+      incomingOffers: updatedOffers,
+      pendingOrders: updatedPendingOrders,
     );
 
     addXP(200);
@@ -449,10 +456,17 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final updatedCars = List<CarModel>.from(state.ownedCars)
       ..removeAt(carIndex);
 
+    final updatedOffers =
+        state.incomingOffers.where((o) => o.carId != carId).toList();
+    final updatedPendingOrders =
+        state.pendingOrders.where((o) => o.carId != carId).toList();
+
     final double profitToAdd = profit > 0 ? profit : 0.0;
     state = state.copyWith(
       balance: state.balance + cashReceived,
       ownedCars: updatedCars,
+      incomingOffers: updatedOffers,
+      pendingOrders: updatedPendingOrders,
       totalProfit: state.totalProfit + profit,
       carsSold: state.carsSold + 1,
       weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
@@ -491,6 +505,10 @@ mixin GameInventoryMixin on GameBaseNotifier {
     final double profit = netCashReceived - car.totalCost;
 
     final updatedCars = List<CarModel>.from(state.ownedCars)..removeAt(carIndex);
+    final updatedOffers =
+        state.incomingOffers.where((o) => o.carId != carId).toList();
+    final updatedPendingOrders =
+        state.pendingOrders.where((o) => o.carId != carId).toList();
 
     final record = SaleRecordModel(
       id: 'auction_sale_${DateTime.now().millisecondsSinceEpoch}',
@@ -510,6 +528,8 @@ mixin GameInventoryMixin on GameBaseNotifier {
     state = state.copyWith(
       balance: state.balance + netCashReceived,
       ownedCars: updatedCars,
+      incomingOffers: updatedOffers,
+      pendingOrders: updatedPendingOrders,
       totalProfit: state.totalProfit + profit,
       carsSold: newCarsSold,
       weeklyTurnoverScore: state.weeklyTurnoverScore + profitToAdd,
@@ -1274,8 +1294,12 @@ mixin GameInventoryMixin on GameBaseNotifier {
       if (listingPhotoLocation == 'scenic') photoCost += 800.0;
     }
 
+    final sanitizedPrice = (customPrice != null && customPrice > 0 && customPrice.isFinite)
+        ? customPrice
+        : null;
+
     final updatedCar = existing.copyWith(
-      customListingPrice: customPrice,
+      customListingPrice: sanitizedPrice,
       declarationType: declaration ?? existing.declarationType,
       listingPhotoLocation:
           listingPhotoLocation ?? existing.listingPhotoLocation,
@@ -1374,12 +1398,21 @@ mixin GameInventoryMixin on GameBaseNotifier {
 
   /// Emergency Bailout: Dede Mirası Can Suyu (₺50.000)
   bool claimEmergencyBailout() {
-    final totalAssets = state.balance +
-        state.bankDepositBalance +
-        state.ownedCars
-            .where((c) => !c.isConsignment)
-            .fold<double>(0.0, (s, c) => s + c.estimatedRealValue);
-    if (totalAssets > 15000) return false;
+    final nonConsignmentCars =
+        state.ownedCars.where((c) => !c.isConsignment).toList();
+    final totalOwnedValue =
+        nonConsignmentCars.fold<double>(0.0, (s, c) => s + c.estimatedRealValue);
+    final liquidCash = state.balance + state.bankDepositBalance;
+    final totalAssets = liquidCash + totalOwnedValue;
+
+    // Capital Trap Softlock Prevention:
+    // Eligible if:
+    // 1) Total dealership net assets <= ₺25,000, OR
+    // 2) Player owns 0 non-consignment cars and liquid funds are less than ₺35,000
+    //    (meaning they cannot afford even the cheapest starter car on the market)
+    final isSoftlocked =
+        totalAssets <= 25000 || (nonConsignmentCars.isEmpty && liquidCash < 35000);
+    if (!isSoftlocked) return false;
 
     state = state.copyWith(
       balance: state.balance + 50000.0,

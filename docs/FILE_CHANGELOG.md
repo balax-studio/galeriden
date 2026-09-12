@@ -21,6 +21,38 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 - **Doğrulama / Test Durumu**:
 ```
 
+### `Softlock ve Exploit Kapsamlı Güvenlik Denetimi & Düzeltmeleri (§SPEC-2026-09-12-SOFTLOCK-EXPLOIT-AUDIT)`
+- **Tarih**: 2026-09-12
+- **Değişiklik Amacı**:
+  - Oyundaki sermaye tuzağı softlock senaryolarının (pozitif bakiye kilitlenmesi) önlenmesi, araç satışı ve kumar kayıplarında askıda kalan hayalet tekliflerin temizlenmesi, vitrine kilitli veya kiradaki araçların suistimal edilmesinin (çifte kazanç / kumar açığı) engellenmesi ve ilan fiyatı doğrulamasının sıkılaştırılması.
+- **Yapılan Değişiklikler**:
+  - `lib/presentation/providers/game/game_inventory_mixin.dart`:
+    - `fulfillWantedCarContract`: Sipariş tamamlandığında satılan araca ait askıda kalan `incomingOffers` ve parça `pendingOrders` kayıtları filtrelendi.
+    - `sellCar`: Doğrudan araç satışında hedef araca ait aktif teklifler ve bekleyen siparişler temizlendi.
+    - `sellCarAtAuction`: Müzayede satışında araç envanterden çıkarken ilişkili teklifler ve siparişler temizlendi.
+    - `updateCarListingDetails`: `customPrice` parametresi doğrulanarak 0, negatif, NaN veya sonsuz değerlerin ilana geçmesi engellendi, temiz sanitizasyon sağlandı.
+    - `claimEmergencyBailout`: Pozitif bakiye sermaye tuzağı engellendi. Oyuncunun 0 aracı varken ve nakit varlığı piyasadaki en ucuz başlangıç arabasını (₺35.000) alamayacak durumdaysa acil dede mirası can suyu hakkı tanındı.
+  - `lib/presentation/providers/game/game_casino_mixin.dart`:
+    - `playCasinoBaccarat` & `playCasinoStreetCraps`: Kirada olan (`isRented`), vitrinde sergilenen (`isLockedInShowcase`) veya konsinye (`isConsignment`) araçların kumar masasına sürülmesi engellendi. Kumar kaybedildiğinde kaybedilen araca ait askıda kalan teklif ve parça siparişleri temizlendi.
+  - `lib/presentation/providers/game/game_rental_mixin.dart`:
+    - `rentCar`: Vitrine kilitlenmiş itibar araçlarının aynı anda kiraya verilerek çifte kazanç sağlanması engellendi (`isLockedInShowcase` denetimi eklendi).
+  - `lib/presentation/screens/dashboard/widgets/dashboard_banners.dart`:
+    - `DashboardEmergencyRescueBanner`: Acil kurtarma koşulu sermaye tuzağını kapsayacak şekilde genişletildi. Oyuncunun parası az (₺20.000 altı) fakat satılabilir aracı varsa doğrudan "Spot Pazara Acil Sat • Nakde Çevir" aksiyonu sunularak anında likidite yaratması sağlandı.
+  - `test/softlock_and_exploit_audit_test.dart`:
+    - [YENİ]: 8 senaryolu kapsamlı regresyon ve açık doğrulama testleri yazıldı.
+- **Karşılaşılan Hatalar / Sorunlar**:
+  - 1. Sermaye Tuzağı Softlock Riski: Oyuncunun 0 aracı ve ₺16.000 parası olduğunda, en ucuz araba ₺35.000 iken toplam varlığı ₺15.000'i aştığı için can suyu alamıyor ve oyunda ilerleyemiyordu.
+  - 2. Hayalet Teklif Senaryosu: Araç hızlı satıldığında veya kumarda kaybedildiğinde vitrinde o aracın eski teklif kartı asılı kalıyordu.
+  - 3. Çifte Faydalanma Açığı: Kirada olan araçlar kumarda ortaya konabiliyor, vitrindeki araçlar ise aynı anda kiraya verilebiliyordu.
+- **Kök Neden**:
+  - Varlık kontrollerinin piyasa başlangıç araç fiyat tabanıyla (₺35.000) senkronize olmaması, araç envanterden çıkarılırken ilişkili koleksiyonların (`incomingOffers`, `pendingOrders`) silinmemesi ve durum bayraklarının (`isRented`, `isLockedInShowcase`, `isConsignment`) karşılıklı kilit mekanizmasında eksik bulunması.
+- **Uygulanan Çözüm**:
+  - Dede mirası can suyu eşiği en ucuz başlangıç aracı tabanıyla hizalandı, dashboard kurtarma paneline toptancı spot satış butonu entegre edildi, tüm araç çıkış fonksiyonlarına teklif temizleyiciler eklendi ve kumar/kiralama kontrollerine sıkı durum filtreleri yerleştirildi.
+- **Doğrulama / Test Durumu**:
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/softlock_and_exploit_audit_test.dart`: 8/8 test başarıyla geçti.
+  - Regresyon paketleri: 13/13 test başarıyla geçti.
+
 ### `Sıralı Tutundurma Deneyimi ve Taktil Çevrimdışı Gelir Tasarımı (§SPEC-2026-09-12-SEQUENTIAL-RETENTION-ORCHESTRATION)`
 - **Tarih**: 2026-09-12
 - **Değişiklik Amacı**:

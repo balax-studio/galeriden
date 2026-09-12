@@ -24,6 +24,7 @@ import 'dashboard_retention_modals.dart';
 import '../../../../data/models/story_card_model.dart';
 import '../../../widgets/app_vector_icons.dart';
 import '../../../widgets/dialogs/daily_login_sheet.dart';
+import '../../../widgets/emergency_bailout_dialog.dart';
 import '../../../widgets/neo_brutal_story_ad_dialog.dart';
 
 /// 1. Profile & Dealership Banner
@@ -885,15 +886,22 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = palette.isDark;
-    final totalOwnedValue = game.ownedCars.fold<double>(
+    final nonConsignmentCars =
+        game.ownedCars.where((c) => !c.isConsignment).toList();
+    final totalOwnedValue = nonConsignmentCars.fold<double>(
       0.0,
       (sum, c) => sum + c.estimatedRealValue,
     );
-    final totalAssets =
-        game.balance + game.bankDepositBalance + totalOwnedValue;
-    final canClaimBailout = totalAssets <= 15000;
+    final liquidCash = game.balance + game.bankDepositBalance;
+    final totalAssets = liquidCash + totalOwnedValue;
+    final canClaimBailout =
+        totalAssets <= 25000 || (nonConsignmentCars.isEmpty && liquidCash < 35000);
 
     final bool canWorkGig = game.lastScrapyardGigDay < game.currentDay;
+
+    final eligibleCars = game.ownedCars
+        .where((c) => !c.isLockedInShowcase && !c.isRented)
+        .toList();
 
     return NeoBrutalCard(
       padding: const EdgeInsets.all(12),
@@ -1001,6 +1009,23 @@ class DashboardEmergencyRescueBanner extends ConsumerWidget {
                         NotificationService.showWarning(context,
                             context.tr('toast_safety_net_rejected'));
                       }
+                    },
+                  ),
+                ),
+              ] else if (eligibleCars.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                // 3. Immediate Spot Liquidation Lifeline
+                Expanded(
+                  child: NeoBrutalButton(
+                    label: context.tr('bailout_quick_sell_btn'),
+                    icon: Icons.sell_rounded,
+                    backgroundColor: const Color(0xFFFF9900),
+                    textColor: Colors.black,
+                    fontSize: 10.5,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    onPressed: () {
+                      EmergencyBailoutDialog.show(context);
                     },
                   ),
                 ),
