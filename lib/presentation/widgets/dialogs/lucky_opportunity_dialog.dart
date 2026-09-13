@@ -54,33 +54,36 @@ class LuckyOpportunityDialog extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Top Badge Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: NeoBrutalBadge(
-                      text: context.tr('lucky_banner_badge'),
-                      icon: Icons.stars_rounded,
-                      backgroundColor: opportunity.accentColor,
-                      textColor: Colors.black,
-                      fontSize: 11,
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 36),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: NeoBrutalBadge(
+                        text: context.tr('lucky_banner_badge'),
+                        icon: Icons.stars_rounded,
+                        backgroundColor: opportunity.accentColor,
+                        textColor: Colors.black,
+                        fontSize: 11,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: NeoBrutalBadge(
-                      text: context.tr('lucky_limited_time'),
-                      icon: Icons.timer_rounded,
-                      backgroundColor: isDark
-                          ? const Color(0xFF222938)
-                          : const Color(0xFFE2E8F0),
-                      textColor: isDark
-                          ? const Color(0xFF94A3B8)
-                          : const Color(0xFF475569),
-                      fontSize: 10,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: NeoBrutalBadge(
+                        text: context.tr('lucky_limited_time'),
+                        icon: Icons.timer_rounded,
+                        backgroundColor: isDark
+                            ? const Color(0xFF222938)
+                            : const Color(0xFFE2E8F0),
+                        textColor: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF475569),
+                        fontSize: 10,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -345,10 +348,11 @@ class LuckyOpportunityDialog extends ConsumerWidget {
         ),
       ),
     ),
-    const Positioned(
+    Positioned.directional(
+      textDirection: Directionality.of(context),
       top: -18,
-      right: -10,
-      child: NeoBrutalPixelFaceWidget(
+      end: -10,
+      child: const NeoBrutalPixelFaceWidget(
         expression: PixelFaceExpression.hypedGambler,
         showBadge: true,
         size: 52,

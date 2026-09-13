@@ -24,38 +24,39 @@ Bu doküman, projede yapılan tüm dosya bazlı değişikliklerin, karşılaşı
 ### `16-Bit Neo-Brutalist Prosedürel Piksel Yüz Rozetleri ve Pop-up Entegrasyonu (§SPEC-2026-09-13-NEO-BRUTAL-PIXEL-FACES)`
 - **Tarih**: 2026-09-13
 - **Değişiklik Amacı**:
-  - Projedeki tüm pop-up ve modal diyalog kartlarına (`NeoBrutalOperationDialog`, `EmergencyBailoutDialog`, `LuckyOpportunityDialog`, `DailyBulletinDialog`), kartın sağ üst köşesinden dışarı taşan (`Stack` + `Positioned(top: -18, right: -10)` ile `clipBehavior: Clip.none`), 16-bit retro-arcade ve neo-brutalist tarzda prosedürel piksel yüz rozetleri eklenmesi.
+  - Projedeki tüm pop-up ve modal diyalog kartlarına (`NeoBrutalOperationDialog`, `EmergencyBailoutDialog`, `LuckyOpportunityDialog`, `DailyBulletinDialog`), kartın sağ üst köşesinden dışarı taşan (`Stack` + `Positioned.directional(top: -18, end: -10)` ile `clipBehavior: Clip.none`), 16-bit retro-arcade ve neo-brutalist tarzda prosedürel piksel yüz rozetleri eklenmesi, görsel çakışmaların giderilmesi ve RTL (Arapça) uyumluluğunun sağlanması.
 - **Yapılan Değişiklikler**:
   - `lib/presentation/widgets/pixel_art/neo_brutal_pixel_face.dart`:
     - [YENİ]: `PixelFaceExpression` enum'ı tanımlandı (`cunningDealer`, `panickedBanker`, `sweatingMechanic`, `smugNotary`, `hypedGambler`).
-    - [YENİ]: 16x16 matris koordinatlı, saf Flutter `CustomPainter` tabanlı `NeoBrutalPixelFaceWidget` oluşturuldu. Harici bitmap gerektirmeden 2.5px solid siyah kenarlık, 0-blur hard offset gölge (`Offset(3, 3)`), -0.06 radyan eğimli çıkartma açısı, CRT scanline dokusu ve isteğe bağlı lokalize mini rozet çıkartması uygulandı. `shouldRepaint` kontrolü ifade eşitliğiyle optimize edildi.
+    - [GÜNCELLEME]: 16x16 matris koordinatlı, saf Flutter `CustomPainter` tabanlı `NeoBrutalPixelFaceWidget` oluşturuldu. Tüm önbellek boyalarında `isAntiAlias: false` ve `Rect.fromLTRB` koordinatları kullanılarak alt piksel kanaması ve bulanıklık tamamen elendi.
+    - [GÜNCELLEME]: RTL modunda (Arapça) harf ayrışmasını engellemek amacıyla `letterSpacing: isRtl ? 0.0 : 0.8` uygulandı ve çıkartma dönüş açısı ayna simetrisiyle ters çevrildi (`effectiveAngle = isRtl ? -customAngle : customAngle`).
+    - [GÜNCELLEME]: `onTap == null` durumlarında diyalog tıklamalarının ve kaydırma hareketlerinin engellenmemesi için gövde `IgnorePointer` ile korundu.
   - `lib/presentation/widgets/emergency_bailout_dialog.dart`:
-    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak sağ üst köşeye `PixelFaceExpression.panickedBanker` (panikleyen finansçı) yüz rozeti eklendi.
+    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak `Positioned.directional(end: -10)` ile yüz rozeti eklendi. Başlık kolonuna `EdgeInsetsDirectional.only(end: 36)` verilerek çıkartmanın acil durum başlığı ve rozetinin üzerine binmesi engellendi.
   - `lib/presentation/widgets/dialogs/lucky_opportunity_dialog.dart`:
-    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak sağ üst köşeye `PixelFaceExpression.hypedGambler` (yıldız gözlü coşkulu kumarbaz) yüz rozeti eklendi.
+    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak `Positioned.directional(end: -10)` ile yüz rozeti eklendi. Üst rozet satırına `EdgeInsetsDirectional.only(end: 36)` verilerek `lucky_limited_time` rozetinin çıkartma altında kalması engellendi.
   - `lib/presentation/widgets/dialogs/neo_brutal_operation_dialog.dart`:
-    - `OperationSuspenseType` bağlamına göre dinamik ifade belirlendi: `notaryTransfer` -> `smugNotary` (resmi memur), `expertiseInspection` -> `cunningDealer` (kurnaz galerici), diğer atölye/modifiye/yıkama/hurdalık işlemleri -> `sweatingMechanic` (terleyen usta). Sağ üst köşeye taşacak şekilde monte edildi.
+    - Operasyon türüne göre dinamik ifade bağlandı ve `Positioned.directional(end: 14)` ile monte edildi. Başlık kolonuna `EdgeInsetsDirectional.only(end: 28)` boşluğu verilerek başlık ve operasyon etiketlerinin çıkartmayla çakışması önlendi.
   - `lib/presentation/widgets/daily_bulletin_dialog.dart`:
-    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak sağ üst köşeye `PixelFaceExpression.cunningDealer` (kurnaz galerici) yüz rozeti eklendi.
+    - Dialog kartı `Stack(clipBehavior: Clip.none)` ile sarmalanarak `Positioned.directional(end: -10)` ile kurnaz galerici rozeti eklendi. Gazete başlık satırına `EdgeInsetsDirectional.only(end: 36)` verilerek sayı numarasının çıkartma altında gizlenmesi önlendi.
   - `lib/core/localization/translations/`:
-    - `tr`, `en`, `de`, `pt`, `es`, `ru`, `ar` dillerinin 7'sine de eşzamanlı olarak `pixel_face_dealer`, `pixel_face_banker`, `pixel_face_mechanic`, `pixel_face_notary`, `pixel_face_gambler` anahtarları eklendi. Unicode emoji ve parantez kullanılmadı.
+    - 7 dilde eşzamanlı olarak 5 ifade anahtarı tanımlandı, sıfır emoji ve sıfır parantez kuralı korundu.
   - `test/neo_brutal_pixel_face_test.dart`:
-    - [YENİ]: 5 farklı mimik durumunun render doğrulaması, 7 dilli invariant key denetimi, Türkçe ve İngilizce rozet metni testi, dokunma mekanik baskı etkileşimi ve renk token testleri yazıldı (6/6 test başarılı).
+    - [GÜNCELLEME]: 5 ifade durumu, 7 dilli invariant key denetimi, Türkçe ve İngilizce rozet metinleri, Arapça bitişik harf/ligatür koruması, `IgnorePointer` geçiş kontrolü ve `DailyBulletinDialog` LTR/RTL render testleri yazıldı (9/9 test başarılı).
 - **Karşılaşılan Hatalar / Sorunlar**:
-  - 1. Test Localization Delegate Hatası: İlk test denemesinde `DefaultMaterialLocalizations.delegate` kullanıldığında Türkçe (`tr`) yerel ayarı için delegate bulunamadı uyarısı alındı.
-  - 2. `toUpperCase()` Türkçe Karakter Uyuşmazlığı: Testte `'PANİK!'` (`\u0130`) beklenirken Dart standart String `.toUpperCase()` metodunun ASCII uyumlu `'PANIK!'` (`\u0049`) üretmesi sonucu test assert hatası oluştu.
-  - 3. Parantez/Köşeli Parantez Kapanış Uyuşmazlığı: `daily_bulletin_dialog.dart` ve `lucky_opportunity_dialog.dart` içerisinde `Stack` sarmalaması sonrası `Column(children: [...])` ve `SingleChildScrollView` kapanışlarında eksik parantez/köşeli parantez syntax uyarısı alındı.
+  - 1. RTL ve Konumlandırma Çakışması: Sabit `right: -10` kullanıldığında Arapça (RTL) yerelinde rozetlerin başlangıç ikonları ve başlıkların üzerine binmesi.
+  - 2. Başlık ve Rozet Örtüşmesi: Dar ekranlarda ve uzun metinlerde rozetin sağ kenardan kart içerisine ~42px uzanması sebebiyle diyalog başlıkları veya ikincil rozetlerin (ör. sınırlı süre rozeti, sayı numarası) kısmen örtülmesi.
+  - 3. Arapça Tipografi Ayrışması: Rozet metinlerinde kullanılan sabit `letterSpacing: 0.8` değerinin Arapça bitişik harfleri ayırarak bozuk glif render'ına yol açması.
+  - 4. Piksel Bulanıklığı / Alt Piksel Kanaması: `CustomPainter` boya nesnelerinde varsayılan `isAntiAlias: true` ve `Rect.fromLTWH` yüzünden bitişik pikseller arasında soluk çizgiler oluşması.
 - **Kök Neden**:
-  - `GlobalMaterialLocalizations.delegate` yerine eksik delegate kullanımı, Dart dilinde yerel bağımsız büyük harf dönüşüm davranışı ve iç içe widget hiyerarşisinde kapanış belirteçlerinin kayması.
+  - Çift yönlü metin (RTL) akışında mutlak koordinat kullanımı, diyalog üst satırlarında sağ kenar boşluğunun hesaplanmaması ve Arapça el yazısı font sisteminde pozitif letterSpacing'in ligatürleri koparması.
 - **Uygulanan Çözüm**:
-  - Testte `GlobalMaterialLocalizations.delegate` ve proje standart `expectInvariantKeys` helper'ı kullanıldı, test beklentisi Dart VM çıktısıyla eşitlendi ve dialog dosyalarındaki tüm widget hiyerarşisi tam olarak kapatıldı.
+  - Mutlak `Positioned(right: ...)` yerine `Positioned.directional(end: ...)` kullanıldı. Tüm diyalog üst başlık satırlarına trailing clearance (`EdgeInsetsDirectional.only(end: ...)`) eklendi. Arapça için `letterSpacing: isRtl ? 0.0 : 0.8` yapıldı, açılar simetrik terslendi, `isAntiAlias: false` ve `Rect.fromLTRB` ile pikseller keskinleştirildi.
 - **Doğrulama / Test Durumu**:
-  - `flutter analyze lib/... test/...`: 0 hata, 0 uyarı (No issues found).
-  - `flutter test test/neo_brutal_pixel_face_test.dart`: 6/6 test geçti.
+  - `flutter analyze`: 0 hata, 0 uyarı (No issues found).
+  - `flutter test test/neo_brutal_pixel_face_test.dart`: 9/9 test geçti.
+  - `flutter test test/ui_layout_and_header_spacing_test.dart test/operation_suspense_engine_test.dart test/dramatic_dialog_widget_test.dart`: 30/30 test geçti.
   - `flutter test test/translation_key_coverage_test.dart`: 6/6 test geçti.
-  - `flutter test test/ui_ux_pro_max_and_shaders_test.dart`: 14/14 test geçti.
-  - `flutter test test/operation_suspense_engine_test.dart`: 8/8 test geçti.
-  - `flutter test test/dramatic_dialog_widget_test.dart`: 5/5 test geçti.
 
 ### `Sistemik Bellek Sızıntısı, Hayalet Zamanlayıcı ve Yaşam Döngüsü Denetimi (§SPEC-2026-09-12-MEMORY-LEAK-AND-LIFECYCLE-AUDIT)`
 - **Tarih**: 2026-09-12

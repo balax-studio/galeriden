@@ -299,17 +299,19 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.2,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(end: 28),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.2,
+                                ),
                               ),
-                            ),
                             const SizedBox(height: 3),
                             Wrap(
                               spacing: 6,
@@ -348,8 +350,9 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                   const SizedBox(height: 18),
 
                 // Stepped Progress Bar with Percentage Counter
@@ -464,9 +467,10 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
           ),
         ),
       ),
-      Positioned(
+      Positioned.directional(
+        textDirection: Directionality.of(context),
         top: -18,
-        right: 14,
+        end: 14,
         child: NeoBrutalPixelFaceWidget(
           expression: faceExp,
           showBadge: true,

@@ -75,27 +75,30 @@ class DailyBulletinDialog extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        context.tr(
-                            'bulletin_day_header', {'day': game.currentDay}),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 36),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.tr(
+                              'bulletin_day_header', {'day': game.currentDay}),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
                         ),
-                      ),
-                      Text(
-                        context.tr('bulletin_issue_number'),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
+                        Text(
+                          context.tr('bulletin_issue_number'),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -267,10 +270,11 @@ class DailyBulletinDialog extends ConsumerWidget {
         ),
       ),
     ),
-    const Positioned(
+    Positioned.directional(
+      textDirection: Directionality.of(context),
       top: -18,
-      right: -10,
-      child: NeoBrutalPixelFaceWidget(
+      end: -10,
+      child: const NeoBrutalPixelFaceWidget(
         expression: PixelFaceExpression.cunningDealer,
         showBadge: true,
         size: 52,

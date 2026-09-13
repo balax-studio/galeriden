@@ -147,6 +147,7 @@ class _NeoBrutalPixelFaceWidgetState extends State<NeoBrutalPixelFaceWidget> {
       ),
     );
 
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     Widget content = faceBox;
 
     if (widget.showBadge) {
@@ -168,7 +169,7 @@ class _NeoBrutalPixelFaceWidgetState extends State<NeoBrutalPixelFaceWidget> {
                 color: bg,
                 fontSize: 8.5,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 0.8,
+                letterSpacing: isRtl ? 0.0 : 0.8,
               ),
             ),
           ),
@@ -177,13 +178,17 @@ class _NeoBrutalPixelFaceWidgetState extends State<NeoBrutalPixelFaceWidget> {
     }
 
     if (widget.customAngle != 0.0) {
-      return Transform.rotate(
-        angle: widget.customAngle,
+      final effectiveAngle = isRtl ? -widget.customAngle : widget.customAngle;
+      content = Transform.rotate(
+        angle: effectiveAngle,
         child: content,
       );
     }
 
-    return content;
+    return IgnorePointer(
+      ignoring: widget.onTap == null,
+      child: content,
+    );
   }
 }
 
@@ -193,17 +198,17 @@ class _NeoBrutalPixelFacePainter extends CustomPainter {
 
   _NeoBrutalPixelFacePainter({required this.expression});
 
-  // 16-Bit Neo-Brutalist Palette (Cached Paint objects)
-  static final Paint _paintBlack = Paint()..color = const Color(0xFF0F172A);
-  static final Paint _paintSkin = Paint()..color = const Color(0xFFF3C294);
-  static final Paint _paintSkinDark = Paint()..color = const Color(0xFFBC7643);
-  static final Paint _paintWhite = Paint()..color = const Color(0xFFFFFFFF);
-  static final Paint _paintPupil = Paint()..color = const Color(0xFF090D16);
-  static final Paint _paintRed = Paint()..color = const Color(0xFFEF4444);
-  static final Paint _paintCyan = Paint()..color = const Color(0xFF00F0FF);
-  static final Paint _paintYellow = Paint()..color = const Color(0xFFFFDE59);
-  static final Paint _paintOil = Paint()..color = const Color(0xFF334155);
-  static final Paint _paintGrey = Paint()..color = const Color(0xFF94A3B8);
+  // 16-Bit Neo-Brutalist Palette (Cached Paint objects with isAntiAlias false for razor-sharp pixel edges)
+  static final Paint _paintBlack = Paint()..color = const Color(0xFF0F172A)..isAntiAlias = false;
+  static final Paint _paintSkin = Paint()..color = const Color(0xFFF3C294)..isAntiAlias = false;
+  static final Paint _paintSkinDark = Paint()..color = const Color(0xFFBC7643)..isAntiAlias = false;
+  static final Paint _paintWhite = Paint()..color = const Color(0xFFFFFFFF)..isAntiAlias = false;
+  static final Paint _paintPupil = Paint()..color = const Color(0xFF090D16)..isAntiAlias = false;
+  static final Paint _paintRed = Paint()..color = const Color(0xFFEF4444)..isAntiAlias = false;
+  static final Paint _paintCyan = Paint()..color = const Color(0xFF00F0FF)..isAntiAlias = false;
+  static final Paint _paintYellow = Paint()..color = const Color(0xFFFFDE59)..isAntiAlias = false;
+  static final Paint _paintOil = Paint()..color = const Color(0xFF334155)..isAntiAlias = false;
+  static final Paint _paintGrey = Paint()..color = const Color(0xFF94A3B8)..isAntiAlias = false;
 
   // 16x16 Procedural Matrices for each expression
   // '.' = transparent
@@ -336,7 +341,12 @@ class _NeoBrutalPixelFacePainter extends CustomPainter {
         final paint = _getPaintForChar(char);
         if (paint != null) {
           canvas.drawRect(
-            Rect.fromLTWH(c * pixelW, r * pixelH, pixelW, pixelH),
+            Rect.fromLTRB(
+              c * pixelW,
+              r * pixelH,
+              (c + 1) * pixelW,
+              (r + 1) * pixelH,
+            ),
             paint,
           );
         }

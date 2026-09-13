@@ -97,25 +97,28 @@ class _EmergencyBailoutDialogState
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        NeoBrutalBadge(
-                          text: context.tr('bailout_badge_emergency'),
-                          backgroundColor: AppColors.brutalRed,
-                          textColor: Colors.white,
-                          fontSize: 10,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          context.tr('bailout_dialog_title'),
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? Colors.white : Colors.black,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 36),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          NeoBrutalBadge(
+                            text: context.tr('bailout_badge_emergency'),
+                            backgroundColor: AppColors.brutalRed,
+                            textColor: Colors.white,
+                            fontSize: 10,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            context.tr('bailout_dialog_title'),
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -328,10 +331,11 @@ class _EmergencyBailoutDialogState
             ],
           ),
         ),
-        const Positioned(
+        Positioned.directional(
+          textDirection: Directionality.of(context),
           top: -18,
-          right: -10,
-          child: NeoBrutalPixelFaceWidget(
+          end: -10,
+          child: const NeoBrutalPixelFaceWidget(
             expression: PixelFaceExpression.panickedBanker,
             showBadge: true,
             size: 52,
