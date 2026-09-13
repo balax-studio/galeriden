@@ -6,6 +6,7 @@ import '../../../core/services/game_sound_haptic_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../domain/usecases/operation_suspense_engine.dart';
 import '../neo_brutal_badge.dart';
+import '../pixel_art/neo_brutal_pixel_face.dart';
 import '../procedural_shader_textures.dart';
 
 extension OperationSuspenseUiExtension on OperationSuspenseType {
@@ -230,12 +231,28 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
         ? context.tr(_stageKeys[_currentStage])
         : context.tr('op_status_complete');
 
+    final PixelFaceExpression faceExp;
+    switch (widget.operationType) {
+      case OperationSuspenseType.notaryTransfer:
+        faceExp = PixelFaceExpression.smugNotary;
+        break;
+      case OperationSuspenseType.expertiseInspection:
+        faceExp = PixelFaceExpression.cunningDealer;
+        break;
+      default:
+        faceExp = PixelFaceExpression.sweatingMechanic;
+        break;
+    }
+
     return PopScope(
       canPop: false,
       child: Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          padding: const EdgeInsets.all(20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF12151F) : Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -447,7 +464,18 @@ class _NeoBrutalOperationDialogState extends State<NeoBrutalOperationDialog>
           ),
         ),
       ),
-    ),
-  );
+      Positioned(
+        top: -18,
+        right: 14,
+        child: NeoBrutalPixelFaceWidget(
+          expression: faceExp,
+          showBadge: true,
+          size: 52,
+        ),
+      ),
+    ],
+  ),
+),
+);
   }
 }

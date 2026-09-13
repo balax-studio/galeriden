@@ -2,6 +2,11 @@
 // PORTUGUÊS (pt) TRANSLATIONS
 // ==========================================
 const Map<String, String> ptTranslations = {
+    'pixel_face_dealer': 'Esperto',
+    'pixel_face_banker': 'Pânico!',
+    'pixel_face_mechanic': 'Mestre',
+    'pixel_face_notary': 'Oficial',
+    'pixel_face_gambler': 'Sorte',
     'badge_hyper_collection': 'COLEÇÃO HIPER',
     'hyper_1': 'COLEÇÃO HIPER EXCLUSIVA 1/1',
     'hyper_2': 'SAÍDO DA GARAGEM REAL',

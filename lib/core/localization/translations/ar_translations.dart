@@ -2,6 +2,11 @@
 // العربية (ar) TRANSLATIONS
 // ==========================================
 const Map<String, String> arTranslations = {
+    'pixel_face_dealer': 'داهية',
+    'pixel_face_banker': 'ذعر!',
+    'pixel_face_mechanic': 'خبير',
+    'pixel_face_notary': 'رسمي',
+    'pixel_face_gambler': 'حظ',
     'badge_hyper_collection': 'مجموعة السيارات الفائقة',
     'hyper_1': 'إصدار فائق مخصص 1/1',
     'hyper_2': 'من المرآب الملكي',

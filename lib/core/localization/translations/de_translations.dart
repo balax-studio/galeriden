@@ -2,6 +2,11 @@
 // DEUTSCH (de) TRANSLATIONS
 // ==========================================
 const Map<String, String> deTranslations = {
+    'pixel_face_dealer': 'Schlau',
+    'pixel_face_banker': 'Panik!',
+    'pixel_face_mechanic': 'Meister',
+    'pixel_face_notary': 'Offiziell',
+    'pixel_face_gambler': 'Glück',
     'badge_hyper_collection': 'HYPER-KOLLEKTION',
     'hyper_1': 'SPEZIAL HYPER-KOLLEKTION 1/1',
     'hyper_2': 'AUS KÖNIGLICHER GARAGE',

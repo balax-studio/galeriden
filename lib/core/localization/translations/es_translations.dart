@@ -2,6 +2,11 @@
 // ESPAÑOL (es) TRANSLATIONS
 // ==========================================
 const Map<String, String> esTranslations = {
+    'pixel_face_dealer': 'Astuto',
+    'pixel_face_banker': 'Pánico!',
+    'pixel_face_mechanic': 'Maestro',
+    'pixel_face_notary': 'Oficial',
+    'pixel_face_gambler': 'Suerte',
     'badge_hyper_collection': 'COLECCIÓN HÍPER',
     'hyper_1': 'COLECCIÓN HÍPER EXCLUSIVA 1/1',
     'hyper_2': 'DE COCHERA REAL',

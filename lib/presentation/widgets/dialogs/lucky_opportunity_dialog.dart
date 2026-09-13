@@ -10,6 +10,7 @@ import '../../providers/game_provider.dart';
 import '../neo_brutal_badge.dart';
 import '../neo_brutal_button.dart';
 import '../neo_brutal_card.dart';
+import '../pixel_art/neo_brutal_pixel_face.dart';
 
 class LuckyOpportunityDialog extends ConsumerWidget {
   final LuckyOpportunityModel opportunity;
@@ -37,10 +38,13 @@ class LuckyOpportunityDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(20),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: NeoBrutalCard(
+              padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: opportunity.accentColor,
           borderWidth: 3.0,
@@ -340,7 +344,18 @@ class LuckyOpportunityDialog extends ConsumerWidget {
           ],
         ),
       ),
+    ),
+    const Positioned(
+      top: -18,
+      right: -10,
+      child: NeoBrutalPixelFaceWidget(
+        expression: PixelFaceExpression.hypedGambler,
+        showBadge: true,
+        size: 52,
       ),
-    );
+    ),
+  ],
+),
+);
   }
 }

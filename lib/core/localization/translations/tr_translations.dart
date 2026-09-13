@@ -2,6 +2,11 @@
 // TÜRKÇE (tr) TRANSLATIONS
 // ==========================================
 const Map<String, String> trTranslations = {
+    'pixel_face_dealer': 'Kurnaz',
+    'pixel_face_banker': 'Panik!',
+    'pixel_face_mechanic': 'Usta',
+    'pixel_face_notary': 'Resmi',
+    'pixel_face_gambler': 'Şans',
     'badge_hyper_collection': 'HİPER KOLEKSİYON',
     'hyper_1': 'ÖZEL HİPER KOLEKSİYON 1/1',
     'hyper_2': 'KRALİYET GARAJINDAN ÇIKMA',

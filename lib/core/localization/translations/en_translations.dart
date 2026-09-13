@@ -2,6 +2,11 @@
 // ENGLISH (en) TRANSLATIONS
 // ==========================================
 const Map<String, String> enTranslations = {
+    'pixel_face_dealer': 'Sly',
+    'pixel_face_banker': 'Panic!',
+    'pixel_face_mechanic': 'Expert',
+    'pixel_face_notary': 'Official',
+    'pixel_face_gambler': 'Lucky',
     'badge_hyper_collection': 'HYPER COLLECTION',
     'hyper_1': 'BESPOKE HYPER COLLECTION 1/1',
     'hyper_2': 'FROM ROYAL GARAGE',

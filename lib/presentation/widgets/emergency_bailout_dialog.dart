@@ -11,6 +11,7 @@ import '../providers/game_provider.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
+import 'pixel_art/neo_brutal_pixel_face.dart';
 
 /// Neo-Brutalist emergency bailout dialog triggered when the player's balance is negative
 /// or nearing critical bankruptcy, providing actionable lifelines.
@@ -65,8 +66,11 @@ class _EmergencyBailoutDialogState
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 440),
-        child: NeoBrutalCard(
-          padding: const EdgeInsets.all(20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            NeoBrutalCard(
+              padding: const EdgeInsets.all(20),
           backgroundColor: isDark ? const Color(0xFF141721) : Colors.white,
           borderColor: AppColors.brutalRed,
           borderWidth: 3.0,
@@ -324,7 +328,18 @@ class _EmergencyBailoutDialogState
             ],
           ),
         ),
-      ),
-    );
+        const Positioned(
+          top: -18,
+          right: -10,
+          child: NeoBrutalPixelFaceWidget(
+            expression: PixelFaceExpression.panickedBanker,
+            showBadge: true,
+            size: 52,
+          ),
+        ),
+      ],
+    ),
+  ),
+);
   }
 }

@@ -9,6 +9,7 @@ import '../providers/game_provider.dart';
 import 'neo_brutal_badge.dart';
 import 'neo_brutal_button.dart';
 import 'neo_brutal_card.dart';
+import 'pixel_art/neo_brutal_pixel_face.dart';
 
 class DailyBulletinDialog extends ConsumerWidget {
   const DailyBulletinDialog({super.key});
@@ -44,8 +45,11 @@ class DailyBulletinDialog extends ConsumerWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: NeoBrutalCard(
-        padding: const EdgeInsets.all(18),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          NeoBrutalCard(
+            padding: const EdgeInsets.all(18),
         backgroundColor:
             isDark ? const Color(0xFF141721) : const Color(0xFFFFFBEB),
         borderColor: isDark ? const Color(0xFF333B4F) : const Color(0xFF0F172A),
@@ -263,6 +267,17 @@ class DailyBulletinDialog extends ConsumerWidget {
         ),
       ),
     ),
-  );
+    const Positioned(
+      top: -18,
+      right: -10,
+      child: NeoBrutalPixelFaceWidget(
+        expression: PixelFaceExpression.cunningDealer,
+        showBadge: true,
+        size: 52,
+      ),
+    ),
+  ],
+),
+);
   }
 }

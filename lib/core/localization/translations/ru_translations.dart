@@ -2,6 +2,11 @@
 // РУССКИЙ (ru) TRANSLATIONS
 // ==========================================
 const Map<String, String> ruTranslations = {
+    'pixel_face_dealer': 'Хитрый',
+    'pixel_face_banker': 'Паника!',
+    'pixel_face_mechanic': 'Мастер',
+    'pixel_face_notary': 'Официал',
+    'pixel_face_gambler': 'Удача',
     'badge_hyper_collection': 'ГИПЕРКОЛЛЕКЦИЯ',
     'hyper_1': 'ЭКСКЛЮЗИВНАЯ ГИПЕРКОЛЛЕКЦИЯ 1/1',
     'hyper_2': 'ИЗ КОРОЛЕВСКОГО ГАРАЖА',
